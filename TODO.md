@@ -2,7 +2,7 @@
 
 ## Als Nächstes
 - [ ] Klickbaren Design-Entwurf reviewen (Ben) → Feedback einarbeiten
-- [ ] Gamification-Konzept festlegen: Score/Level-System (Vorschlag: auf Basis geschätzter Maximalkraft/1RM)
+- [ ] Gamification-Konzept festlegen: **„Points“** (Arbeitstitel, Elo-artig, finaler Name offen) – Berechnungslogik klären (Vorschlag: Basis geschätzte Maximalkraft/1RM)
 - [ ] Inhalte der Fortschritt-Seite festlegen
 - [ ] Übungsdatenbank: Umfang und Kategorien festlegen (Name DE/EN, Muskelgruppe, Equipment)
 
@@ -16,6 +16,10 @@
 - [ ] Aktives Workout nach unten wischen → Mini-Leiste über der Menüleiste
 - [ ] Review nach „Fertig“ (Volumen, Highlights, Rekorde)
 - [ ] Fortschritt: Linien-Chart pro Übung
+- [ ] Fortschritt: **History-Leiste** mit den letzten 7 Tagen als Kacheln (aktiv ja/nein + welches Workout)
+- [ ] Fortschritt: History aufklappbar zu scroll-/klickbarem **Kalender** (welcher Tag, welches Workout)
+- [ ] Fortschritt: **Personal Bests** – Liste mit Übung, Gewicht, Datum
+- [ ] Fortschritt: „Letzter Push Day / Pull Day / … vor X Tagen“
 - [ ] Einstellungen: Sprache DE/EN, Farbumkehr
 - [ ] Veröffentlichung über GitHub Pages
 
@@ -26,7 +30,11 @@
 - [ ] Icons für Übungen
 
 ## Ideen-Parkplatz
-- 
+_Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App offen._
+- **Pausentage-Tracking**: Ø Pausentage zwischen gleichen Workout-Typen (z. B. zwischen zwei Push Days) und generell zwischen Trainingstagen (2026-11-01)
+- **Jahres-/Langzeitstatistik**: Wie viele Push/Pull/Leg Days im letzten Jahr, Monat etc. (2026-11-01)
+- **Points-Name**: finalen Namen für das Punktesystem finden (2026-11-01)
+- **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
 - [x] 2026-11-01 – Arbeitsweise (`CLAUDE.md`) und To-Do-Liste angelegt
