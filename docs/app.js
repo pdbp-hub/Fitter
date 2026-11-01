@@ -9,7 +9,8 @@ const EX = {
   legcurl:{de:'Beinbeuger',en:'Leg Curl',g:'legs',eq:'machine'}, legext:{de:'Beinstrecker',en:'Leg Extension',g:'legs',eq:'machine'}, calf:{de:'Wadenheben',en:'Calf Raise',g:'legs',eq:'machine'}
 };
 const APP_VERSION = '0.1.1';
-const STORE_KEY = 'fitter.v1';
+const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
+const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
   { id:'push', name:'Push Day', ex:[['bench',4],['incline',4],['ohp',4],['pushdown',4],['dips',3]] },
   { id:'pull', name:'Pull Day', ex:[['latpull',4],['row',4],['pullup',3],['curl',4],['hammer',3]] },
@@ -104,7 +105,7 @@ const T = {
       evening:['Work is over. Training begins.','End the day with a strong set.','Good evening, powerhouse.','Others hit the couch. You hit the gym.','Tonight we pump.'],
       night:['Night owl in the gym. Respect.','The weights never sleep.','Late, but here.','Empty gym, open floor.','Midnight gains.'] } }
 };
-Object.assign(T.de, { ptsWeek:n=>`+${n} diese Woche`, edit:'Bearbeiten', doneEdit:'Fertig', editWorkout:'Workout bearbeiten', delWorkout:'Workout löschen', delWTitle:'Workout löschen?', delWText:'Bisherige Trainings bleiben im Verlauf erhalten.', delYes:'Löschen', keep:'Behalten',
+Object.assign(T.de, { reseed:'Testdaten neu erzeugen', reseedText:'Ersetzt den Verlauf durch ca. 10 Wochen Beispieltrainings (nur Dev-Version).', ptsWeek:n=>`+${n} diese Woche`, edit:'Bearbeiten', doneEdit:'Fertig', editWorkout:'Workout bearbeiten', delWorkout:'Workout löschen', delWTitle:'Workout löschen?', delWText:'Bisherige Trainings bleiben im Verlauf erhalten.', delYes:'Löschen', keep:'Behalten',
   noData:'Noch keine Daten. Nach deinem ersten Training siehst du hier deinen Verlauf.', noPB:'Noch keine Rekorde – leg los!', noWorkouts:'Noch keine Workouts. Leg oben dein erstes an.', data:'Daten', localHint:'Alle Daten liegen nur auf diesem Gerät. Cloud-Speicherung kommt bald.',
   resetAll:'Alle Daten löschen', resetAllTitle:'Wirklich alle Daten löschen?', resetAllText:'Workouts, Verlauf und Einstellungen werden von diesem Gerät gelöscht. Das kann nicht rückgängig gemacht werden.', resetAllYes:'Ja, alles löschen', resetAllNo:'Abbrechen', version:'Version', readyHint:'Reihenfolge kannst du jetzt noch ändern – oder später im Workout.', resetTitle:'Satz-Timer zurücksetzen?', resetText:'Die bisherige Zeit wird der Pause davor zugerechnet.', resetYes:'Zurücksetzen', resetNo:'Abbrechen',
   perSet:'Geschätzte Maximalkraft (1RM) pro Satz', bestSet:'Bester Satz', vsLastTime:'vs. letztes Mal', strengthShort:'Kraft (1RM)', moreEx:'Weitere Übungen', profile:'Profil', profName:'Dein Name', account:'Account & Cloud-Sync', accountHint:'Kommt mit der Cloud-Version',
@@ -115,7 +116,7 @@ Object.assign(T.de, { ptsWeek:n=>`+${n} diese Woche`, edit:'Bearbeiten', doneEdi
     afternoon:['Zeit, den Tag abzuschütteln.','Nachmittagstief? Nicht mit dir.','Stärker als gestern.','Die beste Pause: ein guter Satz.','Bereit für einen Rekord?'],
     evening:['Feierabend heißt Training.','Stark in den Feierabend.','Guten Abend, Kraftpaket.','Andere chillen. Du trainierst.','Heute Abend wird gepumpt.'],
     night:['Nachteule im Gym. Respekt!','Die Hanteln schlafen nie.','Spät dran, aber am Start.','Leeres Gym, freie Bahn.','Mitternachtsgains.'] } });
-Object.assign(T.en, { ptsWeek:n=>`+${n} this week`, edit:'Edit', doneEdit:'Done', editWorkout:'Edit workout', delWorkout:'Delete workout', delWTitle:'Delete workout?', delWText:'Past sessions stay in your history.', delYes:'Delete', keep:'Keep',
+Object.assign(T.en, { reseed:'Regenerate test data', reseedText:'Replaces the history with about 10 weeks of sample sessions (dev version only).', ptsWeek:n=>`+${n} this week`, edit:'Edit', doneEdit:'Done', editWorkout:'Edit workout', delWorkout:'Delete workout', delWTitle:'Delete workout?', delWText:'Past sessions stay in your history.', delYes:'Delete', keep:'Keep',
   noData:'No data yet. After your first session you will see your progress here.', noPB:'No records yet – let’s go!', noWorkouts:'No workouts yet. Create your first one above.', data:'Data', localHint:'All data is stored on this device only. Cloud sync is coming soon.',
   resetAll:'Delete all data', resetAllTitle:'Really delete all data?', resetAllText:'Workouts, history and settings will be removed from this device. This cannot be undone.', resetAllYes:'Yes, delete everything', resetAllNo:'Cancel', version:'Version', readyHint:'You can still change the order now – or later during the workout.', resetTitle:'Reset set timer?', resetText:'The time so far is added to the rest before.', resetYes:'Reset', resetNo:'Cancel',
   perSet:'Estimated max strength (1RM) per set', bestSet:'Best set', vsLastTime:'vs. last time', strengthShort:'Strength (1RM)', moreEx:'More exercises', profile:'Profile', profName:'Your name', account:'Account & cloud sync', accountHint:'Coming with the cloud version',
@@ -698,9 +699,11 @@ function renderSettings() {
     </div>
     <div class="sect"><h2>${t('data')}</h2><p class="hint">${t('localHint')}</p>
       <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>
-      <p class="hint">${t('version')} ${APP_VERSION}</p></div>
+      ${ENV === 'dev' ? `<button class="ghostbtn" id="reseed" style="border-color:var(--line)">${t('reseed')}</button>` : ''}
+      <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p></div>
   </div>`;
   save();
+  $('reseed') && ($('reseed').onclick = () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); show('progress'); }]]));
   $('resetall').onclick = () => dialog(t('resetAllTitle'), t('resetAllText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => dialog(t('resetAllTitle'), '', [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); }]])]]);
   $('pname').onchange = e => { S.name = e.target.value; renderSettings(); };
   $('l-de').onclick = () => setLang('de'); $('l-en').onclick = () => setLang('en');
@@ -727,6 +730,21 @@ document.documentElement.lang = S.lang;
 applyClasses();
 greetText = greeting();
 document.querySelectorAll('[data-t]').forEach(el => el.textContent = t(el.dataset.t));
+// Dev version: fills the history with ~10 weeks of sample sessions
+function seedMock() {
+  const BASE = { bench:[72.5,8], incline:[24,10], ohp:[40,8], pushdown:[30,12], dips:[10,8], latpull:[60,10], row:[55,10], pullup:[-15,8], curl:[14,10], hammer:[16,10], squat:[90,6], legpress:[160,10], rdl:[70,10], calf:[80,12] };
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  HISTORY.length = 0; lastFinished = null;
+  for (let k = 0; k < 10; k++) [['push', 2], ['pull', 4], ['legs', 6]].forEach(([wid, off]) => {
+    const ago = off + 7 * k, w = DEFAULT_WORKOUTS.find(x => x.id === wid), d = new Date(); d.setDate(d.getDate() - ago); d.setHours(18, 10, 0, 0);
+    const ex = w.ex.map(([kk, n]) => { const [bw, br] = BASE[kk]; const wt = bw >= 0 ? r05(bw * (1 - ago * 0.0016)) : r05(bw - ago * 0.08);
+      return { k: kk, sets: Array.from({ length: n }, (_, j) => ({ w: wt, r: Math.max(3, br - (j > 1 ? 1 : 0) + (rnd() < .3 ? 1 : 0)), d: 35 + Math.round(rnd() * 25) })) }; });
+    const h = { id: 'm' + wid + ago, date: d.getTime(), wid, wname: w.name, dur: 48 + Math.round(rnd() * 20), ex }; h.pts = ptsOf(sessVol(h)); HISTORY.push(h);
+  });
+  refreshAgo();
+  Object.keys(EX).forEach(k => { const s = sessionsFor(k)[0]; if (s) LAST[k] = [s.top.w, s.top.r]; else delete LAST[k]; });
+}
+if (ENV === 'dev' && !STORED && !location.search.includes('noseed')) { seedMock(); save(); }
 if (STORED && STORED.lastFinished) { const h = HISTORY.find(x => x.id === STORED.lastFinished.histId); if (h) lastFinished = { W: deserW(STORED.lastFinished.w), hist: h, at: STORED.lastFinished.at }; }
 show('start');
 if (STORED && STORED.active) { W = deserW(STORED.active); renderW(); openW(); }

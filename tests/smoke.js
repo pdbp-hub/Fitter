@@ -1,4 +1,4 @@
-// Klick-Test für die App (docs/): node tests/smoke.js
+// Klick-Test für die App: node tests/smoke.js  (testet die Live-Version in docs/ und die Dev-Version in docs/dev/)
 // Startet mit leerem Speicher, trainiert ein Workout durch, lädt neu und prüft, dass alles gespeichert bleibt.
 // Jeder gefundene Bug bekommt hier einen eigenen Regressionstest (markiert mit "REGRESSION").
 const { chromium } = require('playwright');
@@ -6,6 +6,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.resolve(__dirname, '..', 'docs');
+const TARGET = process.argv[2] === 'dev' ? 'dev/' : '';          // node tests/smoke.js dev → kompletter Durchlauf in der Dev-Version
+const KEY = TARGET ? 'fitter.dev.v1' : 'fitter.v1';
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 
 (async () => {
@@ -27,10 +29,10 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   const ev = fn => page.evaluate(fn);
   const settle = () => page.waitForTimeout(450); // Sheet-Animationen abwarten
 
-  await page.goto(URL); await page.waitForTimeout(400);
+  await page.goto(URL + TARGET + (TARGET ? '?noseed' : '')); await page.waitForTimeout(400);
 
   console.log('PWA');
-  check('Manifest ist verlinkt und erreichbar', (await (await page.request.get(URL + 'manifest.webmanifest')).json()).display === 'standalone');
+  check('Manifest ist verlinkt und erreichbar', (await (await page.request.get(URL + TARGET + 'manifest.webmanifest')).json()).display === 'standalone');
   check('Service Worker registriert', await ev(async () => !!(await navigator.serviceWorker.getRegistration())));
   check('Startet leer: 0 Points', await ev(() => document.querySelector('.ptsline b').textContent.trim() === '0'));
 
@@ -76,7 +78,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   await click('#donebtn'); await settle();
   check('„Fertig“ im Review schließt das Workout (REGRESSION)', await ev(() => document.getElementById('wsheet').classList.contains('down')));
   await page.reload(); await page.waitForTimeout(500);
-  check('Training ist nach Neuladen im Verlauf', await ev(() => JSON.parse(localStorage.getItem('fitter.v1')).history.length === 1));
+  check('Training ist nach Neuladen im Verlauf', await page.evaluate(k => JSON.parse(localStorage.getItem(k)).history.length === 1, KEY));
   check('Points werden gezählt', await ev(() => document.querySelector('.ptsline b').textContent.trim() !== '0'));
   check('„Training fortsetzen“ bleibt nach Neuladen', await ev(() => !!document.getElementById('resume')));
 
@@ -113,6 +115,18 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   await click('#editmode'); await click('.witem'); await settle();
   await click('#o-del'); await click('[data-db="1"]'); await settle();
   check('Workout lässt sich löschen', await ev(() => ![...document.querySelectorAll('.wname')].some(e => e.textContent === 'Arm')));
+
+  if (!TARGET) {
+  console.log('Dev-Version');
+  const dev = await ctx.newPage(); dev.on('pageerror', e => errors.push('[dev] ' + e.message));
+  await dev.goto(URL + 'dev/'); await dev.waitForTimeout(500);
+  check('Dev startet mit Testdaten', await dev.evaluate(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).history.length >= 20));
+  check('Dev-Daten getrennt von Live-Daten', await dev.evaluate(() => JSON.parse(localStorage.getItem('fitter.v1')).history.length === 1));
+  check('Dev-Manifest heißt „Fitter Dev“', (await (await dev.request.get(URL + 'dev/manifest.webmanifest')).json()).name === 'Fitter Dev');
+  await dev.click('[data-tab=progress]', { force: true }); await dev.waitForTimeout(200);
+  check('Dev zeigt Charts mit Testdaten', await dev.evaluate(() => document.querySelectorAll('.chartbox').length === 3));
+  await dev.close();
+  }
 
   check('Keine JavaScript-Fehler', errors.length === 0);
   if (errors.length) console.log(errors.join('\n'));

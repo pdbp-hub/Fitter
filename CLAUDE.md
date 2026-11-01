@@ -16,6 +16,12 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
   - Erledigtes nach „Erledigt“ verschieben (mit Datum).
 - Keine Sprints, kein Overhead – nur die Liste.
 - **Testen wie ein zuverlässiger Coder**: Nach jeder Änderung `node tests/smoke.js` ausführen (klickt die echte App in `docs/` im Browser durch, inkl. Speichern/Neuladen). Jeder gefundene Bug bekommt dort einen eigenen Regressionstest, damit er nie wiederkommt.
+- **Dev → Live (immer einhalten)**:
+  - Neue Features und Änderungen **nur in `docs/dev/`** bauen (Dev-App, gelbes Icon, eigene Daten mit Testdaten).
+  - Tests: `node tests/smoke.js dev` (Dev komplett) und `node tests/smoke.js` (Live + Dev-Grundcheck).
+  - Live (`docs/`) wird **nur** geändert, wenn Ben „freigeben“ sagt: `python3 tools/release.py` → Tests → committen → pushen. Ausnahme: dringende Bugs, nur nach Rückfrage.
+  - `index.html`, `manifest.webmanifest`, `sw.js`, `icons/` sind pro Version eigenständig; geteilt wird nur `app.js` + `style.css` (per Release kopiert).
+  - Bei jeder Dev-Änderung `CACHE` in `docs/dev/sw.js` und `APP_VERSION` in `docs/dev/app.js` hochzählen.
 - **Info-i** öffnen immer ein schwebendes Fenster mit ✕ (kein Aufklappen im Seiteninhalt).
 - **Go-Live-Checkliste** (in `TODO.md`): Sobald Ben die App teilen oder live gehen will → zuerst die Checkliste prüfen und offene Punkte (Impressum, Datenschutz, getrennte Test-/Live-Version …) ansprechen, bevor es weitergeht.
 
@@ -58,5 +64,5 @@ Browser-App (PWA) zum Tracken des Gym-Fortschritts. Läuft im Browser und wird a
 - Hosting: **GitHub Pages** (kostenlos).
 - **Die echte App liegt in `docs/`** (`index.html`, `style.css`, `app.js`, `sw.js`, `manifest.webmanifest`, `icons/`). GitHub Pages veröffentlicht diesen Ordner.
 - Daten: `localStorage`, Schlüssel `fitter.v1` (Einstellungen, Workouts, eigene Übungen, Verlauf, laufendes Workout). Bei Änderungen am Datenformat Version hochzählen und alte Daten migrieren.
-- Bei jeder App-Änderung `CACHE` in `docs/sw.js` und `APP_VERSION` in `docs/app.js` hochzählen.
+- Live: https://pdbp-hub.github.io/Fitter/ · Dev: https://pdbp-hub.github.io/Fitter/dev/ (Speicherschlüssel `fitter.dev.v1`, startet mit ~10 Wochen Testdaten)
 - Entwürfe/Mockups liegen in `mockup/` (nur noch Designreferenz).

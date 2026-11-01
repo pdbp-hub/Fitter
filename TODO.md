@@ -1,7 +1,7 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **Entwicklerversion** mit Testdaten + Freigabe-Prozess (Vorschlag liegt Ben vor)
+- [ ] **Ben:** Dev-App auf dem Handy installieren (gelbes Icon)
 - [ ] Prüfen, ob der schwarze Rand unten auf dem iPhone weg ist (Ben)
 - [ ] Review-Feedback aus dem echten Test einarbeiten
 - [ ] **Claude (proaktiv):** Vorschlag für die Points-Berechnung ausarbeiten und Ben vorlegen (Arbeitstitel „Points“, Basis geschätzte Maximalkraft/1RM)
@@ -33,12 +33,13 @@
 _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist auf offene Punkte hin._
 - [ ] **Impressum**
 - [ ] **Datenschutzerklärung** + Einwilligungsabfrage (DSGVO)
-- [ ] **Getrennte Versionen**: Live-Version für Nutzer + Entwickler-/Testversion, die Ben vorher prüft und freigibt (erst nach Freigabe geht ein Update live)
+- [x] **Getrennte Versionen**: Live-Version für Nutzer + Entwickler-/Testversion, die Ben vorher prüft und freigibt (erst nach Freigabe geht ein Update live)
 - [ ] Daten in der Cloud mit Accounts (damit Nutzerdaten nicht verloren gehen)
 
 ## Später
 - [ ] Cloud-Speicherung + Accounts (Supabase)
 - [ ] Freunde: folgen, interagieren
+- [ ] **Läufe / Cardio** hinzufügen, ggf. auch aus externen Quellen (z. B. Apple Health, Strava) importieren (2026-11-01)
 - [ ] Logo entwerfen (ersetzt „TRAIN“ im Achteck)
 - [ ] **Icons für jede Übung** (simple Piktogramme, z. B. Person am Latzug) – in Workout, Übungssuche, Auswahl (2026-11-01)
 - [ ] Eigene Übungen mit Freunden teilen (2026-11-01)
@@ -59,6 +60,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] 2026-11-01 – Dev-Version unter `/dev/` (gelbes Icon, eigene Daten, Testdaten, „Testdaten neu erzeugen“) + Freigabe-Skript `tools/release.py` + Tests für beide Versionen
 - [x] 2026-11-01 – v0.1.1: Abstand unten auf dem iPhone verkleinert, neue Icons für Dips/Trizepsdrücken/Kabelzug, „Geschätzte Maximalkraft (1RM) pro Satz“, App für Suchmaschinen gesperrt (noindex)
 - [x] 2026-11-01 – **PWA v0.1.0** in `docs/`: echte Speicherung auf dem Gerät (auch laufendes Workout), Homescreen-Icon, offline nutzbar, Bildschirm bleibt beim Training an, Workouts bearbeiten/löschen, Daten zurücksetzen, Review-Kennzahlen zweizeilig, 33 automatische Tests
 - [x] 2026-11-01 – Entwurf v4: Startseite (Points, Diese Woche, einzeilige Begrüßung), Workout-Optik wie v2 + Zehneck-Timer oben mit Lade-Animation, Reset mit Nachfrage, Equipment-Icons, Review mit Satz-Chart + 3 Kennzahlen, Tag abwählbar, Tageskarte mit Zehnecken, Info-i als schwebendes Fenster, Profil, Puls-/Lade-Animation, Trend-Farben, automatischer Klick-Test (`tests/smoke.js`)
