@@ -6,6 +6,20 @@
 - [ ] Inhalte der Fortschritt-Seite festlegen
 - [ ] Übungsdatenbank: Umfang und Kategorien festlegen (Name DE/EN, Muskelgruppe, Equipment)
 
+## Feedback zu Entwurf v2 (2026-11-01) – umzusetzen in v3
+- Zehneck (symmetrisch) statt Achteck – überall
+- Menüleiste: TRAIN-Zehneck darf nicht durchsichtig sein (Inhalte scheinen durch)
+- Start: Points-Bereich entschlacken; Startseite darf nicht scrollen, wenn alles sichtbar ist
+- Auswahl: GO-Zehnecke pulsieren; lange Übungslisten (3+ Zeilen) sauber; „+“ deutlicher (z. B. „+ Neues Workout“)
+- Tastatur: Enter/„Fertig“ schließt Tastatur (auch Zahlenfelder, Körpergewicht)
+- Workout anlegen: Standard 4 Sätze; Reihenfolge per Ziehen (Griff ≡, wie Warteschlange); Zurück-Pfeil fragt „Wirklich verwerfen?“ (Primär: „Weiter bearbeiten“); Auswahl-Chips nicht im runden Standard-Look
+- Bereit-Screen: Ziehen statt Pfeile
+- Workout: nach letztem Satz automatisch zur nächsten Übung; nachträglich hinzugefügter Satz in früherer Übung muss startbar sein + klar als aktuell markiert; Hervorhebung aktueller Satz ohne „Kasten im Kasten“; Gesamt- und Satz-Timer immer sichtbar (sticky); Zehneck im Workout „bespielen“; Reset-Button für Satz-Timer; Wischen nach unten überall (auch Cooldown), nicht nur am Griff
+- Abbrechen-Dialog: „Weiter trainieren“ als Hauptbutton; Löschen mit zweiter Sicherheitsfrage; vorzeitig beendetes Training bis 30 min danach fortsetzbar
+- Review: wechselnde Slogans; 3 Highlights als Zehnecke; Vergleich zum letzten Mal (Chart/Highlight-Übung); Points prominenter
+- Fortschritt: keine Abkürzungen (PS/PL/LG) im Kalender; Tagesleiste horizontal scrollbar in die Vergangenheit + Pfeil „zurück zu heute“; Tag antippen → Tagesübersicht (alle Übungen/Sätze); „Zuletzt“-Zeile raus; Statistik-Überschrift „Letzte 30 Tage“; Trainingsminuten (Woche/Monat) als Kennzahl; Favoriten-Stern auch beim Workout anlegen/Übungssuche; Chart springt nach Loslassen zurück auf heute; Hinweis „Finger über Chart ziehen“ raus; Chart-Kennzahl überdenken (Vorschläge an Ben)
+- Einstellungen: Körpergewicht-Schalter verständlicher + Info-i; mehr Animationen (alle auf Zehneck-Basis)
+
 ## Version 1 (lokal auf dem Handy)
 - [ ] Grundgerüst als PWA (auf Homescreen legbar, iPhone + Android)
 - [ ] Menüleiste: Fortschritt | Start (TRAIN-Achteck) | Einstellungen
@@ -38,7 +52,7 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 - [ ] Cloud-Speicherung + Accounts (Supabase)
 - [ ] Freunde: folgen, interagieren
 - [ ] Logo entwerfen (ersetzt „TRAIN“ im Achteck)
-- [ ] Icons für Übungen
+- [ ] **Icons für jede Übung** (simple Piktogramme, z. B. Person am Latzug) – in Workout, Übungssuche, Auswahl (2026-11-01)
 - [ ] Eigene Übungen mit Freunden teilen (2026-11-01)
 - [ ] Optional später: Farbakzent (z. B. Blau für Prognose/Cooldown) – vorerst bewusst nur Schwarz-Weiß (2026-11-01)
 - [ ] **Community-Bereich** (Freunde folgen, Shared Workouts) – Menüleiste bleibt bei 3 Tabs, Einstieg z. B. über einen Community-Button im Train-Bereich (2026-11-01)

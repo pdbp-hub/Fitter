@@ -35,16 +35,17 @@ Browser-App (PWA) zum Tracken des Gym-Fortschritts. Läuft im Browser und wird a
 **Design**
 - Schwarz-Weiß, puristisch, sportlich, „cool“, nicht wie eine langweilige Kachel-App.
 - Standard: **schwarzer Hintergrund, weiße Akzente**. Einstellung „Farbumkehr“ (weißer Hintergrund) möglich.
-- Markenzeichen: **reguläres, symmetrisches Achteck** (weiß, schwarze Schrift). Start-Achteck pulsiert minimal, damit es klickbar wirkt.
+- Markenzeichen: **reguläres, symmetrisches Zehneck** (weiß, schwarze Schrift). Start-Achteck pulsiert minimal, damit es klickbar wirkt.
 - Vorerst **keine Farbakzente** (auch Prognose-Linie: weiß gestrichelt).
+- **Kein typischer KI-/Claude-Look**: keine runden Pillen-Chips, keine verschachtelten Kästen. Gerade Linien, scharfe Kanten, Zehneck als einzige „Sonderform“.
 - Inspiration (nicht kopieren!): Nike, Whoop, Apple – cleanes Setup.
 
 **Navigation (Menüleiste unten)**
 - Links: **Fortschritt** (Langzeittrends)
-- Mitte: **Start** – großes Achteck mit „TRAIN“ (Platzhalter fürs spätere Logo). Ist der Startbildschirm beim Öffnen.
+- Mitte: **Start** – großes Zehneck mit „TRAIN“ (Platzhalter fürs spätere Logo). Ist der Startbildschirm beim Öffnen.
 - Rechts: **Einstellungen** (1. Sprache DE/EN, 2. Farbumkehr)
 
-**Startseite**: Oben Points, in der Mitte großes Achteck mit wechselnder Begrüßung (20–30 Varianten, je nach Tageszeit, fitnessmäßig) und kurzem Call-to-Action. Tippen → Workout-Auswahl (Liste der Workouts, oben „+“ zum Anlegen) → Workout starten.
+**Startseite**: Oben Points, in der Mitte großes Zehneck mit wechselnder Begrüßung (20–30 Varianten, je nach Tageszeit, fitnessmäßig) und kurzem Call-to-Action. Tippen → Workout-Auswahl (Liste der Workouts, oben „+“ zum Anlegen) → Workout starten.
 
 **Sprache**: Deutsch und Englisch (umschaltbar in den Einstellungen).
 
