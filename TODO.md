@@ -1,8 +1,8 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] Klickbaren Design-Entwurf reviewen (Ben) → Feedback einarbeiten
-- [ ] Gamification-Konzept festlegen: **„Points“** (Arbeitstitel, Elo-artig, finaler Name offen) – Berechnungslogik klären (Vorschlag: Basis geschätzte Maximalkraft/1RM)
+- [ ] Entwurf v2 reviewen (Ben) → Feedback einarbeiten
+- [ ] **Claude (proaktiv):** Vorschlag für die Points-Berechnung ausarbeiten und Ben vorlegen (Arbeitstitel „Points“, Basis geschätzte Maximalkraft/1RM)
 - [ ] Inhalte der Fortschritt-Seite festlegen
 - [ ] Übungsdatenbank: Umfang und Kategorien festlegen (Name DE/EN, Muskelgruppe, Equipment)
 
@@ -21,6 +21,10 @@
 - [ ] Fortschritt: **Personal Bests** – Liste mit Übung, Gewicht, Datum
 - [ ] Fortschritt: „Letzter Push Day / Pull Day / … vor X Tagen“
 - [ ] Einstellungen: Sprache DE/EN, Farbumkehr
+- [ ] Einstellungen: Körpergewicht (mit Info-i) + Schalter „Körpergewicht in Points einrechnen“ (Standard: aus → Körpergewichtsübungen zählen nur mit Zusatzgewicht)
+- [ ] Einstellungen: Animation für Aufwärmen/Cooldown wählbar (5 Varianten)
+- [ ] Körpergewichtsübungen (Dips, Klimmzüge): Zusatzgewicht positiv und Unterstützung negativ (z. B. −20 kg)
+- [ ] Eigene Übungen anlegen (Name, Muskelgruppe, Equipment) – dauerhaft gespeichert
 - [ ] Veröffentlichung über GitHub Pages
 
 ## Go-Live-Checkliste (vor dem Teilen mit anderen / Veröffentlichung)
@@ -35,6 +39,8 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 - [ ] Freunde: folgen, interagieren
 - [ ] Logo entwerfen (ersetzt „TRAIN“ im Achteck)
 - [ ] Icons für Übungen
+- [ ] Eigene Übungen mit Freunden teilen (2026-11-01)
+- [ ] Optional später: Farbakzent (z. B. Blau für Prognose/Cooldown) – vorerst bewusst nur Schwarz-Weiß (2026-11-01)
 - [ ] **Community-Bereich** (Freunde folgen, Shared Workouts) – Menüleiste bleibt bei 3 Tabs, Einstieg z. B. über einen Community-Button im Train-Bereich (2026-11-01)
 - [ ] **Train-Bereich erweitern**: „Quick Start“ + „Eigene Workouts“ + vorgeschlagene/Preset-Workouts (2026-11-01)
 - [ ] **Monetarisierung** (langfristig): z. B. Preset-Workouts hinter einer Paywall (2026-11-01)
@@ -47,4 +53,5 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] 2026-11-01 – Entwurf v2: Achteck symmetrisch + pulsierend, Bereit-Screen mit Start, Aufwärmen/Cooldown mit 5 Animationen, Sätze pro Übung gruppiert & editierbar, Abbrechen-Dialog, eigene Übungen, Körpergewicht-Logik, Verlauf/Kalender, Personal Bests, Chart mit Scrubbing + Prognose
 - [x] 2026-11-01 – Arbeitsweise (`CLAUDE.md`) und To-Do-Liste angelegt
