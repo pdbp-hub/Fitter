@@ -15,6 +15,7 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
   - Sagt Ben „Idee: …“ oder „auf die Liste“ → in `TODO.md` eintragen, committen, pushen.
   - Erledigtes nach „Erledigt“ verschieben (mit Datum).
 - Keine Sprints, kein Overhead – nur die Liste.
+- **Go-Live-Checkliste** (in `TODO.md`): Sobald Ben die App teilen oder live gehen will → zuerst die Checkliste prüfen und offene Punkte (Impressum, Datenschutz, getrennte Test-/Live-Version …) ansprechen, bevor es weitergeht.
 
 ## Produktvision
 

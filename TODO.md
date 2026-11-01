@@ -23,11 +23,21 @@
 - [ ] Einstellungen: Sprache DE/EN, Farbumkehr
 - [ ] Veröffentlichung über GitHub Pages
 
+## Go-Live-Checkliste (vor dem Teilen mit anderen / Veröffentlichung)
+_Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist auf offene Punkte hin._
+- [ ] **Impressum**
+- [ ] **Datenschutzerklärung** + Einwilligungsabfrage (DSGVO)
+- [ ] **Getrennte Versionen**: Live-Version für Nutzer + Entwickler-/Testversion, die Ben vorher prüft und freigibt (erst nach Freigabe geht ein Update live)
+- [ ] Daten in der Cloud mit Accounts (damit Nutzerdaten nicht verloren gehen)
+
 ## Später
 - [ ] Cloud-Speicherung + Accounts (Supabase)
 - [ ] Freunde: folgen, interagieren
 - [ ] Logo entwerfen (ersetzt „TRAIN“ im Achteck)
 - [ ] Icons für Übungen
+- [ ] **Community-Bereich** (Freunde folgen, Shared Workouts) – Menüleiste bleibt bei 3 Tabs, Einstieg z. B. über einen Community-Button im Train-Bereich (2026-11-01)
+- [ ] **Train-Bereich erweitern**: „Quick Start“ + „Eigene Workouts“ + vorgeschlagene/Preset-Workouts (2026-11-01)
+- [ ] **Monetarisierung** (langfristig): z. B. Preset-Workouts hinter einer Paywall (2026-11-01)
 
 ## Ideen-Parkplatz
 _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App offen._
