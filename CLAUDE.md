@@ -15,7 +15,7 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
   - Sagt Ben „Idee: …“ oder „auf die Liste“ → in `TODO.md` eintragen, committen, pushen.
   - Erledigtes nach „Erledigt“ verschieben (mit Datum).
 - Keine Sprints, kein Overhead – nur die Liste.
-- **Testen wie ein zuverlässiger Coder**: Nach jeder Änderung `node tests/smoke.js` ausführen (klickt die App im Browser durch). Jeder gefundene Bug bekommt dort einen eigenen Regressionstest, damit er nie wiederkommt.
+- **Testen wie ein zuverlässiger Coder**: Nach jeder Änderung `node tests/smoke.js` ausführen (klickt die echte App in `docs/` im Browser durch, inkl. Speichern/Neuladen). Jeder gefundene Bug bekommt dort einen eigenen Regressionstest, damit er nie wiederkommt.
 - **Info-i** öffnen immer ein schwebendes Fenster mit ✕ (kein Aufklappen im Seiteninhalt).
 - **Go-Live-Checkliste** (in `TODO.md`): Sobald Ben die App teilen oder live gehen will → zuerst die Checkliste prüfen und offene Punkte (Impressum, Datenschutz, getrennte Test-/Live-Version …) ansprechen, bevor es weitergeht.
 
@@ -56,4 +56,7 @@ Browser-App (PWA) zum Tracken des Gym-Fortschritts. Läuft im Browser und wird a
 - **Phase 1 (Testversionen)**: Daten lokal im Browser des Handys. Datenmodell so bauen, dass der spätere Umzug einfach ist.
 - **Phase 2**: Cloud mit Accounts pro Nutzer, Empfehlung **Supabase** (Free Tier).
 - Hosting: **GitHub Pages** (kostenlos).
-- Entwürfe/Mockups liegen in `mockup/`.
+- **Die echte App liegt in `docs/`** (`index.html`, `style.css`, `app.js`, `sw.js`, `manifest.webmanifest`, `icons/`). GitHub Pages veröffentlicht diesen Ordner.
+- Daten: `localStorage`, Schlüssel `fitter.v1` (Einstellungen, Workouts, eigene Übungen, Verlauf, laufendes Workout). Bei Änderungen am Datenformat Version hochzählen und alte Daten migrieren.
+- Bei jeder App-Änderung `CACHE` in `docs/sw.js` und `APP_VERSION` in `docs/app.js` hochzählen.
+- Entwürfe/Mockups liegen in `mockup/` (nur noch Designreferenz).

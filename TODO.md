@@ -1,30 +1,31 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] Entwurf v4 reviewen (Ben) – danach Umbau zur echten PWA
+- [ ] **Ben:** GitHub Pages einschalten und App auf dem Handy testen
+- [ ] Review-Feedback aus dem echten Test einarbeiten
 - [ ] **Claude (proaktiv):** Vorschlag für die Points-Berechnung ausarbeiten und Ben vorlegen (Arbeitstitel „Points“, Basis geschätzte Maximalkraft/1RM)
 - [ ] Inhalte der Fortschritt-Seite festlegen
 - [ ] Übungsdatenbank: Umfang und Kategorien festlegen (Name DE/EN, Muskelgruppe, Equipment)
 
 ## Version 1 (lokal auf dem Handy)
-- [ ] Grundgerüst als PWA (auf Homescreen legbar, iPhone + Android)
-- [ ] Menüleiste: Fortschritt | Start (TRAIN-Achteck) | Einstellungen
-- [ ] Startseite mit Achteck, Begrüßungen nach Tageszeit (20–30 Varianten, DE/EN)
-- [ ] Workouts anlegen/bearbeiten, Übungen aus Datenbank suchen
-- [ ] Aktives Workout: Gesamttimer, Satz-/Pausen-/Aufwärm-Timer, Gewicht + Wdh. eintragen
-- [ ] Reihenfolge der Übungen während des Workouts ändern
-- [ ] Aktives Workout nach unten wischen → Mini-Leiste über der Menüleiste
-- [ ] Review nach „Fertig“ (Volumen, Highlights, Rekorde)
-- [ ] Fortschritt: Linien-Chart pro Übung
-- [ ] Fortschritt: **History-Leiste** mit den letzten 7 Tagen als Kacheln (aktiv ja/nein + welches Workout)
-- [ ] Fortschritt: History aufklappbar zu scroll-/klickbarem **Kalender** (welcher Tag, welches Workout)
-- [ ] Fortschritt: **Personal Bests** – Liste mit Übung, Gewicht, Datum
-- [ ] Fortschritt: „Letzter Push Day / Pull Day / … vor X Tagen“
-- [ ] Einstellungen: Sprache DE/EN, Farbumkehr
-- [ ] Einstellungen: Körpergewicht (mit Info-i) + Schalter „Körpergewicht in Points einrechnen“ (Standard: aus → Körpergewichtsübungen zählen nur mit Zusatzgewicht)
-- [ ] Einstellungen: Animation für Aufwärmen/Cooldown wählbar (5 Varianten)
-- [ ] Körpergewichtsübungen (Dips, Klimmzüge): Zusatzgewicht positiv und Unterstützung negativ (z. B. −20 kg)
-- [ ] Eigene Übungen anlegen (Name, Muskelgruppe, Equipment) – dauerhaft gespeichert
+- [x] Grundgerüst als PWA (auf Homescreen legbar, iPhone + Android)
+- [x] Menüleiste: Fortschritt | Start (TRAIN-Achteck) | Einstellungen
+- [x] Startseite mit Achteck, Begrüßungen nach Tageszeit (20–30 Varianten, DE/EN)
+- [x] Workouts anlegen/bearbeiten, Übungen aus Datenbank suchen
+- [x] Aktives Workout: Gesamttimer, Satz-/Pausen-/Aufwärm-Timer, Gewicht + Wdh. eintragen
+- [x] Reihenfolge der Übungen während des Workouts ändern
+- [x] Aktives Workout nach unten wischen → Mini-Leiste über der Menüleiste
+- [x] Review nach „Fertig“ (Volumen, Highlights, Rekorde)
+- [x] Fortschritt: Linien-Chart pro Übung
+- [x] Fortschritt: **History-Leiste** mit den letzten 7 Tagen als Kacheln (aktiv ja/nein + welches Workout)
+- [x] Fortschritt: History aufklappbar zu scroll-/klickbarem **Kalender** (welcher Tag, welches Workout)
+- [x] Fortschritt: **Personal Bests** – Liste mit Übung, Gewicht, Datum
+- [x] Fortschritt: „Letzter Push Day …“ → ersetzt durch Kalender/Tagesansicht
+- [x] Einstellungen: Sprache DE/EN, Farbumkehr
+- [x] Einstellungen: Körpergewicht (mit Info-i) + Schalter „Körpergewicht in Points einrechnen“ (Standard: aus → Körpergewichtsübungen zählen nur mit Zusatzgewicht)
+- [x] Einstellungen: Animation für Aufwärmen/Cooldown wählbar (5 Varianten)
+- [x] Körpergewichtsübungen (Dips, Klimmzüge): Zusatzgewicht positiv und Unterstützung negativ (z. B. −20 kg)
+- [x] Eigene Übungen anlegen (Name, Muskelgruppe, Equipment) – dauerhaft gespeichert
 - [ ] Veröffentlichung über GitHub Pages
 
 ## Go-Live-Checkliste (vor dem Teilen mit anderen / Veröffentlichung)
@@ -57,6 +58,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] 2026-11-01 – **PWA v0.1.0** in `docs/`: echte Speicherung auf dem Gerät (auch laufendes Workout), Homescreen-Icon, offline nutzbar, Bildschirm bleibt beim Training an, Workouts bearbeiten/löschen, Daten zurücksetzen, Review-Kennzahlen zweizeilig, 33 automatische Tests
 - [x] 2026-11-01 – Entwurf v4: Startseite (Points, Diese Woche, einzeilige Begrüßung), Workout-Optik wie v2 + Zehneck-Timer oben mit Lade-Animation, Reset mit Nachfrage, Equipment-Icons, Review mit Satz-Chart + 3 Kennzahlen, Tag abwählbar, Tageskarte mit Zehnecken, Info-i als schwebendes Fenster, Profil, Puls-/Lade-Animation, Trend-Farben, automatischer Klick-Test (`tests/smoke.js`)
 - [x] 2026-11-01 – Entwurf v3: Zehneck überall, Ziehen zum Sortieren, feste Workout-Kopfzeile mit Animation, Auto-Weiter zur nächsten Übung, Satz-Reset, Sicherheitsdialoge, Fortsetzen bis 30 min, Review mit 3 Zehnecken + Highlight-Übung + Detailliste, scrollbarer Verlauf + Tagesansicht, 3 Charts pro Übung mit Info-i, max. 3 Favoriten, 8 Animationen, Tastatur-„Fertig“
 - [x] 2026-11-01 – Entwurf v2: Achteck symmetrisch + pulsierend, Bereit-Screen mit Start, Aufwärmen/Cooldown mit 5 Animationen, Sätze pro Übung gruppiert & editierbar, Abbrechen-Dialog, eigene Übungen, Körpergewicht-Logik, Verlauf/Kalender, Personal Bests, Chart mit Scrubbing + Prognose

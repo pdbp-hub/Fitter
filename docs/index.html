@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fitter</title>
+<meta name="theme-color" content="#0b0b0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fitter">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+<div class="app" id="app">
+  <section class="screen" id="v-start"></section>
+  <section class="screen" id="v-select" hidden></section>
+  <section class="screen" id="v-progress" hidden></section>
+  <section class="screen" id="v-settings" hidden></section>
+
+  <button class="mini" id="mini" hidden>
+    <div><div class="mphase" id="m-phase"></div><div class="mname" id="m-name"></div></div>
+    <div class="mtime num" id="m-time"></div>
+  </button>
+
+  <nav class="nav">
+    <div class="navrow">
+      <button class="navbtn" data-tab="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19 L9 12 L13 15 L21 6"/><path d="M15 6 H21 V12"/></svg><span data-t="navProg"></span></button>
+      <button class="navoct dec" data-tab="start" aria-label="Start"><span>TRAIN</span></button>
+      <button class="navbtn" data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span data-t="navSet"></span></button>
+    </div>
+  </nav>
+
+  <section class="sheet down" id="wsheet">
+    <div class="handle" id="handle"><i></i></div>
+    <div class="whead" id="whead"><div></div></div>
+    <div class="screen" id="wbody"></div>
+    <div class="bar" id="wbar"><div></div></div>
+  </section>
+
+  <section class="sheet down" id="osheet">
+    <div class="screen" id="obody"></div>
+    <div class="bar" id="obar"><div></div></div>
+  </section>
+
+  <div class="overlay" id="overlay" hidden></div>
+  <button class="kbdone" id="kbdone" hidden></button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
