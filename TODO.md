@@ -1,7 +1,8 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **Ben:** Dev-App auf dem Handy installieren (gelbes Icon)
+- [ ] **Ben:** Dev v0.2.0 testen → „freigeben“ für Live
+- [ ] **Ben:** Entscheidung kraftbasiertes Points-System (Vorschlag liegt vor)
 - [ ] Prüfen, ob der schwarze Rand unten auf dem iPhone weg ist (Ben)
 - [ ] Review-Feedback aus dem echten Test einarbeiten
 - [ ] **Claude (proaktiv):** Vorschlag für die Points-Berechnung ausarbeiten und Ben vorlegen (Arbeitstitel „Points“, Basis geschätzte Maximalkraft/1RM)
@@ -60,6 +61,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] 2026-11-02 – Dev v0.2.0: Einstellungen in Unterseiten (Profil, Darstellung, Train, Fortschritt, Berechnungslogik, Daten), Erklärseite Points/1RM/Prognose/Trends, je 4 neue Puls- und Lade-Animationen, neues Trizepsdrücken-Icon, Prognose auf allen 3 Charts mit Info-i, Prognose-Zeitraum (inkl. Aus) + Rückblick einstellbar
 - [x] 2026-11-01 – Dev-Version unter `/dev/` (gelbes Icon, eigene Daten, Testdaten, „Testdaten neu erzeugen“) + Freigabe-Skript `tools/release.py` + Tests für beide Versionen
 - [x] 2026-11-01 – v0.1.1: Abstand unten auf dem iPhone verkleinert, neue Icons für Dips/Trizepsdrücken/Kabelzug, „Geschätzte Maximalkraft (1RM) pro Satz“, App für Suchmaschinen gesperrt (noindex)
 - [x] 2026-11-01 – **PWA v0.1.0** in `docs/`: echte Speicherung auf dem Gerät (auch laufendes Workout), Homescreen-Icon, offline nutzbar, Bildschirm bleibt beim Training an, Workouts bearbeiten/löschen, Daten zurücksetzen, Review-Kennzahlen zweizeilig, 33 automatische Tests

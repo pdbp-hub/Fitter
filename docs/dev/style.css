@@ -37,7 +37,15 @@ h2 { font-family: var(--display); font-weight: 800; font-size: 15px; text-transf
 .pulse { animation: p-breathe 2.6s ease-in-out infinite; }
 .pm-beat .pulse { animation: p-beat 1.6s ease-in-out infinite; }
 .pm-wobble .pulse { animation: p-wobble 2.4s ease-in-out infinite; }
+.pm-bounce .pulse { animation: p-bounce 1.8s ease-in-out infinite; }
+.pm-tilt .pulse { animation: p-tilt 2.8s ease-in-out infinite; }
+.pm-squash .pulse { animation: p-squash 2s ease-in-out infinite; }
+.pm-twist .pulse { animation: p-twist 3s ease-in-out infinite; }
 .pm-off .pulse { animation: none; }
+@keyframes p-bounce { 0%,60%,100% { transform: translateY(0) scale(1); } 20% { transform: translateY(-7px) scale(1.02); } 40% { transform: translateY(0) scale(1.03, .97); } }
+@keyframes p-tilt { 0%,100% { transform: perspective(500px) rotateY(0); } 25% { transform: perspective(500px) rotateY(16deg); } 75% { transform: perspective(500px) rotateY(-16deg); } }
+@keyframes p-squash { 0%,100% { transform: scale(1, 1); } 30% { transform: scale(1.06, .95); } 60% { transform: scale(.97, 1.04); } }
+@keyframes p-twist { 0%,100% { transform: rotate(0); } 50% { transform: rotate(18deg) scale(1.03); } }
 @keyframes p-breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 @keyframes p-beat { 0%,45%,100% { transform: scale(1); } 10% { transform: scale(1.07); } 20% { transform: scale(1.02); } 30% { transform: scale(1.06); } }
 @keyframes p-wobble { 0%,100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-4deg) scale(1.03); } 75% { transform: rotate(4deg) scale(1.03); } }
@@ -337,6 +345,12 @@ h2 { font-family: var(--display); font-weight: 800; font-size: 15px; text-transf
 .cool .a-spinr { animation-direction: normal; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .a-stack { animation-name: stack; }
+.a-orbit { animation-name: spin; animation-timing-function: linear; animation-duration: 3s; }
+.a-radar { animation-name: spin; animation-timing-function: linear; animation-duration: 2.4s; }
+.a-eq { animation-name: eq; transform-box: fill-box; transform-origin: 50% 100%; animation-duration: 1.3s; }
+@keyframes eq { 0%,100% { transform: scaleY(.2); } 50% { transform: scaleY(1); } }
+.a-draw { animation-name: draw; }
+@keyframes draw { 0% { stroke-dashoffset: 100; } 60%,100% { stroke-dashoffset: 0; } }
 @keyframes stack { 0%,100% { transform: scale(.55); opacity: .35; } 50% { transform: scale(1); opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) { *, .an { animation: none !important; transition: none !important; } }
@@ -347,3 +361,14 @@ html, body { margin: 0; overscroll-behavior: none; background: #0b0b0a; }
 body { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
 button { -webkit-user-select: none; user-select: none; touch-action: manipulation; }
 .search, .custom input { font-size: 16px; } /* iOS zooms into inputs below 16px */
+
+/* Settings sub pages */
+.sprow { width: 100%; text-align: left; }
+.sprow > span:last-child { font-size: 18px; color: var(--muted); }
+.setcol { flex-direction: column; align-items: stretch; }
+.setcol .seg { align-self: flex-start; flex-wrap: wrap; }
+.setcol .seg button { padding: 8px 12px; }
+.logic { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.logic:first-child { border-top: 1px solid var(--line); }
+.logic p { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.logic code { font-family: var(--mono); font-size: 12px; color: var(--fg); }

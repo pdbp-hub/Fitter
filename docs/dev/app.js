@@ -8,7 +8,7 @@ const EX = {
   squat:{de:'Kniebeuge',en:'Squat',g:'legs',eq:'bb'}, legpress:{de:'Beinpresse',en:'Leg Press',g:'legs',eq:'machine'}, rdl:{de:'Rumänisches Kreuzheben',en:'Romanian Deadlift',g:'legs',eq:'bb'},
   legcurl:{de:'Beinbeuger',en:'Leg Curl',g:'legs',eq:'machine'}, legext:{de:'Beinstrecker',en:'Leg Extension',g:'legs',eq:'machine'}, calf:{de:'Wadenheben',en:'Calf Raise',g:'legs',eq:'machine'}
 };
-const APP_VERSION = '0.1.1';
+const APP_VERSION = '0.2.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -16,7 +16,7 @@ const DEFAULT_WORKOUTS = [
   { id:'pull', name:'Pull Day', ex:[['latpull',4],['row',4],['pullup',3],['curl',4],['hammer',3]] },
   { id:'legs', name:'Leg Day',  ex:[['squat',4],['legpress',4],['rdl',4],['calf',4]] }
 ];
-const S = { lang:'de', inverted:false, anim:'breath', pulse:'breathe', trendColor:false, name:'', bodyweight:null, bwPoints:false, fav:['bench','latpull','squat'], chartKey:'bench' };
+const S = { lang:'de', inverted:false, anim:'breath', pulse:'breathe', trendColor:false, fcLook:8, fcHor:6, name:'', bodyweight:null, bwPoints:false, fav:['bench','latpull','squat'], chartKey:'bench' };
 const r05 = v => Math.round(v * 2) / 2;
 const STORED = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || null; } catch (e) { return null; } })();
 if (STORED && STORED.settings) Object.assign(S, STORED.settings);
@@ -105,22 +105,54 @@ const T = {
       evening:['Work is over. Training begins.','End the day with a strong set.','Good evening, powerhouse.','Others hit the couch. You hit the gym.','Tonight we pump.'],
       night:['Night owl in the gym. Respect.','The weights never sleep.','Late, but here.','Empty gym, open floor.','Midnight gains.'] } }
 };
-Object.assign(T.de, { reseed:'Testdaten neu erzeugen', reseedText:'Ersetzt den Verlauf durch ca. 10 Wochen Beispieltrainings (nur Dev-Version).', ptsWeek:n=>`+${n} diese Woche`, edit:'Bearbeiten', doneEdit:'Fertig', editWorkout:'Workout bearbeiten', delWorkout:'Workout löschen', delWTitle:'Workout löschen?', delWText:'Bisherige Trainings bleiben im Verlauf erhalten.', delYes:'Löschen', keep:'Behalten',
+Object.assign(T.de, { anims:{ breath:'Puls', fill:'Füllen', shards:'Splitter', mosaic:'Mosaik', rings:'Ringe', segments:'Segmente', spin:'Rotation', stack:'Stapel', orbit:'Orbit', radar:'Radar', eq:'Equalizer', draw:'Zeichnen' },
+  pulses:{ breathe:'Atmen', beat:'Herzschlag', wobble:'Wippen', bounce:'Hüpfen', tilt:'Kippen', squash:'Federn', twist:'Drehen', off:'Aus' },
+  spProfile:'Profil', spDisplay:'Darstellung', spTrain:'Train', spProgress:'Fortschritt', spLogic:'Berechnungslogik', spData:'Daten', spBack:'Einstellungen',
+  spDisplayHint:'Sprache, Farbumkehr', spTrainHint:'Puls- und Lade-Animationen', spProgressHint:'Trend-Farben, Prognose, Zeiträume', spLogicHint:'Wie Points, Trends und Prognosen berechnet werden', spDataHint:'Speicher, Zurücksetzen, Version',
+  fcTitle:'Prognose', fcHint:'Wie weit die gestrichelte Linie in die Zukunft reicht', fcOff:'Aus', weeksShort:'Wo.', lookTitle:'Rückblick', lookHint:'Wie viele Wochen in die Prognose einfließen', all:'Alle',
+  infoFc:(l,h)=>`Trend aus ${l ? 'den letzten ' + l + ' Wochen' : 'allen Daten'}, ${h} Wochen fortgeschrieben – wie Excels logarithmische Trendlinie. Sie flacht ab, weil Fortschritt mit der Zeit langsamer wird. Grau = Unsicherheit. Zeiträume änderst du in Einstellungen → Fortschritt.`,
+  logic:[
+    ['Points (vorläufig)', 'Pro Training: <code>Points = bewegtes Gewicht ÷ 250</code>, mindestens 5. „Diese Woche“ ist die Summe seit Montag. Das ist ein Platzhalter – ein kraftbasiertes System folgt.'],
+    ['Maximalkraft (1RM)', 'Geschätzt nach Epley aus jedem Satz: <code>1RM = Gewicht × (1 + Wdh. / 30)</code>. Pro Training zählt der beste Satz. Genau bis ca. 10–12 Wiederholungen.'],
+    ['Volumen / bewegtes Gewicht', '<code>Gewicht × Wiederholungen</code>, über alle Sätze addiert. Unterstützung (Minus-Gewicht) zählt als 0.'],
+    ['Arbeitsgewicht', 'Das schwerste Gewicht, das du in einem Training bei dieser Übung bewegt hast.'],
+    ['Prognose', 'Logarithmische Trendlinie (kleinste Quadrate) über die Trainings im Rückblick-Zeitraum, an den letzten echten Wert angesetzt und um den Prognose-Zeitraum verlängert. Der graue Bereich ist die typische Abweichung der echten Werte von der Trendlinie und wächst pro Woche um 35 %.'],
+    ['Trend-Farben', 'Grün, wenn der letzte Wert im Chart mindestens so hoch ist wie der erste; sonst rot.'],
+    ['Neue Rekorde', 'Ein Training zählt als Rekord, wenn das geschätzte 1RM einer Übung höher ist als alle früheren Werte dieser Übung.'],
+    ['Körpergewicht', 'Bei Dips, Klimmzügen & Co. zählt standardmäßig nur Zusatzgewicht. Mit „Körpergewicht mitzählen“ wird dein Körpergewicht addiert (Unterstützung wird abgezogen).'],
+    ['Vergleich zur Vorwoche', 'Bewegtes Gewicht dieser Woche (ab Montag) im Vergleich zur kompletten Vorwoche.'] ],
+  reseed:'Testdaten neu erzeugen', reseedText:'Ersetzt den Verlauf durch ca. 10 Wochen Beispieltrainings (nur Dev-Version).', ptsWeek:n=>`+${n} diese Woche`, edit:'Bearbeiten', doneEdit:'Fertig', editWorkout:'Workout bearbeiten', delWorkout:'Workout löschen', delWTitle:'Workout löschen?', delWText:'Bisherige Trainings bleiben im Verlauf erhalten.', delYes:'Löschen', keep:'Behalten',
   noData:'Noch keine Daten. Nach deinem ersten Training siehst du hier deinen Verlauf.', noPB:'Noch keine Rekorde – leg los!', noWorkouts:'Noch keine Workouts. Leg oben dein erstes an.', data:'Daten', localHint:'Alle Daten liegen nur auf diesem Gerät. Cloud-Speicherung kommt bald.',
   resetAll:'Alle Daten löschen', resetAllTitle:'Wirklich alle Daten löschen?', resetAllText:'Workouts, Verlauf und Einstellungen werden von diesem Gerät gelöscht. Das kann nicht rückgängig gemacht werden.', resetAllYes:'Ja, alles löschen', resetAllNo:'Abbrechen', version:'Version', readyHint:'Reihenfolge kannst du jetzt noch ändern – oder später im Workout.', resetTitle:'Satz-Timer zurücksetzen?', resetText:'Die bisherige Zeit wird der Pause davor zugerechnet.', resetYes:'Zurücksetzen', resetNo:'Abbrechen',
   perSet:'Geschätzte Maximalkraft (1RM) pro Satz', bestSet:'Bester Satz', vsLastTime:'vs. letztes Mal', strengthShort:'Kraft (1RM)', moreEx:'Weitere Übungen', profile:'Profil', profName:'Dein Name', account:'Account & Cloud-Sync', accountHint:'Kommt mit der Cloud-Version',
-  display:'Darstellung', animations:'Animationen', pulseTitle:'Puls-Animation', pulseHint:'Für „Los geht’s“ und die GO-Buttons', pulses:{ breathe:'Atmen', beat:'Herzschlag', wobble:'Wippen', off:'Aus' },
+  display:'Darstellung', animations:'Animationen', pulseTitle:'Puls-Animation', pulseHint:'Für „Los geht’s“ und die GO-Buttons', 
   loadTitle:'Lade-Animation', loadHint:'Läuft beim Aufwärmen, im Training (im Zehneck oben) und beim Cooldown – dort rückwärts.', trendColor:'Trend-Farben', trendColorHint:'Charts grün bei Aufwärtstrend, rot bei Abwärtstrend',
   greet:{ morning:['Früher Vogel, schwere Gewichte.','Morgen! Die Hanteln warten.','Kaffee? Nach dem letzten Satz.','Der Tag gehört dir.','Morgens trainiert, ganztags stolz.'],
     noon:['Mittagspause? Trainingspause!','Halbzeit. Volle Kraft.','Kurze Pause, große Gewichte.','Mittags ist die Bank frei.','Energie tanken – mit Eisen.'],
     afternoon:['Zeit, den Tag abzuschütteln.','Nachmittagstief? Nicht mit dir.','Stärker als gestern.','Die beste Pause: ein guter Satz.','Bereit für einen Rekord?'],
     evening:['Feierabend heißt Training.','Stark in den Feierabend.','Guten Abend, Kraftpaket.','Andere chillen. Du trainierst.','Heute Abend wird gepumpt.'],
     night:['Nachteule im Gym. Respekt!','Die Hanteln schlafen nie.','Spät dran, aber am Start.','Leeres Gym, freie Bahn.','Mitternachtsgains.'] } });
-Object.assign(T.en, { reseed:'Regenerate test data', reseedText:'Replaces the history with about 10 weeks of sample sessions (dev version only).', ptsWeek:n=>`+${n} this week`, edit:'Edit', doneEdit:'Done', editWorkout:'Edit workout', delWorkout:'Delete workout', delWTitle:'Delete workout?', delWText:'Past sessions stay in your history.', delYes:'Delete', keep:'Keep',
+Object.assign(T.en, { anims:{ breath:'Pulse', fill:'Fill', shards:'Shards', mosaic:'Mosaic', rings:'Rings', segments:'Segments', spin:'Spin', stack:'Stack', orbit:'Orbit', radar:'Radar', eq:'Equalizer', draw:'Draw' },
+  pulses:{ breathe:'Breathe', beat:'Heartbeat', wobble:'Wobble', bounce:'Bounce', tilt:'Tilt', squash:'Squash', twist:'Twist', off:'Off' },
+  spProfile:'Profile', spDisplay:'Display', spTrain:'Train', spProgress:'Progress', spLogic:'Calculation logic', spData:'Data', spBack:'Settings',
+  spDisplayHint:'Language, invert colours', spTrainHint:'Pulse and loading animations', spProgressHint:'Trend colours, forecast, time ranges', spLogicHint:'How points, trends and forecasts are calculated', spDataHint:'Storage, reset, version',
+  fcTitle:'Forecast', fcHint:'How far the dashed line reaches into the future', fcOff:'Off', weeksShort:'wk', lookTitle:'Look-back', lookHint:'How many weeks feed into the forecast', all:'All',
+  infoFc:(l,h)=>`Trend of ${l ? 'the last ' + l + ' weeks' : 'all data'}, extended by ${h} weeks – like Excel’s logarithmic trendline. It flattens because progress slows over time. Grey = uncertainty. Change the ranges in Settings → Progress.`,
+  logic:[
+    ['Points (preliminary)', 'Per session: <code>points = weight moved ÷ 250</code>, at least 5. “This week” is the sum since Monday. This is a placeholder – a strength-based system will follow.'],
+    ['Max strength (1RM)', 'Estimated with Epley from every set: <code>1RM = weight × (1 + reps / 30)</code>. The best set per session counts. Accurate up to about 10–12 reps.'],
+    ['Volume / weight moved', '<code>weight × reps</code>, summed over all sets. Assistance (negative weight) counts as 0.'],
+    ['Working weight', 'The heaviest weight you moved for this exercise in a session.'],
+    ['Forecast', 'Logarithmic trendline (least squares) over the sessions in the look-back range, attached to the last real value and extended by the forecast range. The grey area is the typical deviation of real values from the trendline and grows 35 % per week.'],
+    ['Trend colours', 'Green if the last value in the chart is at least as high as the first; red otherwise.'],
+    ['New records', 'A session counts as a record when the estimated 1RM of an exercise beats all earlier values of that exercise.'],
+    ['Body weight', 'For dips, pull-ups & co. only extra weight counts by default. With “Count body weight” your body weight is added (assistance is subtracted).'],
+    ['Vs. last week', 'Weight moved this week (since Monday) compared with the whole previous week.'] ],
+  reseed:'Regenerate test data', reseedText:'Replaces the history with about 10 weeks of sample sessions (dev version only).', ptsWeek:n=>`+${n} this week`, edit:'Edit', doneEdit:'Done', editWorkout:'Edit workout', delWorkout:'Delete workout', delWTitle:'Delete workout?', delWText:'Past sessions stay in your history.', delYes:'Delete', keep:'Keep',
   noData:'No data yet. After your first session you will see your progress here.', noPB:'No records yet – let’s go!', noWorkouts:'No workouts yet. Create your first one above.', data:'Data', localHint:'All data is stored on this device only. Cloud sync is coming soon.',
   resetAll:'Delete all data', resetAllTitle:'Really delete all data?', resetAllText:'Workouts, history and settings will be removed from this device. This cannot be undone.', resetAllYes:'Yes, delete everything', resetAllNo:'Cancel', version:'Version', readyHint:'You can still change the order now – or later during the workout.', resetTitle:'Reset set timer?', resetText:'The time so far is added to the rest before.', resetYes:'Reset', resetNo:'Cancel',
   perSet:'Estimated max strength (1RM) per set', bestSet:'Best set', vsLastTime:'vs. last time', strengthShort:'Strength (1RM)', moreEx:'More exercises', profile:'Profile', profName:'Your name', account:'Account & cloud sync', accountHint:'Coming with the cloud version',
-  display:'Display', animations:'Animations', pulseTitle:'Pulse animation', pulseHint:'For “Let’s go” and the GO buttons', pulses:{ breathe:'Breathe', beat:'Heartbeat', wobble:'Wobble', off:'Off' },
+  display:'Display', animations:'Animations', pulseTitle:'Pulse animation', pulseHint:'For “Let’s go” and the GO buttons', 
   loadTitle:'Loading animation', loadHint:'Runs during warm-up, training (in the decagon on top) and cool-down – reversed there.', trendColor:'Trend colours', trendColorHint:'Charts green when trending up, red when trending down',
   greet:{ morning:['Early bird, heavy weights.','Morning! The weights are waiting.','Coffee? After the last set.','Own the day.','Train early, proud all day.'],
     noon:['Lunch break? Lift break!','Halftime. Full power.','Short break, big weights.','The bench is free at noon.','Refuel with iron.'],
@@ -169,7 +201,7 @@ const ICON = {
   custom:'<path d="M12 5v14M5 12h14"/>' };
 const ICON_EX = {
   dips:'<path d="M2 11h6M16 11h6M4.5 11v11M19.5 11v11"/><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v7.5"/><path d="M12 8.5l-4.5 2.5M12 8.5l4.5 2.5"/><path d="M12 14l-1.5 3.5 1.5 3.5M12 14l1.5 3.5"/>',
-  pushdown:'<path d="M3 2.5h18"/><path d="M12 2.5v1.5"/><circle cx="12" cy="6.5" r="2.5"/><path d="M12 9v4"/><path d="M12 13l-3.5 4M12 13l3.5 4"/><circle cx="8.5" cy="17.6" r="1.1"/><circle cx="15.5" cy="17.6" r="1.1"/><path d="M9 21.5l3-1.8 3 1.8"/>',
+  pushdown:'<circle cx="8.5" cy="4.6" r="2"/><path d="M8.5 6.6v8.4M8.5 15l-2 6.5M8.5 15l2 6.5"/><path d="M8.5 8.5l2 4.2 4.5-.2"/><path d="M14 1.5h7"/><circle cx="17.5" cy="3.6" r="1.4"/><path d="M17.5 5v7.5"/><path d="M14.5 12.5h5"/>',
   pullup:'<path d="M2.5 3h19"/><path d="M7 3l3.5 6.5M17 3l-3.5 6.5"/><circle cx="12" cy="9.2" r="2"/><path d="M12 11.2v5.8M12 17l-2.2 4.5M12 17l2.2 4.5"/>' };
 const ico = k => `<span class="ico" title="${esc(t('eqs')[EX[k].eq])}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">${EX[k].custom ? ICON.custom : (ICON_EX[k] || ICON[EX[k].eq])}</svg></span>`;
 const GRIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 12h14M5 16h14"/></svg>';
@@ -187,6 +219,10 @@ function animSVG(kind, cool, paused) {
   if (kind === 'rings') { for (let i = 0; i < 4; i++) s += `<polygon class="an a-in" style="animation-delay:${(i*.65).toFixed(2)}s" points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="5"/>`; s += `<polygon points="${P(decPts(100,100,20))}" fill="var(--fg)"/>`; }
   if (kind === 'segments') { o.forEach((p, i) => { const q = o[(i+1)%10]; s += `<line class="an a-seg" style="animation-delay:${(i*.26).toFixed(2)}s" x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}" stroke="var(--fg)" stroke-width="12"/>`; }); s += `<polygon points="${P(decPts(100,100,52))}" fill="var(--fg)"/>`; }
   if (kind === 'spin') s = `<polygon class="an a-spin" points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="5"/><polygon class="an a-spinr" points="${P(decPts(100,100,64))}" fill="none" stroke="var(--fg)" stroke-width="5"/><polygon points="${P(decPts(100,100,34))}" fill="var(--fg)"/>`;
+  if (kind === 'orbit') s = `<polygon points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="3" opacity=".5"/><polygon points="${P(decPts(100,100,30))}" fill="var(--fg)"/><g class="an a-orbit"><polygon points="${P(decPts(100,30,17))}" fill="var(--fg)"/></g>`;
+  if (kind === 'radar') s = `<defs><clipPath id="${id}"><polygon points="${P(o)}"/></clipPath></defs><polygon points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="4"/><polygon points="${P(decPts(100,100,60))}" fill="none" stroke="var(--fg)" stroke-width="2" opacity=".4"/><g clip-path="url(#${id})"><path class="an a-radar" d="M100 100 L100 0 A100 100 0 0 1 186.6 50 Z" fill="var(--fg)" opacity=".85"/></g>`;
+  if (kind === 'eq') { s = `<defs><clipPath id="${id}"><polygon points="${P(o)}"/></clipPath></defs><polygon points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="4"/><g clip-path="url(#${id})">`; for (let i = 0; i < 7; i++) s += `<rect class="an a-eq" style="animation-delay:${(i * .13).toFixed(2)}s" x="${20 + i * 23}" y="10" width="15" height="185" fill="var(--fg)"/>`; s += '</g>'; }
+  if (kind === 'draw') s = `<polygon class="an a-draw" pathLength="100" stroke-dasharray="100" points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="10"/><polygon class="an a-draw" style="animation-delay:.4s" pathLength="100" stroke-dasharray="100" points="${P(decPts(100,100,56))}" fill="none" stroke="var(--fg)" stroke-width="10"/>`;
   if (kind === 'stack') for (let i = 0; i < 3; i++) s += `<polygon class="an a-stack" style="animation-delay:${(i*.35).toFixed(2)}s" points="${P(decPts(100,100,R - i*28))}" fill="${i===2?'var(--fg)':'none'}" stroke="var(--fg)" stroke-width="5"/>`;
   return `<svg viewBox="0 0 200 200" class="${cool ? 'cool' : ''} ${paused ? 'paused' : ''}" aria-hidden="true">${s}</svg>`;
 }
@@ -235,7 +271,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 /* ---------- Tabs ---------- */
 let tab = 'start';
 function show(view) {
-  refreshAgo(); tab = view; if ($('popover')) $('popover').hidden = true;
+  refreshAgo(); if (view !== 'settings') setPage = null; tab = view; if ($('popover')) $('popover').hidden = true;
   ['start','select','progress','settings'].forEach(v => $('v-'+v).hidden = v !== view);
   document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('on', b.dataset.tab === view));
   document.querySelector('.navoct').classList.toggle('off', !(view === 'start' || view === 'select'));
@@ -555,12 +591,15 @@ function renderPickList() {
 
 /* ---------- Progress ---------- */
 let calOpen = false, calMonth = 0, selDay = null, dayOpen = false, info = {};
-function forecast(d) {
-  const ys = d.slice(-8), n = ys.length, xs = ys.map((_, i) => Math.log(i + 1));
+function forecast(d, ss) {
+  const H = S.fcHor || 0; if (!H) return [];
+  const lastAgo = ss[ss.length - 1].ago, keep = S.fcLook ? ss.map(x => x.ago - lastAgo <= S.fcLook * 7) : ss.map(() => true);
+  const ys = d.filter((_, i) => keep[i]), n = ys.length; if (n < 3) return [];
+  const xs = ys.map((_, i) => Math.log(i + 1));
   const mx = xs.reduce((a, b) => a + b) / n, my = ys.reduce((a, b) => a + b) / n;
   const b = xs.reduce((a, x, i) => a + (x - mx) * (ys[i] - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0); const a = my - b * mx;
   const sd = Math.sqrt(ys.reduce((s, y, i) => s + (y - (a + b * xs[i])) ** 2, 0) / n) || 1, shift = ys[n-1] - (a + b * Math.log(n));
-  return Array.from({length:6}, (_, h) => ({ y: a + b * Math.log(n + h + 1) + shift, band: sd * (1 + .35 * (h + 1)) }));
+  return Array.from({length:H}, (_, h) => ({ y: Math.max(0, a + b * Math.log(n + h + 1) + shift), band: sd * (1 + .35 * (h + 1)) }));
 }
 const histOn = ago => HISTORY.find(h => h.ago === ago);
 function renderProgress() {
@@ -628,17 +667,17 @@ function renderCharts() {
   if (ss.every(s => s.best <= 0)) { wrap.innerHTML = `<div class="empty">${t('bwEmpty')}</div>`; return; }
   const defs = [
     { id:'str', title:t('chStrength'), info:'info1rm', data:ss.map(s => s.best), fc:true },
-    { id:'vol', title:t('chVolume'), info:'infoVol', data:ss.map(s => s.vol) },
-    { id:'wgt', title:t('chWeight'), info:'infoWeight', data:ss.map(s => effW(k, s.top.w)) }
+    { id:'vol', title:t('chVolume'), info:'infoVol', data:ss.map(s => s.vol), fc:true },
+    { id:'wgt', title:t('chWeight'), info:'infoWeight', data:ss.map(s => effW(k, s.top.w)), fc:true }
   ];
-  wrap.innerHTML = defs.map(d => `<div class="chartbox"><div class="charthead"><h2>${d.title}<button class="info" data-info="${d.info}" aria-label="Info">i</button></h2><span class="val num" id="val-${d.id}"></span></div><svg class="chart" id="ch-${d.id}" role="img" aria-label="${d.title}"></svg>${d.fc ? `<div class="legend"><span><i></i>${t('trend')}</span><span><i class="dash"></i>${t('forecast')}</span><button class="info" data-info="infoFc" aria-label="Info" style="margin-left:-8px">i</button></div>` : ''}</div>`).join('');
-  wrap.querySelectorAll('[data-info]').forEach(b => b.onclick = () => showInfo(t(b.dataset.info)));
+  wrap.innerHTML = defs.map(d => `<div class="chartbox"><div class="charthead"><h2>${d.title}<button class="info" data-info="${d.info}" aria-label="Info">i</button></h2><span class="val num" id="val-${d.id}"></span></div><svg class="chart" id="ch-${d.id}" role="img" aria-label="${d.title}"></svg>${d.fc && S.fcHor ? `<div class="legend"><span><i></i>${t('trend')}</span><span><i class="dash"></i>${t('forecast')}</span><button class="info" data-info="infoFc" aria-label="Info" style="margin-left:-8px">i</button></div>` : ''}</div>`).join('');
+  wrap.querySelectorAll('[data-info]').forEach(b => b.onclick = () => showInfo(b.dataset.info === 'infoFc' ? t('infoFc', S.fcLook, S.fcHor) : t(b.dataset.info)));
   defs.forEach(d => drawChart(d, ss));
 }
 function drawChart(def, ss) {
-  const d = def.data, f = def.fc && d.length >= 4 ? forecast(d) : [], all = d.length + f.length, li = d.length - 1;
+  const d = def.data, f = def.fc && d.length >= 4 ? forecast(d, ss) : [], all = d.length + f.length, li = d.length - 1;
   const col = S.trendColor ? (d[li] >= d[0] ? 'var(--up)' : 'var(--down)') : 'var(--fg)';
-  const W0 = 340, H0 = def.fc ? 200 : 150, L = 40, R = 12, Tp = 12, B = 22;
+  const W0 = 340, H0 = f.length ? 200 : 160, L = 40, R = 12, Tp = 12, B = 22;
   const vals = d.concat(f.map(p => p.y + p.band), f.map(p => p.y - p.band));
   let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * .15 || 5; lo -= pad; hi += pad;
   const x = i => L + i * (W0 - L - R) / Math.max(1, all - 1), y = v => Tp + (hi - v) * (H0 - Tp - B) / (hi - lo);
@@ -674,44 +713,71 @@ function drawChart(def, ss) {
 }
 
 /* ---------- Settings ---------- */
-const PULSE = { breathe:'p-breathe 2.6s', beat:'p-beat 1.6s', wobble:'p-wobble 2.4s', off:'none' };
+const PULSE = { breathe:'p-breathe 2.6s', beat:'p-beat 1.6s', wobble:'p-wobble 2.4s', bounce:'p-bounce 1.8s', tilt:'p-tilt 2.8s', squash:'p-squash 2s', twist:'p-twist 3s', off:'none' };
+let setPage = null;
 function renderSettings() {
   const initials = (S.name.trim().split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
   const tog = (id, on, dis) => `<button class="toggle" id="${id}" role="switch" aria-checked="${on}" ${dis ? 'disabled' : ''}><i></i></button>`;
-  $('v-settings').innerHTML = `<div class="inner"><h1>${t('settings')}</h1>
-    <div class="sect" style="border-top:0;padding-top:0"><h2>${t('profile')}</h2>
-      <div class="profile"><span class="avatar dec">${esc(initials)}</span><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"></div>
+  const seg = (attr, opts, cur) => `<div class="seg">${opts.map(([v, l]) => `<button data-${attr}="${v}" class="${cur === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  const head = title => `<div class="row"><button class="iconbtn" id="spback" aria-label="${t('spBack')}">←</button><span class="eyebrow">${t('spBack')}</span><span style="width:44px"></span></div><h1>${title}</h1>`;
+  let h = '';
+  if (!setPage) {
+    const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div><span>→</span></button>`;
+    h = `<h1>${t('settings')}</h1><div>
+      ${item('profile', S.name.trim() || t('spProfile'), t('bodyweight') + (S.bodyweight ? ' ' + fmtW(S.bodyweight) + ' kg' : ''), `<span class="avatar dec" style="width:48px;height:48px;font-size:17px">${esc(initials)}</span>`)}
+      ${item('display', t('spDisplay'), t('spDisplayHint'))}
+      ${item('train', t('spTrain'), t('spTrainHint'))}
+      ${item('progress', t('spProgress'), t('spProgressHint'))}
+      ${item('logic', t('spLogic'), t('spLogicHint'))}
+      ${item('data', t('spData'), t('spDataHint'))}</div>
+      <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
+  } else if (setPage === 'profile') {
+    h = head(t('spProfile')) + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"></div>
       <div>
         <div class="setrow"><div><b>${t('bodyweight')}</b><p>${t('bwHint')}</p></div><label class="kgin"><input id="bw" inputmode="decimal" enterkeyhint="done" class="num" placeholder="—" value="${S.bodyweight ? fmtW(S.bodyweight) : ''}"><span>kg</span></label></div>
         <div class="setrow"><div><b>${t('bwPoints')}</b><button class="info" id="bwi" aria-label="Info">i</button><p>${S.bodyweight ? t('bwPointsHint') : t('bwPointsOff')}</p></div>${tog('bwp', S.bwPoints, !S.bodyweight)}</div>
         <div class="setrow" style="opacity:.45"><div><b>${t('account')}</b><p>${t('accountHint')}</p></div><span>→</span></div>
-      </div></div>
-    <div class="sect"><h2>${t('display')}</h2><div>
+      </div>`;
+  } else if (setPage === 'display') {
+    h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
-      <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div>
-      <div class="setrow"><div><b>${t('trendColor')}</b><p>${t('trendColorHint')}</p></div>${tog('trc', S.trendColor)}</div>
-    </div></div>
-    <div class="sect"><h2>${t('animations')}</h2>
-      <div><b>${t('pulseTitle')}</b><p class="hint" style="margin-top:4px">${t('pulseHint')}</p></div>
+      <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div></div>`;
+  } else if (setPage === 'train') {
+    h = head(t('spTrain')) + `<div><b>${t('pulseTitle')}</b><p class="hint" style="margin-top:4px">${t('pulseHint')}</p></div>
       <div class="anims">${Object.keys(T.de.pulses).map(k => `<button class="animopt ${S.pulse===k?'on':''}" data-pulse="${k}"><span class="pvdec dec" style="animation:${PULSE[k]} ease-in-out infinite"></span><span>${t('pulses')[k]}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('loadTitle')}</b><p class="hint" style="margin-top:4px">${t('loadHint')}</p></div>
-      <div class="anims">${Object.keys(T.de.anims).map(k => `<button class="animopt ${S.anim===k?'on':''}" data-anim="${k}">${animSVG(k, false)}<span>${t('anims')[k]}</span></button>`).join('')}</div>
-    </div>
-    <div class="sect"><h2>${t('data')}</h2><p class="hint">${t('localHint')}</p>
+      <div class="anims">${Object.keys(T.de.anims).map(k => `<button class="animopt ${S.anim===k?'on':''}" data-anim="${k}">${animSVG(k, false)}<span>${t('anims')[k]}</span></button>`).join('')}</div>`;
+  } else if (setPage === 'progress') {
+    const wk = t('weeksShort');
+    h = head(t('spProgress')) + `<div>
+      <div class="setrow"><div><b>${t('trendColor')}</b><p>${t('trendColorHint')}</p></div>${tog('trc', S.trendColor)}</div>
+      <div class="setrow setcol"><div><b>${t('fcTitle')}</b><button class="info" id="fci" aria-label="Info">i</button><p>${t('fcHint')}</p></div>${seg('fch', [[0, t('fcOff')], [4, '4 ' + wk], [6, '6 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk]], S.fcHor)}</div>
+      <div class="setrow setcol" ${S.fcHor ? '' : 'style="opacity:.4;pointer-events:none"'}><div><b>${t('lookTitle')}</b><p>${t('lookHint')}</p></div>${seg('fcl', [[4, '4 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk], [0, t('all')]], S.fcLook)}</div></div>`;
+  } else if (setPage === 'logic') {
+    h = head(t('spLogic')) + `<div>${t('logic').map(([a, b]) => `<div class="logic"><b>${a}</b><p>${b}</p></div>`).join('')}</div>`;
+  } else if (setPage === 'data') {
+    h = head(t('spData')) + `<p class="hint">${t('localHint')}</p>
       <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>
       ${ENV === 'dev' ? `<button class="ghostbtn" id="reseed" style="border-color:var(--line)">${t('reseed')}</button>` : ''}
-      <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p></div>
-  </div>`;
+      <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
+  }
+  $('v-settings').innerHTML = `<div class="inner">${h}</div>`;
   save();
-  $('reseed') && ($('reseed').onclick = () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); show('progress'); }]]));
-  $('resetall').onclick = () => dialog(t('resetAllTitle'), t('resetAllText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => dialog(t('resetAllTitle'), '', [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); }]])]]);
-  $('pname').onchange = e => { S.name = e.target.value; renderSettings(); };
-  $('l-de').onclick = () => setLang('de'); $('l-en').onclick = () => setLang('en');
-  $('inv').onclick = () => { S.inverted = !S.inverted; applyClasses(); renderSettings(); };
-  $('trc').onclick = () => { S.trendColor = !S.trendColor; renderSettings(); };
-  $('bwi').onclick = () => showInfo(t('bwInfo'));
-  $('bw').onchange = e => { const v = parseNum(e.target.value); S.bodyweight = v && v > 0 ? v : null; if (!S.bodyweight) S.bwPoints = false; renderSettings(); };
-  $('bwp').onclick = () => { S.bwPoints = !S.bwPoints; renderSettings(); };
+  const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
+  document.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { setPage = b.dataset.sp; renderSettings(); $('v-settings').scrollTop = 0; });
+  on('spback', () => { setPage = null; renderSettings(); $('v-settings').scrollTop = 0; });
+  on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
+  on('resetall', () => dialog(t('resetAllTitle'), t('resetAllText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => dialog(t('resetAllTitle'), '', [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); }]])]]));
+  $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
+  on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));
+  on('inv', () => { S.inverted = !S.inverted; applyClasses(); renderSettings(); });
+  on('trc', () => { S.trendColor = !S.trendColor; renderSettings(); });
+  on('bwi', () => showInfo(t('bwInfo')));
+  on('fci', () => showInfo(t('infoFc', S.fcLook, S.fcHor || 6)));
+  $('bw') && ($('bw').onchange = e => { const v = parseNum(e.target.value); S.bodyweight = v && v > 0 ? v : null; if (!S.bodyweight) S.bwPoints = false; renderSettings(); });
+  on('bwp', () => { S.bwPoints = !S.bwPoints; renderSettings(); });
+  document.querySelectorAll('[data-fch]').forEach(b => b.onclick = () => { S.fcHor = +b.dataset.fch; renderSettings(); });
+  document.querySelectorAll('[data-fcl]').forEach(b => b.onclick = () => { S.fcLook = +b.dataset.fcl; renderSettings(); });
   document.querySelectorAll('[data-pulse]').forEach(b => b.onclick = () => { S.pulse = b.dataset.pulse; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-anim]').forEach(b => b.onclick = () => { S.anim = b.dataset.anim; renderSettings(); if (W && W.mode !== 'review') renderW(); });
 }

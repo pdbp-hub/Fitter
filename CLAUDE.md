@@ -22,6 +22,7 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
   - Live (`docs/`) wird **nur** geändert, wenn Ben „freigeben“ sagt: `python3 tools/release.py` → Tests → committen → pushen. Ausnahme: dringende Bugs, nur nach Rückfrage.
   - `index.html`, `manifest.webmanifest`, `sw.js`, `icons/` sind pro Version eigenständig; geteilt wird nur `app.js` + `style.css` (per Release kopiert).
   - Bei jeder Dev-Änderung `CACHE` in `docs/dev/sw.js` und `APP_VERSION` in `docs/dev/app.js` hochzählen.
+- **Nur das ändern, was Ben angefragt hat.** Alles andere bleibt exakt wie es ist (keine „Nebenbei-Verbesserungen“), damit keine Features verschwinden und keine neuen Bugs entstehen. Eigene Verbesserungsideen nur vorschlagen, nicht einbauen.
 - **Info-i** öffnen immer ein schwebendes Fenster mit ✕ (kein Aufklappen im Seiteninhalt).
 - **Go-Live-Checkliste** (in `TODO.md`): Sobald Ben die App teilen oder live gehen will → zuerst die Checkliste prüfen und offene Punkte (Impressum, Datenschutz, getrennte Test-/Live-Version …) ansprechen, bevor es weitergeht.
 

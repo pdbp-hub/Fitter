@@ -97,13 +97,31 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   check('Info-Fenster schließt mit ✕', await ev(() => document.getElementById('popover').hidden));
 
   console.log('Einstellungen');
+  // Unterseiten gibt es (noch) nur in Dev – sp() öffnet sie nur, wenn vorhanden
+  const sp = async p => { if (await page.$(`[data-sp="${p}"]`)) await click(`[data-sp="${p}"]`); };
+  const back = async () => { if (await page.$('#spback')) await click('#spback'); };
   await click('[data-tab=settings]');
+  await sp('profile');
   await page.fill('#pname', 'Ben Test'); await page.press('#pname', 'Enter'); await page.waitForTimeout(100);
   check('Profil zeigt Initialen', await ev(() => document.querySelector('.avatar').textContent === 'BT'));
-  await click('[data-pulse=beat]'); await click('#l-en');
+  await back(); await sp('train'); await click('[data-pulse=beat]');
+  await back(); await sp('display'); await click('#l-en');
   await page.reload(); await page.waitForTimeout(400);
   check('Einstellungen bleiben nach Neuladen (Sprache, Puls)', await ev(() => document.getElementById('app').classList.contains('pm-beat') && document.querySelector('.navbtn span').textContent === 'Progress'));
-  await click('[data-tab=settings]'); await click('#l-de');
+  await click('[data-tab=settings]'); await sp('display'); await click('#l-de'); await back();
+  if (TARGET) {
+    check('Einstellungen in Unterseiten gegliedert', await ev(() => document.querySelectorAll('[data-sp]').length === 6));
+    await sp('train');
+    check('8 Puls- und 12 Lade-Animationen', await ev(() => document.querySelectorAll('[data-pulse]').length === 8 && document.querySelectorAll('[data-anim]').length === 12));
+    await back(); await sp('logic');
+    check('Berechnungslogik erklärt Points und Prognose', await ev(() => /Points/.test(document.getElementById('v-settings').textContent) && /Prognose|Forecast/.test(document.getElementById('v-settings').textContent)));
+    await back(); await sp('progress'); await click('[data-fch="0"]');
+    await click('[data-tab=progress]');
+    check('Prognose ausschaltbar', await ev(() => !document.querySelector('#charts .legend')));
+    await click('[data-tab=settings]'); await sp('progress'); await click('[data-fch="8"]'); await click('[data-fcl="4"]');
+    await click('[data-tab=progress]');
+    check('Prognose auf allen 3 Charts', await ev(() => document.querySelectorAll('#charts .legend').length === 3));
+  }
 
   console.log('Workouts verwalten');
   await click('[data-tab=start]'); await click('#go'); await click('#add'); await settle();
