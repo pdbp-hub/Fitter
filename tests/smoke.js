@@ -104,14 +104,14 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   await sp('profile');
   await page.fill('#pname', 'Ben Test'); await page.press('#pname', 'Enter'); await page.waitForTimeout(100);
   check('Profil zeigt Initialen', await ev(() => document.querySelector('.avatar').textContent === 'BT'));
-  await back(); await sp('train'); await click('[data-pulse=beat]');
+  await back(); await sp(await page.$('[data-sp="train"]') ? 'train' : 'display'); await click('[data-pulse=beat]');
   await back(); await sp('display'); await click('#l-en');
   await page.reload(); await page.waitForTimeout(400);
   check('Einstellungen bleiben nach Neuladen (Sprache, Puls)', await ev(() => document.getElementById('app').classList.contains('pm-beat') && document.querySelector('.navbtn span').textContent === 'Progress'));
   await click('[data-tab=settings]'); await sp('display'); await click('#l-de'); await back();
   if (TARGET) {
     check('Einstellungen in Unterseiten gegliedert', await ev(() => document.querySelectorAll('[data-sp]').length === 6));
-    await sp('train');
+    await sp('display');
     check('8 Puls- und 12 Lade-Animationen', await ev(() => document.querySelectorAll('[data-pulse]').length === 8 && document.querySelectorAll('[data-anim]').length === 12));
     await back(); await sp('logic');
     check('Berechnungslogik erklärt Points und Prognose', await ev(() => /Points/.test(document.getElementById('v-settings').textContent) && /Prognose|Forecast/.test(document.getElementById('v-settings').textContent)));
@@ -130,9 +130,53 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   check('Zurück fragt vor dem Verwerfen', await ev(() => !document.getElementById('overlay').hidden));
   await click('[data-db="0"]'); await click('#o-save'); await settle();
   check('Workout wird gespeichert', await ev(() => document.querySelector('.witem .wname').textContent === 'Arm'));
-  await click('#editmode'); await click('.witem'); await settle();
+  if (await page.$('#editmode')) { await click('#editmode'); await click('.witem'); await settle(); }
+  else { await click('.witem'); await settle(); await click('#editw'); await settle(); }
   await click('#o-del'); await click('[data-db="1"]'); await settle();
   check('Workout lässt sich löschen', await ev(() => ![...document.querySelectorAll('.wname')].some(e => e.textContent === 'Arm')));
+
+  if (TARGET) {
+    console.log('Neu in v0.3');
+    await click('[data-tab=start]');
+    check('Startseite: 3 Kennzahlen inkl. Minuten', await ev(() => document.querySelectorAll('.weekstats > div').length === 3 && /Minuten|Minutes/.test(document.querySelector('.weekstats').textContent)));
+    check('Startseite scrollt weiterhin nicht', await ev(() => { const s = document.getElementById('v-start'); return s.scrollHeight <= s.clientHeight; }));
+    await click('#go'); await click('.witem'); await settle();
+    const before = await ev(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts[0].ex[0][1]);
+    await click('[data-ropen="0"]'); await click('[data-rs="0:1"]');
+    check('Bereit-Screen: Satzzahl änderbar und im Workout gespeichert', await ev(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts[0].ex[0][1]) === before + 1);
+    const nEx = await ev(() => document.querySelectorAll('#readylist .srow').length);
+    await click('#raddex'); await settle(); await page.locator('#o-list [data-pk]').first().click({ force: true }); await settle();
+    check('Bereit-Screen: Übung hinzufügbar', await ev(() => document.querySelectorAll('#readylist .srow').length) === nEx + 1);
+    await click('#startbtn'); await click('#warmdone'); await click('#mainact');
+    check('Reset-Knopf zeigt „Reset“ statt Zeit', await ev(() => /Reset/.test(document.getElementById('resetbtn').textContent) && !/\d\d:\d\d/.test(document.getElementById('resetbtn').textContent)));
+    check('Hauptbutton heißt „Satz beenden“', await ev(() => /Satz beenden|End set/.test(document.getElementById('mainact').textContent)));
+    for (let i = 0; i < 12; i++) { const a = await ev(() => document.getElementById('mainact').dataset.a); if (a === 'cool') break; if (a === 'next' || await ev(() => document.querySelectorAll('.block.done').length >= 2)) break; await click('#mainact'); }
+    await page.waitForTimeout(500);
+    check('Aktuelle Übung bleibt im Bild', await ev(() => { const b = document.querySelector('.block.cur').getBoundingClientRect(), w = document.getElementById('wbody').getBoundingClientRect(); return b.top >= w.top - 2 && b.top < w.bottom - 150; }));
+    await click('#minbtn'); await page.waitForTimeout(600);
+    check('Minimieren: Mini-Leiste erscheint, Sheet weg', await ev(() => !document.getElementById('mini').hidden && document.getElementById('wsheet').classList.contains('down') && getComputedStyle(document.getElementById('mini')).borderRadius !== '0px'));
+    await click('#mini'); await page.waitForTimeout(600);
+    check('Mini-Leiste öffnet Workout wieder', await ev(() => !document.getElementById('wsheet').classList.contains('down')));
+    await click('#endbtn'); await click('[data-db="1"]');
+    check('Review: Kennzahl-Auswahl über dem Satz-Chart', await ev(() => !!document.querySelector('#wbody select.metric')));
+    await page.selectOption('#wbody select.metric', 'reps'); await page.waitForTimeout(100);
+    const box = await page.locator('#wbody svg.chart').first().boundingBox();
+    await page.mouse.move(box.x + box.width * .5, box.y + 40); await page.mouse.down(); await page.waitForTimeout(80);
+    check('Review-Chart interaktiv (Wert beim Ziehen)', await ev(() => /Satz|Set/.test(document.querySelector('#wbody .legend .val').textContent)));
+    await page.mouse.up();
+    await click('#donebtn'); await settle();
+    await click('[data-tab=progress]'); await click('[data-day="0"]'); await click('[data-dayrv]'); await settle();
+    check('Kalender-Details öffnen Review-Seite mit allen Sätzen', await ev(() => !document.getElementById('osheet').classList.contains('down') && !!document.querySelector('#obody .slogan') && !!document.querySelector('#obody .cells')));
+    await click('#o-back'); await settle();
+    check('Überschriften im Fortschritt mit Icons', await ev(() => document.querySelectorAll('#v-progress h2.hic svg').length === 4));
+    await click('[data-tab=settings]'); await sp('logic');
+    check('Berechnungslogik: kein seitliches Scrollen (REGRESSION)', await ev(() => { const v = document.getElementById('v-settings'); return v.scrollWidth <= v.clientWidth + 1; }));
+    await back(); await sp('imprint');
+    check('Impressum vorhanden', await ev(() => /§ 5 DDG/.test(document.getElementById('v-settings').textContent)));
+    await back(); await sp('profile');
+    check('Profil: Alter eintragbar', !!(await page.$('#age')));
+    await back();
+  }
 
   if (!TARGET) {
   console.log('Dev-Version');

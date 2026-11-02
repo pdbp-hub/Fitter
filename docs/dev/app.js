@@ -8,7 +8,7 @@ const EX = {
   squat:{de:'Kniebeuge',en:'Squat',g:'legs',eq:'bb'}, legpress:{de:'Beinpresse',en:'Leg Press',g:'legs',eq:'machine'}, rdl:{de:'Rumänisches Kreuzheben',en:'Romanian Deadlift',g:'legs',eq:'bb'},
   legcurl:{de:'Beinbeuger',en:'Leg Curl',g:'legs',eq:'machine'}, legext:{de:'Beinstrecker',en:'Leg Extension',g:'legs',eq:'machine'}, calf:{de:'Wadenheben',en:'Calf Raise',g:'legs',eq:'machine'}
 };
-const APP_VERSION = '0.2.0';
+const APP_VERSION = '0.3.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -16,7 +16,7 @@ const DEFAULT_WORKOUTS = [
   { id:'pull', name:'Pull Day', ex:[['latpull',4],['row',4],['pullup',3],['curl',4],['hammer',3]] },
   { id:'legs', name:'Leg Day',  ex:[['squat',4],['legpress',4],['rdl',4],['calf',4]] }
 ];
-const S = { lang:'de', inverted:false, anim:'breath', pulse:'breathe', trendColor:false, fcLook:8, fcHor:6, name:'', bodyweight:null, bwPoints:false, fav:['bench','latpull','squat'], chartKey:'bench' };
+const S = { lang:'de', inverted:false, anim:'breath', pulse:'breathe', trendColor:false, fcLook:8, fcHor:6, name:'', bodyweight:null, bwPoints:false, fav:['bench','latpull','squat'], chartKey:'bench', age:null };
 const r05 = v => Math.round(v * 2) / 2;
 const STORED = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || null; } catch (e) { return null; } })();
 if (STORED && STORED.settings) Object.assign(S, STORED.settings);
@@ -159,6 +159,18 @@ Object.assign(T.en, { anims:{ breath:'Pulse', fill:'Fill', shards:'Shards', mosa
     afternoon:['Shake off the day.','Afternoon slump? Not you.','Stronger than yesterday.','Best break: a good set.','Ready for a record?'],
     evening:['Work is over. Training begins.','Finish the day strong.','Good evening, powerhouse.','Others chill. You train.','Tonight we pump.'],
     night:['Night owl in the gym. Respect!','The weights never sleep.','Late, but here.','Empty gym, open floor.','Midnight gains.'] } });
+Object.assign(T.de, { chStrength:'Maximalkraft (geschätzt)', strengthShort:'Maximalkraft (geschätzt)', setEnd:'Satz beenden', nextExArrow:'Nächste Übung', resetLbl:'Reset', volTotal:'Volumen gesamt',
+  metrics:{ vol:'Volumen pro Satz', reps:'Wiederholungen pro Satz', orm:'Maximalkraft (geschätzt) pro Satz' }, allSets:'Alle Übungen & Sätze', setN:n=>`Satz ${n}`, lastShort2:'letztes Mal',
+  spProfileHint:'Persönliche Infos & Account', spDisplayHint:'Sprache, Farbumkehr, Animationen', age:'Alter', ageHint:'Optional – später z. B. für Altersvergleiche', spImprint:'Impressum', spImprintHint:'Anbieterkennzeichnung',
+  editW:'Workout bearbeiten', addEx:'+ Übung hinzufügen', removeEx:'Übung entfernen', setsLbl:'Sätze', minutes:'Minuten', vsLastShort:'vs. Vorwoche',
+  readyHint:'Tippe auf eine Übung, um Sätze und Gewicht anzupassen. Reihenfolge per Ziehen am Griff.',
+  imprint:'<p><b>Angaben gemäß § 5 DDG</b><br>[Vorname Nachname]<br>[Straße Hausnummer]<br>[PLZ Ort]</p><p><b>Kontakt</b><br>E-Mail: [E-Mail-Adresse]</p><p><b>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</b><br>[Vorname Nachname], Anschrift wie oben</p><p><b>Haftung für Inhalte</b><br>Die Inhalte dieser App wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte, insbesondere berechneter Werte wie Maximalkraft oder Prognosen, wird keine Gewähr übernommen. Die App ersetzt keine fachliche Trainings- oder medizinische Beratung.</p>' });
+Object.assign(T.en, { chStrength:'Max strength (estimated)', strengthShort:'Max strength (estimated)', setEnd:'End set', nextExArrow:'Next exercise', resetLbl:'Reset', volTotal:'Total volume',
+  metrics:{ vol:'Volume per set', reps:'Reps per set', orm:'Max strength (estimated) per set' }, allSets:'All exercises & sets', setN:n=>`Set ${n}`, lastShort2:'last time',
+  spProfileHint:'Personal info & account', spDisplayHint:'Language, invert colours, animations', age:'Age', ageHint:'Optional – later e.g. for age comparisons', spImprint:'Imprint', spImprintHint:'Legal notice',
+  editW:'Edit workout', addEx:'+ Add exercise', removeEx:'Remove exercise', setsLbl:'Sets', minutes:'Minutes', vsLastShort:'vs. last week',
+  readyHint:'Tap an exercise to adjust sets and weight. Drag the handle to reorder.',
+  imprint:'<p><b>Information according to § 5 DDG (Germany)</b><br>[First name Last name]<br>[Street No.]<br>[Postcode City]</p><p><b>Contact</b><br>Email: [email address]</p><p><b>Responsible for content (§ 18 (2) MStV)</b><br>[First name Last name], address as above</p><p><b>Liability</b><br>The content of this app was created with great care. No guarantee is given for the accuracy, completeness or timeliness of the content, in particular calculated values such as max strength or forecasts. The app does not replace professional training or medical advice.</p>' });
 const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === 'function' ? v(...a) : v; };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -177,14 +189,15 @@ const dShort = d => d.toLocaleDateString(loc(), { day:'2-digit', month:'2-digit'
 const wById = id => workouts.find(w => w.id === id);
 const ptsOf = vol => Math.max(5, Math.round(vol / 250));
 const totalPts = () => HISTORY.reduce((a, h) => a + (h.pts || 0), 0);
-function weekStats() { const dow = (new Date().getDay() + 6) % 7; const cur = HISTORY.filter(h => h.ago <= dow), prev = HISTORY.filter(h => h.ago > dow && h.ago <= dow + 7); const v1 = cur.reduce((a, h) => a + sessVol(h), 0), v0 = prev.reduce((a, h) => a + sessVol(h), 0); return { n: cur.length, vol: v1, pct: v0 ? Math.round((v1 / v0 - 1) * 100) : null, pts: cur.reduce((a, h) => a + (h.pts || 0), 0) }; }
+function weekStats() { const dow = (new Date().getDay() + 6) % 7; const cur = HISTORY.filter(h => h.ago <= dow), prev = HISTORY.filter(h => h.ago > dow && h.ago <= dow + 7); const v1 = cur.reduce((a, h) => a + sessVol(h), 0), v0 = prev.reduce((a, h) => a + sessVol(h), 0); const m1 = cur.reduce((a, h) => a + (h.dur || 0), 0), m0 = prev.reduce((a, h) => a + (h.dur || 0), 0); return { n: cur.length, n0: prev.length, vol: v1, vol0: v0, min: m1, min0: m0, pct: v0 ? Math.round((v1 / v0 - 1) * 100) : null, pts: cur.reduce((a, h) => a + (h.pts || 0), 0) }; }
+const deltaTag = (a, b, abs) => { if (!b && !a) return ''; if (!b) return '<em class="dl">▲</em>'; const d = abs ? a - b : Math.round((a / b - 1) * 100); if (d === 0) return '<em class="dl">= </em>'; return `<em class="dl">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}${abs ? '' : ' %'}</em>`; };
 function prCount(days) { let n = 0; const seen = {}; [...HISTORY].sort((a, b) => b.ago - a.ago || a.date - b.date).forEach(h => h.ex.forEach(e => { const b = Math.max(...e.sets.map(s => e1rm(Math.max(0, effW(e.k, s.w)), s.r))); if (b > 0 && seen[e.k] !== undefined && b > seen[e.k] && h.ago < days) n++; seen[e.k] = Math.max(seen[e.k] ?? 0, b); })); return n; }
 const volTxt = v => v >= 1000 ? fmt(v / 1000, 1) + ' t' : fmt(Math.round(v)) + ' kg';
 const sessVol = h => h.ex.reduce((a, e) => a + e.sets.reduce((b, s) => b + Math.max(0, effW(e.k, s.w)) * s.r, 0), 0);
 function sessionsFor(k) { // newest first
   return HISTORY.filter(h => h.ex.some(e => e.k === k)).sort((a, b) => a.ago - b.ago || b.date - a.date).map(h => { const e = h.ex.find(x => x.k === k);
     const top = e.sets.reduce((b, s) => s.w > b.w ? s : b, e.sets[0]); const best = Math.max(...e.sets.map(s => e1rm(effW(k, s.w), s.r)));
-    return { ago:h.ago, top, best, vol: e.sets.reduce((a, s) => a + Math.max(0, effW(k, s.w)) * s.r, 0), sets:e.sets }; });
+    return { ago:h.ago, date:h.date, top, best, vol: e.sets.reduce((a, s) => a + Math.max(0, effW(k, s.w)) * s.r, 0), sets:e.sets }; });
 }
 const LAST = {}; Object.keys(EX).forEach(k => { const s = sessionsFor(k)[0]; if (s) LAST[k] = [s.top.w, s.top.r]; });
 function lastAgoW(id) { const h = HISTORY.filter(x => x.wid === id).sort((a,b) => a.ago - b.ago)[0]; return h ? h.ago : null; }
@@ -193,17 +206,33 @@ function toast(msg) { const d = document.createElement('div'); d.className = 'to
 function greeting() { const h = new Date().getHours(); const slot = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 14 ? 'noon' : h >= 14 && h < 18 ? 'afternoon' : h >= 18 && h < 22 ? 'evening' : 'night'; const l = t('greet')[slot]; return l[Math.floor(Math.random() * l.length)]; }
 let greetText = '';
 const ICON = {
-  bb:'<path d="M1.5 12h21"/><rect x="4" y="6" width="2.6" height="12" rx=".4"/><rect x="17.4" y="6" width="2.6" height="12" rx=".4"/><rect x="7" y="8.5" width="1.6" height="7" rx=".3"/><rect x="15.4" y="8.5" width="1.6" height="7" rx=".3"/>',
+  bb:'<path d="M.8 12h22.4"/><rect x="2.6" y="8" width="1.8" height="8" rx=".3"/><rect x="4.6" y="9.3" width="1.2" height="5.4" rx=".3"/><rect x="19.6" y="8" width="1.8" height="8" rx=".3"/><rect x="18.2" y="9.3" width="1.2" height="5.4" rx=".3"/>',
   db:'<path d="M8.5 12h7"/><rect x="5" y="7" width="3.5" height="10" rx=".6"/><rect x="15.5" y="7" width="3.5" height="10" rx=".6"/><rect x="2.5" y="9" width="2.5" height="6" rx=".4"/><rect x="19" y="9" width="2.5" height="6" rx=".4"/>',
   cable:'<path d="M3 2.5h18"/><path d="M12 2.5v1.5"/><circle cx="12" cy="6.5" r="2.5"/><circle cx="12" cy="6.5" r=".6"/><path d="M12 9v7"/><path d="M12 16l-3 2.5M12 16l3 2.5"/><path d="M7 18.5h10v2.5H7z"/>',
   machine:'<path d="M8.5 2.5v6M15.5 2.5v6"/><rect x="6" y="8.5" width="12" height="13" rx=".5"/><path d="M6 11.7h12M6 14.9h12M6 18.1h12"/><path d="M12 13.3h7.5"/>',
   bw:'<path d="M2.5 3h19"/><path d="M7 3l3.5 6.5M17 3l-3.5 6.5"/><circle cx="12" cy="9.2" r="2"/><path d="M12 11.2v5.8M12 17l-2.2 4.5M12 17l2.2 4.5"/>',
   custom:'<path d="M12 5v14M5 12h14"/>' };
 const ICON_EX = {
+  latpull:'<path d="M4 2h16"/><path d="M12 2v4"/><path d="M4.5 9.5Q12 4.5 19.5 9.5"/><circle cx="12" cy="11.6" r="1.6"/><path d="M10.6 13.4L6.6 9.6M13.4 13.4l4-3.8"/><path d="M12 13.2v5"/><path d="M8.5 18.2h7"/><path d="M10 18.2l-1 4M14 18.2l1 4"/>',
+  row:'<path d="M21.5 6v16"/><circle cx="19.8" cy="13" r="1.2"/><path d="M18.6 13H11"/><path d="M11 11.6v2.8"/><circle cx="5" cy="7" r="1.7"/><path d="M5 8.7l1 7.3"/><path d="M5.4 10.8L11 13"/><path d="M6 16h7.5v-3"/><path d="M15 9.5v7.5"/><path d="M2 20h12"/>',
+  facepull:'<path d="M21.5 1.5v21M19 22.5h5M17 1.5h4.5"/><circle cx="18.5" cy="4.2" r="1.3"/><path d="M17.3 4.8L11 8.3"/><path d="M11 6.8v3"/><circle cx="7" cy="6" r="1.7"/><path d="M7 7.7v8.3M7 16l-2 6.3M7 16l2 6.3"/><path d="M7 9.8l4-1.5"/>',
+  pushdown:'<path d="M21.5 1.5v21M19 22.5h5M16 1.5h5.5"/><circle cx="17.2" cy="3.6" r="1.3"/><path d="M17.2 4.9v7.6"/><path d="M14.2 12.5h6"/><circle cx="8" cy="4.6" r="1.8"/><path d="M8 6.4v8.6M8 15l-2 6.5M8 15l2 6.5"/><path d="M8 8.4l2.2 4.1 4-.1"/>',
+  fly:'<rect x="3.2" y="3.5" width="2.4" height="7" rx=".5"/><rect x="18.4" y="3.5" width="2.4" height="7" rx=".5"/><circle cx="12" cy="4.5" r="1.8"/><path d="M12 6.3v8.2"/><path d="M12 8.5H5.6M12 8.5h6.4"/><path d="M8.5 14.5h7"/><path d="M10 14.5l-1 7M14 14.5l1 7"/>',
+  legext:'<path d="M4.5 2.5v13"/><path d="M4.5 15.5h8.5"/><path d="M6.5 15.5v6.5M12 15.5v6.5"/><circle cx="8" cy="5.2" r="1.7"/><path d="M8 6.9v8.6"/><path d="M8 15.5h5"/><path d="M13 15.5l6.5-3.3"/><circle cx="20.4" cy="11.7" r="1.4"/>',
+  legcurl:'<path d="M1.8 15.5h15"/><path d="M3.5 15.5v6M15 15.5v6"/><circle cx="3.6" cy="11.6" r="1.6"/><path d="M5.2 13H14"/><path d="M14 13l3.2-6.2"/><circle cx="18" cy="5.6" r="1.4"/>',
+  calf:'<path d="M6.5 6.5h11"/><circle cx="12" cy="3.6" r="1.7"/><path d="M12 5.3v8.7"/><path d="M12 14l-1.3 5.2M12 14l1.3 5.2"/><path d="M9 20.3h6"/><path d="M8 21.8h8"/><path d="M19.5 18v-6M17.6 13.8l1.9-2 1.9 2"/>',
+  legpress:'<path d="M2 21.5h20"/><path d="M3 21.5l4.5-8"/><circle cx="5.6" cy="10.8" r="1.6"/><path d="M6.6 12.5l3.4 4"/><path d="M10 16.5l3-4.5"/><path d="M13 12l4.5.5"/><path d="M17 8.5l3.5 6"/><path d="M14.5 3.5L22 16.5"/>',
+
   dips:'<path d="M2 11h6M16 11h6M4.5 11v11M19.5 11v11"/><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v7.5"/><path d="M12 8.5l-4.5 2.5M12 8.5l4.5 2.5"/><path d="M12 14l-1.5 3.5 1.5 3.5M12 14l1.5 3.5"/>',
   pushdown:'<circle cx="8.5" cy="4.6" r="2"/><path d="M8.5 6.6v8.4M8.5 15l-2 6.5M8.5 15l2 6.5"/><path d="M8.5 8.5l2 4.2 4.5-.2"/><path d="M14 1.5h7"/><circle cx="17.5" cy="3.6" r="1.4"/><path d="M17.5 5v7.5"/><path d="M14.5 12.5h5"/>',
   pullup:'<path d="M2.5 3h19"/><path d="M7 3l3.5 6.5M17 3l-3.5 6.5"/><circle cx="12" cy="9.2" r="2"/><path d="M12 11.2v5.8M12 17l-2.2 4.5M12 17l2.2 4.5"/>' };
 const ico = k => `<span class="ico" title="${esc(t('eqs')[EX[k].eq])}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">${EX[k].custom ? ICON.custom : (ICON_EX[k] || ICON[EX[k].eq])}</svg></span>`;
+const SIC = {
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 2.5v5M16 2.5v5"/></svg>',
+  hist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 3.5v4h4"/><path d="M12 7.5V12l3 2"/></svg>',
+  ex:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 12h10"/><rect x="3.5" y="7" width="3.5" height="10"/><rect x="17" y="7" width="3.5" height="10"/><path d="M1.5 10v4M22.5 10v4"/></svg>',
+  pb:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 18 3-18"/></svg>' };
+const ARROW = '<svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="square"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5"/></svg>';
 const GRIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 12h14M5 16h14"/></svg>';
 
 /* ---------- Decagon geometry + animations ---------- */
@@ -287,8 +316,8 @@ function renderStart() {
     <div class="ptsline"><div class="pv"><b class="num">${fmt(totalPts())}</b><strong>${t('points')}</strong></div><small>${t('ptsWeek', wk.pts)}</small></div>
     <div class="hero"><button class="octa dec pulse" id="go"><span class="greet" id="greet">${esc(greetText)}</span><span class="cta">${t('cta')}</span><span class="tap">${t('tap')}</span></button></div>
     ${canResume ? `<button class="resume" id="resume"><span><b>${t('resume')}</b><small>${esc(lastFinished.W.name)} · ${t('resumeLeft', Math.ceil((30*60000 - (Date.now() - lastFinished.at)) / 60000))}</small></span><span>→</span></button>` : ''}
-    <div><div class="weekhead">${t('thisWeek')}</div>
-      <div class="weekstats num"><div><b>${wk.n}</b><span>${t('workouts')}</span></div><div><b>${volTxt(wk.vol)}</b><span>${t('moved')}</span></div><div><b>${wk.pct === null ? '—' : (wk.pct >= 0 ? '+' : '−') + Math.abs(wk.pct) + ' %'}</b><span>${t('vsLast')}</span></div></div></div>
+    <div><div class="weekhead"><span>${t('thisWeek')}</span><small>▲▼ ${t('vsLastShort')}</small></div>
+      <div class="weekstats num"><div><b>${wk.n}</b><span>${t('workouts')} ${deltaTag(wk.n, wk.n0, true)}</span></div><div><b>${volTxt(wk.vol)}</b><span>${t('moved')} ${deltaTag(wk.vol, wk.vol0)}</span></div><div><b>${wk.min}</b><span>${t('minutes')} ${deltaTag(wk.min, wk.min0)}</span></div></div></div>
   </div>`;
   fitGreet();
   $('go').onclick = () => W ? openW() : show('select');
@@ -297,7 +326,7 @@ function renderStart() {
 let editMode = false;
 function renderSelect() {
   $('v-select').innerHTML = `<div class="inner">
-    <div class="row"><button class="iconbtn" id="back" aria-label="Zurück">←</button>${workouts.length ? `<button class="textbtn" id="editmode" style="color:var(--fg)">${editMode ? t('doneEdit') : t('edit')}</button>` : ''}</div>
+    <div class="row"><button class="iconbtn" id="back" aria-label="Zurück">←</button></div>
     <div><div class="eyebrow">${t('yourWorkouts')}</div><h1>${t('whatToday')}</h1></div>
     <button class="newbtn" id="add"><span>+</span><span>${t('newWorkout')}</span></button>
     <div id="wlist">${workouts.length ? '' : `<p class="hint">${t('noWorkouts')}</p>`}</div></div>`;
@@ -318,8 +347,32 @@ function prepareWorkout(src) {
         ex: src.ex.filter(([k]) => EX[k]).map(([k, n]) => ({ k, target:n, sets:[], w: LAST[k] ? LAST[k][0] : (isBW(k) ? 0 : 20), r: LAST[k] ? LAST[k][1] : 10 })) };
   renderW(); openW(); $('wbody').scrollTop = 0;
 }
-function openW() { $('wsheet').classList.remove('down'); $('wsheet').style.transform = ''; $('mini').hidden = true; }
-function minimize() { $('wsheet').classList.add('down'); $('wsheet').style.transform = ''; if (W && W.mode !== 'review') $('mini').hidden = false; tick(); }
+function miniMorph() { const r = $('mini').getBoundingClientRect(); return `translate(${r.left}px, ${r.top}px) scale(${r.width / innerWidth}, ${r.height / innerHeight})`; }
+function openW() {
+  const s = $('wsheet'), m = $('mini');
+  if (!m.hidden && s.classList.contains('down')) {
+    s.style.transition = 'none'; s.style.transformOrigin = '0 0'; s.style.transform = miniMorph(); s.style.background = 'var(--fg)'; s.style.borderRadius = '60px';
+    s.classList.remove('down'); m.hidden = true; s.getBoundingClientRect();
+    s.style.transition = 'transform .4s cubic-bezier(.2,.8,.2,1), background .3s, border-radius .4s'; s.style.transform = 'translate(0,0) scale(1,1)'; s.style.background = ''; s.style.borderRadius = '0';
+    setTimeout(() => { s.style.transition = ''; s.style.transform = ''; s.style.transformOrigin = ''; s.style.borderRadius = ''; }, 420);
+    return;
+  }
+  s.classList.remove('down'); s.style.transform = ''; m.hidden = true;
+}
+function minimize() {
+  const s = $('wsheet'), m = $('mini');
+  if (!W || W.mode === 'review') { s.classList.add('down'); s.style.transform = ''; m.hidden = true; return; }
+  m.hidden = false; tick(); m.style.transition = 'none'; m.style.opacity = '0';
+  s.style.transformOrigin = '0 0'; s.style.transition = 'transform .4s cubic-bezier(.3,.7,.2,1), background .25s, border-radius .4s';
+  requestAnimationFrame(() => { s.style.transform = miniMorph(); s.style.background = 'var(--fg)'; s.style.borderRadius = '60px'; });
+  setTimeout(() => {
+    s.style.transition = 'none'; s.classList.add('down'); s.style.transform = ''; s.style.background = ''; s.style.borderRadius = ''; s.style.transformOrigin = '';
+    m.style.transition = 'opacity .12s'; m.style.opacity = '1'; requestAnimationFrame(() => { s.style.transition = ''; });
+  }, 400);
+}
+// keeps the saved workout in sync with set counts / added / removed exercises (order stays per session)
+function syncTemplate() { const w = W && W.src && wById(W.src.id); if (!w) return; const cnt = Object.fromEntries(W.ex.map(e => [e.k, e.target])); const kept = w.ex.filter(([k]) => k in cnt).map(([k]) => [k, cnt[k]]); W.ex.forEach(e => { if (!kept.some(([k]) => k === e.k)) kept.push([e.k, e.target]); }); w.ex = kept; save(); }
+function openAddEx() { O = { mode:'add', q:'' }; renderO(); openO(); $('obody').scrollTop = 0; }
 function closeW() { W = null; keepAwake(false); save(); $('wsheet').classList.add('down'); $('mini').hidden = true; greetText = greeting(); if (tab === 'start') renderStart(); if (tab === 'select') renderSelect(); }
 function setBar(html) { $('wbar').firstElementChild.innerHTML = html; $('wbar').hidden = !html; }
 const curEx = () => W.ex[W.cur];
@@ -343,8 +396,8 @@ function renderW() {
   renderHead();
   let h = '';
   if (W.mode === 'ready') {
-    h = `<div><h1>${t('ready')}</h1><p class="hint" style="margin-top:8px">${t('readyHint')}</p></div><div class="sortlist" id="readylist">` +
-      W.ex.map((e, i) => `<div class="srow"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(e.k)}<div class="exname">${esc(exName(e.k))}<small>${t('sets', e.target)} · ${t('lastShort', wLabel(e.k, e.w), e.r)}</small></div><span class="grip" data-grip aria-label="ziehen">${GRIP}</span></div>`).join('') + '</div>';
+    h = `<div class="row" style="align-items:flex-start"><div><h1>${t('ready')}</h1><p class="hint" style="margin-top:8px">${t('readyHint')}</p></div>${wById(W.src.id) ? `<button class="iconbtn" id="editw" aria-label="${t('editW')}">✎</button>` : ''}</div><div class="sortlist" id="readylist">` +
+      W.ex.map((e, i) => `<div class="srow ${W.rOpen === i ? 'ropen' : ''}"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(e.k)}<button class="exname tapzone" data-ropen="${i}">${esc(exName(e.k))}<small>${t('sets', e.target)} · ${esc(wLabel(e.k, e.w))} × ${e.r}</small></button><span class="grip" data-grip aria-label="ziehen">${GRIP}</span>${W.rOpen === i ? `<div class="redit"><div class="rline"><b>${t('setsLbl')}</b><span class="mini-step"><button data-rs="${i}:-1" aria-label="minus">−</button><span class="num">${e.target}</span><button data-rs="${i}:1" aria-label="plus">+</button></span></div>${inputsHTML('rd', e.w, e.r, e.k)}${W.ex.length > 1 ? `<button class="textbtn" data-rrm="${i}" style="align-self:flex-start">${t('removeEx')}</button>` : ''}</div>` : ''}</div>`).join('') + `</div><button class="addset" id="raddex" style="font-size:14px">${t('addEx')}</button>`;
     setBar(`<button class="mainbtn" id="startbtn">${t('start')}</button>`);
   } else if (W.mode === 'warmup' || W.mode === 'cooldown') {
     const cool = W.mode === 'cooldown';
@@ -354,9 +407,9 @@ function renderW() {
     h = `<div class="sortlist" id="blocks">` + W.ex.map((e, i) => blockHTML(e, i)).join('') + `</div><button class="ghostbtn" id="endbtn2" style="border-color:var(--line)">${t('endAbort')}</button>`;
     const e = curEx(), n = e.sets.length;
     let main;
-    if (W.phase === 'set') main = `<button class="mainbtn" id="mainact" data-a="done">${n + 1 >= e.target && !allDoneAfter() ? t('setDoneNext') : t('setDone')}</button>`;
+    if (W.phase === 'set') main = `<button class="mainbtn" id="mainact" data-a="done">${n + 1 >= e.target && !allDoneAfter() ? `<span>${t('setEnd')}</span><small class="nextline">${ARROW}${t('nextExArrow')}</small>` : t('setEnd')}</button>`;
     else if (n < e.target) main = `<button class="mainbtn" id="mainact" data-a="start">${t('startSet', n+1)}</button>`;
-    else if (!allDone()) main = `<button class="mainbtn" id="mainact" data-a="next">${t('nextEx')}</button>`;
+    else if (!allDone()) main = `<button class="mainbtn" id="mainact" data-a="next"><span class="arrline">${ARROW}${t('nextEx')}</span></button>`;
     else main = `<button class="mainbtn" id="mainact" data-a="cool">${t('toCooldown')}</button><button class="textbtn" id="nocd">${t('finishNoCd')}</button>`;
     setBar(main);
   } else if (W.mode === 'review') {
@@ -364,6 +417,8 @@ function renderW() {
   }
   $('wbody').innerHTML = `<div class="inner">${h}</div>`;
   bindW(); tick();
+  if (W.mode === 'train') requestAnimationFrame(keepCurInView);
+  if (W.mode === 'review') bindRvCharts($('wbody'));
 }
 
 function inputsHTML(prefix, w, r, k) {
@@ -379,7 +434,7 @@ function blockHTML(e, i) {
       if (W.edit && W.edit[0] === i && W.edit[1] === j) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', j+1)}</span><button class="reset" data-saveedit="1">${t('ok')}</button></div>${inputsHTML('ed', s.w, s.r, e.k)}</div>`;
       else h += `<button class="set" data-edit="${i}:${j}"><span class="idx num">${j+1}</span><span class="sv num">${esc(wLabel(e.k, s.w))} × ${s.r}</span><span class="st num">${mmss(s.d || 0)}</span><span>✓</span></button>`;
     });
-    if (isCur && n < e.target) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', n+1)}</span>${W.phase === 'set' ? `<button class="reset" id="resetbtn" aria-label="Reset">↺ <span class="num" id="settime">00:00</span></button>` : ''}</div>${inputsHTML('cu', e.w, e.r, e.k)}</div>`;
+    if (isCur && n < e.target) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', n+1)}</span>${W.phase === 'set' ? `<button class="reset" id="resetbtn" aria-label="Reset">↺ ${t('resetLbl')}</button>` : ''}</div>${inputsHTML('cu', e.w, e.r, e.k)}</div>`;
     for (let j = n + (isCur ? 1 : 0); j < e.target; j++) h += `<button class="set planned" data-goto="${i}"><span class="idx num">${j+1}</span><span class="sv num">${esc(wLabel(e.k, e.w))} × ${e.r}</span><span></span><span></span></button>`;
     h += `<button class="addset" data-addset="${i}">${t('addSet')}</button></div>`;
   }
@@ -391,7 +446,12 @@ function bindW() {
   $('minbtn') && ($('minbtn').onclick = minimize);
   $('endbtn') && ($('endbtn').onclick = endDialog);
   $('endbtn2') && ($('endbtn2').onclick = endDialog);
-  $('readylist') && sortable($('readylist'), '.srow', (f, to) => { moveItem(W.ex, f, to); renderW(); });
+  $('readylist') && sortable($('readylist'), '.srow', (f, to) => { readInputs(); const o = W.rOpen != null ? W.ex[W.rOpen] : null; moveItem(W.ex, f, to); if (o) W.rOpen = W.ex.indexOf(o); renderW(); });
+  q('[data-ropen]').forEach(b => b.onclick = () => { readInputs(); const i = +b.dataset.ropen; W.rOpen = W.rOpen === i ? null : i; renderW(); });
+  q('[data-rs]').forEach(b => b.onclick = () => { readInputs(); const [i, d] = b.dataset.rs.split(':').map(Number); W.ex[i].target = Math.max(1, W.ex[i].target + d); syncTemplate(); renderW(); });
+  q('[data-rrm]').forEach(b => b.onclick = () => { const i = +b.dataset.rrm; W.ex.splice(i, 1); W.rOpen = null; syncTemplate(); renderW(); });
+  $('raddex') && ($('raddex').onclick = () => { readInputs(); openAddEx(); });
+  $('editw') && ($('editw').onclick = () => openCreate(wById(W.src.id)));
   $('blocks') && sortable($('blocks'), '.block', (f, to) => { const c = W.ex[W.cur]; moveItem(W.ex, f, to); W.cur = W.ex.indexOf(c); W.open = {}; renderW(); });
   q('[data-tog]').forEach(b => b.onclick = () => { const i = +b.dataset.tog; if (i === W.cur) W.curClosed = !W.curClosed; else W.open[i] = !W.open[i]; renderW(); });
   q('[data-goto]').forEach(b => b.onclick = () => { const i = +b.dataset.goto; if (i === W.cur) return; readInputs(); W.cur = i; W.open = {}; W.curClosed = false; W.edit = null; if (W.phase === 'set') { W.phase = 'rest'; W.phaseStart = Date.now(); } renderW(); });
@@ -402,7 +462,7 @@ function bindW() {
   q('[data-st]').forEach(b => b.onclick = () => {
     const [id, d] = b.dataset.st.split(':'); const inp = $(id); const isKg = id.endsWith('kg');
     let v = (parseNum(inp.value) ?? 0) + parseFloat(d); if (!isKg) v = Math.max(1, Math.round(v));
-    const k = id.startsWith('ed') ? W.ex[W.edit[0]].k : curEx().k; if (isKg && !isBW(k)) v = Math.max(0, v);
+    const k = id.startsWith('ed') ? W.ex[W.edit[0]].k : id.startsWith('rd') ? W.ex[W.rOpen].k : curEx().k; if (isKg && !isBW(k)) v = Math.max(0, v);
     inp.value = isKg ? fmtW(v) : v; readInputs();
   });
   q('.ctl input').forEach(inp => inp.onchange = () => readInputs());
@@ -422,9 +482,18 @@ function bindW() {
   });
 }
 function toReview() { W.mode = 'review'; W.end = Date.now(); W.slogan = t('slogans')[Math.floor(Math.random() * t('slogans').length)]; renderW(); $('wbody').scrollTop = 0; }
+// scrolls so the current exercise (and its active set) stays fully visible
+function keepCurInView() {
+  const body = $('wbody'), b = body.querySelector('.block.cur'); if (!b) return;
+  const br = body.getBoundingClientRect(), r = b.getBoundingClientRect(), a = b.querySelector('.set.active'), ar = a ? a.getBoundingClientRect() : r;
+  const barH = $('wbar').getBoundingClientRect().height || 0, viewBottom = br.bottom - barH;
+  if (r.top < br.top || ar.bottom > viewBottom || W._sc !== W.cur) body.scrollTo({ top: Math.max(0, body.scrollTop + r.top - br.top - 8), behavior: 'smooth' });
+  W._sc = W.cur;
+}
 function readInputs() {
   const rd = (p, o) => { const kg = $(p+'kg'), rp = $(p+'reps'); if (!kg || !o) return; const w = parseNum(kg.value), r = parseNum(rp.value); if (w !== null) o.w = Math.round(w * 100) / 100; if (r !== null) o.r = Math.max(1, Math.round(r)); };
   if (W.edit) rd('ed', W.ex[W.edit[0]].sets[W.edit[1]]);
+  if (W.mode === 'ready' && W.rOpen != null) rd('rd', W.ex[W.rOpen]);
   rd('cu', curEx());
 }
 function endDialog() {
@@ -435,43 +504,75 @@ function endDialog() {
   ]);
 }
 
-function exStatsOf(e) {
-  const prev = sessionsFor(e.k)[0], ew = s => Math.max(0, effW(e.k, s.w));
-  const per = e.sets.map(s => e1rm(ew(s), s.r)), pPer = prev ? prev.sets.map(s => e1rm(ew(s), s.r)) : [];
+function exStatsOf(e, before) {
+  const prev = sessionsFor(e.k).find(p => p.date < before), ew = s => Math.max(0, effW(e.k, s.w));
+  const per = e.sets.map(s => e1rm(ew(s), s.r));
   const top = e.sets.reduce((b, s) => e1rm(ew(s), s.r) > e1rm(ew(b), b.r) ? s : b);
-  return { e, per, pPer, top, best: Math.max(...per), v: e.sets.reduce((a, s) => a + ew(s) * s.r, 0), pBest: prev ? prev.best : 0, pVol: prev ? prev.vol : 0 };
+  return { e, per, prevSets: prev ? prev.sets : [], top, best: Math.max(...per), v: e.sets.reduce((a, s) => a + ew(s) * s.r, 0), pBest: prev ? prev.best : 0, pVol: prev ? prev.vol : 0 };
 }
-function setChart(x) {
-  const n = Math.max(x.per.length, x.pPer.length), all = x.per.concat(x.pPer);
-  let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * .3 || 4; lo -= pad; hi += pad;
-  const W0 = 340, H0 = 112, L = 34, R = 12, Tp = 10, B = 20;
+let rvMetric = 'vol'; const RV = {};
+const metricOf = (k, s, m) => { const w = Math.max(0, effW(k, s.w)); return m === 'reps' ? s.r : m === 'orm' ? e1rm(w, s.r) : w * s.r; };
+function setChart(x, id) {
+  RV[id] = x;
+  return `<select class="metric" data-metric="${id}" aria-label="Kennzahl">${Object.entries(t('metrics')).map(([k, l]) => `<option value="${k}" ${rvMetric === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
+    <svg class="chart" id="rv-${id}" role="img" aria-label="${t('metrics')[rvMetric]}"></svg>
+    <div class="legend"><span><i></i>${t('today2')}</span>${x.prevSets.length ? `<span><i class="dash" style="border-color:var(--muted)"></i>${t('lastTime')}</span>` : ''}<span class="val num" id="rvv-${id}" style="margin-left:auto;color:var(--fg);font-weight:700"></span></div>`;
+}
+function drawSetChart(id) {
+  const x = RV[id], svg = $('rv-' + id); if (!svg) return;
+  const k = x.e.k, m = rvMetric, cur = x.e.sets.map(s => metricOf(k, s, m)), prev = x.prevSets.map(s => metricOf(k, s, m));
+  const n = Math.max(cur.length, prev.length), all = cur.concat(prev);
+  let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * .3 || (m === 'reps' ? 2 : 4); lo = Math.max(0, lo - pad); hi += pad;
+  const W0 = 340, H0 = 118, L = 38, R = 12, Tp = 10, B = 20;
   const X = i => L + (n === 1 ? (W0 - L - R) / 2 : i * (W0 - L - R) / (n - 1)), Y = v => Tp + (hi - v) * (H0 - Tp - B) / (hi - lo);
-  let s = [lo + pad, hi - pad].map(v => `<line x1="${L}" x2="${W0-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">${fmt(Math.round(v))}</text>`).join('');
-  if (x.pPer.length) s += `<polyline points="${x.pPer.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>` + x.pPer.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="var(--bg)" stroke="var(--muted)" stroke-width="1.5"/>`).join('');
-  s += `<polyline points="${x.per.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="var(--fg)" stroke-width="2.5"/>` + x.per.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="4" fill="var(--fg)"/>`).join('');
+  const nice = v => m === 'reps' ? fmt(Math.round(v)) : fmt(Math.round(v));
+  let s = [lo + (hi - lo) * .15, hi - (hi - lo) * .15].map(v => `<line x1="${L}" x2="${W0-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">${nice(v)}</text>`).join('');
+  if (prev.length) s += `<polyline points="${prev.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>` + prev.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="var(--bg)" stroke="var(--muted)" stroke-width="1.5"/>`).join('');
+  s += `<polyline points="${cur.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="var(--fg)" stroke-width="2.5"/>` + cur.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="4" fill="var(--fg)"/>`).join('');
   for (let i = 0; i < n; i++) s += `<text x="${X(i)}" y="${H0-5}" text-anchor="middle" font-size="10" font-family="var(--mono)" fill="var(--muted)">${i+1}</text>`;
-  return `<div class="eyebrow">${t('perSet')} · kg</div><svg class="chart" viewBox="0 0 ${W0} ${H0}" role="img" aria-label="${t('perSet')}">${s}</svg><div class="legend"><span><i></i>${t('today2')}</span>${x.pPer.length ? `<span><i class="dash" style="border-color:var(--muted)"></i>${t('lastTime')}</span>` : ''}</div>`;
+  s += '<g class="scrub"></g>';
+  svg.setAttribute('viewBox', `0 0 ${W0} ${H0}`); svg.innerHTML = s;
+  const sc = svg.querySelector('.scrub'), val = $('rvv-' + id), unit = m === 'reps' ? '' : ' kg';
+  const show = i => {
+    if (i === null) { sc.innerHTML = ''; val.textContent = ''; return; }
+    const a = cur[i], b = prev[i]; let txt = `${t('setN', i + 1)}: ${a !== undefined ? fmt(Math.round(a)) + unit : '—'}`;
+    if (a !== undefined && b) { const d = Math.round((a / b - 1) * 100); txt += ` · ${d >= 0 ? '+' : '−'}${Math.abs(d)} %`; }
+    val.textContent = txt; sc.innerHTML = `<line x1="${X(i)}" x2="${X(i)}" y1="${Tp}" y2="${H0-B}" stroke="var(--fg)" stroke-dasharray="3 3"/>`;
+  };
+  const idxAt = e => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * W0; return n === 1 ? 0 : Math.max(0, Math.min(n - 1, Math.round((px - L) / ((W0 - L - R) / (n - 1))))); };
+  let down = false;
+  svg.addEventListener('pointerdown', e => { down = true; svg.setPointerCapture(e.pointerId); show(idxAt(e)); });
+  svg.addEventListener('pointermove', e => { if (down || e.pointerType === 'mouse') show(idxAt(e)); });
+  const end = () => { down = false; show(null); };
+  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end); svg.addEventListener('pointerleave', end);
 }
-function exBlock(x, first) {
-  const dv = x.pVol ? Math.round((x.v / x.pVol - 1) * 100) : null, db = x.pBest ? Math.round((x.best / x.pBest - 1) * 100) : null;
+function bindRvCharts(root) {
+  root.querySelectorAll('[data-metric]').forEach(sel => { drawSetChart(sel.dataset.metric); sel.onchange = () => { rvMetric = sel.value; root.querySelectorAll('[data-metric]').forEach(o => { o.value = rvMetric; drawSetChart(o.dataset.metric); }); }; });
+}
+function exBlock(x, first, id) {
+  const dv = x.pVol ? Math.round((x.v / x.pVol - 1) * 100) : null;
   const pct = d => d === null ? '' : ` · ${d >= 0 ? '+' : '−'}${Math.abs(d)} %`;
-  return `<div class="rvblock" ${first ? 'style="border-top:0;padding-top:0"' : ''}><h3>${ico(x.e.k)}${esc(exName(x.e.k))}</h3>${setChart(x)}
-    <div class="tiles3 num"><div><span>${t('volume')}${pct(dv)}</span><b>${fmt(Math.round(x.v))} kg</b></div><div><span>${t('bestSet')}</span><b>${esc(wLabel(x.e.k, x.top.w))} × ${x.top.r}</b></div><div><span>1RM${pct(db)}</span><b>${fmt(Math.round(x.best))} kg</b></div></div></div>`;
+  return `<div class="rvblock" ${first ? 'style="border-top:0;padding-top:0"' : ''}><h3>${ico(x.e.k)}${esc(exName(x.e.k))}</h3>${setChart(x, id)}
+    <div class="tiles3 num"><div><span>${t('volTotal')}${pct(dv)}</span><b>${fmt(Math.round(x.v))} kg</b></div><div><span>${t('bestSet')}</span><b>${esc(wLabel(x.e.k, x.top.w))} × ${x.top.r}</b></div><div><span>${t('strengthShort')}</span><b>${fmt(Math.round(x.best))} kg</b></div></div></div>`;
+}
+// shared review layout: after a workout and when opening a past session from the calendar
+function reviewCore(o) {
+  const sets = o.ex.flatMap(e => e.sets.map(s => ({ ...s, k:e.k, ew: effW(e.k, s.w) })));
+  const vol = sets.reduce((a, s) => a + Math.max(0, s.ew) * s.r, 0);
+  const pts = o.pts ?? (sets.length ? ptsOf(vol) : 0);
+  let h = `<div style="display:flex;flex-direction:column;gap:14px">${o.key === 'w' ? `<div class="eyebrow">${esc(o.name)}</div>` : ''}<p class="slogan">${esc(o.slogan)}</p><div class="ptsbig"><b class="num">+${pts}</b><span>${t('ptsEarned')}</span></div></div>
+    <div class="trio num"><div class="dec"><span>${t('moved')}</span><b>${volTxt(vol)}</b></div><div class="dec"><span>${t('duration')}</span><b>${t('min', o.dur)}</b></div><div class="dec"><span>${t('setsWord')}</span><b>${sets.length}</b></div></div>`;
+  if (!sets.length) return h + `<p class="hint">${t('emptyReview')}</p>`;
+  const xs = o.ex.filter(e => e.sets.length).map(e => exStatsOf(e, o.before));
+  const hi = xs.filter(x => x.best > 0).sort((a, b) => (b.best / (b.pBest || b.best)) - (a.best / (a.pBest || a.best)))[0];
+  if (hi) h += `<div class="sect"><div class="row"><h2>${t('highlightEx')}</h2>${hi.best > hi.pBest && hi.pBest ? `<span class="pill" style="padding:2px 8px;font-size:10px">${t('newPR')}</span>` : ''}</div>${exBlock(hi, true, o.key + 'h')}</div>`;
+  const rest = xs.filter(x => x !== hi);
+  if (rest.length) { h += `<button class="morebtn" data-rvtog="1"><span class="mdec dec">${o.open ? '−' : '+'}</span>${t('moreEx')} (${rest.length})</button>`; if (o.open) h += `<div>${rest.map((x, i) => exBlock(x, false, o.key + i)).join('')}</div>`; }
+  return h;
 }
 function reviewHTML() {
-  const sets = W.ex.flatMap(e => e.sets.map(s => ({ ...s, k:e.k, ew: effW(e.k, s.w) })));
-  const vol = sets.reduce((a, s) => a + Math.max(0, s.ew) * s.r, 0);
   const dur = Math.max(1, Math.round(((W.end || Date.now()) - (W.start || Date.now())) / 60000));
-  const pts = sets.length ? ptsOf(vol) : 0;
-  let h = `<div style="display:flex;flex-direction:column;gap:14px"><div class="eyebrow">${esc(W.name)}</div><p class="slogan">${esc(W.slogan)}</p><div class="ptsbig"><b class="num">+${pts}</b><span>${t('ptsEarned')}</span></div></div>
-    <div class="trio num"><div class="dec"><span>${t('moved')}</span><b>${volTxt(vol)}</b></div><div class="dec"><span>${t('duration')}</span><b>${t('min', dur)}</b></div><div class="dec"><span>${t('setsWord')}</span><b>${sets.length}</b></div></div>`;
-  if (!sets.length) return h + `<p class="hint">${t('emptyReview')}</p>`;
-  const xs = W.ex.filter(e => e.sets.length).map(exStatsOf);
-  const hi = xs.filter(x => x.best > 0).sort((a, b) => (b.best / (b.pBest || b.best)) - (a.best / (a.pBest || a.best)))[0];
-  if (hi) h += `<div class="sect"><div class="row"><h2>${t('highlightEx')}</h2>${hi.best > hi.pBest ? `<span class="pill" style="padding:2px 8px;font-size:10px">${t('newPR')}</span>` : ''}</div>${exBlock(hi, true)}</div>`;
-  const rest = xs.filter(x => x !== hi);
-  if (rest.length) { h += `<button class="morebtn" data-rvtog="1"><span class="mdec dec">${W.rvOpen ? '−' : '+'}</span>${t('moreEx')} (${rest.length})</button>`; if (W.rvOpen) h += `<div>${rest.map(x => exBlock(x)).join('')}</div>`; }
-  return h;
+  return reviewCore({ name: W.name, slogan: W.slogan, ex: W.ex.filter(e => e.sets.length), dur, before: W.start || Date.now(), key: 'w', open: W.rvOpen });
 }
 function saveWorkout() {
   if (W.ex.some(e => e.sets.length)) {
@@ -525,6 +626,24 @@ const exMatches = (k, q) => !q || (exName(k) + ' ' + (EX[k].en || '') + ' ' + t(
 function toggleFav(k) { const i = S.fav.indexOf(k); if (i >= 0) S.fav.splice(i, 1); else if (S.fav.length >= 3) { toast(t('maxFav')); return false; } else S.fav.push(k); return true; }
 function renderO() {
   const b = $('obody');
+  if (O.mode === 'add') {
+    b.innerHTML = `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${t('addEx').replace('+ ', '')}</span><span style="width:44px"></span></div>
+      <div class="searchrow"><input class="search" id="o-q" enterkeyhint="search" placeholder="${t('searchPh')}" value="${esc(O.q)}"></div><div id="o-list"></div></div>`;
+    renderPickList(); setOBar('');
+    $('o-back').onclick = closeO; $('o-q').oninput = e => { O.q = e.target.value; renderPickList(); };
+    return;
+  }
+  if (O.mode === 'review') {
+    const h = O.h, ds = new Date(h.date).toLocaleDateString(loc(), { weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' });
+    b.innerHTML = `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${esc(ds)}</span><span style="width:44px"></span></div>
+      ${reviewCore({ name: h.wname || '', slogan: h.wname || '', ex: h.ex.filter(e => EX[e.k]), dur: h.dur, before: h.date, key: 'd', open: O.open, pts: h.pts })}
+      <div class="sect"><h2>${t('allSets')}</h2><div>${h.ex.filter(e => EX[e.k]).map(e => `<div class="rvblock"><h3>${ico(e.k)}${esc(exName(e.k))}</h3><div class="cells num">${e.sets.map(s => `<span>${esc(wLabel(e.k, s.w))} × ${s.r}</span>`).join('')}</div></div>`).join('')}</div></div></div>`;
+    setOBar('');
+    $('o-back').onclick = closeO;
+    b.querySelectorAll('[data-rvtog]').forEach(x => x.onclick = () => { O.open = !O.open; renderO(); });
+    bindRvCharts(b);
+    return;
+  }
   if (O.mode === 'create') {
     const chosen = O.picked.map(([k, n], i) => `<div class="srow"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(k)}<div class="exname" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="min-width:0">${esc(exName(k))}</span><span class="mini-step"><button data-ps="${i}:-1" aria-label="minus">−</button><span class="num">${t('sets', n)}</span><button data-ps="${i}:1" aria-label="plus">+</button></span></div><span class="grip" data-grip aria-label="ziehen">${GRIP}</span></div>`).join('');
     const custom = O.custom ? `<div class="custom"><input id="c-name" enterkeyhint="done" placeholder="${t('customName')}" value="${esc(O.custom.name)}">
@@ -539,7 +658,7 @@ function renderO() {
         ${O.custom ? custom : `<button class="textbtn" id="c-open" style="align-self:flex-start;color:var(--fg)">${t('customAdd')}</button>`}</div>
       <div id="o-list"></div>${O.editId ? `<button class="ghostbtn" id="o-del" style="border-color:var(--line)">${t('delWorkout')}</button>` : ''}</div>`;
     renderPickList();
-    $('o-del') && ($('o-del').onclick = () => dialog(t('delWTitle'), t('delWText'), [[t('keep'), 'mainbtn', () => {}], [t('delYes'), 'ghostbtn', () => { workouts = workouts.filter(w => w.id !== O.editId); save(); closeO(); renderSelect(); }]]));
+    $('o-del') && ($('o-del').onclick = () => dialog(t('delWTitle'), t('delWText'), [[t('keep'), 'mainbtn', () => {}], [t('delYes'), 'ghostbtn', () => { const eid = O.editId; workouts = workouts.filter(w => w.id !== eid); save(); closeO(); if (W && W.mode === 'ready' && W.src.id === eid) closeW(); renderSelect(); }]]));
     setOBar(`<button class="mainbtn" id="o-save">${O.picked.length ? t('saveN', O.picked.length) : t('save')}</button>`);
     $('o-back').onclick = () => (O.name.trim() || O.picked.length) ? dialog(t('dlgBackTitle'), t('dlgBackText'), [[t('dlgBackNo'), 'mainbtn', () => {}], [t('dlgBackYes'), 'ghostbtn', closeO]]) : closeO();
     $('o-name').oninput = e => O.name = e.target.value;
@@ -554,7 +673,7 @@ function renderO() {
       $('c-cancel').onclick = () => { O.custom = null; renderO(); };
       $('c-add').onclick = () => { const n = O.custom.name.trim(); if (!n) { toast(t('needCustom')); return; } const k = 'c' + Date.now(); EX[k] = { de:n, en:n, g:O.custom.g, eq:O.custom.eq, custom:true }; O.picked.push([k, 4]); O.custom = null; save(); renderO(); };
     }
-    $('o-save').onclick = () => { const n = O.name.trim(); if (!n || !O.picked.length) { toast(t('needName')); return; } const ex = O.picked.map(p => [...p]); if (O.editId) { const w = wById(O.editId); w.name = n; w.ex = ex; } else workouts.unshift({ id:'w' + Date.now(), name:n, ex }); const wasEdit = !!O.editId; save(); closeO(); renderSelect(); toast(wasEdit ? '✓' : t('saved')); };
+    $('o-save').onclick = () => { const n = O.name.trim(); if (!n || !O.picked.length) { toast(t('needName')); return; } const ex = O.picked.map(p => [...p]); if (O.editId) { const w = wById(O.editId); w.name = n; w.ex = ex; } else workouts.unshift({ id:'w' + Date.now(), name:n, ex }); const wasEdit = !!O.editId, eid = O.editId; save(); closeO(); renderSelect(); toast(wasEdit ? '✓' : t('saved')); if (W && W.mode === 'ready' && W.src.id === eid) prepareWorkout(wById(eid)); };
   } else {
     b.innerHTML = `<div class="inner">
       <div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${t('pickEx')}</span><span style="width:44px"></span></div>
@@ -571,6 +690,15 @@ function renderO() {
 function renderPickList() {
   const L = $('o-list'); L.innerHTML = '';
   const starBtn = k => `<button class="star" data-star="${k}" aria-label="Favorit">${S.fav.includes(k) ? '★' : '☆'}</button>`;
+  if (O.mode === 'add') {
+    Object.keys(EX).filter(k => exMatches(k, O.q) && !W.ex.some(e => e.k === k)).forEach(k => {
+      const x = document.createElement('div'); x.className = 'pick';
+      x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${t('groups')[EX[k].g]} · ${t('eqs')[EX[k].eq]}</small></button><span></span><button class="box" data-pk="1" aria-label="hinzufügen">+</button>`;
+      x.querySelectorAll('[data-pk]').forEach(y => y.onclick = () => { W.ex.push({ k, target:4, sets:[], w: LAST[k] ? LAST[k][0] : (isBW(k) ? 0 : 20), r: LAST[k] ? LAST[k][1] : 10 }); syncTemplate(); closeO(); renderW(); });
+      L.appendChild(x);
+    });
+    return;
+  }
   if (O.mode === 'create') {
     Object.keys(EX).filter(k => exMatches(k, O.q)).forEach(k => {
       const on = O.picked.some(p => p[0] === k); const x = document.createElement('div'); x.className = 'pick' + (on ? ' on' : '');
@@ -608,18 +736,18 @@ function renderProgress() {
   $('v-progress').innerHTML = `<div class="inner">
     <h1>${t('progress')}</h1>
     <div class="sect" style="border-top:0;padding-top:0">
-      <div class="row"><h2>${t('history')}</h2><button class="textbtn" id="calbtn" style="color:var(--fg)">${calOpen ? t('less') + ' ▴' : t('calendar') + ' ▾'}</button></div>
+      <div class="row"><h2 class="hic">${SIC.cal}${t('history')}</h2><button class="textbtn" id="calbtn" style="color:var(--fg)">${calOpen ? t('less') + ' ▴' : t('calendar') + ' ▾'}</button></div>
       ${calOpen ? calHTML() : `<div class="strip-wrap"><div class="strip" id="strip">${Array.from({length:90}, (_, i) => dayTile(89 - i)).join('')}</div><button class="today-btn" id="todaybtn" hidden>${t('today')}</button></div>`}
       <div id="daycard">${dayCard()}</div>
     </div>
-    <div class="sect"><h2>${t('last30')}</h2>
+    <div class="sect"><h2 class="hic">${SIC.hist}${t('last30')}</h2>
       <div class="statgrid num"><div><b>${last30.length}</b><span>${t('wCount')}</span></div><div><b>${volTxt(vol30)}</b><span>${t('movedW')}</span></div><div><b>${Math.floor(min30/60)} h ${min30%60} min</b><span>${t('trainTime')}</span></div><div><b>${prCount(30)}</b><span>${t('prs')}</span></div></div></div>
-    <div class="sect"><h2>${t('forEx')}</h2>
+    <div class="sect"><h2 class="hic">${SIC.ex}${t('forEx')}</h2>
       <button class="exsel" id="exsel"><b>${esc(exName(S.chartKey))}</b><span class="drop">▼</span></button>
       ${S.fav.length ? `<div class="favs">${S.fav.map(k => `<button class="fav ${k===S.chartKey?'on':''}" data-ck="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
       <div id="charts"></div>
     </div>
-    <div class="sect"><h2>${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div></div>
+    <div class="sect"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div></div>
   </div>`;
   $('calbtn').onclick = () => { calOpen = !calOpen; renderProgress(); };
   $('exsel').onclick = openPicker;
@@ -635,7 +763,7 @@ function bindDays() {
   document.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { const d = +b.dataset.day; selDay = selDay === d ? null : d; dayOpen = false; document.querySelectorAll('[data-day]').forEach(x => x.classList.toggle('sel', +x.dataset.day === selDay)); $('daycard').innerHTML = dayCard(); bindDayCard(); });
   bindDayCard();
 }
-function bindDayCard() { $('daymore') && ($('daymore').onclick = () => { dayOpen = !dayOpen; $('daycard').innerHTML = dayCard(); bindDayCard(); }); }
+function bindDayCard() { document.querySelectorAll('[data-dayrv]').forEach(b => b.onclick = () => { const h = HISTORY.find(x => x.id === b.dataset.dayrv); if (h) { O = { mode:'review', h, open:false }; renderO(); openO(); $('obody').scrollTop = 0; } }); }
 function dayTile(ago) { const d = dayDate(ago), h = histOn(ago); return `<button class="day ${h?'on':''} ${ago===0?'today':''} ${selDay===ago?'sel':''}" data-day="${ago}"><small>${t('wd')[(d.getDay()+6)%7]}</small><b class="num">${d.getDate()}</b></button>`; }
 function dayCard() {
   if (selDay === null) return '';
@@ -644,8 +772,7 @@ function dayCard() {
   return hs.map((h, n) => { const nsets = h.ex.reduce((a, e) => a + e.sets.length, 0);
     return `<div class="daycard" ${n ? 'style="margin-top:18px"' : ''}><div><div class="eyebrow">${esc(ds)}</div><b style="font-family:var(--display);font-stretch:110%;font-weight:900;font-size:22px;text-transform:uppercase">${esc(h.wname || (wById(h.wid) || {}).name || '')}</b></div>
     <div class="trio num"><div class="dec"><span>${t('moved')}</span><b>${volTxt(sessVol(h))}</b></div><div class="dec"><span>${t('duration')}</span><b>${t('min', h.dur)}</b></div><div class="dec"><span>${t('setsWord')}</span><b>${nsets}</b></div></div>
-    ${n === 0 ? `<button class="morebtn" id="daymore"><span class="mdec dec">${dayOpen ? '−' : '+'}</span>${dayOpen ? t('hide') : t('details')}</button>` : ''}
-    ${dayOpen ? `<div>${h.ex.filter(e => EX[e.k]).map(e => `<div class="rvblock"><h3>${ico(e.k)}${esc(exName(e.k))}</h3><div class="cells num">${e.sets.map(s => `<span>${esc(wLabel(e.k, s.w))} × ${s.r}</span>`).join('')}</div></div>`).join('')}</div>` : ''}</div>`; }).join('');
+    <button class="morebtn" data-dayrv="${esc(h.id)}"><span class="mdec dec">+</span>${t('details')}</button></div>`; }).join('');
 }
 function calHTML() {
   const today = dayDate(0); const m = new Date(today.getFullYear(), today.getMonth() + calMonth, 1);
@@ -719,31 +846,31 @@ function renderSettings() {
   const initials = (S.name.trim().split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
   const tog = (id, on, dis) => `<button class="toggle" id="${id}" role="switch" aria-checked="${on}" ${dis ? 'disabled' : ''}><i></i></button>`;
   const seg = (attr, opts, cur) => `<div class="seg">${opts.map(([v, l]) => `<button data-${attr}="${v}" class="${cur === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
-  const head = title => `<div class="row"><button class="iconbtn" id="spback" aria-label="${t('spBack')}">←</button><span class="eyebrow">${t('spBack')}</span><span style="width:44px"></span></div><h1>${title}</h1>`;
+  const head = title => `<div class="row"><button class="iconbtn" id="spback" aria-label="${t('spBack')}">←</button><span class="eyebrow">${t('spBack')}</span><span style="width:44px"></span></div><h1 class="sph1">${title}</h1>`;
   let h = '';
   if (!setPage) {
     const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div><span>→</span></button>`;
     h = `<h1>${t('settings')}</h1><div>
-      ${item('profile', S.name.trim() || t('spProfile'), t('bodyweight') + (S.bodyweight ? ' ' + fmtW(S.bodyweight) + ' kg' : ''), `<span class="avatar dec" style="width:48px;height:48px;font-size:17px">${esc(initials)}</span>`)}
+      ${item('profile', t('spProfile'), t('spProfileHint'), `<span class="avatar dec" style="width:48px;height:48px;font-size:17px">${esc(initials)}</span>`)}
       ${item('display', t('spDisplay'), t('spDisplayHint'))}
-      ${item('train', t('spTrain'), t('spTrainHint'))}
       ${item('progress', t('spProgress'), t('spProgressHint'))}
       ${item('logic', t('spLogic'), t('spLogicHint'))}
-      ${item('data', t('spData'), t('spDataHint'))}</div>
+      ${item('data', t('spData'), t('spDataHint'))}
+      ${item('imprint', t('spImprint'), t('spImprintHint'))}</div>
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'profile') {
     h = head(t('spProfile')) + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"></div>
       <div>
         <div class="setrow"><div><b>${t('bodyweight')}</b><p>${t('bwHint')}</p></div><label class="kgin"><input id="bw" inputmode="decimal" enterkeyhint="done" class="num" placeholder="—" value="${S.bodyweight ? fmtW(S.bodyweight) : ''}"><span>kg</span></label></div>
+        <div class="setrow"><div><b>${t('age')}</b><p>${t('ageHint')}</p></div><label class="kgin"><input id="age" inputmode="numeric" enterkeyhint="done" class="num" placeholder="—" value="${S.age || ''}"><span>${S.lang === 'de' ? 'J.' : 'y'}</span></label></div>
         <div class="setrow"><div><b>${t('bwPoints')}</b><button class="info" id="bwi" aria-label="Info">i</button><p>${S.bodyweight ? t('bwPointsHint') : t('bwPointsOff')}</p></div>${tog('bwp', S.bwPoints, !S.bodyweight)}</div>
         <div class="setrow" style="opacity:.45"><div><b>${t('account')}</b><p>${t('accountHint')}</p></div><span>→</span></div>
       </div>`;
   } else if (setPage === 'display') {
     h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
-      <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div></div>`;
-  } else if (setPage === 'train') {
-    h = head(t('spTrain')) + `<div><b>${t('pulseTitle')}</b><p class="hint" style="margin-top:4px">${t('pulseHint')}</p></div>
+      <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div></div>
+      <div style="margin-top:8px"><b>${t('pulseTitle')}</b><p class="hint" style="margin-top:4px">${t('pulseHint')}</p></div>
       <div class="anims">${Object.keys(T.de.pulses).map(k => `<button class="animopt ${S.pulse===k?'on':''}" data-pulse="${k}"><span class="pvdec dec" style="animation:${PULSE[k]} ease-in-out infinite"></span><span>${t('pulses')[k]}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('loadTitle')}</b><p class="hint" style="margin-top:4px">${t('loadHint')}</p></div>
       <div class="anims">${Object.keys(T.de.anims).map(k => `<button class="animopt ${S.anim===k?'on':''}" data-anim="${k}">${animSVG(k, false)}<span>${t('anims')[k]}</span></button>`).join('')}</div>`;
@@ -755,6 +882,8 @@ function renderSettings() {
       <div class="setrow setcol" ${S.fcHor ? '' : 'style="opacity:.4;pointer-events:none"'}><div><b>${t('lookTitle')}</b><p>${t('lookHint')}</p></div>${seg('fcl', [[4, '4 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk], [0, t('all')]], S.fcLook)}</div></div>`;
   } else if (setPage === 'logic') {
     h = head(t('spLogic')) + `<div>${t('logic').map(([a, b]) => `<div class="logic"><b>${a}</b><p>${b}</p></div>`).join('')}</div>`;
+  } else if (setPage === 'imprint') {
+    h = head(t('spImprint')) + `<div class="logic" style="border-top:1px solid var(--line)">${t('imprint')}</div>`;
   } else if (setPage === 'data') {
     h = head(t('spData')) + `<p class="hint">${t('localHint')}</p>
       <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>
@@ -774,6 +903,7 @@ function renderSettings() {
   on('trc', () => { S.trendColor = !S.trendColor; renderSettings(); });
   on('bwi', () => showInfo(t('bwInfo')));
   on('fci', () => showInfo(t('infoFc', S.fcLook, S.fcHor || 6)));
+  $('age') && ($('age').onchange = e => { const v = parseNum(e.target.value); S.age = v && v > 0 ? Math.round(v) : null; renderSettings(); });
   $('bw') && ($('bw').onchange = e => { const v = parseNum(e.target.value); S.bodyweight = v && v > 0 ? v : null; if (!S.bodyweight) S.bwPoints = false; renderSettings(); });
   on('bwp', () => { S.bwPoints = !S.bwPoints; renderSettings(); });
   document.querySelectorAll('[data-fch]').forEach(b => b.onclick = () => { S.fcHor = +b.dataset.fch; renderSettings(); });

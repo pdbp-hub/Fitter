@@ -1,12 +1,16 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **Ben:** Dev v0.2.0 testen → „freigeben“ für Live
-- [ ] **Ben:** Entscheidung kraftbasiertes Points-System (Vorschlag liegt vor)
+- [ ] **Ben:** Dev v0.3.0 testen → „freigeben“ für Live
+- [ ] **Ben:** Impressum mit echten Daten füllen (Platzhalter in Einstellungen → Impressum)
+- [ ] **Nächste Session – Diskussion (Claude bereitet Vorschläge vor):**
+  - [ ] **Points-Logik**: Elo-ähnlich, nicht manipulierbar (kein Volumen-Hacking, Beinpresse ≠ wertvoller als Curls) – mehrere Ansätze vergleichen
+  - [ ] **KPIs**: Welche Kennzahlen sind für Gym-Gänger wirklich relevant (kg bewegt, Minuten, Workouts, Kraft …)? Startseite, Review, Fortschritt
+- [ ] **Danach – nächste große Blöcke** (in dieser Reihenfolge):
+  - [ ] **Account + Datenbank** (Supabase): Anmeldung, Cloud-Speicherung, Umzug der lokalen Daten
+  - [ ] **Onboarding** (erklärt App, 1RM, Points, Körpergewicht)
+  - [ ] **Datenschutzerklärung** + Einwilligung (vor dem Teilen mit anderen)
 - [ ] Prüfen, ob der schwarze Rand unten auf dem iPhone weg ist (Ben)
-- [ ] Review-Feedback aus dem echten Test einarbeiten
-- [ ] **Claude (proaktiv):** Vorschlag für die Points-Berechnung ausarbeiten und Ben vorlegen (Arbeitstitel „Points“, Basis geschätzte Maximalkraft/1RM)
-- [ ] Inhalte der Fortschritt-Seite festlegen
 - [ ] Übungsdatenbank: Umfang und Kategorien festlegen (Name DE/EN, Muskelgruppe, Equipment)
 
 ## Version 1 (lokal auf dem Handy)
@@ -55,12 +59,16 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 
 ## Ideen-Parkplatz
 _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App offen._
+- **Achievements / Medaillen / Challenges** zum Freischalten (2026-11-02)
+- **Altersvergleich** in der Community („in deinem Alter bist du …“) – Alter wird im Profil schon erfasst (2026-11-02)
+- **Zeit pro Wiederholung / Satz-Effizienz** tracken (Anlaufzeit vor dem Satz berücksichtigen) – eher Nerd-Feature, hinten anstellen (2026-11-02)
 - **Pausentage-Tracking**: Ø Pausentage zwischen gleichen Workout-Typen (z. B. zwischen zwei Push Days) und generell zwischen Trainingstagen (2026-11-01)
 - **Jahres-/Langzeitstatistik**: Wie viele Push/Pull/Leg Days im letzten Jahr, Monat etc. (2026-11-01)
 - **Points-Name**: finalen Namen für das Punktesystem finden (2026-11-01)
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] 2026-11-02 – Dev v0.3.0: Startseite mit 3 Kennzahlen (Workouts, kg, Minuten) + ▲▼ vs. Vorwoche; Workouts direkt im Bereit-Screen bearbeiten (Sätze, Gewicht, Übungen hinzufügen/entfernen, ✎ für Name/Löschen); Mini-Leiste rund + fließender Übergang; „Reset“-Knopf; „Satz beenden → Nächste Übung“ zweizeilig; aktuelle Übung scrollt automatisch ins Bild; 11 neue Übungs-Icons; Review: Kennzahl-Auswahl (Volumen/Wdh./Maximalkraft pro Satz), Chart interaktiv, Kennzahlen ohne Überladung; Kalender-Details als eigene Review-Seite mit allen Sätzen; „Maximalkraft (geschätzt)“; Icons an Fortschritt-Überschriften; Einstellungen: Profil-Untertitel, Alter, Animationen unter Darstellung, Impressum-Seite, Fix für seitliches Scrollen
 - [x] 2026-11-02 – Dev v0.2.0: Einstellungen in Unterseiten (Profil, Darstellung, Train, Fortschritt, Berechnungslogik, Daten), Erklärseite Points/1RM/Prognose/Trends, je 4 neue Puls- und Lade-Animationen, neues Trizepsdrücken-Icon, Prognose auf allen 3 Charts mit Info-i, Prognose-Zeitraum (inkl. Aus) + Rückblick einstellbar
 - [x] 2026-11-01 – Dev-Version unter `/dev/` (gelbes Icon, eigene Daten, Testdaten, „Testdaten neu erzeugen“) + Freigabe-Skript `tools/release.py` + Tests für beide Versionen
 - [x] 2026-11-01 – v0.1.1: Abstand unten auf dem iPhone verkleinert, neue Icons für Dips/Trizepsdrücken/Kabelzug, „Geschätzte Maximalkraft (1RM) pro Satz“, App für Suchmaschinen gesperrt (noindex)
