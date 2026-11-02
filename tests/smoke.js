@@ -56,7 +56,8 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   const target = await ev(() => document.querySelectorAll('.block.cur .set').length);
   for (let i = 0; i < target * 2; i++) await click('#mainact');
   check('Nach letztem Satz automatisch nächste Übung', first !== await ev(() => document.querySelector('.block.cur .exname').firstChild.textContent));
-  await click('[data-tog="0"]'); await click('[data-addset="0"]'); await click('[data-goto="0"]');
+  const scrolled = () => page.waitForTimeout(450); // automatisches Scrollen zur aktuellen Übung abwarten
+  await scrolled(); await click('[data-tog="0"]'); await scrolled(); await click('[data-addset="0"]'); await scrolled(); await click('[data-goto="0"]'); await scrolled();
   check('Nachträglicher Satz in früherer Übung ist startbar (REGRESSION)', first === await ev(() => document.querySelector('.block.cur .exname').firstChild.textContent) && /5/.test(await ev(() => document.getElementById('mainact').textContent)));
   await click('#mainact');
   await click('#resetbtn');
