@@ -393,3 +393,12 @@ button { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 .logic p + p { margin-top: 10px; }
 .screen { overflow-x: hidden; }
 .srow .tapzone { text-align: left; }
+
+/* trend colour previews */
+.trcopts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tprev { width: 100%; height: auto; max-width: 150px; }
+.tp-line { stroke-dasharray: 100; animation: tp-draw 4s ease-in-out infinite; }
+.tp-fc { opacity: 0; animation: tp-fc 4s ease-in-out infinite; }
+@keyframes tp-draw { 0% { stroke-dashoffset: 100; } 40%, 100% { stroke-dashoffset: 0; } }
+@keyframes tp-fc { 0%, 40% { opacity: 0; } 55%, 90% { opacity: 1; } 100% { opacity: 0; } }
+.animopt svg.tprev { width: 100%; height: auto; max-width: 160px; }

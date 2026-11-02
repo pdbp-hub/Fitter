@@ -172,6 +172,14 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Überschriften im Fortschritt mit Icons', await ev(() => document.querySelectorAll('#v-progress h2.hic svg').length === 4));
     await click('[data-tab=settings]'); await sp('logic');
     check('Berechnungslogik: kein seitliches Scrollen (REGRESSION)', await ev(() => { const v = document.getElementById('v-settings'); return v.scrollWidth <= v.clientWidth + 1; }));
+    await back(); await sp('display');
+    check('Trend-Farben unter Darstellung mit 2 animierten Vorschauen', await ev(() => document.querySelectorAll('[data-trc] svg.tprev').length === 2));
+    await click('[data-trc="1"]'); await click('[data-tab=progress]');
+    check('Rot-Grün färbt die Charts', await ev(() => /--up|--down/.test(document.getElementById('charts').innerHTML)));
+    await click('[data-tab=settings]'); await sp('display'); await click('[data-trc="0"]');
+    check('Original schaltet zurück auf Schwarz-Weiß', await ev(() => document.querySelector('[data-trc="0"]').classList.contains('on')));
+    await back(); await sp('progress');
+    check('Fortschritt-Einstellungen: nur Prognose & Rückblick', await ev(() => !!document.querySelector('[data-fch]') && !!document.querySelector('[data-fcl]') && !document.querySelector('[data-trc]')));
     await back(); await sp('imprint');
     check('Impressum vorhanden', await ev(() => /§ 5 DDG/.test(document.getElementById('v-settings').textContent)));
     await back(); await sp('profile');

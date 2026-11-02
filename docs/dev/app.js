@@ -8,7 +8,7 @@ const EX = {
   squat:{de:'Kniebeuge',en:'Squat',g:'legs',eq:'bb'}, legpress:{de:'Beinpresse',en:'Leg Press',g:'legs',eq:'machine'}, rdl:{de:'Rumänisches Kreuzheben',en:'Romanian Deadlift',g:'legs',eq:'bb'},
   legcurl:{de:'Beinbeuger',en:'Leg Curl',g:'legs',eq:'machine'}, legext:{de:'Beinstrecker',en:'Leg Extension',g:'legs',eq:'machine'}, calf:{de:'Wadenheben',en:'Calf Raise',g:'legs',eq:'machine'}
 };
-const APP_VERSION = '0.3.0';
+const APP_VERSION = '0.3.1';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -159,13 +159,13 @@ Object.assign(T.en, { anims:{ breath:'Pulse', fill:'Fill', shards:'Shards', mosa
     afternoon:['Shake off the day.','Afternoon slump? Not you.','Stronger than yesterday.','Best break: a good set.','Ready for a record?'],
     evening:['Work is over. Training begins.','Finish the day strong.','Good evening, powerhouse.','Others chill. You train.','Tonight we pump.'],
     night:['Night owl in the gym. Respect!','The weights never sleep.','Late, but here.','Empty gym, open floor.','Midnight gains.'] } });
-Object.assign(T.de, { chStrength:'Maximalkraft (geschätzt)', strengthShort:'Maximalkraft (geschätzt)', setEnd:'Satz beenden', nextExArrow:'Nächste Übung', resetLbl:'Reset', volTotal:'Volumen gesamt',
+Object.assign(T.de, { trcBW:'Original (Schwarz-Weiß)', trcColor:'Rot-Grün', spProgressHint:'Prognose & Rückblick', spDisplayHint:'Sprache, Farbumkehr, Trend-Farben, Animationen', trendColorHint:'Wie Linien in den Fortschritt-Charts eingefärbt werden', chStrength:'Maximalkraft (geschätzt)', strengthShort:'Maximalkraft (geschätzt)', setEnd:'Satz beenden', nextExArrow:'Nächste Übung', resetLbl:'Reset', volTotal:'Volumen gesamt',
   metrics:{ vol:'Volumen pro Satz', reps:'Wiederholungen pro Satz', orm:'Maximalkraft (geschätzt) pro Satz' }, allSets:'Alle Übungen & Sätze', setN:n=>`Satz ${n}`, lastShort2:'letztes Mal',
   spProfileHint:'Persönliche Infos & Account', spDisplayHint:'Sprache, Farbumkehr, Animationen', age:'Alter', ageHint:'Optional – später z. B. für Altersvergleiche', spImprint:'Impressum', spImprintHint:'Anbieterkennzeichnung',
   editW:'Workout bearbeiten', addEx:'+ Übung hinzufügen', removeEx:'Übung entfernen', setsLbl:'Sätze', minutes:'Minuten', vsLastShort:'vs. Vorwoche',
   readyHint:'Tippe auf eine Übung, um Sätze und Gewicht anzupassen. Reihenfolge per Ziehen am Griff.',
   imprint:'<p><b>Angaben gemäß § 5 DDG</b><br>[Vorname Nachname]<br>[Straße Hausnummer]<br>[PLZ Ort]</p><p><b>Kontakt</b><br>E-Mail: [E-Mail-Adresse]</p><p><b>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</b><br>[Vorname Nachname], Anschrift wie oben</p><p><b>Haftung für Inhalte</b><br>Die Inhalte dieser App wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte, insbesondere berechneter Werte wie Maximalkraft oder Prognosen, wird keine Gewähr übernommen. Die App ersetzt keine fachliche Trainings- oder medizinische Beratung.</p>' });
-Object.assign(T.en, { chStrength:'Max strength (estimated)', strengthShort:'Max strength (estimated)', setEnd:'End set', nextExArrow:'Next exercise', resetLbl:'Reset', volTotal:'Total volume',
+Object.assign(T.en, { trcBW:'Original (black & white)', trcColor:'Red-green', spProgressHint:'Forecast & look-back', spDisplayHint:'Language, invert colours, trend colours, animations', trendColorHint:'How lines in the progress charts are coloured', chStrength:'Max strength (estimated)', strengthShort:'Max strength (estimated)', setEnd:'End set', nextExArrow:'Next exercise', resetLbl:'Reset', volTotal:'Total volume',
   metrics:{ vol:'Volume per set', reps:'Reps per set', orm:'Max strength (estimated) per set' }, allSets:'All exercises & sets', setN:n=>`Set ${n}`, lastShort2:'last time',
   spProfileHint:'Personal info & account', spDisplayHint:'Language, invert colours, animations', age:'Age', ageHint:'Optional – later e.g. for age comparisons', spImprint:'Imprint', spImprintHint:'Legal notice',
   editW:'Edit workout', addEx:'+ Add exercise', removeEx:'Remove exercise', setsLbl:'Sets', minutes:'Minutes', vsLastShort:'vs. last week',
@@ -841,6 +841,13 @@ function drawChart(def, ss) {
 
 /* ---------- Settings ---------- */
 const PULSE = { breathe:'p-breathe 2.6s', beat:'p-beat 1.6s', wobble:'p-wobble 2.4s', bounce:'p-bounce 1.8s', tilt:'p-tilt 2.8s', squash:'p-squash 2s', twist:'p-twist 3s', off:'none' };
+// animated mini chart for the trend-colour setting: line draws in, then the dashed forecast follows
+function trendPreview(color) {
+  const line = (pts, fc, col, delay) => `<polyline class="tp-line" style="animation-delay:${delay}s" pathLength="100" points="${pts}" fill="none" stroke="${col}" stroke-width="3" stroke-linejoin="round"/><polyline class="tp-fc" style="animation-delay:${delay}s" points="${fc}" fill="none" stroke="${col}" stroke-width="2.5" stroke-dasharray="5 4"/>`;
+  const up = line('6,50 22,44 36,46 50,34 64,30 78,22', '78,22 96,16 114,12', color ? 'var(--up)' : 'var(--fg)', 0);
+  const down = color ? line('6,24 22,26 36,32 50,30 64,38 78,42', '78,42 96,47 114,50', 'var(--down)', .25) : '';
+  return `<svg viewBox="0 0 120 58" class="tprev" aria-hidden="true"><line x1="78" x2="78" y1="4" y2="56" stroke="var(--line)" stroke-dasharray="2 3"/>${up}${down}</svg>`;
+}
 let setPage = null;
 function renderSettings() {
   const initials = (S.name.trim().split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
@@ -870,6 +877,8 @@ function renderSettings() {
     h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
       <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div></div>
+      <div style="margin-top:8px"><b>${t('trendColor')}</b><p class="hint" style="margin-top:4px">${t('trendColorHint')}</p></div>
+      <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.trendColor ? 'on' : ''}" data-trc="${v}">${trendPreview(!!v)}<span>${t(v ? 'trcColor' : 'trcBW')}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('pulseTitle')}</b><p class="hint" style="margin-top:4px">${t('pulseHint')}</p></div>
       <div class="anims">${Object.keys(T.de.pulses).map(k => `<button class="animopt ${S.pulse===k?'on':''}" data-pulse="${k}"><span class="pvdec dec" style="animation:${PULSE[k]} ease-in-out infinite"></span><span>${t('pulses')[k]}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('loadTitle')}</b><p class="hint" style="margin-top:4px">${t('loadHint')}</p></div>
@@ -877,7 +886,6 @@ function renderSettings() {
   } else if (setPage === 'progress') {
     const wk = t('weeksShort');
     h = head(t('spProgress')) + `<div>
-      <div class="setrow"><div><b>${t('trendColor')}</b><p>${t('trendColorHint')}</p></div>${tog('trc', S.trendColor)}</div>
       <div class="setrow setcol"><div><b>${t('fcTitle')}</b><button class="info" id="fci" aria-label="Info">i</button><p>${t('fcHint')}</p></div>${seg('fch', [[0, t('fcOff')], [4, '4 ' + wk], [6, '6 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk]], S.fcHor)}</div>
       <div class="setrow setcol" ${S.fcHor ? '' : 'style="opacity:.4;pointer-events:none"'}><div><b>${t('lookTitle')}</b><p>${t('lookHint')}</p></div>${seg('fcl', [[4, '4 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk], [0, t('all')]], S.fcLook)}</div></div>`;
   } else if (setPage === 'logic') {
@@ -900,7 +908,7 @@ function renderSettings() {
   $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
   on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));
   on('inv', () => { S.inverted = !S.inverted; applyClasses(); renderSettings(); });
-  on('trc', () => { S.trendColor = !S.trendColor; renderSettings(); });
+  document.querySelectorAll('[data-trc]').forEach(b => b.onclick = () => { S.trendColor = b.dataset.trc === '1'; renderSettings(); });
   on('bwi', () => showInfo(t('bwInfo')));
   on('fci', () => showInfo(t('infoFc', S.fcLook, S.fcHor || 6)));
   $('age') && ($('age').onchange = e => { const v = parseNum(e.target.value); S.age = v && v > 0 ? Math.round(v) : null; renderSettings(); });
