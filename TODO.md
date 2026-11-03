@@ -3,20 +3,6 @@
 ## Als Nächstes
 - [ ] **🔝 ALLERERSTES THEMA nächste Session: Points-Logik diskutieren** (Claude hat in Dev v0.4 einen mehrstufigen, schwer manipulierbaren Vorschlag eingebaut – siehe Einstellungen → Berechnungslogik)
 - [ ] **Ben:** Dev v0.4.0 testen → „freigeben“ für Live
-- [ ] **Feedback-Runde 2026-11-03 (in Dev v0.4 umzusetzen):**
-  - Mehr Begrüßungssprüche; „+X diese Woche“ & „vs. Vorwoche“ weniger „Claude-grau“; „Diese Woche“ nutzt Platz nach unten besser
-  - Akzentfarben (Rot/Grün) für Veränderungen ▲▼ als Einstellung unter Darstellung mit Vorschau – auch im Review
-  - Intro-Animation beim Öffnen (Zehneck schwebt ein → wird zum Start-Zehneck)
-  - Icons überarbeiten: Trizepsdrücken, Beinpresse, Beinbeuger, Beinstrecker, Wadenheben
-  - Übungsdatenbank deutlich erweitern; Filter (Muskelgruppe, Gerät, Bottom-Sheet) + Sortieren (A–Z, Favoriten); „+ Eigene Übung“ als breiter Button
-  - Mehr als 3 Favoriten; im Fortschritt horizontal scrollbar (4. Favorit angeteasert)
-  - Bereit-Screen: alle geplanten Sätze einzeln (kg/Wdh. pro Satz), „+ Satz“, ✕ pro Satz; Übung per Wischen nach links löschen (rote Fläche + Nachfrage); auch im laufenden Workout
-  - Aufwärmen: Abbrechen-Möglichkeit („Aus Versehen gestartet?“)
-  - Mini-Leiste: Runterwischen sauberer (10× testen)
-  - Alle Overlays/Dialoge mittig statt unten; Info-Fenster größer und mittig
-  - Review: 30 Sprüche (Tageszeit, Rekorde); Celebration-Animation (8 Varianten, Einstellung); Dropdown im App-Design statt Apple-Auswahl; „+0 %“-Umbruch; Akzent-/Trendfarben auch hier
-  - Fortschritt: „Ganzer Kalender“ mittig unter den 7 Tagen; Chart-Kopfzeile darf beim Ziehen nicht umbrechen (Bug); kein Info-i in der Legende (Prognose-Info ins Titel-i)
-  - Datenschutzerklärung (Entwurf) unter Daten; Onboarding (Story) + gelbe Dev-Zeile in Einstellungen zum Ansehen
 - [ ] **Ben:** Impressum mit echten Daten füllen (Platzhalter in Einstellungen → Impressum)
 - [ ] **Nächste Session – Diskussion (Claude bereitet Vorschläge vor):**
   - [ ] **Points-Logik**: Elo-ähnlich, nicht manipulierbar (kein Volumen-Hacking, Beinpresse ≠ wertvoller als Curls) – mehrere Ansätze vergleichen
@@ -84,6 +70,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] 2026-11-03 – Dev v0.4.0: +25 Begrüßungen je Sprache, 30 Review-Sprüche (Tageszeit/Rekord), Startseite ruhiger + größere Wochenzahlen, Akzentfarben ▲▼ (Einstellung mit Vorschau), Intro-Animation, Celebration (8 Effekte + Aus), Onboarding-Story + gelbe Dev-Werkzeuge, Datenschutzerklärung (Entwurf), Points v2 (Vorschlag), ~70 Übungen + Filter/Sortieren + breiter „Eigene Übung“-Button, unbegrenzte Favoriten (horizontal scrollbar), Sätze einzeln planen + ✕ pro Satz, Übung per Wischen löschen, Abbrechen beim Aufwärmen, neuer Mini-Leisten-Übergang (10× getestet), Dialoge/Info mittig, App-eigenes Dropdown, Chart-Kopf-Bug, Kalender-Button mittig, 5 Icons überarbeitet
 - [x] 2026-11-02 – Dev v0.3.1: Trend-Farben unter Darstellung mit zwei animierten Vorschauen (Original / Rot-Grün); Fortschritt-Einstellungen nur noch Prognose & Rückblick
 - [x] 2026-11-02 – Dev v0.3.0: Startseite mit 3 Kennzahlen (Workouts, kg, Minuten) + ▲▼ vs. Vorwoche; Workouts direkt im Bereit-Screen bearbeiten (Sätze, Gewicht, Übungen hinzufügen/entfernen, ✎ für Name/Löschen); Mini-Leiste rund + fließender Übergang; „Reset“-Knopf; „Satz beenden → Nächste Übung“ zweizeilig; aktuelle Übung scrollt automatisch ins Bild; 11 neue Übungs-Icons; Review: Kennzahl-Auswahl (Volumen/Wdh./Maximalkraft pro Satz), Chart interaktiv, Kennzahlen ohne Überladung; Kalender-Details als eigene Review-Seite mit allen Sätzen; „Maximalkraft (geschätzt)“; Icons an Fortschritt-Überschriften; Einstellungen: Profil-Untertitel, Alter, Animationen unter Darstellung, Impressum-Seite, Fix für seitliches Scrollen
 - [x] 2026-11-02 – Dev v0.2.0: Einstellungen in Unterseiten (Profil, Darstellung, Train, Fortschritt, Berechnungslogik, Daten), Erklärseite Points/1RM/Prognose/Trends, je 4 neue Puls- und Lade-Animationen, neues Trizepsdrücken-Icon, Prognose auf allen 3 Charts mit Info-i, Prognose-Zeitraum (inkl. Aus) + Rückblick einstellbar

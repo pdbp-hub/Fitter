@@ -25,11 +25,11 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   page.on('pageerror', e => errors.push(e.message));
   let failed = 0;
   const check = (name, ok) => { console.log((ok ? '  ✓ ' : '  ✗ ') + name); if (!ok) failed++; };
-  const click = async sel => { await page.click(sel, { force: true }); await page.waitForTimeout(120); };
+  const click = async sel => { await page.evaluate(q => { const el = document.querySelector(q); if (el && el.closest('.screen')) el.scrollIntoView({ block: 'center' }); }, sel).catch(() => {}); await page.click(sel, { force: true }); await page.waitForTimeout(120); };
   const ev = fn => page.evaluate(fn);
   const settle = () => page.waitForTimeout(450); // Sheet-Animationen abwarten
 
-  await page.goto(URL + TARGET + (TARGET ? '?noseed' : '')); await page.waitForTimeout(400);
+  await page.goto(URL + TARGET + (TARGET ? '?noseed&test' : '?test')); await page.waitForTimeout(400);
 
   console.log('PWA');
   check('Manifest ist verlinkt und erreichbar', (await (await page.request.get(URL + TARGET + 'manifest.webmanifest')).json()).display === 'standalone');
@@ -49,6 +49,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   const after = await ev(() => [...document.querySelectorAll('#readylist .exname')].map(e => e.firstChild.textContent));
   check('Ziehen ändert die Reihenfolge', before[0] !== after[0]);
   await click('#startbtn'); await click('#warmdone');
+  check('Hauptknopf ist nicht verdeckt (REGRESSION)', await ev(() => { const m = document.getElementById('mainact'), r = m.getBoundingClientRect(); return m.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)); }));
   check('Lange Übungsnamen werden nicht abgeschnitten (REGRESSION)', await ev(() => [...document.querySelectorAll('.exname')].every(e => e.scrollWidth <= e.clientWidth + 1)));
   await page.fill('#cukg', '62,5'); await page.press('#cukg', 'Enter');
   check('Gewicht mit Komma eintippbar', await ev(() => document.getElementById('cukg').value === '62,5'));
@@ -143,10 +144,10 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Startseite scrollt weiterhin nicht', await ev(() => { const s = document.getElementById('v-start'); return s.scrollHeight <= s.clientHeight; }));
     await click('#go'); await click('.witem'); await settle();
     const before = await ev(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts[0].ex[0][1]);
-    await click('[data-ropen="0"]'); await click('[data-rs="0:1"]');
+    await click('[data-ropen="0"]'); await click('[data-padd="0"]');
     check('Bereit-Screen: Satzzahl änderbar und im Workout gespeichert', await ev(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts[0].ex[0][1]) === before + 1);
     const nEx = await ev(() => document.querySelectorAll('#readylist .srow').length);
-    await click('#raddex'); await settle(); await page.locator('#o-list [data-pk]').first().click({ force: true }); await settle();
+    await click('#raddex'); await settle(); await click('#o-list [data-pk]'); await settle();
     check('Bereit-Screen: Übung hinzufügbar', await ev(() => document.querySelectorAll('#readylist .srow').length) === nEx + 1);
     await click('#startbtn'); await click('#warmdone'); await click('#mainact');
     check('Reset-Knopf zeigt „Reset“ statt Zeit', await ev(() => /Reset/.test(document.getElementById('resetbtn').textContent) && !/\d\d:\d\d/.test(document.getElementById('resetbtn').textContent)));
@@ -159,8 +160,9 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('#mini'); await page.waitForTimeout(600);
     check('Mini-Leiste öffnet Workout wieder', await ev(() => !document.getElementById('wsheet').classList.contains('down')));
     await click('#endbtn'); await click('[data-db="1"]');
-    check('Review: Kennzahl-Auswahl über dem Satz-Chart', await ev(() => !!document.querySelector('#wbody select.metric')));
-    await page.selectOption('#wbody select.metric', 'reps'); await page.waitForTimeout(100);
+    check('Review: Kennzahl-Auswahl im App-Design (kein natives Select)', await ev(() => !!document.querySelector('#wbody .msel') && !document.querySelector('#wbody select')));
+    await click('#wbody .msel .mbtn'); await click('#wbody .msel [data-m="reps"]');
+    check('Dropdown wechselt Kennzahl', await ev(() => /Wiederholungen|Reps/.test(document.querySelector('#wbody .mbtn').textContent)));
     const box = await page.locator('#wbody svg.chart').first().boundingBox();
     await page.mouse.move(box.x + box.width * .5, box.y + 40); await page.mouse.down(); await page.waitForTimeout(80);
     check('Review-Chart interaktiv (Wert beim Ziehen)', await ev(() => /Satz|Set/.test(document.querySelector('#wbody .legend .val').textContent)));
@@ -187,10 +189,94 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await back();
   }
 
+  if (TARGET) {
+    console.log('Neu in v0.4');
+    const centered = sel => ev(new Function(`const el = document.querySelector('${sel}'); if (!el) return false; const r = el.getBoundingClientRect(); return Math.abs((r.top + r.bottom) / 2 - innerHeight / 2) < 90;`));
+    await click('[data-tab=start]'); await click('#go'); await click('.witem'); await settle();
+    await click('[data-ropen="0"]');
+    const nPlan = await ev(() => document.querySelectorAll('.redit .pset').length);
+    check('Bereit: alle geplanten Sätze einzeln sichtbar', nPlan >= 2);
+    await page.fill('[data-pw="0:1"]', '77,5'); await page.press('[data-pw="0:1"]', 'Enter'); await page.waitForTimeout(100);
+    check('Bereit: Gewicht pro Satz planbar', await ev(() => document.querySelector('[data-pw="0:1"]').value === '77,5'));
+    await click('[data-psx="0:0"]');
+    check('Satz-✕ fragt mittig nach', await centered('#overlay .dialog'));
+    await click('[data-db="1"]');
+    check('Satz gelöscht', await ev(() => document.querySelectorAll('.redit .pset').length) === nPlan - 1);
+    const nRows = await ev(() => document.querySelectorAll('#readylist > .srow').length);
+    await ev(() => document.querySelectorAll('#readylist > .srow')[1].scrollIntoView({ block: 'center' }));
+    const rb = await page.locator('#readylist > .srow').nth(1).boundingBox();
+    await page.mouse.move(rb.x + rb.width * .6, rb.y + 20); await page.mouse.down(); await page.mouse.move(rb.x + rb.width * .6 - 140, rb.y + 22, { steps: 10 }); await page.mouse.up(); await page.waitForTimeout(300);
+    check('Wischen nach links zeigt rote Lösch-Fläche', await ev(() => !!document.querySelector('#readylist .swipe-del')));
+    const db = await page.locator('#readylist .swipe-del').boundingBox(); await page.mouse.click(db.x + db.width - 40, db.y + db.height / 2); await page.waitForTimeout(150);
+    await click('[data-db="1"]'); await page.waitForTimeout(200);
+    check('Übung per Wischen gelöscht', await ev(() => document.querySelectorAll('#readylist > .srow').length) === nRows - 1);
+    await click('#startbtn');
+    check('Aufwärmen: Abbrechen möglich', await ev(() => !!document.getElementById('warmcancel')));
+    await click('#warmcancel'); check('Abbrechen fragt „Aus Versehen gestartet?“', await ev(() => /Versehen|accident/.test(document.getElementById('overlay').textContent)));
+    await click('[data-db="0"]'); await click('#warmdone');
+    check('Training: geplanter Satz übernimmt geplantes Gewicht', await ev(() => !!document.getElementById('cukg')));
+    check('Training: geplante Sätze haben ✕', await ev(() => document.querySelectorAll('#blocks .set.planned .sx').length > 0));
+    let morphOk = true;
+    for (let k = 0; k < 10; k++) {
+      await click('#minbtn'); await page.waitForTimeout(650);
+      const a = await ev(() => !document.getElementById('mini').hidden && document.getElementById('wsheet').classList.contains('down') && getComputedStyle(document.getElementById('mini')).opacity === '1' && !document.getElementById('wsheet').classList.contains('morphing'));
+      await click('#mini'); await page.waitForTimeout(650);
+      const b = await ev(() => document.getElementById('mini').hidden && !document.getElementById('wsheet').classList.contains('down') && document.getElementById('wsheet').style.transform === '' && !document.getElementById('wsheet').classList.contains('morphing'));
+      if (!a || !b) morphOk = false;
+    }
+    check('Mini-Leiste: 10× runter & hoch ohne Hänger', morphOk);
+    await click('#mainact'); await click('#mainact');
+    await click('#endbtn'); await click('[data-db="1"]'); await page.waitForTimeout(400);
+    check('Celebration startet beim Review', await ev(() => !!document.getElementById('celeb')));
+    check('Review-Prozent bricht nicht um', await ev(() => [...document.querySelectorAll('.tiles3 .dl')].every(e => getComputedStyle(e).whiteSpace === 'nowrap')));
+    await click('#donebtn'); await settle();
+    await click('[data-tab=progress]');
+    check('„Ganzer Kalender“ mittig unter den Tagen', await ev(() => { const b = document.getElementById('calbtn'), s = document.getElementById('strip'); return b && s && b.getBoundingClientRect().top > s.getBoundingClientRect().bottom; }));
+    await click('#exsel'); await settle(); await click('[data-sel]');
+    check('Kein Info-i mehr in der Legende', await ev(() => !document.querySelector('#charts .legend .info')));
+    const hh = await ev(() => document.querySelector('.chartbox').getBoundingClientRect().height);
+    const cb = await page.locator('#ch-str').boundingBox();
+    await page.mouse.move(cb.x + 50, cb.y + 50); await page.mouse.down(); await page.mouse.move(cb.x + cb.width - 20, cb.y + 50, { steps: 8 });
+    check('Chart-Kopf springt beim Ziehen nicht (REGRESSION)', Math.abs(await ev(() => document.querySelector('.chartbox').getBoundingClientRect().height) - hh) < 1);
+    await page.mouse.up();
+    await click('[data-info="info1rm"]');
+    check('Info-Fenster mittig', await centered('#popover .popover'));
+    await click('#popover .x');
+    await click('[data-tab=start]'); await click('#go'); await click('#add'); await settle();
+    check('„+ Eigene Übung“ als breiter Button', await ev(() => document.getElementById('c-open').getBoundingClientRect().width > 300));
+    check('Übungsdatenbank erweitert (≥ 60)', await ev(() => document.querySelectorAll('#o-list .pick').length >= 60));
+    await click('#o-filter'); await page.waitForTimeout(350); await click('[data-fg="legs"]'); await click('#fs-apply'); await page.waitForTimeout(350);
+    check('Filter nach Muskelgruppe', await ev(() => [...document.querySelectorAll('#o-list .pick small')].every(e => /Beine|Legs/.test(e.textContent))));
+    await click('#o-sort'); await click('[data-sort="fav"]');
+    check('Sortieren umschaltbar', await ev(() => /Favoriten|Favourites/.test(document.getElementById('o-sort').textContent)));
+    for (const n of [0, 1, 2, 3]) await page.locator('#o-list [data-star]').nth(n).click({ force: true });
+    await click('#o-back'); if (await page.$('#overlay:not([hidden])')) await click('[data-db="1"]'); await settle();
+    await click('[data-tab=progress]');
+    check('Mehr als 3 Favoriten, horizontal scrollbar', await ev(() => { const f = document.querySelector('.favs'); return f && f.children.length > 3 && f.scrollWidth > f.clientWidth; }));
+    await click('[data-tab=settings]');
+    check('Dev-Werkzeuge (gelb) in Einstellungen', await ev(() => !!document.getElementById('dev-onb')));
+    await sp('display');
+    check('Akzentfarben + Celebration unter Darstellung', await ev(() => document.querySelectorAll('[data-acc]').length === 2 && document.querySelectorAll('[data-celeb]').length === 9));
+    await back(); await sp('data');
+    check('Datenschutzerklärung unter Daten', !!(await page.$('[data-sp="privacy"]')));
+    await back(); await sp('logic');
+    check('Points v2 erklärt', await ev(() => /v2/.test(document.getElementById('v-settings').textContent)));
+    await back();
+    console.log('Intro & Onboarding');
+    const fresh = await browser.newContext({ viewport: { width: 390, height: 844 } }); const fp = await fresh.newPage(); fp.on('pageerror', e => errors.push('[intro] ' + e.message));
+    await fp.goto(URL + 'dev/?noseed'); await fp.waitForTimeout(400);
+    check('Onboarding beim ersten Start', await fp.evaluate(() => !!document.getElementById('onb')));
+    await fp.click('#onb-skip'); await fp.reload(); await fp.waitForTimeout(200);
+    check('Intro-Animation beim Öffnen', await fp.evaluate(() => !!document.getElementById('intro')));
+    await fp.waitForTimeout(2200);
+    check('Intro endet im Start-Zehneck', await fp.evaluate(() => !document.getElementById('intro') && getComputedStyle(document.getElementById('go')).visibility === 'visible'));
+    await fresh.close();
+  }
+
   if (!TARGET) {
   console.log('Dev-Version');
   const dev = await ctx.newPage(); dev.on('pageerror', e => errors.push('[dev] ' + e.message));
-  await dev.goto(URL + 'dev/'); await dev.waitForTimeout(500);
+  await dev.goto(URL + 'dev/?test'); await dev.waitForTimeout(500);
   check('Dev startet mit Testdaten', await dev.evaluate(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).history.length >= 20));
   check('Dev-Daten getrennt von Live-Daten', await dev.evaluate(() => JSON.parse(localStorage.getItem('fitter.v1')).history.length === 1));
   check('Dev-Manifest heißt „Fitter Dev“', (await (await dev.request.get(URL + 'dev/manifest.webmanifest')).json()).name === 'Fitter Dev');
