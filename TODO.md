@@ -1,7 +1,22 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **Ben:** Dev v0.3.1 testen → „freigeben“ für Live
+- [ ] **🔝 ALLERERSTES THEMA nächste Session: Points-Logik diskutieren** (Claude hat in Dev v0.4 einen mehrstufigen, schwer manipulierbaren Vorschlag eingebaut – siehe Einstellungen → Berechnungslogik)
+- [ ] **Ben:** Dev v0.4.0 testen → „freigeben“ für Live
+- [ ] **Feedback-Runde 2026-11-03 (in Dev v0.4 umzusetzen):**
+  - Mehr Begrüßungssprüche; „+X diese Woche“ & „vs. Vorwoche“ weniger „Claude-grau“; „Diese Woche“ nutzt Platz nach unten besser
+  - Akzentfarben (Rot/Grün) für Veränderungen ▲▼ als Einstellung unter Darstellung mit Vorschau – auch im Review
+  - Intro-Animation beim Öffnen (Zehneck schwebt ein → wird zum Start-Zehneck)
+  - Icons überarbeiten: Trizepsdrücken, Beinpresse, Beinbeuger, Beinstrecker, Wadenheben
+  - Übungsdatenbank deutlich erweitern; Filter (Muskelgruppe, Gerät, Bottom-Sheet) + Sortieren (A–Z, Favoriten); „+ Eigene Übung“ als breiter Button
+  - Mehr als 3 Favoriten; im Fortschritt horizontal scrollbar (4. Favorit angeteasert)
+  - Bereit-Screen: alle geplanten Sätze einzeln (kg/Wdh. pro Satz), „+ Satz“, ✕ pro Satz; Übung per Wischen nach links löschen (rote Fläche + Nachfrage); auch im laufenden Workout
+  - Aufwärmen: Abbrechen-Möglichkeit („Aus Versehen gestartet?“)
+  - Mini-Leiste: Runterwischen sauberer (10× testen)
+  - Alle Overlays/Dialoge mittig statt unten; Info-Fenster größer und mittig
+  - Review: 30 Sprüche (Tageszeit, Rekorde); Celebration-Animation (8 Varianten, Einstellung); Dropdown im App-Design statt Apple-Auswahl; „+0 %“-Umbruch; Akzent-/Trendfarben auch hier
+  - Fortschritt: „Ganzer Kalender“ mittig unter den 7 Tagen; Chart-Kopfzeile darf beim Ziehen nicht umbrechen (Bug); kein Info-i in der Legende (Prognose-Info ins Titel-i)
+  - Datenschutzerklärung (Entwurf) unter Daten; Onboarding (Story) + gelbe Dev-Zeile in Einstellungen zum Ansehen
 - [ ] **Ben:** Impressum mit echten Daten füllen (Platzhalter in Einstellungen → Impressum)
 - [ ] **Nächste Session – Diskussion (Claude bereitet Vorschläge vor):**
   - [ ] **Points-Logik**: Elo-ähnlich, nicht manipulierbar (kein Volumen-Hacking, Beinpresse ≠ wertvoller als Curls) – mehrere Ansätze vergleichen
@@ -42,6 +57,7 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 - [ ] Daten in der Cloud mit Accounts (damit Nutzerdaten nicht verloren gehen)
 
 ## Später
+- [ ] **Google Fonts lokal einbinden** (Datenschutz: aktuell werden Schriften von Google-Servern geladen → IP-Übertragung) – vor Go-Live (2026-11-03)
 - [ ] Cloud-Speicherung + Accounts (Supabase)
 - [ ] Freunde: folgen, interagieren
 - [ ] **Läufe / Cardio** hinzufügen, ggf. auch aus externen Quellen (z. B. Apple Health, Strava) importieren (2026-11-01)

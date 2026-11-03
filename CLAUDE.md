@@ -23,7 +23,9 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
   - `index.html`, `manifest.webmanifest`, `sw.js`, `icons/` sind pro Version eigenständig; geteilt wird nur `app.js` + `style.css` (per Release kopiert).
   - Bei jeder Dev-Änderung `CACHE` in `docs/dev/sw.js` und `APP_VERSION` in `docs/dev/app.js` hochzählen.
 - **Nur das ändern, was Ben angefragt hat.** Alles andere bleibt exakt wie es ist (keine „Nebenbei-Verbesserungen“), damit keine Features verschwinden und keine neuen Bugs entstehen. Eigene Verbesserungsideen nur vorschlagen, nicht einbauen.
-- **Info-i** öffnen immer ein schwebendes Fenster mit ✕ (kein Aufklappen im Seiteninhalt).
+- **Info-i** öffnen immer ein Fenster **mittig** auf dem Bildschirm mit ✕ (kein Aufklappen im Seiteninhalt, nur ein Info-i pro Element – oben am Titel). Alle Dialoge/Overlays erscheinen **mittig**, nie unten.
+- **Onboarding pflegen**: Kommt ein zentrales Feature dazu oder ändert sich die Bedienung, die Onboarding-Story (`ONBOARDING` in `app.js`) aktualisieren. In Dev unter Einstellungen → gelbe Dev-Zeile ansehbar.
+- **Bedienkonventionen**: Übung löschen = nach links wischen (rote Fläche + Nachfrage). Satz löschen = ✕ in der Satzzeile (+ Nachfrage). Letzter Satz weg → Übung weg.
 - **Go-Live-Checkliste** (in `TODO.md`): Sobald Ben die App teilen oder live gehen will → zuerst die Checkliste prüfen und offene Punkte (Impressum, Datenschutz, getrennte Test-/Live-Version …) ansprechen, bevor es weitergeht.
 
 ## Produktvision
