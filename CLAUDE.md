@@ -24,7 +24,7 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
   - Bei jeder Dev-Änderung `CACHE` in `docs/dev/sw.js` und `APP_VERSION` in `docs/dev/app.js` hochzählen.
 - **Nur das ändern, was Ben angefragt hat.** Alles andere bleibt exakt wie es ist (keine „Nebenbei-Verbesserungen“), damit keine Features verschwinden und keine neuen Bugs entstehen. Eigene Verbesserungsideen nur vorschlagen, nicht einbauen.
 - **Info-i** öffnen immer ein Fenster **mittig** auf dem Bildschirm mit ✕ (kein Aufklappen im Seiteninhalt, nur ein Info-i pro Element – oben am Titel). Alle Dialoge/Overlays erscheinen **mittig**, nie unten.
-- **Onboarding pflegen**: Kommt ein zentrales Feature dazu oder ändert sich die Bedienung, die Onboarding-Story (`ONBOARDING` in `app.js`) aktualisieren. In Dev unter Einstellungen → gelbe Dev-Zeile ansehbar.
+- **Onboarding pflegen**: Kommt ein zentrales Feature dazu oder ändert sich die Bedienung, die Onboarding-Story (`ONBOARDING` in `app.js`) aktualisieren. In Dev unter Einstellungen → gelbe Dev-Werkzeuge ansehbar. Visuals sind kleine animierte App-Mockups (`onbVisual`), keine Deko-Zehnecke.
 - **Bedienkonventionen**: Übung löschen = nach links wischen (rote Fläche + Nachfrage). Satz löschen = ✕ in der Satzzeile (+ Nachfrage). Letzter Satz weg → Übung weg.
 - **Go-Live-Checkliste** (in `TODO.md`): Sobald Ben die App teilen oder live gehen will → zuerst die Checkliste prüfen und offene Punkte (Impressum, Datenschutz, getrennte Test-/Live-Version …) ansprechen, bevor es weitergeht.
 
@@ -68,4 +68,5 @@ Browser-App (PWA) zum Tracken des Gym-Fortschritts. Läuft im Browser und wird a
 - **Die echte App liegt in `docs/`** (`index.html`, `style.css`, `app.js`, `sw.js`, `manifest.webmanifest`, `icons/`). GitHub Pages veröffentlicht diesen Ordner.
 - Daten: `localStorage`, Schlüssel `fitter.v1` (Einstellungen, Workouts, eigene Übungen, Verlauf, laufendes Workout). Bei Änderungen am Datenformat Version hochzählen und alte Daten migrieren.
 - Live: https://pdbp-hub.github.io/Fitter/ · Dev: https://pdbp-hub.github.io/Fitter/dev/ (Speicherschlüssel `fitter.dev.v1`, startet mit ~10 Wochen Testdaten)
+- Externe Bibliotheken lokal in `docs/dev/vendor/` ablegen (kein Nachladen von fremden Servern); `tools/release.py` kopiert `vendor/` mit.
 - Entwürfe/Mockups liegen in `mockup/` (nur noch Designreferenz).

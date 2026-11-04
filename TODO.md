@@ -2,7 +2,7 @@
 
 ## Als Nächstes
 - [ ] **🔝 ALLERERSTES THEMA nächste Session: Points-Logik diskutieren** (Claude hat in Dev v0.4 einen mehrstufigen, schwer manipulierbaren Vorschlag eingebaut – siehe Einstellungen → Berechnungslogik)
-- [ ] **Ben:** Dev v0.4.0 testen → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.5.0 testen → „freigeben“ für Live
 - [ ] **Ben:** Impressum mit echten Daten füllen (Platzhalter in Einstellungen → Impressum)
 - [ ] **Nächste Session – Diskussion (Claude bereitet Vorschläge vor):**
   - [ ] **Points-Logik**: Elo-ähnlich, nicht manipulierbar (kein Volumen-Hacking, Beinpresse ≠ wertvoller als Curls) – mehrere Ansätze vergleichen
@@ -70,6 +70,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] 2026-11-04 – Dev v0.5.0: Onboarding mit animierten App-Mockups + kürzere Texte; Startseite: gleiche Schriftgrößen (Points/Diese Woche, +X/vs. Vorwoche), weniger Leerraum unten; Dev-Werkzeuge eingeklappt; Icons in Einstellungen; „Mit Freunden teilen“ (QR-Code lokal erzeugt, Link kopieren, Teilen-Menü); TRAIN-Tab öffnet immer die Train-Seite (Bug); ✕ im Aufwärmen, unterer Beenden-Button entfernt; Intro 2 (Schreibmaschine → weiß schrumpft ins Zehneck) + Intro-Auswahl; Pre-Workout/Protein-Sprüche
 - [x] 2026-11-03 – Dev v0.4.0: +25 Begrüßungen je Sprache, 30 Review-Sprüche (Tageszeit/Rekord), Startseite ruhiger + größere Wochenzahlen, Akzentfarben ▲▼ (Einstellung mit Vorschau), Intro-Animation, Celebration (8 Effekte + Aus), Onboarding-Story + gelbe Dev-Werkzeuge, Datenschutzerklärung (Entwurf), Points v2 (Vorschlag), ~70 Übungen + Filter/Sortieren + breiter „Eigene Übung“-Button, unbegrenzte Favoriten (horizontal scrollbar), Sätze einzeln planen + ✕ pro Satz, Übung per Wischen löschen, Abbrechen beim Aufwärmen, neuer Mini-Leisten-Übergang (10× getestet), Dialoge/Info mittig, App-eigenes Dropdown, Chart-Kopf-Bug, Kalender-Button mittig, 5 Icons überarbeitet
 - [x] 2026-11-02 – Dev v0.3.1: Trend-Farben unter Darstellung mit zwei animierten Vorschauen (Original / Rot-Grün); Fortschritt-Einstellungen nur noch Prognose & Rückblick
 - [x] 2026-11-02 – Dev v0.3.0: Startseite mit 3 Kennzahlen (Workouts, kg, Minuten) + ▲▼ vs. Vorwoche; Workouts direkt im Bereit-Screen bearbeiten (Sätze, Gewicht, Übungen hinzufügen/entfernen, ✎ für Name/Löschen); Mini-Leiste rund + fließender Übergang; „Reset“-Knopf; „Satz beenden → Nächste Übung“ zweizeilig; aktuelle Übung scrollt automatisch ins Bild; 11 neue Übungs-Icons; Review: Kennzahl-Auswahl (Volumen/Wdh./Maximalkraft pro Satz), Chart interaktiv, Kennzahlen ohne Überladung; Kalender-Details als eigene Review-Seite mit allen Sätzen; „Maximalkraft (geschätzt)“; Icons an Fortschritt-Überschriften; Einstellungen: Profil-Untertitel, Alter, Animationen unter Darstellung, Impressum-Seite, Fix für seitliches Scrollen

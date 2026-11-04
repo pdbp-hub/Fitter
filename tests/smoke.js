@@ -112,7 +112,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   check('Einstellungen bleiben nach Neuladen (Sprache, Puls)', await ev(() => document.getElementById('app').classList.contains('pm-beat') && document.querySelector('.navbtn span').textContent === 'Progress'));
   await click('[data-tab=settings]'); await sp('display'); await click('#l-de'); await back();
   if (TARGET) {
-    check('Einstellungen in Unterseiten gegliedert', await ev(() => document.querySelectorAll('[data-sp]').length === 6));
+    check('Einstellungen in Unterseiten gegliedert', await ev(() => document.querySelectorAll('[data-sp]').length === 7));
     await sp('display');
     check('8 Puls- und 12 Lade-Animationen', await ev(() => document.querySelectorAll('[data-pulse]').length === 8 && document.querySelectorAll('[data-anim]').length === 12));
     await back(); await sp('logic');
@@ -141,6 +141,8 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     console.log('Neu in v0.3');
     await click('[data-tab=start]');
     check('Startseite: 3 Kennzahlen inkl. Minuten', await ev(() => document.querySelectorAll('.weekstats > div').length === 3 && /Minuten|Minutes/.test(document.querySelector('.weekstats').textContent)));
+    check('„Diese Woche“ und „Points“ gleich groß', await ev(() => getComputedStyle(document.querySelector('.weekhead')).fontSize === getComputedStyle(document.querySelector('.ptsline strong')).fontSize));
+    check('„+X diese Woche“ und „vs. Vorwoche“ gleich groß', await ev(() => getComputedStyle(document.querySelector('.weekhead small')).fontSize === getComputedStyle(document.querySelector('.ptsline small')).fontSize));
     check('Startseite scrollt weiterhin nicht', await ev(() => { const s = document.getElementById('v-start'); return s.scrollHeight <= s.clientHeight; }));
     await click('#go'); await click('.witem'); await settle();
     const before = await ev(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts[0].ex[0][1]);
@@ -211,10 +213,14 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-db="1"]'); await page.waitForTimeout(200);
     check('Übung per Wischen gelöscht', await ev(() => document.querySelectorAll('#readylist > .srow').length) === nRows - 1);
     await click('#startbtn');
-    check('Aufwärmen: Abbrechen möglich', await ev(() => !!document.getElementById('warmcancel')));
-    await click('#warmcancel'); check('Abbrechen fragt „Aus Versehen gestartet?“', await ev(() => /Versehen|accident/.test(document.getElementById('overlay').textContent)));
+    check('Aufwärmen: ✕ oben zum Abbrechen', await ev(() => !!document.getElementById('endbtn')));
+    await click('#endbtn'); check('Abbrechen fragt „Aus Versehen gestartet?“', await ev(() => /Versehen|accident/.test(document.getElementById('overlay').textContent)));
     await click('[data-db="0"]'); await click('#warmdone');
     check('Training: geplanter Satz übernimmt geplantes Gewicht', await ev(() => !!document.getElementById('cukg')));
+    check('Training: kein unterer Beenden-Button mehr', await ev(() => !document.getElementById('endbtn2')));
+    await click('#minbtn'); await page.waitForTimeout(650); await click('[data-tab=settings]'); await click('[data-tab=start]');
+    check('TRAIN-Tab öffnet Train-Seite, nicht das Workout (REGRESSION)', await ev(() => !document.getElementById('v-start').hidden && document.getElementById('wsheet').classList.contains('down') && !document.getElementById('mini').hidden));
+    await click('#mini'); await page.waitForTimeout(650);
     check('Training: geplante Sätze haben ✕', await ev(() => document.querySelectorAll('#blocks .set.planned .sx').length > 0));
     let morphOk = true;
     for (let k = 0; k < 10; k++) {
@@ -254,8 +260,18 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=progress]');
     check('Mehr als 3 Favoriten, horizontal scrollbar', await ev(() => { const f = document.querySelector('.favs'); return f && f.children.length > 3 && f.scrollWidth > f.clientWidth; }));
     await click('[data-tab=settings]');
-    check('Dev-Werkzeuge (gelb) in Einstellungen', await ev(() => !!document.getElementById('dev-onb')));
+    check('Dev-Werkzeuge eingeklappt', await ev(() => !document.getElementById('dev-onb') && !!document.getElementById('devtoggle')));
+    await click('#devtoggle');
+    check('Dev-Werkzeuge aufklappbar', await ev(() => !!document.getElementById('dev-onb')));
+    await click('#devtoggle');
+    check('Einstellungen mit Icons', await ev(() => document.querySelectorAll('.sprow .sic').length >= 6));
+    await sp('share');
+    await page.waitForTimeout(300);
+    check('Teilen: QR-Code wird erzeugt', await ev(() => !!document.querySelector('#qrbox svg')));
+    check('Teilen: Link + Kopieren-Button', await ev(() => /pdbp-hub\.github\.io\/Fitter/.test(document.getElementById('sharelink').textContent) && !!document.getElementById('copylink')));
+    await back();
     await sp('display');
+    check('Intro-Auswahl (Intro 1, Intro 2, Aus)', await ev(() => document.querySelectorAll('[data-intro]').length === 3));
     check('Akzentfarben + Celebration unter Darstellung', await ev(() => document.querySelectorAll('[data-acc]').length === 2 && document.querySelectorAll('[data-celeb]').length === 9));
     await back(); await sp('data');
     check('Datenschutzerklärung unter Daten', !!(await page.$('[data-sp="privacy"]')));
@@ -266,10 +282,15 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     const fresh = await browser.newContext({ viewport: { width: 390, height: 844 } }); const fp = await fresh.newPage(); fp.on('pageerror', e => errors.push('[intro] ' + e.message));
     await fp.goto(URL + 'dev/?noseed'); await fp.waitForTimeout(400);
     check('Onboarding beim ersten Start', await fp.evaluate(() => !!document.getElementById('onb')));
-    await fp.click('#onb-skip'); await fp.reload(); await fp.waitForTimeout(200);
+    check('Onboarding zeigt App-Animationen statt Zehnecke', await fp.evaluate(async () => { const kinds = []; for (let i = 0; i < 6; i++) { kinds.push(!!document.querySelector('#onb .om-phone')); document.getElementById('onb-next').click(); await new Promise(r => setTimeout(r, 30)); if (!document.getElementById('onb')) break; } return kinds.every(Boolean); }));
+    if (await fp.$('#onb-skip')) await fp.click('#onb-skip'); await fp.reload(); await fp.waitForTimeout(200);
     check('Intro-Animation beim Öffnen', await fp.evaluate(() => !!document.getElementById('intro')));
     await fp.waitForTimeout(2200);
     check('Intro endet im Start-Zehneck', await fp.evaluate(() => !document.getElementById('intro') && getComputedStyle(document.getElementById('go')).visibility === 'visible'));
+    await fp.evaluate(() => { S.intro = 'type'; save(); }); await fp.reload(); await fp.waitForTimeout(300);
+    check('Intro 2 (Schreibmaschine) startet weiß', await fp.evaluate(() => !!document.querySelector('#intro.intro2')));
+    await fp.waitForTimeout(6000);
+    check('Intro 2 endet im Start-Zehneck', await fp.evaluate(() => !document.getElementById('intro') && getComputedStyle(document.getElementById('go')).visibility === 'visible'));
     await fresh.close();
   }
 

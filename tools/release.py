@@ -4,6 +4,8 @@ import pathlib, re, shutil
 D = pathlib.Path(__file__).resolve().parent.parent / 'docs'
 for f in ['app.js', 'style.css']:
     shutil.copy(D / 'dev' / f, D / f)
+if (D / 'dev' / 'vendor').exists():
+    shutil.copytree(D / 'dev' / 'vendor', D / 'vendor', dirs_exist_ok=True)
 sw = (D / 'sw.js').read_text()
 n = int(re.search(r"fitter-v(\d+)", sw).group(1)) + 1
 (D / 'sw.js').write_text(re.sub(r"fitter-v\d+", f"fitter-v{n}", sw))

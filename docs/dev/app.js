@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.4.0';
+const APP_VERSION = '0.5.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -35,7 +35,7 @@ const DEFAULT_WORKOUTS = [
   { id:'pull', name:'Pull Day', ex:[['latpull',4],['row',4],['pullup',3],['curl',4],['hammer',3]] },
   { id:'legs', name:'Leg Day',  ex:[['squat',4],['legpress',4],['rdl',4],['calf',4]] }
 ];
-const S = { lang:'de', inverted:false, anim:'breath', pulse:'breathe', trendColor:false, fcLook:8, fcHor:6, name:'', bodyweight:null, bwPoints:false, fav:['bench','latpull','squat'], chartKey:'bench', age:null, accent:false, celeb:'confetti', onboarded:false };
+const S = { lang:'de', inverted:false, anim:'breath', pulse:'breathe', trendColor:false, fcLook:8, fcHor:6, name:'', bodyweight:null, bwPoints:false, fav:['bench','latpull','squat'], chartKey:'bench', age:null, accent:false, celeb:'confetti', onboarded:false, intro:'spin' };
 const r05 = v => Math.round(v * 2) / 2;
 const STORED = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || null; } catch (e) { return null; } })();
 if (STORED && STORED.settings) Object.assign(S, STORED.settings);
@@ -201,6 +201,8 @@ const MORE_GREET = {
     afternoon:['Afternoon. Time for progress.','One more set always works.','From desk to dumbbell.','Today gets heavy. Good.','Show the day who’s stronger.'],
     evening:['Evening plan: iron.','Finish the day strong.','Couch? Later.','After-work gains are waiting.','Last chance for today.'],
     night:['Night shift at the gym.','Night gains are real.','The city sleeps, you don’t.','Lights on, weights up.','One more set before bed.'] } };
+MORE_GREET.de.morning.push('Pre-Workout statt Kaffee?'); MORE_GREET.de.noon.push('Protein-Shake schon bereit?'); MORE_GREET.de.afternoon.push('Pre-Workout wirkt. Los.'); MORE_GREET.de.evening.push('Erst Training, dann Protein.'); MORE_GREET.de.night.push('Pre-Workout um diese Zeit? Mutig.');
+MORE_GREET.en.morning.push('Pre-workout instead of coffee?'); MORE_GREET.en.noon.push('Protein shake ready?'); MORE_GREET.en.afternoon.push('Pre-workout kicked in. Go.'); MORE_GREET.en.evening.push('Train first, protein after.'); MORE_GREET.en.night.push('Pre-workout at this hour? Bold.');
 ['de', 'en'].forEach(l => Object.keys(MORE_GREET[l]).forEach(k => { T[l].greet[k] = T[l].greet[k].concat(MORE_GREET[l][k]); }));
 const SLOGANS = {
   de:{ any:['Stark. Workout erledigt.','Das war Arbeit. Gute Arbeit.','Eisen bewegt. Ziel erreicht.','Heute stärker als gestern.','Abgehakt. Erhol dich gut.','Saubere Leistung.','Mission erfüllt.','Das zählt.','Wieder ein Schritt nach vorn.','So baut man Stärke.','Gezogen, gedrückt, geschafft.','Disziplin schlägt Motivation.'],
@@ -215,16 +217,18 @@ const SLOGANS = {
     evening:['Strong into the evening.','Evening well invested.','The day ends with a win.','Now you’ve earned the couch.'],
     night:['Night shift done.','Late, but pushed through.','The weights sleep, you won.','Midnight gains secured.'],
     pr:['New record! Strong.','Record broken.','Stronger than ever.','Personal best!','Limit moved.','That was a PR.'] } };
+SLOGANS.de.any.push('Jetzt ein Protein-Shake. Verdient.', 'Das Pre-Workout hat geliefert.', 'Die Muskeln rufen nach Protein.');
+SLOGANS.en.any.push('Protein shake time. Earned.', 'The pre-workout delivered.', 'Your muscles are calling for protein.');
 function pickSlogan(pr) {
   const L = SLOGANS[S.lang], h = new Date().getHours(), slot = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 18 ? 'day' : h >= 18 && h < 23 ? 'evening' : 'night';
   const pool = pr ? L.pr : L.any.concat(L[slot], L[slot]); return pool[Math.floor(Math.random() * pool.length)];
 }
-Object.assign(T.de, { setAdd:'+ Satz hinzufügen', delSetT:'Satz löschen?', delSetX:'Ist es der letzte Satz, wird die ganze Übung entfernt.', delExT:'Übung löschen?', delExX:'Die Übung und ihre Sätze werden aus diesem Workout entfernt.', delYes2:'Löschen', delNo:'Behalten', swipeDel:'Löschen', lastEx:'Mindestens eine Übung muss bleiben', warmCancel:'Abbrechen', accT:'Aus Versehen gestartet?', accX:'Das Workout wird abgebrochen, es wird nichts gespeichert.', accNo:'Nein, weiter aufwärmen', accYes:'Ja, abbrechen', celebTitle:'Celebration', celebHint:'Effekt beim Abschluss eines Workouts – antippen für Vorschau', celebs:{ confetti:'Konfetti', colorconf:'Konfetti bunt', cannons:'Kanonen', fireworks:'Feuerwerk', decagons:'Zehnecke', stars:'Sterne', streamers:'Luftschlangen', glitter:'Glitzer', off:'Aus' },
+Object.assign(T.de, { share:'Mit Freunden teilen', shareHint:'QR-Code & Link zur App', shareText:'Lass deine Freunde den QR-Code scannen oder schick ihnen den Link.', copyLink:'Link kopieren', copied:'Link kopiert', shareNative:'Teilen …', introTitle:'Intro', introHint:'Animation beim Öffnen der App – antippen für Vorschau', intros:{ spin:'Intro 1 · Zehneck', type:'Intro 2 · Schreibmaschine', off:'Aus' }, devShow:'Dev-Werkzeuge', setAdd:'+ Satz hinzufügen', delSetT:'Satz löschen?', delSetX:'Ist es der letzte Satz, wird die ganze Übung entfernt.', delExT:'Übung löschen?', delExX:'Die Übung und ihre Sätze werden aus diesem Workout entfernt.', delYes2:'Löschen', delNo:'Behalten', swipeDel:'Löschen', lastEx:'Mindestens eine Übung muss bleiben', warmCancel:'Abbrechen', accT:'Aus Versehen gestartet?', accX:'Das Workout wird abgebrochen, es wird nichts gespeichert.', accNo:'Nein, weiter aufwärmen', accYes:'Ja, abbrechen', celebTitle:'Celebration', celebHint:'Effekt beim Abschluss eines Workouts – antippen für Vorschau', celebs:{ confetti:'Konfetti', colorconf:'Konfetti bunt', cannons:'Kanonen', fireworks:'Feuerwerk', decagons:'Zehnecke', stars:'Sterne', streamers:'Luftschlangen', glitter:'Glitzer', off:'Aus' },
   privacy:'Datenschutzerklärung', privacyHint:'Entwurf', devTools:'Dev-Werkzeuge', devOnb:'Onboarding ansehen', devIntro:'Intro ansehen', devCeleb:'Celebration testen',
   onbSkip:'Überspringen', onbNext:'Weiter', onbGo:'Los geht’s',
   privacyHtml:'<p><i>Entwurf – Stand November 2026. Wird mit Einführung von Accounts/Cloud aktualisiert.</i></p><p><b>1. Verantwortlicher</b><br>[Vorname Nachname], [Anschrift], [E-Mail]</p><p><b>2. Grundsatz: Deine Daten bleiben auf deinem Gerät</b><br>Alle Eingaben – Workouts, Trainings, Sätze sowie Profilangaben wie Name, Alter und Körpergewicht – werden ausschließlich lokal im Speicher deines Browsers (localStorage) auf deinem Gerät gespeichert. Sie werden nicht an uns oder Dritte übertragen. Es gibt keine Registrierung, kein Tracking, keine Analyse-Tools, keine Werbung und keine Cookies.</p><p><b>3. Gesundheitsbezogene Daten</b><br>Körpergewicht und Trainingsdaten können Gesundheitsdaten im Sinne von Art. 9 DSGVO sein. Sie verlassen dein Gerät nicht.</p><p><b>4. Hosting (GitHub Pages)</b><br>Die App wird über GitHub Pages (GitHub Inc., USA) bereitgestellt. Beim Aufruf verarbeitet GitHub technisch notwendige Daten (z. B. IP-Adresse, Zeitpunkt, Browser) in Server-Logs, um die App auszuliefern und abzusichern. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO. Die Übermittlung in die USA erfolgt auf Grundlage des EU-US Data Privacy Framework.</p><p><b>5. Schriftarten</b><br>Derzeit werden Schriftarten von Google Fonts (Google Ireland Ltd.) geladen; dabei wird deine IP-Adresse an Google übertragen. Vor einer Veröffentlichung werden die Schriften lokal eingebunden.</p><p><b>6. Speicherdauer</b><br>Die Daten bleiben gespeichert, bis du sie in der App löschst (Einstellungen → Daten) oder die App bzw. die Browserdaten entfernst.</p><p><b>7. Deine Rechte</b><br>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</p>',
   accentTitle:'Akzentfarben', accentHint:'Färbt Veränderungen ▲▼ grün oder rot', accNeutral:'Neutral', accColor:'Farbig', fullCal:'Ganzer Kalender ▾', lessCal:'Weniger ▴' });
-Object.assign(T.en, { setAdd:'+ Add set', delSetT:'Delete set?', delSetX:'If it is the last set, the whole exercise is removed.', delExT:'Delete exercise?', delExX:'The exercise and its sets are removed from this workout.', delYes2:'Delete', delNo:'Keep', swipeDel:'Delete', lastEx:'At least one exercise must remain', warmCancel:'Cancel', accT:'Started by accident?', accX:'The workout is cancelled, nothing is saved.', accNo:'No, keep warming up', accYes:'Yes, cancel', celebTitle:'Celebration', celebHint:'Effect when you finish a workout – tap to preview', celebs:{ confetti:'Confetti', colorconf:'Colour confetti', cannons:'Cannons', fireworks:'Fireworks', decagons:'Decagons', stars:'Stars', streamers:'Streamers', glitter:'Glitter', off:'Off' },
+Object.assign(T.en, { share:'Share with friends', shareHint:'QR code & link to the app', shareText:'Let your friends scan the QR code or send them the link.', copyLink:'Copy link', copied:'Link copied', shareNative:'Share …', introTitle:'Intro', introHint:'Animation when opening the app – tap to preview', intros:{ spin:'Intro 1 · Decagon', type:'Intro 2 · Typewriter', off:'Off' }, devShow:'Dev tools', setAdd:'+ Add set', delSetT:'Delete set?', delSetX:'If it is the last set, the whole exercise is removed.', delExT:'Delete exercise?', delExX:'The exercise and its sets are removed from this workout.', delYes2:'Delete', delNo:'Keep', swipeDel:'Delete', lastEx:'At least one exercise must remain', warmCancel:'Cancel', accT:'Started by accident?', accX:'The workout is cancelled, nothing is saved.', accNo:'No, keep warming up', accYes:'Yes, cancel', celebTitle:'Celebration', celebHint:'Effect when you finish a workout – tap to preview', celebs:{ confetti:'Confetti', colorconf:'Colour confetti', cannons:'Cannons', fireworks:'Fireworks', decagons:'Decagons', stars:'Stars', streamers:'Streamers', glitter:'Glitter', off:'Off' },
   privacy:'Privacy policy', privacyHint:'Draft', devTools:'Dev tools', devOnb:'Show onboarding', devIntro:'Show intro', devCeleb:'Test celebration',
   onbSkip:'Skip', onbNext:'Next', onbGo:'Let’s go',
   privacyHtml:'<p><i>Draft – November 2026. Will be updated when accounts/cloud sync are introduced.</i></p><p><b>1. Controller</b><br>[First name Last name], [address], [email]</p><p><b>2. Principle: your data stays on your device</b><br>All entries – workouts, sessions, sets and profile data such as name, age and body weight – are stored only locally in your browser storage (localStorage) on your device. They are not transmitted to us or third parties. There is no registration, no tracking, no analytics, no ads and no cookies.</p><p><b>3. Health-related data</b><br>Body weight and training data may be health data under Art. 9 GDPR. They do not leave your device.</p><p><b>4. Hosting (GitHub Pages)</b><br>The app is served via GitHub Pages (GitHub Inc., USA). When you open it, GitHub processes technically necessary data (e.g. IP address, time, browser) in server logs to deliver and secure the app. Legal basis: Art. 6 (1) (f) GDPR. Transfer to the USA is based on the EU-US Data Privacy Framework.</p><p><b>5. Fonts</b><br>Fonts are currently loaded from Google Fonts (Google Ireland Ltd.), which transmits your IP address to Google. Before publication the fonts will be hosted locally.</p><p><b>6. Storage period</b><br>Data is kept until you delete it in the app (Settings → Data) or remove the app or browser data.</p><p><b>7. Your rights</b><br>You have the right to access, rectification, erasure, restriction, data portability and objection, and to lodge a complaint with a supervisory authority.</p>',
@@ -390,7 +394,7 @@ function show(view) {
   ({ start:renderStart, select:renderSelect, progress:renderProgress, settings:renderSettings })[view]();
   $('v-'+view).scrollTop = 0;
 }
-document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { if (b.dataset.tab === 'start' && W) { openW(); return; } show(b.dataset.tab); });
+document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => show(b.dataset.tab));
 
 let lastFinished = null; // { W, hist, at }
 function renderStart() {
@@ -516,7 +520,7 @@ const nextOpen = () => { const o = [...W.ex.keys()]; return o.slice(W.cur + 1).c
 const allDoneAfter = () => W.ex.every((x, i) => i === W.cur ? x.sets.length + 1 >= x.target : x.sets.length >= x.target);
 
 function renderHead() {
-  const top = `<div class="wtop"><button class="iconbtn" id="minbtn" aria-label="Minimieren">⌄</button><div><div class="eyebrow">${esc(W.name)}</div><div class="overall num">${t('overall')} <span id="w-overall">${W.start ? mmss((Date.now()-W.start)/1000) : '00:00'}</span></div></div>${W.mode === 'train' ? `<button class="iconbtn" id="endbtn" aria-label="${t('endAbort')}">✕</button>` : '<span></span>'}</div>`;
+  const top = `<div class="wtop"><button class="iconbtn" id="minbtn" aria-label="Minimieren">⌄</button><div><div class="eyebrow">${esc(W.name)}</div><div class="overall num">${t('overall')} <span id="w-overall">${W.start ? mmss((Date.now()-W.start)/1000) : '00:00'}</span></div></div>${W.mode === 'train' || W.mode === 'warmup' ? `<button class="iconbtn" id="endbtn" aria-label="${t('endAbort')}">✕</button>` : '<span></span>'}</div>`;
   let ph = '';
   if (W.mode === 'train') {
     const lbl = W.phase === 'set' ? t('setLabel', curEx().sets.length + 1) : t('rest');
@@ -537,9 +541,9 @@ function renderW() {
   } else if (W.mode === 'warmup' || W.mode === 'cooldown') {
     const cool = W.mode === 'cooldown';
     h = `<div class="pill">${t(W.mode)}</div><div class="animwrap">${animSVG(S.anim, cool)}</div><div class="bigtime num" id="phasetime">00:00</div>`;
-    setBar(cool ? `<button class="mainbtn" id="finishbtn">${t('finish')}</button>` : `<button class="mainbtn" id="warmdone">${t('warmDone')}</button><button class="textbtn" id="warmcancel">${t('warmCancel')}</button>`);
+    setBar(cool ? `<button class="mainbtn" id="finishbtn">${t('finish')}</button>` : `<button class="mainbtn" id="warmdone">${t('warmDone')}</button>`);
   } else if (W.mode === 'train') {
-    h = `<div class="sortlist" id="blocks">` + W.ex.map((e, i) => blockHTML(e, i)).join('') + `</div><button class="ghostbtn" id="endbtn2" style="border-color:var(--line)">${t('endAbort')}</button>`;
+    h = `<div class="sortlist" id="blocks">` + W.ex.map((e, i) => blockHTML(e, i)).join('') + `</div>`;
     const e = curEx(), n = e.sets.length;
     let main;
     if (W.phase === 'set') main = `<button class="mainbtn" id="mainact" data-a="done">${n + 1 >= e.target && !allDoneAfter() ? `<span>${t('setEnd')}</span><small class="nextline">${ARROW}${t('nextExArrow')}</small>` : t('setEnd')}</button>`;
@@ -579,7 +583,7 @@ function blockHTML(e, i) {
 function bindW() {
   const q = s => $('wsheet').querySelectorAll(s);
   $('minbtn') && ($('minbtn').onclick = minimize);
-  $('endbtn') && ($('endbtn').onclick = endDialog);
+  $('endbtn') && ($('endbtn').onclick = W.mode === 'warmup' ? warmCancel : endDialog);
   $('endbtn2') && ($('endbtn2').onclick = endDialog);
   $('readylist') && sortable($('readylist'), '.srow', (f, to) => { readInputs(); const o = W.rOpen != null ? W.ex[W.rOpen] : null; moveItem(W.ex, f, to); if (o) W.rOpen = W.ex.indexOf(o); renderW(); });
   q('[data-ropen]').forEach(b => b.onclick = () => { readInputs(); const i = +b.dataset.ropen; W.rOpen = W.rOpen === i ? null : i; renderW(); });
@@ -607,8 +611,7 @@ function bindW() {
   });
   q('.ctl input').forEach(inp => inp.onchange = () => readInputs());
   $('startbtn') && ($('startbtn').onclick = () => { W.start = Date.now(); W.mode = 'warmup'; W.phaseStart = Date.now(); renderW(); });
-  $('warmcancel') && ($('warmcancel').onclick = () => dialog(t('accT'), t('accX'), [[t('accNo'), 'mainbtn', () => {}], [t('accYes'), 'ghostbtn', () => { closeW(); toast(t('discarded')); }]]));
-  $('warmdone') && ($('warmdone').onclick = () => { W.ex.forEach(e => { ensurePlan(e); applyPlan(e); }); W.mode = 'train'; W.phase = 'rest'; W.phaseStart = Date.now(); W.rise = true; renderW(); });
+    $('warmdone') && ($('warmdone').onclick = () => { W.ex.forEach(e => { ensurePlan(e); applyPlan(e); }); W.mode = 'train'; W.phase = 'rest'; W.phaseStart = Date.now(); W.rise = true; renderW(); });
   $('finishbtn') && ($('finishbtn').onclick = toReview);
   $('nocd') && ($('nocd').onclick = toReview);
   $('donebtn') && ($('donebtn').onclick = saveWorkout);
@@ -637,6 +640,7 @@ function readInputs() {
   if (W.mode === 'ready' && W.rOpen != null) rd('rd', W.ex[W.rOpen]);
   rd('cu', curEx());
 }
+function warmCancel() { dialog(t('accT'), t('accX'), [[t('accNo'), 'mainbtn', () => {}], [t('accYes'), 'ghostbtn', () => { closeW(); toast(t('discarded')); }]]); }
 function endDialog() {
   dialog(t('dlgTitle'), t('dlgText'), [
     [t('dlgCont'), 'mainbtn', () => {}],
@@ -1037,25 +1041,35 @@ function trendPreview(color) {
 // ---- Onboarding story: update whenever a central feature or the handling changes ----
 const ONBOARDING = {
   de: [
-    ['breath', 'Willkommen bei TRAIN', 'Dein Gym-Tracker. Puristisch, schnell, ehrlich. Alles bleibt auf deinem Gerät.'],
-    ['segments', 'Workout starten', 'Tippe auf das Zehneck auf der Startseite und wähle dein Workout. Im Bereit-Screen planst du Sätze, Gewicht und Wiederholungen. Am Griff ≡ ziehen ändert die Reihenfolge.'],
-    ['fill', 'Im Training', '„Satz starten“ und „Satz beenden“ – die Zeit läuft mit. Übung löschen: nach links wischen. Satz löschen: ✕ in der Zeile. Reset setzt die Satzzeit zurück.'],
-    ['orbit', 'Immer dabei', 'Wisch das Workout nach unten: Es wird zur Mini-Leiste und läuft weiter, während du die App benutzt. Antippen holt es zurück.'],
-    ['draw', 'Fortschritt', 'Kalender, Rekorde und Charts pro Übung. Maximalkraft (1RM) ist das geschätzte Gewicht für genau eine Wiederholung – berechnet aus deinen Sätzen.'],
-    ['stack', 'Points', 'Points gibt es für Fortschritt und Regelmäßigkeit – nicht für möglichst viele Kilos. Details unter Einstellungen → Berechnungslogik.'] ],
+    ['welcome', 'Willkommen bei TRAIN', 'Dein Gym-Tracker. Puristisch und schnell. Alles bleibt auf deinem Gerät.'],
+    ['start', 'Workout starten', 'Zehneck antippen, Workout wählen, GO. Sätze und Gewichte planst du vorher im Bereit-Screen.'],
+    ['train', 'Im Training', 'Übung löschen: nach links wischen. Satz löschen: ✕ antippen.'],
+    ['mini', 'Immer dabei', 'Workout nach unten wischen – es läuft als Leiste weiter. Antippen holt es zurück.'],
+    ['progress', 'Fortschritt', 'Kalender, Rekorde und Charts. Die gestrichelte Linie zeigt die Prognose.'],
+    ['points', 'Points', 'Für Fortschritt und Regelmäßigkeit – nicht für möglichst viele Kilos.'] ],
   en: [
-    ['breath', 'Welcome to TRAIN', 'Your gym tracker. Minimal, fast, honest. Everything stays on your device.'],
-    ['segments', 'Start a workout', 'Tap the decagon on the home screen and pick your workout. On the ready screen you plan sets, weight and reps. Drag the ≡ handle to reorder.'],
-    ['fill', 'During training', '“Start set” and “End set” – the time runs along. Delete an exercise: swipe left. Delete a set: ✕ in its row. Reset restarts the set time.'],
-    ['orbit', 'Always with you', 'Swipe the workout down: it becomes the mini bar and keeps running while you use the app. Tap it to bring it back.'],
-    ['draw', 'Progress', 'Calendar, records and charts per exercise. Max strength (1RM) is the estimated weight for exactly one rep – calculated from your sets.'],
-    ['stack', 'Points', 'Points reward progress and consistency – not maximum kilos. Details in Settings → Calculation logic.'] ] };
+    ['welcome', 'Welcome to TRAIN', 'Your gym tracker. Minimal and fast. Everything stays on your device.'],
+    ['start', 'Start a workout', 'Tap the decagon, pick a workout, GO. Plan sets and weights on the ready screen.'],
+    ['train', 'During training', 'Delete an exercise: swipe left. Delete a set: tap ✕.'],
+    ['mini', 'Always with you', 'Swipe the workout down – it keeps running as a bar. Tap it to bring it back.'],
+    ['progress', 'Progress', 'Calendar, records and charts. The dashed line shows the forecast.'],
+    ['points', 'Points', 'For progress and consistency – not for maximum kilos.'] ] };
+// small animated mock-ups of the real app for each onboarding slide
+function onbVisual(kind) {
+  const row = (txt, go) => `<div class="om-row"><i></i><span>${txt}</span>${go ? '<b class="dec">GO</b>' : ''}</div>`;
+  if (kind === 'welcome') return `<div class="om-phone"><div class="om-dec dec pulse">TRAIN</div></div>`;
+  if (kind === 'start') return `<div class="om-phone"><div class="om-title"></div>${row('Push Day', 1)}${row('Pull Day', 1)}${row('Leg Day', 1)}<span class="om-finger om-tap"></span></div>`;
+  if (kind === 'train') return `<div class="om-phone"><div class="om-title"></div><div class="om-swipe"><div class="om-del">${t('swipeDel')}</div>${row(S.lang === 'de' ? 'Bankdrücken' : 'Bench press')}</div><div class="om-set"><span>1</span><span>72,5 × 8</span><em>✕</em></div><div class="om-set om-set-x"><span>2</span><span>72,5 × 8</span><em>✕</em></div><span class="om-finger om-swipe-f"></span></div>`;
+  if (kind === 'mini') return `<div class="om-phone"><div class="om-sheet"><div class="om-title"></div><div class="om-dec2 dec"></div></div><div class="om-bar"></div><div class="om-nav"></div></div>`;
+  if (kind === 'progress') return `<div class="om-phone om-chart">${trendPreview(S.trendColor)}</div>`;
+  return `<div class="om-phone"><div class="om-pts"><b>+42</b><span>Points</span></div><div class="om-meter"><i></i></div></div>`;
+}
 function showOnboarding() {
   let i = 0; const el = document.createElement('div'); el.id = 'onb'; el.className = 'onb'; $('app').appendChild(el);
   const close = () => { S.onboarded = true; save(); el.remove(); };
   const draw = () => { const L = ONBOARDING[S.lang], [anim, title, text] = L[i], last = i === L.length - 1;
     el.innerHTML = `<div class="onb-in"><div class="row"><span class="eyebrow num">${i + 1} / ${L.length}</span><button class="textbtn" id="onb-skip">${t('onbSkip')}</button></div>
-      <div class="onb-vis">${animSVG(anim, false)}</div><div><h1>${esc(title)}</h1><p class="onb-txt">${esc(text)}</p></div>
+      <div class="onb-vis">${onbVisual(anim)}</div><div><h1>${esc(title)}</h1><p class="onb-txt">${esc(text)}</p></div>
       <div class="onb-dots">${L.map((_, j) => `<i class="${j === i ? 'on' : ''}"></i>`).join('')}</div>
       <button class="mainbtn" id="onb-next">${last ? t('onbGo') : t('onbNext')}</button></div>`;
     $('onb-skip').onclick = close; $('onb-next').onclick = () => { if (last) close(); else { i++; draw(); } }; };
@@ -1073,6 +1087,30 @@ function playIntro() {
     .then(() => { go.style.visibility = ''; el.remove(); })
     .catch(() => { go.style.visibility = ''; el.remove(); });
 }
+function playIntroType() {
+  const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r = go.getBoundingClientRect(), g = greetText, m = g.match(/^(.+?[.!?,])\s+(.+)$/), parts = m ? [m[1], m[2]] : [g];
+  const el = document.createElement('div'); el.id = 'intro'; el.className = 'intro2';
+  el.innerHTML = `<div class="i2-box"><p class="i2-line"></p><p class="i2-line"></p><p class="i2-cta"></p></div>`;
+  $('app').appendChild(el); go.style.visibility = 'hidden';
+  let done = false; const finish = () => { if (done) return; done = true; go.style.visibility = ''; el.remove(); };
+  el.onclick = finish;
+  const lines = el.querySelectorAll('.i2-line'), cta = el.querySelector('.i2-cta'), sleep = ms => new Promise(res => setTimeout(res, ms));
+  const type = async (node, text) => { for (let i = 1; i <= text.length && !done; i++) { node.textContent = text.slice(0, i); await sleep(34); } };
+  const poly = pts => `polygon(${pts.map(([x, y]) => `${x.toFixed(1)}px ${y.toFixed(1)}px`).join(', ')})`;
+  (async () => {
+    await sleep(250); await type(lines[0], parts[0]); if (parts[1]) { await sleep(140); await type(lines[1], parts[1]); }
+    if (done) return; await sleep(220); cta.textContent = t('cta');
+    cta.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 380, fill: 'forwards' });
+    await sleep(800); if (done) return;
+    el.querySelector('.i2-box').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
+    const big = decPts(innerWidth / 2, innerHeight / 2, Math.hypot(innerWidth, innerHeight) / 2 / Math.cos(Math.PI / 10) + 4);
+    const small = decPts(r.left + r.width / 2, r.top + r.height / 2, r.width / 2);
+    await el.animate([{ clipPath: poly(big) }, { clipPath: poly(small) }], { duration: 750, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished.catch(() => {});
+    finish();
+  })();
+}
+function playIntroSel(kind = S.intro) { if (kind === 'type') playIntroType(); else if (kind !== 'off') playIntro(); }
 function celebrate(kind = S.celeb) {
   if (!kind || kind === 'off' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const old = $('celeb'); if (old) old.remove();
@@ -1106,7 +1144,24 @@ function celebrate(kind = S.celeb) {
   };
   requestAnimationFrame(step);
 }
-let setPage = null;
+let setPage = null, devOpen = false;
+const SHARE_URL = 'https://pdbp-hub.github.io/Fitter/';
+const SET_IC = {
+  display:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>',
+  progress:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19L9 12l4 3 8-9"/><path d="M15 6h6v6"/></svg>',
+  logic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 4H6l7 8-7 8h12"/></svg>',
+  data:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>',
+  imprint:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 12h7M9 16h7"/></svg>',
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/></svg>',
+  dev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>' };
+const sic = k => `<span class="sic">${SET_IC[k]}</span>`;
+function loadQR(cb) { if (window.qrcode) return cb(); const sc = document.createElement('script'); sc.src = 'vendor/qrcode.js'; sc.onload = cb; document.head.appendChild(sc); }
+function drawQR() { loadQR(() => { const box = $('qrbox'); if (!box || !window.qrcode) return; const q = qrcode(0, 'M'); q.addData(SHARE_URL); q.make(); box.innerHTML = q.createSvgTag(6, 2); }); }
+function copyLink() {
+  const done = () => toast(t('copied'));
+  const fallback = () => { const r = document.createRange(), el = $('sharelink'); r.selectNodeContents(el); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); try { document.execCommand('copy'); done(); } catch (e) {} };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(SHARE_URL).then(done, fallback); else fallback();
+}
 function renderSettings() {
   const initials = (S.name.trim().split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
   const tog = (id, on, dis) => `<button class="toggle" id="${id}" role="switch" aria-checked="${on}" ${dis ? 'disabled' : ''}><i></i></button>`;
@@ -1117,12 +1172,13 @@ function renderSettings() {
     const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div><span>→</span></button>`;
     h = `<h1>${t('settings')}</h1><div>
       ${item('profile', t('spProfile'), t('spProfileHint'), `<span class="avatar dec" style="width:48px;height:48px;font-size:17px">${esc(initials)}</span>`)}
-      ${item('display', t('spDisplay'), t('spDisplayHint'))}
-      ${item('progress', t('spProgress'), t('spProgressHint'))}
-      ${item('logic', t('spLogic'), t('spLogicHint'))}
-      ${item('data', t('spData'), t('spDataHint'))}
-      ${item('imprint', t('spImprint'), t('spImprintHint'))}</div>
-      ${ENV === 'dev' ? `<div class="devtools"><b>${t('devTools')}</b><button id="dev-onb">${t('devOnb')} →</button><button id="dev-intro">${t('devIntro')} →</button><button id="dev-celeb">${t('devCeleb')} →</button></div>` : ''}
+      ${item('display', t('spDisplay'), t('spDisplayHint'), sic('display'))}
+      ${item('progress', t('spProgress'), t('spProgressHint'), sic('progress'))}
+      ${item('logic', t('spLogic'), t('spLogicHint'), sic('logic'))}
+      ${item('data', t('spData'), t('spDataHint'), sic('data'))}
+      ${item('share', t('share'), t('shareHint'), sic('share'))}
+      ${item('imprint', t('spImprint'), t('spImprintHint'), sic('imprint'))}</div>
+      ${ENV === 'dev' ? `<button class="devbtn" id="devtoggle">${SET_IC.dev}<span>${t('devShow')} ${devOpen ? '▴' : '▾'}</span></button>${devOpen ? `<div class="devtools"><button id="dev-onb">${t('devOnb')} →</button><button id="dev-intro">${t('devIntro')} →</button><button id="dev-celeb">${t('devCeleb')} →</button></div>` : ''}` : ''}
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'profile') {
     h = head(t('spProfile')) + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"></div>
@@ -1139,6 +1195,8 @@ function renderSettings() {
       <div style="margin-top:8px"><b>${t('trendColor')}</b><p class="hint" style="margin-top:4px">${t('trendColorHint')}</p></div>
       <div style="margin-top:8px"><b>${t('accentTitle')}</b><p class="hint" style="margin-top:4px">${t('accentHint')}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.accent ? 'on' : ''} ${v ? 'accent' : ''}" data-acc="${v}"><span class="accprev num"><em class="dl up">▲ 12 %</em><em class="dl down">▼ 4 %</em></span><span>${t(v ? 'accColor' : 'accNeutral')}</span></button>`).join('')}</div>
+      <div style="margin-top:8px"><b>${t('introTitle')}</b><p class="hint" style="margin-top:4px">${t('introHint')}</p></div>
+      <div class="anims intros">${Object.keys(T.de.intros).map(k => `<button class="animopt ${S.intro === k ? 'on' : ''}" data-intro="${k}"><span class="cglyph">${k === 'spin' ? '⬢' : k === 'type' ? 'Aa' : '—'}</span><span>${t('intros')[k]}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('celebTitle')}</b><p class="hint" style="margin-top:4px">${t('celebHint')}</p></div>
       <div class="anims celebs">${Object.keys(T.de.celebs).map(k => `<button class="animopt ${S.celeb === k ? 'on' : ''}" data-celeb="${k}"><span class="cglyph">${k === 'off' ? '—' : '✦'}</span><span>${t('celebs')[k]}</span></button>`).join('')}</div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.trendColor ? 'on' : ''}" data-trc="${v}">${trendPreview(!!v)}<span>${t(v ? 'trcColor' : 'trcBW')}</span></button>`).join('')}</div>
@@ -1153,6 +1211,12 @@ function renderSettings() {
       <div class="setrow setcol" ${S.fcHor ? '' : 'style="opacity:.4;pointer-events:none"'}><div><b>${t('lookTitle')}</b><p>${t('lookHint')}</p></div>${seg('fcl', [[4, '4 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk], [0, t('all')]], S.fcLook)}</div></div>`;
   } else if (setPage === 'logic') {
     h = head(t('spLogic')) + `<div>${t('logic').map(([a, b]) => `<div class="logic"><b>${a}</b><p>${b}</p></div>`).join('')}</div>`;
+  } else if (setPage === 'share') {
+    h = head(t('share')) + `<p class="hint" style="font-size:14px">${t('shareText')}</p>
+      <div class="qrbox" id="qrbox" aria-label="QR-Code"></div>
+      <div class="linkrow"><span id="sharelink" class="num">${SHARE_URL}</span></div>
+      <button class="mainbtn" id="copylink">${t('copyLink')}</button>
+      ${navigator.share ? `<button class="ghostbtn" id="nativeshare">${t('shareNative')}</button>` : ''}`;
   } else if (setPage === 'imprint') {
     h = head(t('spImprint')) + `<div class="logic" style="border-top:1px solid var(--line)">${t('imprint')}</div>`;
   } else if (setPage === 'data') {
@@ -1169,7 +1233,11 @@ function renderSettings() {
   const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
   document.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { setPage = b.dataset.sp; renderSettings(); $('v-settings').scrollTop = 0; });
   on('dev-onb', showOnboarding);
-  on('dev-intro', () => { show('start'); requestAnimationFrame(playIntro); });
+  on('dev-intro', () => { show('start'); requestAnimationFrame(() => playIntroSel()); });
+  on('devtoggle', () => { devOpen = !devOpen; renderSettings(); });
+  document.querySelectorAll('[data-intro]').forEach(b => b.onclick = () => { S.intro = b.dataset.intro; save(); if (S.intro !== 'off') { show('start'); requestAnimationFrame(() => playIntroSel()); } else renderSettings(); });
+  on('copylink', copyLink); on('nativeshare', () => navigator.share({ title: 'TRAIN', url: SHARE_URL }).catch(() => {}));
+  if (setPage === 'share') drawQR();
   on('dev-celeb', () => celebrate());
   document.querySelectorAll('[data-celeb]').forEach(b => b.onclick = () => { S.celeb = b.dataset.celeb; renderSettings(); celebrate(); });
   on('spback', () => { setPage = null; renderSettings(); $('v-settings').scrollTop = 0; });
@@ -1223,6 +1291,6 @@ if (ENV === 'dev' && !STORED && !location.search.includes('noseed')) { seedMock(
 if (STORED && STORED.lastFinished) { const h = HISTORY.find(x => x.id === STORED.lastFinished.histId); if (h) lastFinished = { W: deserW(STORED.lastFinished.w), hist: h, at: STORED.lastFinished.at }; }
 show('start');
 const TESTRUN = location.search.includes('test');
-if (!TESTRUN) { if (!S.onboarded) showOnboarding(); else requestAnimationFrame(playIntro); }
+if (!TESTRUN) { if (!S.onboarded) showOnboarding(); else requestAnimationFrame(() => playIntroSel()); }
 if (STORED && STORED.active) { W = deserW(STORED.active); renderW(); openW(); }
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
