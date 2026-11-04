@@ -1,24 +1,10 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **🔝 Finale Feedback-Runde zu Dev v0.8.0 (→ v0.9.0)** (2026-11-04)
-  - [ ] Onboarding: Folie 2 Finger tippt wieder GO; Folie 3 Seitheben nicht abgeschnitten, darunter seine Sätze statt „Übung hinzufügen“; Folie 4 „Löschen“ mittig in Rot, „0/3“ mit Abstand zum Rand
-  - [ ] Intros: nach jeder Vorschau der Zehneck-Morph in den Einstellungen-Tab; Intro 2: „Los geht's“ steht genau wie im Zehneck (zweizeilig, gleiche Stelle)
-  - [ ] Zurück-Wischen: Seite bewegt sich nur waagerecht; dahinter ist schon die vorige Seite zu sehen (z. B. Einstellungen)
-  - [ ] Profil: Einstellungen oben = dasselbe Profil wie bei Freunde (ansehen + „Profil bearbeiten“); neuer Punkt „Persönliche Daten“ (Körpergewicht, Alter, mitzählen, Account); Name + @Benutzername in zweiter Zeile (nicht editierbar, kommt mit Account + Kennwort, vorerst @test); Lieblingsübungen = Stern-Favoriten, Auswahl der 3 PBs + Sichtbarkeits-Toggles in „Profil bearbeiten“; mehr Toggles; Icons bei Diese Woche/Personal Bests/Letztes Training
-  - [ ] Einstellungen: Prognose-Einstellungen in Darstellung verschieben; Berechnungslogik-Untertitel kürzer
-  - [ ] Level-Seite: Kopf schrumpft kontinuierlich ab dem ersten Scrollen (Icon wandert nach links); aktueller Level-Kasten: Icon nicht abgeschnitten, Inhalt nach rechts
-  - [ ] Review nicht abgeschlossen + runtergewischt: Mini-Leiste zeigen statt verstecktem Review hinter dem Zehneck
-  - [ ] Bereit: „Name ändern“ oben bündig mit Name; Übung aufgeklappt mit +/− wie im Training
-  - [ ] Wisch-Löschen: nicht weiter ziehen als die rote Fläche („Löschen“ bleibt mittig)
-  - [ ] „Satz beenden / → nächste Übung“ sauber zentriert
-  - [ ] Startseite: „=“ durch „±0“ ersetzen; dreistellige Prozente dürfen nichts überlappen (Test)
-  - [ ] Fortschritt: etwas weniger Abstand Überschrift ↔ „Ich | Freunde“; Umschalter randlos über volle Bildschirmbreite mit Personen-Icons
-  - [ ] Review-Charts: Linie zu einem Punkt hat die Farbe dieses Punkts; Charts-Test mit 4 Sätzen
-- [ ] **Ben:** Dev v0.8.0 testen → „freigeben“ für Live (enthält alles aus v0.6 bis v0.8)
+- [ ] **Ben:** Dev v0.9.0 testen → „freigeben“ für Live (enthält alles aus v0.6 bis v0.9)
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
-  - [ ] Login + Benutzername (einmalig) bei der Anmeldung, Übernahme der lokalen Daten
+  - [ ] Account mit **Benutzername + Kennwort** (Benutzername einmalig, ersetzt Platzhalter @test), Übernahme der lokalen Daten
   - [ ] Abgleich offline-first (localStorage bleibt Zwischenspeicher)
   - [ ] **Freunde live schalten**: Suche per @Benutzername, QR-Code scannen, Folgen, echte Profile statt Beispieldaten, Sichtbarkeit aus dem Profil serverseitig durchsetzen
   - [ ] Profilbild hochladen
@@ -90,6 +76,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.9.0** (2026-11-04): Onboarding-Feinschliff (GO-Tipp sichtbar, Seitheben mit Sätzen, Löschen mittig), Intro-Vorschau immer mit Zehneck-Morph, Intro 2 „Los geht's“ deckungsgleich, Zurück-Wischen nur waagerecht mit echter vorheriger Seite dahinter, Profil = gleiche Ansicht wie bei Freunde (+ Bearbeiten mit Sichtbarkeit, ★-Favoriten für Personal Bests, Letzte 30 Tage, Lieblings-Workout), „Persönliche Daten“, Prognose-Einstellungen in Darstellung, Level-Kopf schrumpft fließend, Review-Mini-Leiste, Bereit mit +/− pro Satz, Wisch-Löschen begrenzt, „±0“, Fortschritt-Umschalter randlos mit Icons, Chart-Linien in Punktfarbe, Charts-Test mit 4 Sätzen
 - [x] **Dev v0.8.0** (2026-11-04): Intro 2/3 auf iPhone-Höhe korrigiert + lange Wörter passen, Intro-Vorschau mit Übergang zurück zu Einstellungen, „Diese Woche“ wieder einzeilig, Level-Seite mit einer Scrollfläche + schrumpfendem Kopf, „Testdaten“ nur in Dev-Werkzeugen, Zurück-Wischen folgt dem Finger, Überschriften Einstellungen/Fortschritt zurück, Profil (Anzeigename, @Benutzername einmalig, Lieblingsübungen, Sichtbarkeit, Vorschau), Freunde (Profile antippbar, Woche als Zehnecke, Freunde finden per Name/QR), Icons Rückenstrecker/Reverse Fly/Russian Twists/Schrägbankdrücken
 - [x] **Dev v0.7.0** (2026-11-04): Onboarding-Folien 1–4 überarbeitet (echte App-Optik, Finger tippt genau, Löschen-Ablauf), Startseite Level statt „+X diese Woche“ + antippbare Points (Chevron), Level-Leiter (15 oben, scrollt zum aktuellen Level), Einstellungen ohne Überschrift mit großer Profil-Kachel, neue Icons Berechnungslogik/Daten, 3 neue Celebrations (Hantelscheiben, Druckwelle, Fontäne), Intro-Vorschau kehrt zu Darstellung zurück, Tabs merken Unterseite (gleicher Tab nochmal = Startseite), Rand-Wischen per Touch (iPhone), Bereit-Bildschirm neu, „Nur für dieses Training“, erledigten Satz zurücksetzen, Review-Chart: Linie = Gesamtvergleich, Punkte = pro Satz farbig, Dev „Charts-Test“, Fortschritt „Ich | Freunde“ volle Breite
 - [x] 2026-11-04 – Dev v0.6.0: Schriften lokal (kein Google mehr; Live bekommt sie beim nächsten Release), Level-System (15 Level mit Namen + Icons, Points antippen), Freunde-Vorschlag (Ich | Freunde im Fortschritt), Intro 2 mit großem „Los geht's“ an Zehneck-Position, Intro 3 (Riss) + Intro 4 (Spin), Onboarding mit vollem Start-Ablauf + 2 neuen Slides + Marketing-Texten, Umbenennen statt ✎, Workout per Wischen löschen, Übung/Satz „Nur heute“ vs. „Dauerhaft“, 19 neue Icons + Seil-Icon für Kabelzug, Sortieren fix breit, eigene Übung aufgeräumt, Review: Maximalkraft + Info-i, Legenden in Trendfarbe, kein „= 0 %“, heute markiert, Tageskarte unten abgegrenzt, Texte ohne lange Striche, Prognose-Erklärung mit Formel, Darstellung-Reihenfolge + Icons, Tab-Tipp = zurück, Wischen vom Rand = zurück

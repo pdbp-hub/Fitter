@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.8.0';
+const APP_VERSION = '0.9.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -127,7 +127,7 @@ const T = {
 Object.assign(T.de, { anims:{ breath:'Puls', fill:'Füllen', shards:'Splitter', mosaic:'Mosaik', rings:'Ringe', segments:'Segmente', spin:'Rotation', stack:'Stapel', orbit:'Orbit', radar:'Radar', eq:'Equalizer', draw:'Zeichnen' },
   pulses:{ breathe:'Atmen', beat:'Herzschlag', wobble:'Wippen', bounce:'Hüpfen', tilt:'Kippen', squash:'Federn', twist:'Drehen', off:'Aus' },
   spProfile:'Profil', spDisplay:'Darstellung', spTrain:'Train', spProgress:'Fortschritt', spLogic:'Berechnungslogik', spData:'Daten', spBack:'Einstellungen',
-  spDisplayHint:'Sprache, Farbumkehr', spTrainHint:'Puls- und Lade-Animationen', spProgressHint:'Trend-Farben, Prognose, Zeiträume', spLogicHint:'Wie Points, Trends und Prognosen berechnet werden', spDataHint:'Speicher, Zurücksetzen, Version',
+  spDisplayHint:'Sprache, Farbumkehr', spTrainHint:'Puls- und Lade-Animationen', spProgressHint:'Trend-Farben, Prognose, Zeiträume', spLogicHint:'Points, Trends und Prognosen', spDataHint:'Speicher, Zurücksetzen, Version',
   fcTitle:'Prognose', fcHint:'Wie weit die gestrichelte Linie in die Zukunft reicht', fcOff:'Aus', weeksShort:'Wo.', lookTitle:'Rückblick', lookHint:'Wie viele Wochen in die Prognose einfließen', all:'Alle',
   infoFc:(l,h)=>`Trend aus ${l ? 'den letzten ' + l + ' Wochen' : 'allen Daten'}, ${h} Wochen fortgeschrieben, wie Excels logarithmische Trendlinie. Sie flacht ab, weil Fortschritt mit der Zeit langsamer wird. Grau = Unsicherheit. Zeiträume änderst du in Einstellungen → Fortschritt.`,
   logic:[
@@ -154,7 +154,7 @@ Object.assign(T.de, { anims:{ breath:'Puls', fill:'Füllen', shards:'Splitter', 
 Object.assign(T.en, { anims:{ breath:'Pulse', fill:'Fill', shards:'Shards', mosaic:'Mosaic', rings:'Rings', segments:'Segments', spin:'Spin', stack:'Stack', orbit:'Orbit', radar:'Radar', eq:'Equalizer', draw:'Draw' },
   pulses:{ breathe:'Breathe', beat:'Heartbeat', wobble:'Wobble', bounce:'Bounce', tilt:'Tilt', squash:'Squash', twist:'Twist', off:'Off' },
   spProfile:'Profile', spDisplay:'Display', spTrain:'Train', spProgress:'Progress', spLogic:'Calculation logic', spData:'Data', spBack:'Settings',
-  spDisplayHint:'Language, invert colours', spTrainHint:'Pulse and loading animations', spProgressHint:'Trend colours, forecast, time ranges', spLogicHint:'How points, trends and forecasts are calculated', spDataHint:'Storage, reset, version',
+  spDisplayHint:'Language, invert colours', spTrainHint:'Pulse and loading animations', spProgressHint:'Trend colours, forecast, time ranges', spLogicHint:'Points, trends and forecasts', spDataHint:'Storage, reset, version',
   fcTitle:'Forecast', fcHint:'How far the dashed line reaches into the future', fcOff:'Off', weeksShort:'wk', lookTitle:'Look-back', lookHint:'How many weeks feed into the forecast', all:'All',
   infoFc:(l,h)=>`Trend of ${l ? 'the last ' + l + ' weeks' : 'all data'}, extended by ${h} weeks, like Excel’s logarithmic trendline. It flattens because progress slows over time. Grey = uncertainty. Change the ranges in Settings → Progress.`,
   logic:[
@@ -287,7 +287,7 @@ function sessionPoints(ex, date) {
 const ptsFor = h => sessionPoints(h.ex, h.date);
 const totalPts = () => HISTORY.reduce((a, h) => a + ptsFor(h), 0);
 function weekStats() { const dow = (new Date().getDay() + 6) % 7; const cur = HISTORY.filter(h => h.ago <= dow), prev = HISTORY.filter(h => h.ago > dow && h.ago <= dow + 7); const v1 = cur.reduce((a, h) => a + sessVol(h), 0), v0 = prev.reduce((a, h) => a + sessVol(h), 0); const m1 = cur.reduce((a, h) => a + (h.dur || 0), 0), m0 = prev.reduce((a, h) => a + (h.dur || 0), 0); return { n: cur.length, n0: prev.length, vol: v1, vol0: v0, min: m1, min0: m0, pct: v0 ? Math.round((v1 / v0 - 1) * 100) : null, pts: cur.reduce((a, h) => a + ptsFor(h), 0) }; }
-const deltaTag = (a, b, abs) => { if (!b && !a) return ''; if (!b) return '<em class="dl up">▲</em>'; const d = abs ? a - b : Math.round((a / b - 1) * 100); if (d === 0) return '<em class="dl">=</em>'; return `<em class="dl ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}${abs ? '' : ' %'}</em>`; };
+const deltaTag = (a, b, abs) => { if (!b && !a) return ''; if (!b) return '<em class="dl up">▲</em>'; const d = abs ? a - b : Math.round((a / b - 1) * 100); if (d === 0) return '<em class="dl">±0</em>'; return `<em class="dl ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}${abs ? '' : ' %'}</em>`; };
 const pctTag = d => d === null || d === undefined || d === 0 ? '' : `<em class="dl ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : '='} ${Math.abs(d)} %</em>`;
 function prCount(days) { let n = 0; const seen = {}; [...HISTORY].sort((a, b) => b.ago - a.ago || a.date - b.date).forEach(h => h.ex.forEach(e => { const b = Math.max(...e.sets.map(s => e1rm(Math.max(0, effW(e.k, s.w)), s.r))); if (b > 0 && seen[e.k] !== undefined && b > seen[e.k] && h.ago < days) n++; seen[e.k] = Math.max(seen[e.k] ?? 0, b); })); return n; }
 const volTxt = v => v >= 1000 ? fmt(v / 1000, 1) + ' t' : fmt(Math.round(v)) + ' kg';
@@ -457,21 +457,32 @@ function backTarget() {
   if ((tab === 'settings' && setPage) || tab === 'select') return $('v-' + tab);
   return null;
 }
-(() => { let x0 = null, y0 = 0, el = null, dx = 0, mode = 0, t0 = 0; // touch: the page follows the finger and slides out; mouse: quick swipe
-  const reset = () => { if (el) { el.style.transition = ''; el.style.transform = ''; el.style.boxShadow = ''; } el = null; x0 = null; mode = 0; };
+(() => { let x0 = null, y0 = 0, el = null, dx = 0, mode = 0, t0 = 0, ghost = null, prev = null;
+  // screens: a copy of the current page follows the finger, the real page behind it already shows where you go back to
+  const startGhost = () => { if (el.id === 'osheet') return; const v = el, r = v.getBoundingClientRect();
+    prev = { tab, setPage, y: v.scrollTop, start: tabMem.start };
+    // move the real content (the finger's touch target must stay in the page, otherwise iOS loses the touch)
+    ghost = document.createElement('section'); ghost.className = v.className + ' outro'; while (v.firstChild) ghost.appendChild(v.firstChild);
+    ghost.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
+    ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:4;background:var(--bg);margin:0;box-shadow:-12px 0 30px rgba(0,0,0,.5)`;
+    $('app').appendChild(ghost); ghost.scrollTop = prev.y; goBack(); el = ghost; };
+  const restore = () => { if (!prev) return; if (prev.tab === 'settings') { setPage = prev.setPage; show('settings'); } else { tabMem.start = prev.start; show(prev.tab); } $('v-' + prev.tab).scrollTop = prev.y; prev = null; };
+  const clear = () => { if (ghost) ghost.remove(); ghost = null; prev = null; el = null; x0 = null; mode = 0; };
   document.addEventListener('touchstart', e => { const p = e.touches[0]; if (p.clientX >= 30 || e.touches.length > 1) return; el = backTarget(); if (!el) return; x0 = p.clientX; y0 = p.clientY; dx = 0; mode = 0; t0 = Date.now(); }, { capture: true, passive: true });
   document.addEventListener('touchmove', e => { if (x0 === null) return; const p = e.touches[0], ddx = p.clientX - x0, ddy = p.clientY - y0;
-    if (!mode) { if (Math.abs(ddy) > 12 && Math.abs(ddy) > Math.abs(ddx)) { reset(); return; } if (ddx > 8) mode = 1; else return; }
-    dx = Math.max(0, ddx); el.style.transition = 'none'; el.style.transform = `translateX(${dx}px)`; el.style.boxShadow = '-12px 0 30px rgba(0,0,0,.45)'; }, { capture: true, passive: true });
-  const end = () => { if (x0 === null) return; if (!mode) { reset(); return; }
-    const t = el, fast = dx / Math.max(1, Date.now() - t0) > .6;
-    if (dx > innerWidth * .33 || (fast && dx > 50)) {
-      t.style.transition = 'transform .22s cubic-bezier(.2,.7,.3,1)'; t.style.transform = 'translateX(100%)'; x0 = null; el = null; mode = 0;
-      setTimeout(() => { t.style.transition = 'none'; const isSheet = t.id === 'osheet'; goBack();
-        if (isSheet && t.classList.contains('down')) { t.style.transform = ''; t.style.boxShadow = ''; requestAnimationFrame(() => t.style.transition = ''); return; }
-        const n = isSheet ? t : $('v-' + tab); t.style.transform = ''; t.style.boxShadow = ''; requestAnimationFrame(() => { t.style.transition = ''; });
-        n.animate([{ transform: 'translateX(-24%)', opacity: .5 }, { transform: 'none', opacity: 1 }], { duration: 240, easing: 'cubic-bezier(.2,.7,.3,1)' }); }, 220);
-    } else { t.style.transition = 'transform .2s ease-out'; t.style.transform = 'translateX(0)'; const tt = t; x0 = null; el = null; mode = 0; setTimeout(() => { tt.style.transition = ''; tt.style.transform = ''; tt.style.boxShadow = ''; }, 220); }
+    if (!mode) { if (Math.abs(ddy) > 12 && Math.abs(ddy) > Math.abs(ddx)) { x0 = null; el = null; return; } if (ddx > 8) { mode = 1; startGhost(); } else return; }
+    e.preventDefault(); // only sideways: the page must not scroll while swiping back
+    dx = Math.max(0, ddx); el.style.transition = 'none'; el.style.transform = `translateX(${dx}px)`; if (el.id === 'osheet') el.style.boxShadow = '-12px 0 30px rgba(0,0,0,.45)'; }, { capture: true, passive: false });
+  const end = () => { if (x0 === null) return; if (!mode) { x0 = null; el = null; return; }
+    const t = el, isSheet = t.id === 'osheet', fast = dx / Math.max(1, Date.now() - t0) > .6, go = dx > innerWidth * .33 || (fast && dx > 50);
+    x0 = null; mode = 0;
+    if (go) {
+      t.style.transition = 'transform .22s cubic-bezier(.2,.7,.3,1)'; t.style.transform = 'translateX(100%)';
+      setTimeout(() => { if (isSheet) { t.style.transition = 'none'; goBack(); t.style.transform = ''; t.style.boxShadow = ''; requestAnimationFrame(() => t.style.transition = ''); el = null; } else clear(); }, 230);
+    } else {
+      t.style.transition = 'transform .2s ease-out'; t.style.transform = 'translateX(0)';
+      setTimeout(() => { if (isSheet) { t.style.transition = ''; t.style.transform = ''; t.style.boxShadow = ''; el = null; } else { restore(); clear(); } }, 210);
+    }
   };
   document.addEventListener('touchend', end, { capture: true, passive: true }); document.addEventListener('touchcancel', end, { capture: true, passive: true });
   let mx = null, my = 0;
@@ -540,7 +551,7 @@ function openW() {
 }
 function minimize() {
   const s = $('wsheet'), m = $('mini');
-  if (!W || W.mode === 'review') { s.classList.add('down'); s.style.transform = ''; m.hidden = true; return; }
+  if (!W) { s.classList.add('down'); s.style.transform = ''; m.hidden = true; return; }
   if (morphing) return; morphing = true;
   m.hidden = false; tick(); m.style.transition = 'none'; m.style.opacity = '0';
   const { tf, br } = morphTarget();
@@ -589,7 +600,7 @@ function swipeRows(container, rowSel, onDelete) {
     row.addEventListener('pointermove', e => {
       if (x0 === null) return; const ddx = e.clientX - x0, ddy = e.clientY - y0;
       if (!mode) { if (Math.abs(ddx) > 10 && Math.abs(ddx) > Math.abs(ddy) * 1.3) { mode = 'swipe'; ensureBg(); row.classList.add('swiping'); try { row.setPointerCapture(e.pointerId); } catch (_) {} } else if (Math.abs(ddy) > 10) { x0 = null; return; } }
-      if (mode === 'swipe') { dx = Math.min(0, Math.max(-140, base + ddx)); setX(dx); }
+      if (mode === 'swipe') { const raw = Math.min(0, base + ddx); dx = raw < -96 ? -96 - Math.min(10, (-96 - raw) * .15) : raw; setX(dx); }
     });
     const end = () => { if (x0 === null) return; x0 = null; row.classList.remove('swiping');
       if (mode === 'swipe') { base = dx < -50 ? -96 : 0; setX(base); row.dataset.swiped = '1'; setTimeout(() => delete row.dataset.swiped, 50); if (!base && bg) { bg.remove(); bg = null; } } };
@@ -627,7 +638,7 @@ function renderW() {
   let h = '';
   if (W.mode === 'ready') {
     h = `<div>${W.renaming ? `<input class="field" id="wname" value="${esc(W.name)}" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false">` : `<div class="rtitle"><h1 id="wtitle">${esc(W.name)}</h1>${wById(W.src.id) ? `<button class="textbtn" id="wrename" style="padding:0">${t('rename')}</button>` : ''}</div>`}<p class="hint" style="margin-top:8px">${t('readyHint')}</p></div><div class="sortlist" id="readylist">` +
-      W.ex.map((e, i) => `<div class="srow ${W.rOpen === i ? 'ropen' : ''}"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(e.k)}<button class="exname tapzone" data-ropen="${i}">${esc(exName(e.k))}<small>${t('sets', e.target)} · ${esc(wLabel(e.k, e.w))} × ${e.r}</small></button><span class="grip" data-grip aria-label="ziehen">${GRIP}</span>${W.rOpen === i ? `<div class="redit">${ensurePlan(e).map((p, j) => `<div class="pset"><span class="idx num">${j + 1}</span><label class="pin"><input inputmode="decimal" enterkeyhint="done" class="num" data-pw="${i}:${j}" value="${fmtW(p.w)}"><span>${isBW(e.k) ? t('kgExtra') : 'kg'}</span></label><label class="pin"><input inputmode="numeric" enterkeyhint="done" class="num" data-pr="${i}:${j}" value="${p.r}"><span>${t('reps')}</span></label><button class="sx" data-psx="${i}:${j}" aria-label="${t('delSetT')}">✕</button></div>`).join('')}<button class="addset" data-padd="${i}">${t('setAdd')}</button></div>` : ''}</div>`).join('') + `</div><button class="addset" id="raddex" style="font-size:14px">${t('addEx')}</button>`;
+      W.ex.map((e, i) => `<div class="srow ${W.rOpen === i ? 'ropen' : ''}"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(e.k)}<button class="exname tapzone" data-ropen="${i}">${esc(exName(e.k))}<small>${t('sets', e.target)} · ${esc(wLabel(e.k, e.w))} × ${e.r}</small></button><span class="grip" data-grip aria-label="ziehen">${GRIP}</span>${W.rOpen === i ? `<div class="redit"><div class="pset phead"><span></span><span>${isBW(e.k) ? t('kgExtra') : t('kg')}</span><span>${t('reps')}</span><span></span></div>${ensurePlan(e).map((p, j) => `<div class="pset"><span class="idx num">${j + 1}</span><div class="ctl sm"><button data-pst="${i}:${j}:w:-0.5" aria-label="minus">−</button><input inputmode="decimal" enterkeyhint="done" class="num" data-pw="${i}:${j}" value="${fmtW(p.w)}"><button data-pst="${i}:${j}:w:0.5" aria-label="plus">+</button></div><div class="ctl sm"><button data-pst="${i}:${j}:r:-1" aria-label="minus">−</button><input inputmode="numeric" enterkeyhint="done" class="num" data-pr="${i}:${j}" value="${p.r}"><button data-pst="${i}:${j}:r:1" aria-label="plus">+</button></div><button class="sx" data-psx="${i}:${j}" aria-label="${t('delSetT')}">✕</button></div>`).join('')}<button class="addset" data-padd="${i}">${t('setAdd')}</button></div>` : ''}</div>`).join('') + `</div><button class="addset" id="raddex" style="font-size:14px">${t('addEx')}</button>`;
     setBar(`<button class="mainbtn" id="startbtn">${t('start')}</button>`);
   } else if (W.mode === 'warmup' || W.mode === 'cooldown') {
     const cool = W.mode === 'cooldown';
@@ -680,6 +691,9 @@ function bindW() {
   q('[data-ropen]').forEach(b => b.onclick = () => { readInputs(); const i = +b.dataset.ropen; W.rOpen = W.rOpen === i ? null : i; renderW(); });
   q('[data-pw]').forEach(inp => inp.onchange = () => { const [i, j] = inp.dataset.pw.split(':').map(Number); const v = parseNum(inp.value); if (v !== null) { ensurePlan(W.ex[i])[j].w = Math.round(v * 100) / 100; if (j === 0) W.ex[i].w = W.ex[i].plan[0].w; save(); } });
   q('[data-pr]').forEach(inp => inp.onchange = () => { const [i, j] = inp.dataset.pr.split(':').map(Number); const v = parseNum(inp.value); if (v !== null) { ensurePlan(W.ex[i])[j].r = Math.max(1, Math.round(v)); if (j === 0) W.ex[i].r = W.ex[i].plan[0].r; save(); } });
+  q('[data-pst]').forEach(b => b.onclick = ev => { ev.stopPropagation(); const [i, j, f, d] = b.dataset.pst.split(':'), e = W.ex[+i], pl = ensurePlan(e)[+j];
+    if (f === 'w') { pl.w = Math.round((pl.w + parseFloat(d)) * 100) / 100; if (!isBW(e.k)) pl.w = Math.max(0, pl.w); } else pl.r = Math.max(1, pl.r + parseInt(d));
+    if (+j === 0) { e.w = pl.w; e.r = pl.r; } save(); const inp = b.parentNode.querySelector('input'); inp.value = f === 'w' ? fmtW(pl.w) : pl.r; });
   q('[data-padd]').forEach(b => b.onclick = () => { const e = W.ex[+b.dataset.padd]; ensurePlan(e); const l = e.plan[e.plan.length - 1] || e; e.plan.push({ w: l.w, r: l.r }); e.target++; tplSet(e.k, e.target); renderW(); });
   q('[data-psx]').forEach(b => b.onclick = ev => { ev.stopPropagation(); const [i, j] = b.dataset.psx.split(':').map(Number); confirmDelSet(i, j); });
   q('[data-tsx]').forEach(b => b.onclick = ev => { ev.stopPropagation(); const [i, j] = b.dataset.tsx.split(':').map(Number); confirmDelSet(i, j); });
@@ -769,7 +783,7 @@ function drawSetChart(id) {
   if (prev.length) s += `<polyline points="${prev.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>` + prev.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="var(--bg)" stroke="var(--muted)" stroke-width="1.5"/>`).join('');
   const sum = a => a.reduce((p, q) => p + q, 0), col = S.trendColor && prev.length ? (sum(cur) >= sum(prev.slice(0, cur.length)) ? 'var(--up)' : 'var(--down)') : 'var(--fg)';
   const dot = i => !S.trendColor || prev[i] === undefined ? col : cur[i] > prev[i] ? 'var(--up)' : cur[i] < prev[i] ? 'var(--down)' : 'var(--fg)';
-  s += `<polyline points="${cur.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2.5"/>` + cur.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="${dot(i)}" stroke="var(--bg)" stroke-width="1.5"/>`).join('');
+  s += (S.trendColor && prev.length ? cur.slice(1).map((v, i) => `<line x1="${X(i)}" y1="${Y(cur[i])}" x2="${X(i + 1)}" y2="${Y(v)}" stroke="${dot(i + 1)}" stroke-width="2.5" stroke-linecap="round"/>`).join('') : `<polyline points="${cur.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2.5"/>`) + cur.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="${dot(i)}" stroke="var(--bg)" stroke-width="1.5"/>`).join('');
   for (let i = 0; i < n; i++) s += `<text x="${X(i)}" y="${H0-5}" text-anchor="middle" font-size="10" font-family="var(--mono)" fill="var(--muted)">${i+1}</text>`;
   s += '<g class="scrub"></g>';
   svg.setAttribute('viewBox', `0 0 ${W0} ${H0}`); svg.innerHTML = s;
@@ -791,10 +805,10 @@ function drawSetChart(id) {
 // dev tool: how the review charts look when a session is better, worse or mixed vs. last time
 function chartTestHTML() {
   const mk = (cur, prev) => ({ e: { k:'bench', sets: cur.map(([w, r]) => ({ w, r })) }, prevSets: prev.map(([w, r]) => ({ w, r })) });
-  const cases = [['Besser', mk([[80, 8], [80, 8], [80, 7]], [[75, 8], [75, 7], [75, 6]])], ['Schlechter', mk([[70, 7], [70, 6], [70, 5]], [[75, 8], [75, 8], [75, 7]])],
-    ['Gemischt', mk([[80, 8], [75, 6], [75, 8]], [[75, 8], [75, 8], [75, 6]])], ['Gleich', mk([[75, 8], [75, 8], [75, 8]], [[75, 8], [75, 8], [75, 8]])]];
+  const cases = [['Besser', mk([[80, 8], [80, 8], [80, 7], [80, 7]], [[75, 8], [75, 7], [75, 6], [75, 6]])], ['Schlechter', mk([[70, 7], [70, 6], [70, 5], [70, 5]], [[75, 8], [75, 8], [75, 7], [75, 6]])],
+    ['Gemischt (abwechselnd)', mk([[80, 8], [75, 6], [75, 8], [72.5, 6]], [[75, 8], [75, 8], [75, 6], [75, 6]])], ['Gemischt (Mitte schwächer)', mk([[80, 8], [72.5, 7], [72.5, 6], [80, 6]], [[75, 8], [75, 8], [75, 7], [75, 6]])], ['Gleich', mk([[75, 8], [75, 8], [75, 8], [75, 8]], [[75, 8], [75, 8], [75, 8], [75, 8]])]];
   return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">Dev · Charts-Test</span><span style="width:44px"></span></div>
-    <p class="hint">Linie = Gesamtvergleich zum letzten Mal, Punkte = jeder Satz einzeln (besser grün, schlechter rot, gleich weiß). Farben nur mit „Trendfarben farbig“ (Darstellung). Metrik oben im Dropdown wechseln.</p>
+    <p class="hint">Jeder Punkt = Satz im Vergleich zum gleichen Satz letztes Mal (besser grün, schlechter rot, gleich weiß). Die Linie zu einem Punkt hat dessen Farbe. Grau gestrichelt = letztes Mal. Farben nur mit „Trendfarben farbig“ (Darstellung). Metrik oben im Dropdown wechseln.</p>
     ${cases.map(([n, x], i) => `<div class="rvblock"><h3>${n}</h3>${setChart(x, 'ct' + i)}</div>`).join('')}</div>`;
 }
 function bindRvCharts(root) {
@@ -850,10 +864,10 @@ function tick() {
   const p = $('phasetime'); if (p) p.textContent = mmss(ph);
   const st = $('settime'); if (st) st.textContent = mmss(ph);
   if (!$('mini').hidden) {
-    const label = W.mode === 'ready' ? t('ready') : W.mode === 'train' ? t(W.phase === 'set' ? 'set' : 'rest') : t(W.mode);
-    $('m-phase').textContent = label + (W.start ? ' · ' + mmss(all) : '');
+    const label = W.mode === 'ready' ? t('ready') : W.mode === 'review' ? 'Review' : W.mode === 'train' ? t(W.phase === 'set' ? 'set' : 'rest') : t(W.mode);
+    $('m-phase').textContent = label + (W.start && W.mode !== 'review' ? ' · ' + mmss(all) : '');
     $('m-name').textContent = W.mode === 'train' ? exName(curEx().k) : W.name;
-    $('m-time').textContent = W.mode === 'ready' ? '' : mmss(ph);
+    $('m-time').textContent = W.mode === 'ready' || W.mode === 'review' ? '' : mmss(ph);
   }
 }
 setInterval(tick, 250);
@@ -923,12 +937,11 @@ function renderO() {
   if (O.mode === 'levels') { b.innerHTML = levelsHTML(); setOBar(''); $('o-back').onclick = closeO; return; }
   if (O.mode === 'profile') { b.innerHTML = profileHTML(O.p); setOBar(''); $('o-back').onclick = () => O.from === 'find' ? (O = { mode:'find', q:O.q }, renderO()) : closeO();
     $('pf-follow') && ($('pf-follow').onclick = () => { const f = O.follow || {}; f[O.p.user] = !f[O.p.user]; const p = O.p, fr = O.from, q = O.q; O = { mode:'profile', p, from:fr, q, follow:f }; renderO(); toast(S.lang === 'de' ? 'Vorschau: Folgen kommt mit dem Cloud-Modus' : 'Preview: following comes with cloud sync'); });
-    $('pf-edit') && ($('pf-edit').onclick = () => { closeO(); setPage = 'profile'; tabMem.start = tabMem.start; show('settings'); }); return; }
+    $('pf-edit') && ($('pf-edit').onclick = () => { closeO(); setPage = 'profile'; show('settings'); $('v-settings').scrollTop = 0; }); return; }
   if (O.mode === 'find') { b.innerHTML = findHTML(); setOBar(''); $('o-back').onclick = closeO;
-    if (S.username) loadQR(() => { const box = $('qrbox'); if (!box || !window.qrcode) return; const q = qrcode(0, 'M'); q.addData(SHARE_URL + '?u=' + encodeURIComponent(S.username)); q.make(); box.innerHTML = q.createSvgTag(6, 2); });
+    loadQR(() => { const box = $('qrbox'); if (!box || !window.qrcode) return; const q = qrcode(0, 'M'); q.addData(SHARE_URL + '?u=' + encodeURIComponent(userName())); q.make(); box.innerHTML = q.createSvgTag(6, 2); });
     const qi = $('f-q'); qi.oninput = () => { O.q = qi.value; const pos = qi.selectionStart; renderO(); const n = $('f-q'); n.focus(); n.setSelectionRange(pos, pos); };
     document.querySelectorAll('[data-fh]').forEach(x => x.onclick = () => openProfile(DEMO_FRIENDS[+x.dataset.fh], 'find'));
-    $('f-setuser') && ($('f-setuser').onclick = () => { closeO(); setPage = 'profile'; show('settings'); });
     $('f-scan').onclick = () => toast(S.lang === 'de' ? 'Scannen kommt mit dem Cloud-Modus' : 'Scanning comes with cloud sync'); return; }
   if (O.mode === 'charttest') { b.innerHTML = chartTestHTML(); setOBar(''); $('o-back').onclick = closeO; bindRvCharts(b); return; }
   if (O.mode === 'add') {
@@ -1070,17 +1083,22 @@ function renderProgress() {
   if (strip) { strip.scrollLeft = strip.scrollWidth; const tb = $('todaybtn'); strip.addEventListener('scroll', () => { tb.hidden = strip.scrollLeft > strip.scrollWidth - strip.clientWidth - 40; }); tb.onclick = () => strip.scrollTo({ left: strip.scrollWidth, behavior:'smooth' }); }
   renderCharts();
 }
-const progSwitch = () => `<div class="seg pseg"><button data-ptab="me" class="${progTab === 'me' ? 'on' : ''}">${S.lang === 'de' ? 'Ich' : 'Me'}</button><button data-ptab="friends" class="${progTab === 'friends' ? 'on' : ''}">${S.lang === 'de' ? 'Freunde' : 'Friends'}</button></div>`;
+const PIC1 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5"/></svg>', PIC2 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8.5" r="3.2"/><path d="M2.5 20.5c0-3.9 2.9-6.6 6.5-6.6s6.5 2.7 6.5 6.6"/><circle cx="16.5" cy="7" r="2.7"/><path d="M15.6 12.4c3.4-.4 6 2 6 5.6"/></svg>';
+const progSwitch = () => `<div class="seg pseg"><button data-ptab="me" class="${progTab === 'me' ? 'on' : ''}">${PIC1}${S.lang === 'de' ? 'Ich' : 'Me'}</button><button data-ptab="friends" class="${progTab === 'friends' ? 'on' : ''}">${PIC2}${S.lang === 'de' ? 'Freunde' : 'Friends'}</button></div>`;
 function bindProgSwitch() { document.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { progTab = b.dataset.ptab; renderProgress(); $('v-progress').scrollTop = 0; }); }
 const initialsOf = n => ((n || '').trim().split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
 // sample friends until the cloud mode exists
 const DEMO_FRIENDS = [
-  { name:'Max', user:'max.lifts', lv:9, pts:9400, last:['Push Day', 1], week:[3, 9800, 165], pbs:[['bench', 102.5, 3], ['squat', 130, 5], ['deadlift', 160, 3]] },
-  { name:'Lena', user:'lena_squats', lv:6, pts:3600, last:['Leg Day', 2], week:[2, 7100, 110], pbs:[['squat', 95, 5], ['deadlift', 110, 4], ['ohp', 42.5, 6]] },
-  { name:'Tom', user:'tom.t', lv:4, pts:1500, last:['Pull Day', 4], week:[1, 3200, 55], pbs:[['deadlift', 140, 2], ['bench', 80, 5], ['squat', 100, 6]] } ];
+  { name:'Max', user:'max.lifts', lv:9, pts:9400, last:['Push Day', 1], week:[3, 9800, 165], month:[13, 780, 6], fav:['Push Day', 5], pbs:[['bench', 102.5, 3], ['squat', 130, 5], ['deadlift', 160, 3]] },
+  { name:'Lena', user:'lena_squats', lv:6, pts:3600, last:['Leg Day', 2], week:[2, 7100, 110], month:[9, 510, 3], fav:['Leg Day', 4], pbs:[['squat', 95, 5], ['deadlift', 110, 4], ['ohp', 42.5, 6]] },
+  { name:'Tom', user:'tom.t', lv:4, pts:1500, last:['Pull Day', 4], week:[1, 3200, 55], month:[5, 240, 1], fav:['Pull Day', 3], pbs:[['deadlift', 140, 2], ['bench', 80, 5], ['squat', 100, 6]] } ];
 function myPB(k) { const ss = sessionsFor(k).filter(x => x.best > 0); if (!ss.length) return null; const b = ss.reduce((x, y) => y.best > x.best ? y : x); const st = b.sets.reduce((x, y) => e1rm(effW(k, y.w), y.r) > e1rm(effW(k, x.w), x.r) ? y : x); return [k, st.w, st.r]; }
-function myProfile() { const pts = totalPts(), wk = weekStats(), h = [...HISTORY].sort((a, b) => a.ago - b.ago || b.date - a.date)[0];
-  return { me: true, name: S.name || (S.lang === 'de' ? 'Du' : 'You'), user: S.username, lv: levelOf(pts), pts, last: h ? [h.wname || (wById(h.wid) || {}).name || '', h.ago] : null, week: [wk.n, wk.vol, wk.min], pbs: S.pbEx.map(myPB).filter(Boolean), vis: S.vis }; }
+const userName = () => S.username || 'test'; // placeholder until accounts (username + password) come with the cloud
+const pbKeys = () => { const k = (S.pbEx || []).filter(x => S.fav.includes(x)); return (k.length ? k : S.fav).slice(0, 3); };
+function myProfile() { const pts = totalPts(), wk = weekStats(), h = [...HISTORY].sort((a, b) => a.ago - b.ago || b.date - a.date)[0], m = HISTORY.filter(x => x.ago < 30);
+  const cnt = {}; m.forEach(x => { const n = x.wname || (wById(x.wid) || {}).name; if (n) cnt[n] = (cnt[n] || 0) + 1; }); const fav = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
+  return { me: true, name: S.name || (S.lang === 'de' ? 'Du' : 'You'), user: userName(), lv: levelOf(pts), pts, last: h ? [h.wname || (wById(h.wid) || {}).name || '', h.ago] : null, week: [wk.n, wk.vol, wk.min],
+    month: [m.length, m.reduce((a, x) => a + x.dur, 0), prCount(30)], fav: fav ? [fav, cnt[fav]] : null, pbs: pbKeys().map(myPB).filter(Boolean), vis: S.vis }; }
 const avatarHTML = (name, size) => `<span class="avatar dec" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .34)}px">${esc(initialsOf(name))}</span>`;
 function renderFriends() {
   const de = S.lang === 'de', me = myProfile();
@@ -1097,15 +1115,17 @@ function renderFriends() {
 function openProfile(p, from) { O = { mode:'profile', p, from }; renderO(); openO(); $('obody').scrollTop = 0; }
 // a profile as others see it (own profile respects the visibility settings)
 function profileHTML(p) {
-  const de = S.lang === 'de', v = p.vis || { level:true, pbs:true, week:true, last:true };
+  const de = S.lang === 'de', v0 = p.vis || {}, v = k => v0[k] !== false;
   const dec = (val, lbl) => `<div class="pdec dec"><b class="num">${val}</b><span>${lbl}</span></div>`;
-  return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${p.me ? (de ? 'So sehen dich Freunde' : 'How friends see you') : (de ? 'Profil' : 'Profile')}</span><span style="width:44px"></span></div>
+  return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${p.me ? (de ? 'Dein Profil' : 'Your profile') : (de ? 'Profil' : 'Profile')}</span><span style="width:44px"></span></div>
     <div class="pf-head">${avatarHTML(p.name, 104)}<h1>${esc(p.name)}</h1>${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}
-      ${v.level ? `<div class="pf-lvl">${levelIcon(p.lv)}<span>Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])} · <span class="num">${fmt(p.pts)}</span> Points</span></div>` : ''}
+      ${v('level') ? `<div class="pf-lvl">${levelIcon(p.lv)}<span>Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])} · <span class="num">${fmt(p.pts)}</span> Points</span></div>` : ''}
       ${p.me ? '' : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div>
-    ${v.week ? `<div class="sect"><h2>${t('thisWeek')}</h2><div class="pdecs">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2], t('minutes'))}</div></div>` : ''}
-    ${v.pbs && p.pbs.length ? `<div class="sect"><h2>Personal Bests</h2><div>${p.pbs.map(([k, w, r]) => `<div class="pf-pb"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><span class="num">${esc(wLabel(k, w))} × ${r}</span></div>`).join('')}</div></div>` : ''}
-    ${v.last && p.last ? `<div class="sect"><h2>${de ? 'Letztes Training' : 'Last session'}</h2><div class="pf-last"><b>${esc(p.last[0])}</b><span>${t('ago', p.last[1])}</span></div></div>` : ''}
+    ${v('week') ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('thisWeek')}</h2><div class="pdecs">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2], t('minutes'))}</div></div>` : ''}
+    ${v('month') && p.month ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('last30')}</h2><div class="pdecs">${dec(p.month[0], t('workouts'))}${dec(Math.round(p.month[1] / 60) + ' h', de ? 'Training' : 'Training')}${dec(p.month[2], de ? 'Rekorde' : 'Records')}</div></div>` : ''}
+    ${v('pbs') && p.pbs.length ? `<div class="sect"><h2 class="hic">${SIC.pb}Personal Bests</h2><div>${p.pbs.map(([k, w, r]) => `<div class="pf-pb"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><span class="num">${esc(wLabel(k, w))} × ${r}</span></div>`).join('')}</div></div>` : ''}
+    ${v('last') && p.last ? `<div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Letztes Training' : 'Last session'}</h2><div class="pf-last"><b>${esc(p.last[0])}</b><span>${t('ago', p.last[1])}</span></div></div>` : ''}
+    ${v('fav') && p.fav ? `<div class="sect"><h2 class="hic">${SIC.ex}${de ? 'Lieblings-Workout' : 'Favourite workout'}</h2><div class="pf-last"><b>${esc(p.fav[0])}</b><span>${de ? `${p.fav[1]}× in 30 Tagen` : `${p.fav[1]}× in 30 days`}</span></div></div>` : ''}
     ${p.me ? `<button class="ghostbtn" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<p class="hint">${de ? 'Beispieldaten. Folgen funktioniert mit dem Cloud-Modus.' : 'Sample data. Following works with cloud sync.'}</p>`}</div>`;
 }
 function findHTML() {
@@ -1115,7 +1135,7 @@ function findHTML() {
     <div><b>${de ? 'Per Benutzername' : 'By username'}</b><label class="userin" style="margin-top:10px"><span>@</span><input id="f-q" value="${esc(O.q || '')}" placeholder="${de ? 'benutzername' : 'username'}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="search"></label>
       <div id="f-hits">${hits.map(f => `<button class="fr-row" data-fh="${DEMO_FRIENDS.indexOf(f)}">${avatarHTML(f.name, 40)}<div><b>${esc(f.name)}</b><small>@${esc(f.user)}</small></div>${CHEV}</button>`).join('') || (q ? `<p class="hint" style="margin-top:10px">${de ? 'Niemand gefunden.' : 'No one found.'}</p>` : `<p class="hint" style="margin-top:10px">${de ? 'Zum Ausprobieren: max, lena, tom (Beispieldaten).' : 'Try: max, lena, tom (sample data).'}</p>`)}</div></div>
     <div class="sect"><h2>${de ? 'Per QR-Code' : 'By QR code'}</h2><p class="hint">${de ? 'Dein Freund scannt deinen Code und landet direkt auf deinem Profil.' : 'Your friend scans your code and lands right on your profile.'}</p>
-      ${S.username ? `<div class="qrbox" id="qrbox" aria-label="QR-Code"></div><div class="linkrow"><span class="num">@${esc(S.username)}</span></div>` : `<button class="ghostbtn" id="f-setuser">${de ? 'Erst Benutzernamen festlegen' : 'Set your username first'}</button>`}
+      <div class="qrbox" id="qrbox" aria-label="QR-Code"></div><div class="linkrow"><span class="num">@${esc(userName())}</span></div>
       <button class="ghostbtn" id="f-scan">${de ? 'Code eines Freundes scannen' : 'Scan a friend’s code'}</button></div></div>`;
 }
 
@@ -1233,15 +1253,15 @@ function onbVisual(kind) {
   if (kind === 'welcome') return `<div class="om-phone"><div class="om-dec dec pulse">TRAIN</div></div>`;
   const fin = c => `<span class="om-finger ${c}"></span>`;
   if (kind === 'start') return `<div class="om-phone om-flow">
-      <div class="om-stage s1"><div class="om-dec dec om-c">${de ? 'LOS<br>GEHT’S' : 'LET’S<br>GO'}${fin('f1')}</div></div>
-      <div class="om-stage s2"><div class="om-title"></div><div class="om-row"><i></i><span>Push Day</span><b class="dec">GO${fin('f2')}</b></div>${row('Pull Day', 1)}${row('Leg Day', 1)}</div>
+      <div class="om-stage s1"><div class="om-cw"><div class="om-dec dec om-c">${de ? 'LOS<br>GEHT’S' : 'LET’S<br>GO'}</div>${fin('f1')}</div></div>
+      <div class="om-stage s2"><div class="om-title"></div><div class="om-row"><i></i><span>Push Day</span><span class="om-gow"><b class="dec">GO</b>${fin('f2')}</span></div>${row('Pull Day', 1)}${row('Leg Day', 1)}</div>
       <div class="om-stage s3"><div class="om-eb">${de ? 'BEREIT?' : 'READY?'}</div><div class="om-h">PUSH DAY</div><div class="om-line"></div><div class="om-line"></div><div class="om-line"></div><div class="om-start">START${fin('f3')}</div></div></div>`;
   const step = (lbl, v, anim) => `<div class="om-stp"><small>${lbl}</small><div><i>−</i><b>${anim ? `<span class="om-kg"><em>${v}</em><em>${anim}</em></span>` : v}</b><i class="om-plus">+${anim ? fin('fp') : ''}</i></div></div>`;
   if (kind === 'adjust') return `<div class="om-phone om-adj"><div class="om-bh"><span class="om-n">01</span><span>${de ? 'BANKDRÜCKEN' : 'BENCH PRESS'}</span><em>0/3</em></div>
       <div class="om-act"><small>${de ? 'SATZ 1' : 'SET 1'}</small><div class="om-steps">${step('KG', '72,5', '75')}${step(de ? 'WDH.' : 'REPS', '8')}</div></div>
-      <div class="om-pl"><span>2</span>72,5 kg × 8<em>✕</em></div><div class="om-pl"><span>3</span>72,5 kg × 8<em>✕</em></div>
-      <div class="om-new"><div class="om-bh"><span class="om-n">02</span><span>${de ? 'SEITHEBEN' : 'LATERAL RAISE'}</span><em>0/3</em></div></div>
-      <div class="om-addx">${de ? '+ Übung hinzufügen' : '+ Add exercise'}${fin('fa')}</div></div>`;
+      <div class="om-old"><div class="om-pl"><span>2</span>72,5 kg × 8<em>✕</em></div><div class="om-pl"><span>3</span>72,5 kg × 8<em>✕</em></div></div>
+      <div class="om-addx">${de ? '+ Übung hinzufügen' : '+ Add exercise'}${fin('fa')}</div>
+      <div class="om-new"><div class="om-bh"><span class="om-n">02</span><span>${de ? 'SEITHEBEN' : 'LATERAL RAISE'}</span><em>0/3</em></div><div class="om-pl"><span>1</span>10 kg × 12<em>✕</em></div><div class="om-pl"><span>2</span>10 kg × 12<em>✕</em></div><div class="om-pl"><span>3</span>10 kg × 12<em>✕</em></div></div></div>`;
   if (kind === 'train') return `<div class="om-phone om-delx">
       <div class="om-swipe"><div class="om-del"><span>${t('swipeDel')}${fin('fd2')}</span></div><div class="om-bh om-dips"><span class="om-n">01</span><span>DIPS</span><em>0/3</em>${fin('fd1')}</div></div>
       <div class="om-ex2"><div class="om-bh"><span class="om-n"><span class="om-num"><em>02</em><em>01</em></span></span><span>${de ? 'TRIZEPSDRÜCKEN' : 'TRICEPS PUSHDOWN'}</span><em>0/3</em></div>
@@ -1278,8 +1298,8 @@ function playIntroType() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const r = go.getBoundingClientRect(), g = greetText, m = g.match(/^(.+?[.!?,])\s+(.+)$/), parts = m ? [m[1], m[2]] : [g];
   const el = document.createElement('div'); el.id = 'intro'; el.className = 'intro2';
-  const cr = go.querySelector('.cta').getBoundingClientRect(), cfs = getComputedStyle(go.querySelector('.cta')).fontSize;
-  el.innerHTML = `<div class="i2-box"><p class="i2-line"></p><p class="i2-line"></p></div><p class="i2-cta" style="left:0;right:0;top:${cr.top}px;font-size:${cfs}"></p>`;
+  const ce = go.querySelector('.cta'), cr = ce.getBoundingClientRect(), ccs = getComputedStyle(ce), cfs = ccs.fontSize;
+  el.innerHTML = `<div class="i2-box"><p class="i2-line"></p><p class="i2-line"></p></div><p class="i2-cta" style="left:${cr.left}px;width:${cr.width}px;top:${cr.top}px;font-size:${cfs};line-height:${ccs.lineHeight};letter-spacing:${ccs.letterSpacing}"></p>`;
   $('app').appendChild(el); go.style.visibility = 'hidden';
   const H = el.getBoundingClientRect().height, box = el.querySelector('.i2-box'); box.style.bottom = (H - cr.top + 28) + 'px'; // real height (iPhone home screen: taller than innerHeight)
   el.querySelectorAll('.i2-line').forEach((l, i) => parts[i] && fitWords(l, parts[i], box.clientWidth - 4));
@@ -1290,7 +1310,7 @@ function playIntroType() {
   const poly = pts => `polygon(${pts.map(([x, y]) => `${x.toFixed(1)}px ${y.toFixed(1)}px`).join(', ')})`;
   (async () => {
     await sleep(250); await type(lines[0], parts[0]); if (parts[1]) { await sleep(140); await type(lines[1], parts[1]); }
-    if (done) return; await sleep(220); cta.textContent = t('cta');
+    if (done) return; await sleep(220); cta.innerHTML = ce.innerHTML;
     cta.animate([{ opacity: 0, transform: 'scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 380, fill: 'forwards' });
     await sleep(800); if (done) return;
     el.querySelector('.i2-box').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
@@ -1328,11 +1348,21 @@ const levelIcon = i => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 const levelOf = pts => { let i = 0; LEVELS.forEach((l, k) => { if (pts >= l.p) i = k; }); return i; };
 function openLevels() { O = { mode:'levels' }; renderO(); openO(); $('obody').scrollTop = 0; bindLadder(); }
 function bindLadder() {
-  const lad = $('ladder'), c = lad && lad.querySelector('.cur'), hero = document.querySelector('.lvl-hero'); if (!c) return;
-  const rows = lad.querySelectorAll('.lvl-row'), above = [...rows].indexOf(c) >= 2 ? rows[[...rows].indexOf(c) - 2].offsetTop : 0;
-  lad.scrollTop = above; const init = lad.scrollTop;
-  // shrink once you scroll down from your level; grow again only at the very top (no flicker when the list gets taller)
-  lad.onscroll = () => { const st = lad.scrollTop; if (st - init > 24) hero.classList.add('compact'); else if (st < 4) hero.classList.remove('compact'); };
+  const lad = $('ladder'), c = lad && lad.querySelector('.cur'), hero = document.querySelector('.lvl-hero'); if (!c || !hero) return;
+  const dec = hero.querySelector('.lvl-dec'), ht = hero.querySelector('.lvl-ht'), more = hero.querySelector('.lvl-more');
+  hero.classList.add('fluid'); const Wd = hero.clientWidth, htW = Math.min(Wd, ht.offsetWidth), htH = ht.offsetHeight, mH = more ? more.offsetHeight : 0;
+  const big = 128, small = 56, sc = .62, top = big + 10, bigH = top + htH + (mH ? 12 + mH : 0);
+  const L = (a, b, k) => a + (b - a) * k;
+  // the header shrinks continuously while you scroll the ladder down: icon moves left, title moves next to it
+  const lay = k => { const ds = L(big, small, k) / big;
+    dec.style.transform = `translate(${L((Wd - big) / 2, 0, k)}px, 0) scale(${ds})`;
+    ht.style.transform = `translate(${L((Wd - htW) / 2, small + 14, k)}px, ${L(top, (small - htH * sc) / 2, k)}px) scale(${L(1, sc, k)})`;
+    if (more) { more.style.transform = `translateY(${top + htH + 12}px)`; more.style.opacity = Math.max(0, 1 - k * 2.5); }
+    hero.style.height = L(bigH, small, k) + 'px'; };
+  const rows = [...lad.querySelectorAll('.lvl-row')], ci = rows.indexOf(c), init = ci >= 2 ? rows[ci - 2].offsetTop : 0, span = 160;
+  lay(0); lad.scrollTop = init;
+  const need = init + span + lad.clientHeight + (bigH - small) - lad.scrollHeight; if (need > 0) lad.style.paddingBottom = need + 'px'; lad.scrollTop = init;
+  let raf = 0; lad.onscroll = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; lay(Math.max(0, Math.min(1, (lad.scrollTop - init) / span))); }); };
 }
 function levelsHTML() {
   const pts = totalPts(), li = levelOf(pts), cur = LEVELS[li], nxt = LEVELS[li + 1];
@@ -1423,7 +1453,7 @@ function previewIntro() {
 }
 // leave the start screen the way the intro came in, revealing the settings again
 function outro(kind, c, r) {
-  const done = () => c.remove(), E = 'cubic-bezier(.5,0,.2,1)';
+  const done = () => c.remove(), E = 'cubic-bezier(.5,0,.2,1)'; kind = 'spin'; // Ben: the decagon morph for every intro
   if (kind === 'tear') {
     const c2 = c.cloneNode(true); c.after(c2); const n = 9, pts = [];
     for (let i = 0; i <= n; i++) pts.push([r.width * i / n, r.height * .52 - (i - n / 2) * r.height * .03 + (i % 2 ? -18 : 18)]);
@@ -1476,6 +1506,7 @@ const SET_IC = {
   data:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2.5" width="10" height="19" rx="1.5"/><path d="M11 18.5h2"/><path d="M12 6.5v6M9.5 10l2.5 2.5 2.5-2.5"/></svg>',
   imprint:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 12h7M9 16h7"/></svg>',
   share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/></svg>',
+  personal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14"/><circle cx="9" cy="11" r="2.4"/><path d="M5.5 16.5c.6-2 2-3 3.5-3s2.9 1 3.5 3M14.5 10h4M14.5 13.5h4"/></svg>',
   dev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>' };
 const sic = k => `<span class="sic">${SET_IC[k]}</span>`;
 function loadQR(cb) { if (window.qrcode) return cb(); const sc = document.createElement('script'); sc.src = 'vendor/qrcode.js'; sc.onload = cb; document.head.appendChild(sc); }
@@ -1493,9 +1524,9 @@ function renderSettings() {
   let h = '';
   if (!setPage) {
     const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div>${CHEV}</button>`;
-    h = `<h1 class="seth1">${t('settings')}</h1><button class="sprof" data-sp="profile"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>${S.name ? t('spProfile') + ' · ' : ''}Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
+    h = `<h1 class="seth1">${t('settings')}</h1><button class="sprof" id="sprof"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>@${esc(userName())} · Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
+      ${item('personal', S.lang === 'de' ? 'Persönliche Daten' : 'Personal data', S.lang === 'de' ? 'Körpergewicht, Alter, Account' : 'Body weight, age, account', sic('personal'))}
       ${item('display', t('spDisplay'), t('spDisplayHint'), sic('display'))}
-      ${item('progress', t('spProgress'), t('spProgressHint'), sic('progress'))}
       ${item('logic', t('spLogic'), t('spLogicHint'), sic('logic'))}
       ${item('data', t('spData'), t('spDataHint'), sic('data'))}
       ${item('share', t('share'), t('shareHint'), sic('share'))}
@@ -1503,22 +1534,21 @@ function renderSettings() {
       ${ENV === 'dev' ? `<button class="devbtn" id="devtoggle">${SET_IC.dev}<span>${t('devShow')} ${devOpen ? '▴' : '▾'}</span></button>${devOpen ? `<div class="devtools"><button id="dev-onb">${t('devOnb')}</button><button id="dev-intro">${t('devIntro')}</button><button id="dev-celeb">${t('devCeleb')}</button><button id="dev-charts">Charts-Test</button><button id="reseed">${t('reseed')}</button></div>` : ''}` : ''}
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'profile') {
-    const de = S.lang === 'de', exDone = [...new Set(HISTORY.flatMap(h => h.ex.map(e => e.k)))].filter(k => EX[k]);
-    const vtog = (k, l) => `<div class="setrow"><div><b>${l}</b></div>${tog('vis-' + k, S.vis[k])}</div>`;
-    h = head(t('spProfile')) + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;min-width:0"><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"><p class="hint" style="margin-top:6px">${de ? 'Anzeigename, für Freunde sichtbar. Profilbild kommt mit dem Cloud-Modus.' : 'Display name, visible to friends. Profile photo comes with cloud sync.'}</p></div></div>
-      <div class="setrow setcol"><div><b>${de ? 'Benutzername' : 'Username'}</b><p>${S.username ? (de ? 'Fest vergeben, kann nicht mehr geändert werden.' : 'Fixed, cannot be changed.') : (de ? 'Damit dich Freunde finden. Nur einmal festlegbar.' : 'So friends can find you. Can only be set once.')}</p></div>
-        ${S.username ? `<span class="userfix num">@${esc(S.username)}</span>` : `<div class="userrow"><label class="userin"><span>@</span><input id="uname" placeholder="${de ? 'benutzername' : 'username'}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done"></label><button class="mainbtn" id="usave">${de ? 'Festlegen' : 'Set'}</button></div>`}</div>
-      <div>
+    const de = S.lang === 'de';
+    const vtog = (k, l, ic) => `<div class="setrow"><div class="vrow">${ic ? `<span class="hic">${ic}</span>` : ''}<b>${l}</b></div>${tog('vis-' + k, S.vis[k] !== false)}</div>`;
+    h = head(de ? 'Profil bearbeiten' : 'Edit profile') + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;min-width:0"><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"><p class="hint" style="margin-top:6px">${de ? 'Anzeigename für Freunde' : 'Display name for friends'}</p></div></div>
+      <div class="setrow"><div><b>${de ? 'Benutzername' : 'Username'}</b><p>${de ? 'Damit dich Freunde finden' : 'So friends can find you'}</p></div><span class="userfix num">@${esc(userName())}</span></div>
+      <div style="margin-top:8px"><b>Personal Bests</b><p class="hint" style="margin-top:4px">${S.fav.length ? (de ? 'Bis zu 3 deiner Lieblingsübungen (★) zeigen ihre Bestleistung im Profil.' : 'Up to 3 of your favourite exercises (★) show their best on your profile.') : (de ? 'Markiere Übungen mit ★ als Lieblingsübung, dann kannst du sie hier wählen.' : 'Mark exercises with ★ as favourites to pick them here.')}</p></div>
+      ${S.fav.length ? `<div class="pbpick">${S.fav.map(k => `<button class="${pbKeys().includes(k) ? 'on' : ''}" data-pbex="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
+      <div style="margin-top:8px"><b>${de ? 'Im Profil zeigen' : 'Show on profile'}</b><p class="hint" style="margin-top:4px">${de ? 'Was Freunde sehen können' : 'What friends can see'}</p></div>
+      <div>${vtog('level', 'Level & Points', '')}${vtog('week', t('thisWeek'), SIC.cal)}${vtog('month', t('last30'), SIC.cal)}${vtog('pbs', 'Personal Bests', SIC.pb)}${vtog('last', de ? 'Letztes Training' : 'Last session', SIC.hist)}${vtog('fav', de ? 'Lieblings-Workout' : 'Favourite workout', SIC.ex)}</div>`;
+  } else if (setPage === 'personal') {
+    h = head(S.lang === 'de' ? 'Persönliche Daten' : 'Personal data') + `<div>
         <div class="setrow"><div><b>${t('bodyweight')}</b><p>${t('bwHint')}</p></div><label class="kgin"><input id="bw" inputmode="decimal" enterkeyhint="done" class="num" placeholder="—" value="${S.bodyweight ? fmtW(S.bodyweight) : ''}"><span>kg</span></label></div>
         <div class="setrow"><div><b>${t('age')}</b><p>${t('ageHint')}</p></div><label class="kgin"><input id="age" inputmode="numeric" enterkeyhint="done" class="num" placeholder="—" value="${S.age || ''}"><span>${S.lang === 'de' ? 'J.' : 'y'}</span></label></div>
         <div class="setrow"><div><b>${t('bwPoints')}</b><button class="info" id="bwi" aria-label="Info">i</button><p>${S.bodyweight ? t('bwPointsHint') : t('bwPointsOff')}</p></div>${tog('bwp', S.bwPoints, !S.bodyweight)}</div>
         <div class="setrow" style="opacity:.45"><div><b>${t('account')}</b><p>${t('accountHint')}</p></div>${CHEV}</div>
-      </div>
-      <div style="margin-top:8px"><b>${de ? 'Lieblingsübungen' : 'Favourite exercises'}</b><p class="hint" style="margin-top:4px">${de ? 'Bis zu 3, ihre Personal Bests stehen in deinem Profil.' : 'Up to 3, their personal bests show on your profile.'}</p></div>
-      <div class="pbpick">${exDone.map(k => `<button class="${S.pbEx.includes(k) ? 'on' : ''}" data-pbex="${k}">${esc(exName(k))}</button>`).join('')}</div>
-      <div style="margin-top:8px"><b>${de ? 'Für Freunde sichtbar' : 'Visible to friends'}</b></div>
-      <div>${vtog('level', 'Level & Points')}${vtog('week', t('thisWeek'))}${vtog('pbs', 'Personal Bests')}${vtog('last', de ? 'Letztes Training' : 'Last session')}</div>
-      <button class="ghostbtn" id="pf-preview">${de ? 'Vorschau: So sehen dich Freunde' : 'Preview: how friends see you'}</button>`;
+      </div>`;
   } else if (setPage === 'display') {
     h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
@@ -1534,7 +1564,11 @@ function renderSettings() {
       <div style="margin-top:8px"><b>${t('pulseTitle')}</b><p class="hint" style="margin-top:4px">${t('pulseHint')}</p></div>
       <div class="anims">${Object.keys(T.de.pulses).map(k => `<button class="animopt ${S.pulse===k?'on':''}" data-pulse="${k}"><span class="pvdec dec" style="animation:${PULSE[k]} ease-in-out infinite"></span><span>${t('pulses')[k]}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('loadTitle')}</b><p class="hint" style="margin-top:4px">${t('loadHint')}</p></div>
-      <div class="anims">${Object.keys(T.de.anims).map(k => `<button class="animopt ${S.anim===k?'on':''}" data-anim="${k}">${animSVG(k, false)}<span>${t('anims')[k]}</span></button>`).join('')}</div>`;
+      <div class="anims">${Object.keys(T.de.anims).map(k => `<button class="animopt ${S.anim===k?'on':''}" data-anim="${k}">${animSVG(k, false)}<span>${t('anims')[k]}</span></button>`).join('')}</div>
+      <div style="margin-top:8px"><b>${S.lang === 'de' ? 'Prognose & Rückblick' : 'Forecast & look-back'}</b><p class="hint" style="margin-top:4px">${S.lang === 'de' ? 'Gestrichelte Linie in den Fortschritt-Charts' : 'Dashed line in the progress charts'}</p></div>
+      <div>
+      <div class="setrow setcol"><div><b>${t('fcTitle')}</b><button class="info" id="fci" aria-label="Info">i</button><p>${t('fcHint')}</p></div>${seg('fch', [[0, t('fcOff')], [4, '4 ' + t('weeksShort')], [6, '6 ' + t('weeksShort')], [8, '8 ' + t('weeksShort')], [12, '12 ' + t('weeksShort')]], S.fcHor)}</div>
+      <div class="setrow setcol" ${S.fcHor ? '' : 'style="opacity:.4;pointer-events:none"'}><div><b>${t('lookTitle')}</b><p>${t('lookHint')}</p></div>${seg('fcl', [[4, '4 ' + t('weeksShort')], [8, '8 ' + t('weeksShort')], [12, '12 ' + t('weeksShort')], [0, t('all')]], S.fcLook)}</div></div>`;
   } else if (setPage === 'progress') {
     const wk = t('weeksShort');
     h = head(t('spProgress')) + `<div>
@@ -1580,12 +1614,9 @@ function renderSettings() {
   document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { S.accent = b.dataset.acc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-trc]').forEach(b => b.onclick = () => { S.trendColor = b.dataset.trc === '1'; renderSettings(); });
   on('bwi', () => showInfo(t('bwInfo')));
-  ['level', 'week', 'pbs', 'last'].forEach(k => on('vis-' + k, () => { S.vis = Object.assign({}, S.vis, { [k]: !S.vis[k] }); renderSettings(); }));
-  document.querySelectorAll('[data-pbex]').forEach(b => b.onclick = () => { const k = b.dataset.pbex; if (S.pbEx.includes(k)) S.pbEx = S.pbEx.filter(x => x !== k); else if (S.pbEx.length < 3) S.pbEx = S.pbEx.concat(k); else toast(S.lang === 'de' ? 'Maximal 3 Übungen' : 'Up to 3 exercises'); renderSettings(); });
-  on('pf-preview', () => openProfile(myProfile()));
-  on('usave', () => { const de = S.lang === 'de', u = $('uname').value.trim().toLowerCase().replace(/^@/, '');
-    if (!/^[a-z0-9._]{3,20}$/.test(u)) { toast(de ? '3 bis 20 Zeichen: a-z, 0-9, Punkt, Unterstrich' : '3 to 20 characters: a-z, 0-9, dot, underscore'); return; }
-    dialog('@' + u, de ? 'Dein Benutzername kann danach nicht mehr geändert werden.' : 'Your username cannot be changed afterwards.', [[de ? 'Festlegen' : 'Set', 'mainbtn', () => { S.username = u; renderSettings(); }], [de ? 'Abbrechen' : 'Cancel', 'ghostbtn', () => {}]]); });
+  ['level', 'week', 'month', 'pbs', 'last', 'fav'].forEach(k => on('vis-' + k, () => { S.vis = Object.assign({}, S.vis, { [k]: S.vis[k] === false }); renderSettings(); }));
+  document.querySelectorAll('[data-pbex]').forEach(b => b.onclick = () => { const k = b.dataset.pbex, cur = pbKeys(); if (cur.includes(k)) S.pbEx = cur.filter(x => x !== k); else if (cur.length < 3) S.pbEx = cur.concat(k); else toast(S.lang === 'de' ? 'Es werden 3 Personal Bests gezeigt. Erst eine abwählen.' : '3 personal bests are shown. Deselect one first.'); renderSettings(); });
+  on('sprof', () => openProfile(myProfile(), 'settings'));
   on('fci', () => showInfo(t('infoFc', S.fcLook, S.fcHor || 6)));
   $('age') && ($('age').onchange = e => { const v = parseNum(e.target.value); S.age = v && v > 0 ? Math.round(v) : null; renderSettings(); });
   $('bw') && ($('bw').onchange = e => { const v = parseNum(e.target.value); S.bodyweight = v && v > 0 ? v : null; if (!S.bodyweight) S.bwPoints = false; renderSettings(); });

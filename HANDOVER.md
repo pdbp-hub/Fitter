@@ -3,7 +3,7 @@
 **Zuerst lesen:** `CLAUDE.md` (Arbeitsweise, Regeln), dann `TODO.md` (offene Punkte), dann diese Datei.
 
 ## Projektstand in einem Satz
-Gym-Tracker-PWA „TRAIN“ (Arbeitstitel, Ben sucht noch einen Namen), schwarz-weiß, Zehneck als Markenzeichen. Live v0.1.1 läuft für Ben, Dev v0.8.0 enthält alle neuen Features und wartet auf „freigeben“.
+Gym-Tracker-PWA „TRAIN“ (Arbeitstitel, Ben sucht noch einen Namen), schwarz-weiß, Zehneck als Markenzeichen. Live v0.1.1 läuft für Ben, Dev v0.9.0 enthält alle neuen Features und wartet auf „freigeben“.
 
 ## Links & Ablauf
 - Live: https://pdbp-hub.github.io/Fitter/ (`docs/`, weißes Icon) · Dev: https://pdbp-hub.github.io/Fitter/dev/ (`docs/dev/`, gelbes Icon, Testdaten)
@@ -23,7 +23,7 @@ Gym-Tracker-PWA „TRAIN“ (Arbeitstitel, Ben sucht noch einen Namen), schwarz-
 - Einstellungen: `renderSettings` mit `setPage` (profile, display, progress, logic, data, share, imprint, privacy), Dev-Werkzeuge (`devOpen`), Teilen-QR (`vendor/qrcode.js`).
 - Onboarding: `ONBOARDING` + `onbVisual` (CSS-Mockups `.om-*` in style.css), `showOnboarding`.
 - Navigation: Tabs `[data-tab]` mit `tabMem`/`scrollMem` (Unterseite merken), `show(view)`, `goBack()` + Rand-Wischen (Touch-Events).
-- Dev-Werkzeuge: Onboarding, Intro, Celebration, Charts-Test (`chartTestHTML`, O.mode charttest). Intro-Vorschau: `previewIntro()` + `outro()`. Zurück-Wischen: `backTarget()` + Touch-Handler.
+- Dev-Werkzeuge: Onboarding, Intro, Celebration, Charts-Test (`chartTestHTML`, O.mode charttest). Intro-Vorschau: `previewIntro()` + `outro()`. Zurück-Wischen: `backTarget()` + Touch-Handler (echter Seiteninhalt wird in eine Kopie verschoben, dahinter rendert schon die vorige Seite). Level-Kopf: `bindLadder()` (fließend per Scroll). Profil: Einstellungen-Kachel `#sprof` → `openProfile(myProfile())`, Bearbeiten = setPage 'profile', Persönliche Daten = setPage 'personal', Benutzername-Platzhalter `userName()` = @test.
 - Sheets: `#wsheet` (Workout), `#osheet` (`O.mode`: create, add, picker, review, levels). Dialoge `dialog()`, Info `showInfo()` (mittig).
 
 ## Cloud-Modus – Briefing / Empfehlung (für die nächste Session)
