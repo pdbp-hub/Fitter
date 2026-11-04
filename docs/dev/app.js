@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.7.0';
+const APP_VERSION = '0.8.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -35,7 +35,7 @@ const DEFAULT_WORKOUTS = [
   { id:'pull', name:'Pull Day', ex:[['latpull',4],['row',4],['pullup',3],['curl',4],['hammer',3]] },
   { id:'legs', name:'Leg Day',  ex:[['squat',4],['legpress',4],['rdl',4],['calf',4]] }
 ];
-const S = { lang:'de', inverted:false, anim:'breath', pulse:'breathe', trendColor:false, fcLook:8, fcHor:6, name:'', bodyweight:null, bwPoints:false, fav:['bench','latpull','squat'], chartKey:'bench', age:null, accent:false, celeb:'confetti', onboarded:false, intro:'spin' };
+const S = { lang:'de', inverted:false, anim:'breath', pulse:'breathe', trendColor:false, fcLook:8, fcHor:6, name:'', bodyweight:null, bwPoints:false, fav:['bench','latpull','squat'], chartKey:'bench', age:null, accent:false, celeb:'confetti', onboarded:false, intro:'spin', username:'', pbEx:['bench','squat','deadlift'], vis:{ level:true, pbs:true, week:true, last:true } };
 const r05 = v => Math.round(v * 2) / 2;
 const STORED = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || null; } catch (e) { return null; } })();
 if (STORED && STORED.settings) Object.assign(S, STORED.settings);
@@ -319,7 +319,11 @@ const ICON_EX = {
   adductor:'<circle cx="12" cy="3.8" r="1.7"/><path d="M12 5.5v8.5"/><path d="M6.5 14h11"/><path d="M12 14l-4 7M12 14l4 7"/><rect x="6.3" y="16.5" width="1.6" height="3.6" rx=".5" fill="currentColor"/><rect x="16.1" y="16.5" width="1.6" height="3.6" rx=".5" fill="currentColor"/><path d="M1.5 18.3h3M3.3 16.8l1.5 1.5-1.5 1.5M22.5 18.3h-3M20.7 16.8l-1.5 1.5 1.5 1.5"/>',
   hack:'<path d="M15.5 2l5 19.5M13.5 21.5h9"/><circle cx="13" cy="3.6" r="1.5"/><path d="M13.6 5.2l2.3 8.6"/><path d="M15.9 13.8l-4.6 2.6"/><path d="M11.3 16.4l2.4 5.1"/><path d="M12.2 7.6l3.8-1"/>',
   machrow:'<path d="M3.5 15.5h8M5 15.5v6.5M10 15.5v6.5"/><circle cx="6.8" cy="5.6" r="1.6"/><path d="M6.8 7.2v8.3"/><path d="M6.8 10.4h4.4l1.4-1.6"/><path d="M14.2 6.2v8.2"/><path d="M12.6 8.8h6"/><path d="M20 3v19"/>',
-  hyperext:'<path d="M3 21.5h12M8 21.5l5.5-8"/><path d="M11.5 13.5h4.8"/><path d="M14 13.5L9.8 19"/><path d="M8.5 19.8h3"/><path d="M15.4 12.8l4.4-4.4"/><circle cx="20.8" cy="7.4" r="1.5"/>',
+  hyperext:'<path d="M2 21.5h20"/><path d="M4 21.5l4.5-7.5M15 21.5l-4.5-7.5"/><path d="M8.5 14h5"/><path d="M5.5 19.3l-1.6-1"/><path d="M4.6 18.8l6.4-5.6"/><path d="M11 13.2l6.4-5.4"/><circle cx="18.9" cy="6.5" r="1.6"/><path d="M15.6 9.3l-3.6 1.2"/><path d="M18.6 14.4a5 5 0 0 0 2.6-3.6M21.2 10.8l-1.5 1M21.2 10.8l.6 1.7"/>',
+  reversefly:'<rect x="10.4" y="8" width="3.2" height="7" rx=".5"/><circle cx="12" cy="4.6" r="1.8"/><path d="M12 6.4v1.6"/><path d="M10.4 9.2H4.6M13.6 9.2h5.8"/><rect x="2.6" y="7" width="2" height="4.6" rx=".5" fill="currentColor"/><rect x="19.4" y="7" width="2" height="4.6" rx=".5" fill="currentColor"/><path d="M10.6 15l-1.4 6.5M13.4 15l1.4 6.5"/><path d="M7.5 18h9"/><path d="M1.5 14.5h3.5M2.8 13.2l-1.3 1.3 1.3 1.3M22.5 14.5H19M21.2 13.2l1.3 1.3-1.3 1.3"/>',
+  russian:'<path d="M2 21h20"/><circle cx="5.2" cy="8.8" r="1.6"/><path d="M5.8 10.4l3.7 9.6"/><path d="M9.5 20l5-6.2"/><path d="M14.5 13.8l5.6 2.4"/><path d="M6.6 12.6l5.4 2.8"/><circle cx="13" cy="15.8" r="1.3" fill="currentColor"/><path d="M15.8 6.6a4.5 4.5 0 0 1 4.8 3.2M20.6 9.8l-.1-1.9M20.6 9.8l-1.8-.6"/>',
+  incline:'<path d="M1.8 10.2l6.6 9h8.4"/><path d="M14 19.2v2.8M9 22h9"/><circle cx="4.6" cy="5.4" r="1.6"/><path d="M5.6 7l5.4 8"/><path d="M11 15h5.5l.6 6.5"/><path d="M7 9.2l3.2-5.6"/><path d="M8.2 2.8h4.2"/><rect x="7.4" y="1.6" width="1.6" height="2.4" rx=".4" fill="currentColor"/><rect x="11.6" y="1.6" width="1.6" height="2.4" rx=".4" fill="currentColor"/>',
+  inclinebb:'<path d="M1.8 10.2l6.6 9h8.4"/><path d="M14 19.2v2.8M9 22h9"/><circle cx="4.6" cy="5.4" r="1.6"/><path d="M5.6 7l5.4 8"/><path d="M11 15h5.5l.6 6.5"/><path d="M7 9.2l3.2-5.6"/><path d="M4 2.8h12"/><rect x="4.4" y="1.2" width="1.4" height="3.2" rx=".3" fill="currentColor"/><rect x="14.2" y="1.2" width="1.4" height="3.2" rx=".3" fill="currentColor"/>',
   preacher:'<path d="M3 16.5h6M4.5 16.5v5.5M8 16.5v5.5"/><circle cx="5.6" cy="6.4" r="1.6"/><path d="M5.6 8v8.5"/><path d="M8.6 13.6l7-3.6v2.8l-7 3.6z"/><path d="M5.6 10.4l7 2.2"/><path d="M12.6 12.6l2-6.2"/><path d="M13 5.8h4"/>',
   shoulderpress:'<path d="M4.5 6v10M4.5 16h7M6 16v6M10.5 16v6"/><circle cx="7.6" cy="7.8" r="1.6"/><path d="M7.6 9.4v6.6"/><path d="M7.6 11l3-5.6"/><path d="M8.8 4.6h3.8"/><path d="M19.5 2v20M12.6 4.6h6.9"/>',
   chestpress:'<path d="M4.5 3v12M4.5 15h7M6 15v7M10.5 15v7"/><circle cx="7.4" cy="5" r="1.6"/><path d="M7.4 6.6v8"/><path d="M7.4 9.5h8"/><path d="M15.8 7v5.2"/><path d="M19.5 3v19M15.8 9.6h3.7"/>',
@@ -353,6 +357,13 @@ const GRIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 /* ---------- Decagon geometry + animations ---------- */
 const decPts = (cx, cy, r) => Array.from({length:10}, (_, i) => { const a = 36 * i * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
 const P = pts => pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+const polyCSS = pts => `polygon(${pts.map(([x, y]) => `${x.toFixed(1)}px ${y.toFixed(1)}px`).join(', ')})`;
+// intros: make sure no single word is wider than the box (e.g. "Mitternachtsgains.")
+function fitWords(node, text, avail) {
+  const fs = parseFloat(getComputedStyle(node).fontSize), m = document.createElement('span'); m.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap'; node.appendChild(m);
+  let wMax = 0; text.split(/\s+/).forEach(w => { m.textContent = w; wMax = Math.max(wMax, m.getBoundingClientRect().width); }); m.remove();
+  if (wMax > avail) node.style.fontSize = Math.floor(fs * avail / wMax) + 'px';
+}
 let svgId = 0;
 function animSVG(kind, cool, paused) {
   const R = 94, o = decPts(100,100,R); const id = 'c' + (++svgId); let s = '';
@@ -439,13 +450,33 @@ function goBack() {
   if (tab === 'select') { tabMem.start = 'start'; show('start'); return true; }
   return false;
 }
-(() => { let x0 = null, y0 = 0; // touch events for iPhone (pointer events get cancelled when the page starts to scroll), pointer for mouse
-  const down = (x, y) => { x0 = x < 30 ? x : null; y0 = y; }, up = (x, y) => { if (x0 === null) return; const dx = x - x0, dy = Math.abs(y - y0); x0 = null; if (dx > 60 && dy < 70) goBack(); };
-  document.addEventListener('touchstart', e => { const p = e.touches[0]; down(p.clientX, p.clientY); }, { capture: true, passive: true });
-  document.addEventListener('touchmove', e => { if (x0 === null) return; const p = e.touches[0]; if (p.clientX - x0 > 60 && Math.abs(p.clientY - y0) < 70) { x0 = null; goBack(); } }, { capture: true, passive: true });
-  document.addEventListener('touchend', e => { const p = e.changedTouches[0]; up(p.clientX, p.clientY); }, { capture: true, passive: true });
-  document.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') down(e.clientX, e.clientY); }, true);
-  document.addEventListener('pointerup', e => { if (e.pointerType === 'mouse') up(e.clientX, e.clientY); }, true);
+// what an edge swipe would move: the overlay sheet or the current screen (null = nothing to go back to)
+function backTarget() {
+  if (!$('osheet').classList.contains('down') && $('o-back')) return $('osheet');
+  if (!$('wsheet').classList.contains('down')) return null;
+  if ((tab === 'settings' && setPage) || tab === 'select') return $('v-' + tab);
+  return null;
+}
+(() => { let x0 = null, y0 = 0, el = null, dx = 0, mode = 0, t0 = 0; // touch: the page follows the finger and slides out; mouse: quick swipe
+  const reset = () => { if (el) { el.style.transition = ''; el.style.transform = ''; el.style.boxShadow = ''; } el = null; x0 = null; mode = 0; };
+  document.addEventListener('touchstart', e => { const p = e.touches[0]; if (p.clientX >= 30 || e.touches.length > 1) return; el = backTarget(); if (!el) return; x0 = p.clientX; y0 = p.clientY; dx = 0; mode = 0; t0 = Date.now(); }, { capture: true, passive: true });
+  document.addEventListener('touchmove', e => { if (x0 === null) return; const p = e.touches[0], ddx = p.clientX - x0, ddy = p.clientY - y0;
+    if (!mode) { if (Math.abs(ddy) > 12 && Math.abs(ddy) > Math.abs(ddx)) { reset(); return; } if (ddx > 8) mode = 1; else return; }
+    dx = Math.max(0, ddx); el.style.transition = 'none'; el.style.transform = `translateX(${dx}px)`; el.style.boxShadow = '-12px 0 30px rgba(0,0,0,.45)'; }, { capture: true, passive: true });
+  const end = () => { if (x0 === null) return; if (!mode) { reset(); return; }
+    const t = el, fast = dx / Math.max(1, Date.now() - t0) > .6;
+    if (dx > innerWidth * .33 || (fast && dx > 50)) {
+      t.style.transition = 'transform .22s cubic-bezier(.2,.7,.3,1)'; t.style.transform = 'translateX(100%)'; x0 = null; el = null; mode = 0;
+      setTimeout(() => { t.style.transition = 'none'; const isSheet = t.id === 'osheet'; goBack();
+        if (isSheet && t.classList.contains('down')) { t.style.transform = ''; t.style.boxShadow = ''; requestAnimationFrame(() => t.style.transition = ''); return; }
+        const n = isSheet ? t : $('v-' + tab); t.style.transform = ''; t.style.boxShadow = ''; requestAnimationFrame(() => { t.style.transition = ''; });
+        n.animate([{ transform: 'translateX(-24%)', opacity: .5 }, { transform: 'none', opacity: 1 }], { duration: 240, easing: 'cubic-bezier(.2,.7,.3,1)' }); }, 220);
+    } else { t.style.transition = 'transform .2s ease-out'; t.style.transform = 'translateX(0)'; const tt = t; x0 = null; el = null; mode = 0; setTimeout(() => { tt.style.transition = ''; tt.style.transform = ''; tt.style.boxShadow = ''; }, 220); }
+  };
+  document.addEventListener('touchend', end, { capture: true, passive: true }); document.addEventListener('touchcancel', end, { capture: true, passive: true });
+  let mx = null, my = 0;
+  document.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') { mx = e.clientX < 30 ? e.clientX : null; my = e.clientY; } }, true);
+  document.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse' || mx === null) return; const ddx = e.clientX - mx, ddy = Math.abs(e.clientY - my); mx = null; if (ddx > 60 && ddy < 70) goBack(); }, true);
 })();
 
 let lastFinished = null; // { W, hist, at }
@@ -888,7 +919,17 @@ const exMatches = (k, q) => !q || (exName(k) + ' ' + (EX[k].en || '') + ' ' + t(
 function toggleFav(k) { const i = S.fav.indexOf(k); if (i >= 0) S.fav.splice(i, 1); else S.fav.push(k); return true; }
 function renderO() {
   const b = $('obody');
+  b.classList.toggle('lvlmode', O.mode === 'levels');
   if (O.mode === 'levels') { b.innerHTML = levelsHTML(); setOBar(''); $('o-back').onclick = closeO; return; }
+  if (O.mode === 'profile') { b.innerHTML = profileHTML(O.p); setOBar(''); $('o-back').onclick = () => O.from === 'find' ? (O = { mode:'find', q:O.q }, renderO()) : closeO();
+    $('pf-follow') && ($('pf-follow').onclick = () => { const f = O.follow || {}; f[O.p.user] = !f[O.p.user]; const p = O.p, fr = O.from, q = O.q; O = { mode:'profile', p, from:fr, q, follow:f }; renderO(); toast(S.lang === 'de' ? 'Vorschau: Folgen kommt mit dem Cloud-Modus' : 'Preview: following comes with cloud sync'); });
+    $('pf-edit') && ($('pf-edit').onclick = () => { closeO(); setPage = 'profile'; tabMem.start = tabMem.start; show('settings'); }); return; }
+  if (O.mode === 'find') { b.innerHTML = findHTML(); setOBar(''); $('o-back').onclick = closeO;
+    if (S.username) loadQR(() => { const box = $('qrbox'); if (!box || !window.qrcode) return; const q = qrcode(0, 'M'); q.addData(SHARE_URL + '?u=' + encodeURIComponent(S.username)); q.make(); box.innerHTML = q.createSvgTag(6, 2); });
+    const qi = $('f-q'); qi.oninput = () => { O.q = qi.value; const pos = qi.selectionStart; renderO(); const n = $('f-q'); n.focus(); n.setSelectionRange(pos, pos); };
+    document.querySelectorAll('[data-fh]').forEach(x => x.onclick = () => openProfile(DEMO_FRIENDS[+x.dataset.fh], 'find'));
+    $('f-setuser') && ($('f-setuser').onclick = () => { closeO(); setPage = 'profile'; show('settings'); });
+    $('f-scan').onclick = () => toast(S.lang === 'de' ? 'Scannen kommt mit dem Cloud-Modus' : 'Scanning comes with cloud sync'); return; }
   if (O.mode === 'charttest') { b.innerHTML = chartTestHTML(); setOBar(''); $('o-back').onclick = closeO; bindRvCharts(b); return; }
   if (O.mode === 'add') {
     b.innerHTML = `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${t('addEx').replace('+ ', '')}</span><span style="width:44px"></span></div>
@@ -1002,7 +1043,7 @@ function renderProgress() {
   const vol30 = last30.reduce((a, h) => a + sessVol(h), 0), min30 = last30.reduce((a, h) => a + h.dur, 0);
   if (progTab === 'friends') { renderFriends(); return; }
   $('v-progress').innerHTML = `<div class="inner">
-    ${progSwitch()}
+    <h1 class="progh1">${t('progress')}</h1>${progSwitch()}
     <div class="sect" style="border-top:0;padding-top:0">
       <h2 class="hic">${SIC.cal}${t('history')}</h2>
       ${calOpen ? calHTML() : `<div class="strip-wrap"><div class="strip" id="strip">${Array.from({length:90}, (_, i) => dayTile(89 - i)).join('')}</div><button class="today-btn" id="todaybtn" hidden>${t('today')}</button></div>`}
@@ -1031,17 +1072,53 @@ function renderProgress() {
 }
 const progSwitch = () => `<div class="seg pseg"><button data-ptab="me" class="${progTab === 'me' ? 'on' : ''}">${S.lang === 'de' ? 'Ich' : 'Me'}</button><button data-ptab="friends" class="${progTab === 'friends' ? 'on' : ''}">${S.lang === 'de' ? 'Freunde' : 'Friends'}</button></div>`;
 function bindProgSwitch() { document.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { progTab = b.dataset.ptab; renderProgress(); $('v-progress').scrollTop = 0; }); }
+const initialsOf = n => ((n || '').trim().split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
+// sample friends until the cloud mode exists
+const DEMO_FRIENDS = [
+  { name:'Max', user:'max.lifts', lv:9, pts:9400, last:['Push Day', 1], week:[3, 9800, 165], pbs:[['bench', 102.5, 3], ['squat', 130, 5], ['deadlift', 160, 3]] },
+  { name:'Lena', user:'lena_squats', lv:6, pts:3600, last:['Leg Day', 2], week:[2, 7100, 110], pbs:[['squat', 95, 5], ['deadlift', 110, 4], ['ohp', 42.5, 6]] },
+  { name:'Tom', user:'tom.t', lv:4, pts:1500, last:['Pull Day', 4], week:[1, 3200, 55], pbs:[['deadlift', 140, 2], ['bench', 80, 5], ['squat', 100, 6]] } ];
+function myPB(k) { const ss = sessionsFor(k).filter(x => x.best > 0); if (!ss.length) return null; const b = ss.reduce((x, y) => y.best > x.best ? y : x); const st = b.sets.reduce((x, y) => e1rm(effW(k, y.w), y.r) > e1rm(effW(k, x.w), x.r) ? y : x); return [k, st.w, st.r]; }
+function myProfile() { const pts = totalPts(), wk = weekStats(), h = [...HISTORY].sort((a, b) => a.ago - b.ago || b.date - a.date)[0];
+  return { me: true, name: S.name || (S.lang === 'de' ? 'Du' : 'You'), user: S.username, lv: levelOf(pts), pts, last: h ? [h.wname || (wById(h.wid) || {}).name || '', h.ago] : null, week: [wk.n, wk.vol, wk.min], pbs: S.pbEx.map(myPB).filter(Boolean), vis: S.vis }; }
+const avatarHTML = (name, size) => `<span class="avatar dec" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .34)}px">${esc(initialsOf(name))}</span>`;
 function renderFriends() {
-  const de = S.lang === 'de', me = levelOf(totalPts());
-  const demo = [['Max', 9, de ? 'Bankdrücken' : 'Bench press', 102, 1], ['Lena', 6, de ? 'Kniebeuge' : 'Squat', 95, 2], ['Tom', 4, de ? 'Kreuzheben' : 'Deadlift', 140, 4]];
-  $('v-progress').innerHTML = `<div class="inner">${progSwitch()}
-    <div class="fr-me"><span class="lvl-ic">${levelIcon(me)}</span><div><b>${esc(S.name || (de ? 'Du' : 'You'))}</b><small>Level ${me + 1} · ${esc(LEVELS[me][S.lang])} · ${fmt(totalPts())} Points</small></div></div>
-    <div class="fr-cta"><b>${de ? 'Freunde folgen, Level vergleichen' : 'Follow friends, compare levels'}</b><p class="hint">${de ? 'Kommt mit dem Cloud-Modus: Folge Freunden, sieh ihre Level, Rekorde und letzten Trainings.' : 'Coming with cloud sync: follow friends, see their levels, records and recent sessions.'}</p><button class="ghostbtn" id="fr-invite">${t('share')}</button></div>
+  const de = S.lang === 'de', me = myProfile();
+  $('v-progress').innerHTML = `<div class="inner"><h1 class="progh1">${t('progress')}</h1>${progSwitch()}
+    <button class="fr-me" id="fr-me">${avatarHTML(me.name, 52)}<div><b>${esc(me.name)}</b><small>${me.user ? '@' + esc(me.user) + ' · ' : ''}Level ${me.lv + 1} · ${esc(LEVELS[me.lv][S.lang])} · ${fmt(me.pts)} Points</small></div>${CHEV}</button>
+    <div class="fr-cta"><b>${de ? 'Freunde folgen, Level vergleichen' : 'Follow friends, compare levels'}</b><p class="hint">${de ? 'Kommt mit dem Cloud-Modus: Folge Freunden, sieh ihre Level, Rekorde und letzten Trainings.' : 'Coming with cloud sync: follow friends, see their levels, records and recent sessions.'}</p><button class="mainbtn" id="fr-find">${de ? 'Freunde finden' : 'Find friends'}</button></div>
     <div class="sect"><div class="row"><h2>${de ? 'Vorschau' : 'Preview'}</h2><span class="eyebrow">${de ? 'Beispieldaten' : 'Sample data'}</span></div>
-      <div>${demo.map(([n, lv, ex, kg, ago]) => `<div class="fr-row"><span class="avatar dec" style="width:44px;height:44px;font-size:15px">${n[0]}</span><div><b>${n}</b><small>${levelIcon(lv)} Level ${lv + 1} · ${esc(LEVELS[lv][S.lang])}</small></div><div class="fr-kpi num"><b>${kg} kg</b><small>${esc(ex)} · ${t('ago', ago)}</small></div></div>`).join('')}</div></div></div>`;
+      <div>${DEMO_FRIENDS.map((f, i) => `<button class="fr-row" data-fr="${i}">${avatarHTML(f.name, 44)}<div><b>${esc(f.name)}</b><small>${levelIcon(f.lv)} Level ${f.lv + 1} · ${esc(LEVELS[f.lv][S.lang])}</small></div><div class="fr-kpi"><b>${esc(f.last[0])}</b><small>${t('ago', f.last[1])}</small></div></button>`).join('')}</div></div></div>`;
   bindProgSwitch();
-  $('fr-invite').onclick = () => { setPage = 'share'; show('settings'); };
+  $('fr-find').onclick = () => { O = { mode:'find', q:'' }; renderO(); openO(); };
+  $('fr-me').onclick = () => openProfile(myProfile());
+  document.querySelectorAll('[data-fr]').forEach(b => b.onclick = () => openProfile(DEMO_FRIENDS[+b.dataset.fr]));
 }
+function openProfile(p, from) { O = { mode:'profile', p, from }; renderO(); openO(); $('obody').scrollTop = 0; }
+// a profile as others see it (own profile respects the visibility settings)
+function profileHTML(p) {
+  const de = S.lang === 'de', v = p.vis || { level:true, pbs:true, week:true, last:true };
+  const dec = (val, lbl) => `<div class="pdec dec"><b class="num">${val}</b><span>${lbl}</span></div>`;
+  return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${p.me ? (de ? 'So sehen dich Freunde' : 'How friends see you') : (de ? 'Profil' : 'Profile')}</span><span style="width:44px"></span></div>
+    <div class="pf-head">${avatarHTML(p.name, 104)}<h1>${esc(p.name)}</h1>${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}
+      ${v.level ? `<div class="pf-lvl">${levelIcon(p.lv)}<span>Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])} · <span class="num">${fmt(p.pts)}</span> Points</span></div>` : ''}
+      ${p.me ? '' : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div>
+    ${v.week ? `<div class="sect"><h2>${t('thisWeek')}</h2><div class="pdecs">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2], t('minutes'))}</div></div>` : ''}
+    ${v.pbs && p.pbs.length ? `<div class="sect"><h2>Personal Bests</h2><div>${p.pbs.map(([k, w, r]) => `<div class="pf-pb"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><span class="num">${esc(wLabel(k, w))} × ${r}</span></div>`).join('')}</div></div>` : ''}
+    ${v.last && p.last ? `<div class="sect"><h2>${de ? 'Letztes Training' : 'Last session'}</h2><div class="pf-last"><b>${esc(p.last[0])}</b><span>${t('ago', p.last[1])}</span></div></div>` : ''}
+    ${p.me ? `<button class="ghostbtn" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<p class="hint">${de ? 'Beispieldaten. Folgen funktioniert mit dem Cloud-Modus.' : 'Sample data. Following works with cloud sync.'}</p>`}</div>`;
+}
+function findHTML() {
+  const de = S.lang === 'de', q = (O.q || '').toLowerCase().replace(/^@/, ''), hits = q ? DEMO_FRIENDS.filter(f => f.user.includes(q) || f.name.toLowerCase().includes(q)) : [];
+  return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${de ? 'Freunde finden' : 'Find friends'}</span><span style="width:44px"></span></div>
+    <h1>${de ? 'Freunde finden' : 'Find friends'}</h1>
+    <div><b>${de ? 'Per Benutzername' : 'By username'}</b><label class="userin" style="margin-top:10px"><span>@</span><input id="f-q" value="${esc(O.q || '')}" placeholder="${de ? 'benutzername' : 'username'}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="search"></label>
+      <div id="f-hits">${hits.map(f => `<button class="fr-row" data-fh="${DEMO_FRIENDS.indexOf(f)}">${avatarHTML(f.name, 40)}<div><b>${esc(f.name)}</b><small>@${esc(f.user)}</small></div>${CHEV}</button>`).join('') || (q ? `<p class="hint" style="margin-top:10px">${de ? 'Niemand gefunden.' : 'No one found.'}</p>` : `<p class="hint" style="margin-top:10px">${de ? 'Zum Ausprobieren: max, lena, tom (Beispieldaten).' : 'Try: max, lena, tom (sample data).'}</p>`)}</div></div>
+    <div class="sect"><h2>${de ? 'Per QR-Code' : 'By QR code'}</h2><p class="hint">${de ? 'Dein Freund scannt deinen Code und landet direkt auf deinem Profil.' : 'Your friend scans your code and lands right on your profile.'}</p>
+      ${S.username ? `<div class="qrbox" id="qrbox" aria-label="QR-Code"></div><div class="linkrow"><span class="num">@${esc(S.username)}</span></div>` : `<button class="ghostbtn" id="f-setuser">${de ? 'Erst Benutzernamen festlegen' : 'Set your username first'}</button>`}
+      <button class="ghostbtn" id="f-scan">${de ? 'Code eines Freundes scannen' : 'Scan a friend’s code'}</button></div></div>`;
+}
+
 function bindDays() {
   document.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { const d = +b.dataset.day; selDay = selDay === d ? null : d; dayOpen = false; document.querySelectorAll('[data-day]').forEach(x => x.classList.toggle('sel', +x.dataset.day === selDay)); $('daycard').innerHTML = dayCard(); bindDayCard(); });
   bindDayCard();
@@ -1202,8 +1279,10 @@ function playIntroType() {
   const r = go.getBoundingClientRect(), g = greetText, m = g.match(/^(.+?[.!?,])\s+(.+)$/), parts = m ? [m[1], m[2]] : [g];
   const el = document.createElement('div'); el.id = 'intro'; el.className = 'intro2';
   const cr = go.querySelector('.cta').getBoundingClientRect(), cfs = getComputedStyle(go.querySelector('.cta')).fontSize;
-  el.innerHTML = `<div class="i2-box" style="bottom:${innerHeight - cr.top + 28}px"><p class="i2-line"></p><p class="i2-line"></p></div><p class="i2-cta" style="left:0;right:0;top:${cr.top}px;font-size:${cfs}"></p>`;
+  el.innerHTML = `<div class="i2-box"><p class="i2-line"></p><p class="i2-line"></p></div><p class="i2-cta" style="left:0;right:0;top:${cr.top}px;font-size:${cfs}"></p>`;
   $('app').appendChild(el); go.style.visibility = 'hidden';
+  const H = el.getBoundingClientRect().height, box = el.querySelector('.i2-box'); box.style.bottom = (H - cr.top + 28) + 'px'; // real height (iPhone home screen: taller than innerHeight)
+  el.querySelectorAll('.i2-line').forEach((l, i) => parts[i] && fitWords(l, parts[i], box.clientWidth - 4));
   let done = false; const finish = () => { if (done) return; done = true; go.style.visibility = ''; el.remove(); };
   el.onclick = finish;
   const lines = el.querySelectorAll('.i2-line'), cta = el.querySelector('.i2-cta'), sleep = ms => new Promise(res => setTimeout(res, ms));
@@ -1215,7 +1294,7 @@ function playIntroType() {
     cta.animate([{ opacity: 0, transform: 'scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 380, fill: 'forwards' });
     await sleep(800); if (done) return;
     el.querySelector('.i2-box').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
-    const big = decPts(innerWidth / 2, innerHeight / 2, Math.hypot(innerWidth, innerHeight) / 2 / Math.cos(Math.PI / 10) + 4);
+    const big = decPts(innerWidth / 2, H / 2, Math.hypot(innerWidth, H) / 2 / Math.cos(Math.PI / 10) + 4);
     const small = decPts(r.left + r.width / 2, r.top + r.height / 2, r.width / 2);
     await el.animate([{ clipPath: poly(big) }, { clipPath: poly(small) }], { duration: 750, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished.catch(() => {});
     finish();
@@ -1247,26 +1326,33 @@ const LVL_IC = {
   deca:'<polygon points="' + P(decPts(12, 12, 10.2)) + '"/><path d="M12 6.2l1.8 3.7 4 .6-2.9 2.8.7 4L12 15.4l-3.6 1.9.7-4-2.9-2.8 4-.6z" fill="currentColor"/>' };
 const levelIcon = i => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${LVL_IC[LEVELS[i].ic]}</svg>`;
 const levelOf = pts => { let i = 0; LEVELS.forEach((l, k) => { if (pts >= l.p) i = k; }); return i; };
-function openLevels() { O = { mode:'levels' }; renderO(); openO(); $('obody').scrollTop = 0; const lad = $('ladder'), c = lad && lad.querySelector('.cur'); if (c) lad.scrollTop = c.offsetTop - lad.clientHeight / 2 + c.offsetHeight / 2; }
+function openLevels() { O = { mode:'levels' }; renderO(); openO(); $('obody').scrollTop = 0; bindLadder(); }
+function bindLadder() {
+  const lad = $('ladder'), c = lad && lad.querySelector('.cur'), hero = document.querySelector('.lvl-hero'); if (!c) return;
+  const rows = lad.querySelectorAll('.lvl-row'), above = [...rows].indexOf(c) >= 2 ? rows[[...rows].indexOf(c) - 2].offsetTop : 0;
+  lad.scrollTop = above; const init = lad.scrollTop;
+  // shrink once you scroll down from your level; grow again only at the very top (no flicker when the list gets taller)
+  lad.onscroll = () => { const st = lad.scrollTop; if (st - init > 24) hero.classList.add('compact'); else if (st < 4) hero.classList.remove('compact'); };
+}
 function levelsHTML() {
   const pts = totalPts(), li = levelOf(pts), cur = LEVELS[li], nxt = LEVELS[li + 1];
   const pct = nxt ? Math.round((pts - cur.p) / (nxt.p - cur.p) * 100) : 100;
   return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">Level</span><span style="width:44px"></span></div>
-    <div class="lvl-hero"><div class="lvl-dec dec">${levelIcon(li)}</div><div class="eyebrow">Level ${li + 1} / ${LEVELS.length}</div><h1>${esc(cur[S.lang])}</h1>
-      <div class="lvl-pts num"><b>${fmt(pts)}</b> Points</div>
-      ${nxt ? `<div class="lvl-bar"><i style="width:${pct}%"></i></div><p class="hint">${S.lang === 'de' ? `Noch ${fmt(nxt.p - pts)} Points bis ${esc(nxt.de)}` : `${fmt(nxt.p - pts)} points to ${esc(nxt.en)}`}</p>` : ''}</div>
-    <div class="sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div class="lvl-ladder" id="ladder">${LEVELS.map((l, i) => i).reverse().map(i => { const l = LEVELS[i]; return `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''}"><span class="lvl-ic dec">${levelIcon(i)}</span><div><b><span class="num">${i + 1}</span> ${esc(l[S.lang])}</b><small class="num">${i > li ? (S.lang === 'de' ? `noch ${fmt(l.p - pts)} Points` : `${fmt(l.p - pts)} points to go`) : `${fmt(l.p)} Points`}</small>${i === li && nxt ? `<span class="lvl-mini"><i style="width:${pct}%"></i></span>` : ''}</div><span class="num lvl-st">${i < li ? '✓' : i === li ? (S.lang === 'de' ? 'DU' : 'YOU') : ''}</span></div>`; }).join('')}</div></div></div>`;
+    <div class="lvl-hero"><div class="lvl-dec dec">${levelIcon(li)}</div><div class="lvl-ht"><div class="eyebrow">Level ${li + 1} / ${LEVELS.length}</div><h1>${esc(cur[S.lang])}</h1>
+      <div class="lvl-pts num"><b>${fmt(pts)}</b> Points</div></div>
+      ${nxt ? `<div class="lvl-more"><div class="lvl-bar"><i style="width:${pct}%"></i></div><p class="hint">${S.lang === 'de' ? `Noch ${fmt(nxt.p - pts)} Points bis ${esc(nxt.de)}` : `${fmt(nxt.p - pts)} points to ${esc(nxt.en)}`}</p></div>` : ''}</div>
+    <div class="sect lvl-sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div class="lvl-ladder" id="ladder">${LEVELS.map((l, i) => i).reverse().map(i => { const l = LEVELS[i]; return `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''}"><span class="lvl-ic dec">${levelIcon(i)}</span><div><b><span class="num">${i + 1}</span> ${esc(l[S.lang])}</b><small class="num">${i > li ? (S.lang === 'de' ? `noch ${fmt(l.p - pts)} Points` : `${fmt(l.p - pts)} points to go`) : `${fmt(l.p)} Points`}</small>${i === li && nxt ? `<span class="lvl-mini"><i style="width:${pct}%"></i></span>` : ''}</div><span class="num lvl-st">${i < li ? '✓' : i === li ? (S.lang === 'de' ? 'DU' : 'YOU') : ''}</span></div>`; }).join('')}</div></div></div>`;
 }
 function playIntroTear() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const Wd = innerWidth, Ht = innerHeight, n = 9, pts = [];
+  const el = document.createElement('div'); el.id = 'intro'; el.className = 'intro3'; $('app').appendChild(el);
+  const Wd = innerWidth, Ht = el.getBoundingClientRect().height || innerHeight, n = 9, pts = [];
   for (let i = 0; i <= n; i++) pts.push([Wd * i / n, Ht * .52 - (i - n / 2) * Ht * .03 + (i % 2 ? -18 : 18)]);
   const top = `polygon(0 0, ${Wd}px 0, ${pts.slice().reverse().map(([x, y]) => `${x.toFixed(0)}px ${y.toFixed(0)}px`).join(', ')})`;
-  const bot = `polygon(${pts.map(([x, y]) => `${x.toFixed(0)}px ${y.toFixed(0)}px`).join(', ')}, ${Wd}px ${Ht}px, 0 ${Ht}px)`;
+  const bot = `polygon(${pts.map(([x, y]) => `${x.toFixed(0)}px ${y.toFixed(0)}px`).join(', ')}, ${Wd}px ${Ht + 300}px, 0 ${Ht + 300}px)`;
   const inner = `<div class="i3-text"><p>${esc(greetText)}</p><b>${t('cta')}</b></div>`;
-  const el = document.createElement('div'); el.id = 'intro'; el.className = 'intro3';
   el.innerHTML = `<div class="i3-half" style="clip-path:${top}">${inner}</div><div class="i3-half" style="clip-path:${bot}">${inner}</div>`;
-  $('app').appendChild(el);
+  el.querySelectorAll('.i3-text').forEach(x => { fitWords(x.querySelector('p'), greetText, Wd - 60); fitWords(x.querySelector('b'), t('cta'), Wd - 60); });
   const [a, b] = el.querySelectorAll('.i3-half');
   el.querySelectorAll('.i3-text').forEach(x => x.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 450, fill: 'forwards' }));
   setTimeout(() => {
@@ -1327,10 +1413,40 @@ function celebrate(kind = S.celeb) {
 let setPage = null, devOpen = false;
 // intro preview from settings: play it on the start screen, then come back to the same settings page
 function previewIntro() {
-  const page = setPage, y = $('v-settings').scrollTop; show('start');
-  const back = () => { if (tab !== 'start') return; setPage = page; show('settings'); $('v-settings').scrollTop = y; };
-  requestAnimationFrame(() => { playIntroSel(); if (!$('intro')) return setTimeout(back, 300);
-    const iv = setInterval(() => { if (!$('intro')) { clearInterval(iv); setTimeout(back, 350); } }, 100); });
+  const page = setPage, y = $('v-settings').scrollTop, kind = S.intro; show('start');
+  const back = () => { if (tab !== 'start') return; const v = $('v-start'), r = v.getBoundingClientRect(), c = v.cloneNode(true);
+    c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(e => e.removeAttribute('id')); c.classList.add('outro'); c.hidden = false;
+    c.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:90;background:var(--bg);margin:0`;
+    $('app').appendChild(c); c.scrollTop = v.scrollTop; setPage = page; show('settings'); $('v-settings').scrollTop = y; outro(kind, c, r); };
+  requestAnimationFrame(() => { playIntroSel(); if (!$('intro')) return setTimeout(back, 900);
+    const iv = setInterval(() => { if (!$('intro')) { clearInterval(iv); setTimeout(back, 900); } }, 100); });
+}
+// leave the start screen the way the intro came in, revealing the settings again
+function outro(kind, c, r) {
+  const done = () => c.remove(), E = 'cubic-bezier(.5,0,.2,1)';
+  if (kind === 'tear') {
+    const c2 = c.cloneNode(true); c.after(c2); const n = 9, pts = [];
+    for (let i = 0; i <= n; i++) pts.push([r.width * i / n, r.height * .52 - (i - n / 2) * r.height * .03 + (i % 2 ? -18 : 18)]);
+    c.style.clipPath = polyCSS([[0, -300], [r.width, -300]].concat(pts.slice().reverse())); c2.style.clipPath = polyCSS(pts.concat([[r.width, r.height + 300], [0, r.height + 300]]));
+    c.animate([{ transform: 'none' }, { transform: `translate(-4%, -${r.height * .7}px) rotate(-6deg)` }], { duration: 750, easing: E, fill: 'forwards' });
+    c2.animate([{ transform: 'none' }, { transform: `translate(4%, ${r.height * .7}px) rotate(5deg)` }], { duration: 750, easing: E, fill: 'forwards' }).finished.then(() => { c.remove(); c2.remove(); }, () => { c.remove(); c2.remove(); });
+    return;
+  }
+  if (kind === 'vortex') {
+    const R0 = Math.hypot(r.width, r.height) / 2 / Math.cos(Math.PI / 10) + 4, cx = r.width / 2, cy = r.height / 2;
+    c.animate([{ clipPath: polyCSS(decPts(cx, cy, R0)), transform: 'none' }, { clipPath: polyCSS(decPts(cx, cy, r.width * .45)), transform: 'rotate(-60deg) scale(.8)', offset: .35 }, { clipPath: polyCSS(decPts(cx, cy, r.width * .45)), transform: 'rotate(-540deg) scale(0)' }], { duration: 1100, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).finished.then(done, done);
+    return;
+  }
+  if (kind === 'type') {
+    const sv = $('v-settings');
+    sv.animate([{ transform: 'translateX(100%)' }, { transform: 'none' }], { duration: 550, easing: E });
+    c.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(-35%)', opacity: 0 }], { duration: 550, easing: E, fill: 'forwards' }).finished.then(done, done);
+    return;
+  }
+  // intro 1 (decagon): the start screen shrinks into a decagon that flies into the settings tab
+  const nb = document.querySelector('[data-tab="settings"]').getBoundingClientRect(), tx = nb.left + nb.width / 2 - r.left, ty = nb.top + nb.height / 2 - r.top;
+  const R0 = Math.hypot(r.width, r.height) / 2 / Math.cos(Math.PI / 10) + 4;
+  c.animate([{ clipPath: polyCSS(decPts(r.width / 2, r.height / 2, R0)) }, { clipPath: polyCSS(decPts(r.width / 2, r.height * .45, r.width * .3)), offset: .45 }, { clipPath: polyCSS(decPts(tx, ty, 2)) }], { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).finished.then(done, done);
 }
 const gl = inner => `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round">${inner}</svg>`;
 const CELEB_IC = {
@@ -1377,23 +1493,32 @@ function renderSettings() {
   let h = '';
   if (!setPage) {
     const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div>${CHEV}</button>`;
-    h = `<button class="sprof" data-sp="profile"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>${S.name ? t('spProfile') + ' · ' : ''}Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
+    h = `<h1 class="seth1">${t('settings')}</h1><button class="sprof" data-sp="profile"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>${S.name ? t('spProfile') + ' · ' : ''}Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
       ${item('display', t('spDisplay'), t('spDisplayHint'), sic('display'))}
       ${item('progress', t('spProgress'), t('spProgressHint'), sic('progress'))}
       ${item('logic', t('spLogic'), t('spLogicHint'), sic('logic'))}
       ${item('data', t('spData'), t('spDataHint'), sic('data'))}
       ${item('share', t('share'), t('shareHint'), sic('share'))}
       ${item('imprint', t('spImprint'), t('spImprintHint'), sic('imprint'))}</div>
-      ${ENV === 'dev' ? `<button class="devbtn" id="devtoggle">${SET_IC.dev}<span>${t('devShow')} ${devOpen ? '▴' : '▾'}</span></button>${devOpen ? `<div class="devtools"><button id="dev-onb">${t('devOnb')}</button><button id="dev-intro">${t('devIntro')}</button><button id="dev-celeb">${t('devCeleb')}</button><button id="dev-charts">Charts-Test</button></div>` : ''}` : ''}
+      ${ENV === 'dev' ? `<button class="devbtn" id="devtoggle">${SET_IC.dev}<span>${t('devShow')} ${devOpen ? '▴' : '▾'}</span></button>${devOpen ? `<div class="devtools"><button id="dev-onb">${t('devOnb')}</button><button id="dev-intro">${t('devIntro')}</button><button id="dev-celeb">${t('devCeleb')}</button><button id="dev-charts">Charts-Test</button><button id="reseed">${t('reseed')}</button></div>` : ''}` : ''}
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'profile') {
-    h = head(t('spProfile')) + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"></div>
+    const de = S.lang === 'de', exDone = [...new Set(HISTORY.flatMap(h => h.ex.map(e => e.k)))].filter(k => EX[k]);
+    const vtog = (k, l) => `<div class="setrow"><div><b>${l}</b></div>${tog('vis-' + k, S.vis[k])}</div>`;
+    h = head(t('spProfile')) + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;min-width:0"><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"><p class="hint" style="margin-top:6px">${de ? 'Anzeigename, für Freunde sichtbar. Profilbild kommt mit dem Cloud-Modus.' : 'Display name, visible to friends. Profile photo comes with cloud sync.'}</p></div></div>
+      <div class="setrow setcol"><div><b>${de ? 'Benutzername' : 'Username'}</b><p>${S.username ? (de ? 'Fest vergeben, kann nicht mehr geändert werden.' : 'Fixed, cannot be changed.') : (de ? 'Damit dich Freunde finden. Nur einmal festlegbar.' : 'So friends can find you. Can only be set once.')}</p></div>
+        ${S.username ? `<span class="userfix num">@${esc(S.username)}</span>` : `<div class="userrow"><label class="userin"><span>@</span><input id="uname" placeholder="${de ? 'benutzername' : 'username'}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done"></label><button class="mainbtn" id="usave">${de ? 'Festlegen' : 'Set'}</button></div>`}</div>
       <div>
         <div class="setrow"><div><b>${t('bodyweight')}</b><p>${t('bwHint')}</p></div><label class="kgin"><input id="bw" inputmode="decimal" enterkeyhint="done" class="num" placeholder="—" value="${S.bodyweight ? fmtW(S.bodyweight) : ''}"><span>kg</span></label></div>
         <div class="setrow"><div><b>${t('age')}</b><p>${t('ageHint')}</p></div><label class="kgin"><input id="age" inputmode="numeric" enterkeyhint="done" class="num" placeholder="—" value="${S.age || ''}"><span>${S.lang === 'de' ? 'J.' : 'y'}</span></label></div>
         <div class="setrow"><div><b>${t('bwPoints')}</b><button class="info" id="bwi" aria-label="Info">i</button><p>${S.bodyweight ? t('bwPointsHint') : t('bwPointsOff')}</p></div>${tog('bwp', S.bwPoints, !S.bodyweight)}</div>
         <div class="setrow" style="opacity:.45"><div><b>${t('account')}</b><p>${t('accountHint')}</p></div>${CHEV}</div>
-      </div>`;
+      </div>
+      <div style="margin-top:8px"><b>${de ? 'Lieblingsübungen' : 'Favourite exercises'}</b><p class="hint" style="margin-top:4px">${de ? 'Bis zu 3, ihre Personal Bests stehen in deinem Profil.' : 'Up to 3, their personal bests show on your profile.'}</p></div>
+      <div class="pbpick">${exDone.map(k => `<button class="${S.pbEx.includes(k) ? 'on' : ''}" data-pbex="${k}">${esc(exName(k))}</button>`).join('')}</div>
+      <div style="margin-top:8px"><b>${de ? 'Für Freunde sichtbar' : 'Visible to friends'}</b></div>
+      <div>${vtog('level', 'Level & Points')}${vtog('week', t('thisWeek'))}${vtog('pbs', 'Personal Bests')}${vtog('last', de ? 'Letztes Training' : 'Last session')}</div>
+      <button class="ghostbtn" id="pf-preview">${de ? 'Vorschau: So sehen dich Freunde' : 'Preview: how friends see you'}</button>`;
   } else if (setPage === 'display') {
     h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
@@ -1428,7 +1553,6 @@ function renderSettings() {
   } else if (setPage === 'data') {
     h = head(t('spData')) + `<p class="hint">${t('localHint')}</p>
       <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>
-      ${ENV === 'dev' ? `<button class="ghostbtn" id="reseed" style="border-color:var(--line)">${t('reseed')}</button>` : ''}
       <button class="setrow sprow" data-sp="privacy"><div style="flex:1;text-align:left"><b>${t('privacy')}</b><p>${t('privacyHint')}</p></div>${CHEV}</button>
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'privacy') {
@@ -1456,6 +1580,12 @@ function renderSettings() {
   document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { S.accent = b.dataset.acc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-trc]').forEach(b => b.onclick = () => { S.trendColor = b.dataset.trc === '1'; renderSettings(); });
   on('bwi', () => showInfo(t('bwInfo')));
+  ['level', 'week', 'pbs', 'last'].forEach(k => on('vis-' + k, () => { S.vis = Object.assign({}, S.vis, { [k]: !S.vis[k] }); renderSettings(); }));
+  document.querySelectorAll('[data-pbex]').forEach(b => b.onclick = () => { const k = b.dataset.pbex; if (S.pbEx.includes(k)) S.pbEx = S.pbEx.filter(x => x !== k); else if (S.pbEx.length < 3) S.pbEx = S.pbEx.concat(k); else toast(S.lang === 'de' ? 'Maximal 3 Übungen' : 'Up to 3 exercises'); renderSettings(); });
+  on('pf-preview', () => openProfile(myProfile()));
+  on('usave', () => { const de = S.lang === 'de', u = $('uname').value.trim().toLowerCase().replace(/^@/, '');
+    if (!/^[a-z0-9._]{3,20}$/.test(u)) { toast(de ? '3 bis 20 Zeichen: a-z, 0-9, Punkt, Unterstrich' : '3 to 20 characters: a-z, 0-9, dot, underscore'); return; }
+    dialog('@' + u, de ? 'Dein Benutzername kann danach nicht mehr geändert werden.' : 'Your username cannot be changed afterwards.', [[de ? 'Festlegen' : 'Set', 'mainbtn', () => { S.username = u; renderSettings(); }], [de ? 'Abbrechen' : 'Cancel', 'ghostbtn', () => {}]]); });
   on('fci', () => showInfo(t('infoFc', S.fcLook, S.fcHor || 6)));
   $('age') && ($('age').onchange = e => { const v = parseNum(e.target.value); S.age = v && v > 0 ? Math.round(v) : null; renderSettings(); });
   $('bw') && ($('bw').onchange = e => { const v = parseNum(e.target.value); S.bodyweight = v && v > 0 ? v : null; if (!S.bodyweight) S.bwPoints = false; renderSettings(); });

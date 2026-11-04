@@ -1,21 +1,14 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **🔝 Feedback-Runde zu Dev v0.7.0 (→ v0.8.0)** (2026-11-04)
-  - [ ] Intro 2: 3-zeilige Begrüßung überlappt „Los geht's“ (höher starten); lange Wörter („Mitternachts-Gains.“) laufen rechts raus
-  - [ ] Intro 3: lange Wörter laufen raus; weiße Fläche deckt unten die Menüleiste nicht ab
-  - [ ] Intro-Vorschau: Startseite etwas länger zeigen und mit passendem Übergang zurück zu Einstellungen (Spin dreht raus, Riss zerreißt, 1 + 2 eigener Morph)
-  - [ ] Startseite: „Diese Woche“ wieder einzeilig, „vs. Vorwoche“ wieder in einer Zeile (ungewollte Änderung aus v0.7 zurücknehmen)
-  - [ ] Level-Seite: nur eine Sache scrollt; beim Scrollen schrumpft der Kopf (Icon nach links, Titel klein), alle Level bis 1 sichtbar
-  - [ ] „Testdaten neu erzeugen“ aus Daten raus, nur in Dev-Werkzeugen
-  - [ ] Zurück-Wischen: Seite folgt dem Finger und gleitet raus (kein Springen)
-  - [ ] Einstellungen: Überschrift zurück, dicke weiße Linie, Profil-Kachel (breiter), dicke weiße Linie, dann Einträge
-  - [ ] Fortschritt: Überschrift zurück, darunter mit Abstand „Ich | Freunde“, gewähltes Segment nur minimal hervorstehend; Abstand unter „Ganzer Kalender“ = Abstand unter Viererkachel
-  - [ ] Freunde: „Du“-Zeile mit Profilbild (vorerst Buchstabe); „Freunde finden“ (Suche per @Benutzername + QR-Code) statt „Mit Freunden teilen“; Freunde-Zeilen zeigen letztes Workout (z. B. Push Day gestern); Freunde-Profile antippbar (Level, Personal Bests der Lieblingsübungen, Woche als Zehneck-Kacheln: Workouts, bewegt, Minuten)
-  - [ ] Profil: Anzeigename änderbar, @Benutzername nur einmal festlegbar, Lieblingsübungen für Personal Bests, Sichtbarkeit (was Freunde sehen), Vorschau „so sehen dich andere“
-  - [ ] Übungs-Icons: Rückenstrecker, Reverse Fly, Russian Twists (Person statt Kurzhantel), Schrägbankdrücken (Person auf Schrägbank)
-- [ ] **Ben:** Dev v0.7.0 testen → „freigeben“ für Live (enthält alles aus v0.6 + v0.7)
-- [ ] **🔝 Danach: Cloud-Modus** (erstes To-do: Freunde finden/folgen live schalten) (Supabase EU, siehe `HANDOVER.md` → Briefing). Ben entscheidet Anmeldemethode (Empfehlung: E-Mail-Link ohne Passwort) und legt Supabase-Account an
+- [ ] **Ben:** Dev v0.8.0 testen → „freigeben“ für Live (enthält alles aus v0.6 bis v0.8)
+- [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
+  - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
+  - [ ] Login + Benutzername (einmalig) bei der Anmeldung, Übernahme der lokalen Daten
+  - [ ] Abgleich offline-first (localStorage bleibt Zwischenspeicher)
+  - [ ] **Freunde live schalten**: Suche per @Benutzername, QR-Code scannen, Folgen, echte Profile statt Beispieldaten, Sichtbarkeit aus dem Profil serverseitig durchsetzen
+  - [ ] Profilbild hochladen
+  - [ ] Datenschutzerklärung anpassen + Auftragsverarbeitungsvertrag (DPA) mit Supabase (Supabase EU, siehe `HANDOVER.md` → Briefing). Ben entscheidet Anmeldemethode (Empfehlung: E-Mail-Link ohne Passwort) und legt Supabase-Account an
 - [ ] **🔝 ALLERERSTES THEMA nächste Session: Points-Logik diskutieren** (Claude hat in Dev v0.4 einen mehrstufigen, schwer manipulierbaren Vorschlag eingebaut – siehe Einstellungen → Berechnungslogik)
 - [ ] **Ben:** Impressum mit echten Daten füllen (Platzhalter in Einstellungen → Impressum)
 - [ ] **Nächste Session – Diskussion (Claude bereitet Vorschläge vor):**
@@ -57,7 +50,6 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 - [ ] Daten in der Cloud mit Accounts (damit Nutzerdaten nicht verloren gehen)
 
 ## Später
-- [ ] **Profilbild** in der Profil-Kachel (2026-11-04)
 - [ ] Cloud-Speicherung + Accounts (Supabase)
 - [ ] Freunde: folgen, interagieren
 - [ ] **Läufe / Cardio** hinzufügen, ggf. auch aus externen Quellen (z. B. Apple Health, Strava) importieren (2026-11-01)
@@ -84,6 +76,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.8.0** (2026-11-04): Intro 2/3 auf iPhone-Höhe korrigiert + lange Wörter passen, Intro-Vorschau mit Übergang zurück zu Einstellungen, „Diese Woche“ wieder einzeilig, Level-Seite mit einer Scrollfläche + schrumpfendem Kopf, „Testdaten“ nur in Dev-Werkzeugen, Zurück-Wischen folgt dem Finger, Überschriften Einstellungen/Fortschritt zurück, Profil (Anzeigename, @Benutzername einmalig, Lieblingsübungen, Sichtbarkeit, Vorschau), Freunde (Profile antippbar, Woche als Zehnecke, Freunde finden per Name/QR), Icons Rückenstrecker/Reverse Fly/Russian Twists/Schrägbankdrücken
 - [x] **Dev v0.7.0** (2026-11-04): Onboarding-Folien 1–4 überarbeitet (echte App-Optik, Finger tippt genau, Löschen-Ablauf), Startseite Level statt „+X diese Woche“ + antippbare Points (Chevron), Level-Leiter (15 oben, scrollt zum aktuellen Level), Einstellungen ohne Überschrift mit großer Profil-Kachel, neue Icons Berechnungslogik/Daten, 3 neue Celebrations (Hantelscheiben, Druckwelle, Fontäne), Intro-Vorschau kehrt zu Darstellung zurück, Tabs merken Unterseite (gleicher Tab nochmal = Startseite), Rand-Wischen per Touch (iPhone), Bereit-Bildschirm neu, „Nur für dieses Training“, erledigten Satz zurücksetzen, Review-Chart: Linie = Gesamtvergleich, Punkte = pro Satz farbig, Dev „Charts-Test“, Fortschritt „Ich | Freunde“ volle Breite
 - [x] 2026-11-04 – Dev v0.6.0: Schriften lokal (kein Google mehr; Live bekommt sie beim nächsten Release), Level-System (15 Level mit Namen + Icons, Points antippen), Freunde-Vorschlag (Ich | Freunde im Fortschritt), Intro 2 mit großem „Los geht's“ an Zehneck-Position, Intro 3 (Riss) + Intro 4 (Spin), Onboarding mit vollem Start-Ablauf + 2 neuen Slides + Marketing-Texten, Umbenennen statt ✎, Workout per Wischen löschen, Übung/Satz „Nur heute“ vs. „Dauerhaft“, 19 neue Icons + Seil-Icon für Kabelzug, Sortieren fix breit, eigene Übung aufgeräumt, Review: Maximalkraft + Info-i, Legenden in Trendfarbe, kein „= 0 %“, heute markiert, Tageskarte unten abgegrenzt, Texte ohne lange Striche, Prognose-Erklärung mit Formel, Darstellung-Reihenfolge + Icons, Tab-Tipp = zurück, Wischen vom Rand = zurück
 - [x] 2026-11-04 – Dev v0.5.0: Onboarding mit animierten App-Mockups + kürzere Texte; Startseite: gleiche Schriftgrößen (Points/Diese Woche, +X/vs. Vorwoche), weniger Leerraum unten; Dev-Werkzeuge eingeklappt; Icons in Einstellungen; „Mit Freunden teilen“ (QR-Code lokal erzeugt, Link kopieren, Teilen-Menü); TRAIN-Tab öffnet immer die Train-Seite (Bug); ✕ im Aufwärmen, unterer Beenden-Button entfernt; Intro 2 (Schreibmaschine → weiß schrumpft ins Zehneck) + Intro-Auswahl; Pre-Workout/Protein-Sprüche
