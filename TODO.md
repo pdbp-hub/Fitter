@@ -1,6 +1,21 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Feedback-Runde zu Dev v0.6.0 umsetzen (→ v0.7.0, nur Dev)** (2026-11-04)
+  - [ ] Onboarding Folie 1: „Alles bleibt auf deinem Gerät“ entfernen
+  - [ ] Onboarding Folie 2: Text „Zehneck antippen, Workout wählen, Start.“ (+ evtl. Spruch „Zeit für neue Personal Bests“); „LOS GEHT'S“ im Zehneck zentrieren; letzte Stufe nur Finger tippt START (kein „BEREIT?“-Tipp, keine Timer-Stufe)
+  - [ ] Onboarding Folie 3 (Anpassen): Mockup wie echte App (±-Stepper, Sätze), Übungstitel zeigen, Finger tippt wirklich „+ Übung hinzufügen“, neue Zeile „Seitheben“ wie echte Zeile (kein Extra-Kasten)
+  - [ ] Onboarding Folie 4 (Löschen): 1 Dips, 2 andere Push-Übung; Dips wischen → Löschen → weg, Übung 2 rutscht hoch und wird 1; dann Satz-✕ → Satz weg; fließend
+  - [ ] Startseite: „+X diese Woche“ ersetzen durch Level („Level 1 · Frischling“, gleicher Grauton); „Points“-Label etwas größer; Points antippbar erkennbar machen (Icon/Unterstrich, kein Kasten)
+  - [ ] Levels-Seite: umgekehrt (15 oben, 1 unten), Liga-Ansicht um aktuelles Level, scrollbar (schönere Darstellung vorschlagen)
+  - [ ] Einstellungen: Überschrift „Einstellungen“ weg; Profil-Kachel höher, nur Linie unten, Hauptelement; bessere Icons für Berechnungslogik (kein Σ) und Daten (keine Münzen); 3 weitere Celebrations (12 = 3×4); Intro-Vorschau spielt Intro und kehrt zu Einstellungen/Darstellung zurück (nicht zu Train)
+  - [ ] Navigation: Wischen vom linken Rand auf iPhone reparieren (Touch-Events); Tab-Logik: anderer Tab = dessen letzte Unterseite bleibt; gleicher Tab erneut = Tab-Startseite (alle 3 Tabs)
+  - [ ] Bereit-Bildschirm: „BEREIT?“ über dem Namen weg; Kopfzeile oben „Bereit?“ statt „Push Day“ (über Gesamtzeit); großer weißer Workout-Name + „Name ändern“ daneben
+  - [ ] Löschen-Dialog: „Nur heute löschen“ → „Nur für dieses Training“
+  - [ ] Erledigte Sätze zurücksetzen/neu machen können (mind. den letzten), z. B. in der Bearbeiten-Ansicht eines erledigten Satzes
+  - [ ] Review-Chart: Farblogik bei gemischt besser/schlechter vorschlagen (Linie wie Aktie vs. pro Satz vs. Säulen) + Dev-Werkzeug „Charts-Test“ (besser/schlechter/gemischt × Volumen/Wdh./Maximalkraft)
+  - [ ] Fortschritt: Überschrift „Fortschritt“ weg; erste Zeile volle Breite „Ich | Freunde“, gewähltes Segment etwas höher/betonte Umrandung
+- [ ] **Danach: Cloud-Modus** (Supabase EU, siehe `HANDOVER.md` → Briefing). Ben entscheidet Anmeldemethode (Empfehlung: E-Mail-Link ohne Passwort) und legt Supabase-Account an
 - [ ] **🔝 ALLERERSTES THEMA nächste Session: Points-Logik diskutieren** (Claude hat in Dev v0.4 einen mehrstufigen, schwer manipulierbaren Vorschlag eingebaut – siehe Einstellungen → Berechnungslogik)
 - [ ] **Ben:** Dev v0.6.0 testen → „freigeben“ für Live
 - [ ] **Ben:** Impressum mit echten Daten füllen (Platzhalter in Einstellungen → Impressum)
@@ -43,6 +58,7 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 - [ ] Daten in der Cloud mit Accounts (damit Nutzerdaten nicht verloren gehen)
 
 ## Später
+- [ ] **Profilbild** in der Profil-Kachel (2026-11-04)
 - [ ] Cloud-Speicherung + Accounts (Supabase)
 - [ ] Freunde: folgen, interagieren
 - [ ] **Läufe / Cardio** hinzufügen, ggf. auch aus externen Quellen (z. B. Apple Health, Strava) importieren (2026-11-01)
