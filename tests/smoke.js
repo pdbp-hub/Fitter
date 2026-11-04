@@ -132,9 +132,12 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   check('Zurück fragt vor dem Verwerfen', await ev(() => !document.getElementById('overlay').hidden));
   await click('[data-db="0"]'); await click('#o-save'); await settle();
   check('Workout wird gespeichert', await ev(() => document.querySelector('.witem .wname').textContent === 'Arm'));
-  if (await page.$('#editmode')) { await click('#editmode'); await click('.witem'); await settle(); }
-  else { await click('.witem'); await settle(); await click('#editw'); await settle(); }
-  await click('#o-del'); await click('[data-db="1"]'); await settle();
+  if (await page.$('#editmode')) { await click('#editmode'); await click('.witem'); await settle(); await click('#o-del'); await click('[data-db="1"]'); await settle(); }
+  else { // Dev: Workout in der Liste nach links wischen
+    const wb = await page.locator('#wlist .witem').first().boundingBox();
+    await page.mouse.move(wb.x + wb.width * .5, wb.y + 30); await page.mouse.down(); await page.mouse.move(wb.x + wb.width * .5 - 140, wb.y + 32, { steps: 10 }); await page.mouse.up(); await page.waitForTimeout(300);
+    const db2 = await page.locator('#wlist .swipe-del').boundingBox(); await page.mouse.click(db2.x + db2.width - 40, db2.y + db2.height / 2); await page.waitForTimeout(150);
+    await click('[data-db="1"]'); await settle(); }
   check('Workout lässt sich löschen', await ev(() => ![...document.querySelectorAll('.wname')].some(e => e.textContent === 'Arm')));
 
   if (TARGET) {
@@ -271,18 +274,63 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Teilen: Link + Kopieren-Button', await ev(() => /pdbp-hub\.github\.io\/Fitter/.test(document.getElementById('sharelink').textContent) && !!document.getElementById('copylink')));
     await back();
     await sp('display');
-    check('Intro-Auswahl (Intro 1, Intro 2, Aus)', await ev(() => document.querySelectorAll('[data-intro]').length === 3));
+    check('Intro-Auswahl (4 Intros + Aus)', await ev(() => document.querySelectorAll('[data-intro]').length === 5));
     check('Akzentfarben + Celebration unter Darstellung', await ev(() => document.querySelectorAll('[data-acc]').length === 2 && document.querySelectorAll('[data-celeb]').length === 9));
     await back(); await sp('data');
     check('Datenschutzerklärung unter Daten', !!(await page.$('[data-sp="privacy"]')));
     await back(); await sp('logic');
     check('Points v2 erklärt', await ev(() => /v2/.test(document.getElementById('v-settings').textContent)));
     await back();
+    console.log('Neu in v0.6');
+    check('Schriften lokal (kein Google)', await ev(() => ![...document.querySelectorAll('link')].some(l => /googleapis/.test(l.href))));
+    await click('[data-tab=start]');
+    await click('#ptsbtn'); await settle();
+    check('Points antippen öffnet Level (15 Stufen)', await ev(() => document.querySelectorAll('#obody .lvl-row').length === 15));
+    await click('#o-back'); await settle();
+    await click('#go'); await click('.witem'); await settle();
+    check('Bereit-Screen ohne ✎, mit „Name ändern“', await ev(() => !document.getElementById('editw') && !!document.getElementById('wrename')));
+    await click('#wrename'); await page.fill('#wname', 'Push Power'); await page.press('#wname', 'Enter'); await page.waitForTimeout(150);
+    check('Workout umbenennbar', await ev(() => document.getElementById('wtitle').textContent === 'Push Power' && JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts.some(w => w.name === 'Push Power')));
+    await ev(() => document.querySelectorAll('#readylist > .srow')[1].scrollIntoView({ block: 'center' }));
+    const nTpl = await ev(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts.find(w => w.name === 'Push Power').ex.length);
+    const r2 = await page.locator('#readylist > .srow').nth(1).boundingBox();
+    await page.mouse.move(r2.x + r2.width * .6, r2.y + 20); await page.mouse.down(); await page.mouse.move(r2.x + r2.width * .6 - 140, r2.y + 22, { steps: 10 }); await page.mouse.up(); await page.waitForTimeout(300);
+    check('Lösch-Text in der roten Fläche zentriert', await ev(() => { const b = document.querySelector('#readylist .swipe-del span'); return b && getComputedStyle(b).textAlign === 'center'; }));
+    const d3 = await page.locator('#readylist .swipe-del').boundingBox(); await page.mouse.click(d3.x + d3.width - 40, d3.y + d3.height / 2); await page.waitForTimeout(150);
+    check('Löschen fragt „Nur heute“ oder „Dauerhaft“', await ev(() => document.querySelectorAll('#overlay [data-db]').length === 3));
+    await click('[data-db="1"]'); await page.waitForTimeout(200);
+    check('„Nur heute“ lässt das gespeicherte Workout unverändert', await ev(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts.find(w => w.name === 'Push Power').ex.length) === nTpl);
+    await click('#startbtn'); await click('#endbtn'); await click('[data-db="1"]'); await settle(); // Aufwärmen abbrechen → kein laufendes Workout
+    await click('[data-tab=start]'); await click('#go'); await settle();
+    check('Workout-Liste offen', await ev(() => !document.getElementById('v-select').hidden));
+    await page.mouse.move(5, 300); await page.mouse.down(); await page.mouse.move(150, 305, { steps: 8 }); await page.mouse.up(); await page.waitForTimeout(200);
+    check('Wischen vom linken Rand = zurück', await ev(() => !document.getElementById('v-start').hidden && document.getElementById('v-select').hidden));
+    await click('#go'); await click('#add'); await settle();
+    check('Sortieren ohne „Muskelgruppe“, feste Breite', await ev(() => !document.querySelector('[data-sort="group"]') && document.getElementById('o-sort').getBoundingClientRect().width >= 170));
+    await click('#c-open');
+    check('Eigene Übung: breiter „Übung hinzufügen“, „Doch nicht“, kein Autofill, keine Speichern-Leiste', await ev(() => document.getElementById('c-add').getBoundingClientRect().width > 300 && /Doch nicht|Never mind/.test(document.getElementById('c-cancel').textContent) && document.getElementById('c-name').getAttribute('autocomplete') === 'off' && !document.getElementById('o-save')));
+    await click('#c-cancel'); await click('#o-back'); if (await page.$('#overlay:not([hidden])')) await click('[data-db="1"]'); await settle();
+    await click('[data-tab=progress]');
+    check('Heute markiert in der Tagesleiste', await ev(() => /Heute|Today/.test(document.querySelector('[data-day="0"] small').textContent)));
+    await click('[data-ptab="friends"]');
+    check('Freunde-Vorschlag im Fortschritt', await ev(() => document.querySelectorAll('.fr-row').length === 3 && !!document.getElementById('fr-invite')));
+    check('Fortschritt-Kopf passt in die Breite (REGRESSION)', await ev(() => { const v = document.getElementById('v-progress'); return v.scrollWidth <= v.clientWidth + 1 && document.querySelector('#v-progress h1').getBoundingClientRect().left >= 0; }));
+    await click('[data-ptab="me"]');
+    await click('[data-tab=settings]'); await sp('display');
+    check('Trend-Farben direkt unter der Überschrift', await ev(() => { const h = [...document.querySelectorAll('#v-settings b')].find(b => /Trend/.test(b.textContent)); const nx = h.parentElement.nextElementSibling; return nx && !!nx.querySelector('[data-trc]'); }));
+    check('5 Intros mit eigenen Icons', await ev(() => document.querySelectorAll('[data-intro] svg').length === 5));
+    check('Celebrations mit eigenen Icons', await ev(() => new Set([...document.querySelectorAll('[data-celeb] svg')].map(s => s.innerHTML)).size === 9));
+    await click('[data-acc="1"]');
+    check('Akzent-Vorschau „Neutral“ bleibt weiß (REGRESSION)', await ev(() => { const e = document.querySelector('[data-acc="0"] .dl.up'); return getComputedStyle(e).color === getComputedStyle(document.getElementById('app')).getPropertyValue('--fg').trim() || !/rgb\(53, 196, 106\)/.test(getComputedStyle(e).color); }));
+    await click('[data-acc="0"]');
+    await click('[data-tab=settings]');
+    check('Tab-Tipp führt zur Einstellungen-Startseite zurück', await ev(() => document.querySelectorAll('[data-sp]').length >= 7));
+    check('Keine langen Striche in Texten', await ev(() => !/ – /.test(document.body.innerText)));
     console.log('Intro & Onboarding');
     const fresh = await browser.newContext({ viewport: { width: 390, height: 844 } }); const fp = await fresh.newPage(); fp.on('pageerror', e => errors.push('[intro] ' + e.message));
     await fp.goto(URL + 'dev/?noseed'); await fp.waitForTimeout(400);
     check('Onboarding beim ersten Start', await fp.evaluate(() => !!document.getElementById('onb')));
-    check('Onboarding zeigt App-Animationen statt Zehnecke', await fp.evaluate(async () => { const kinds = []; for (let i = 0; i < 6; i++) { kinds.push(!!document.querySelector('#onb .om-phone')); document.getElementById('onb-next').click(); await new Promise(r => setTimeout(r, 30)); if (!document.getElementById('onb')) break; } return kinds.every(Boolean); }));
+    check('Onboarding zeigt App-Animationen statt Zehnecke', await fp.evaluate(async () => { const kinds = []; for (let i = 0; i < 7; i++) { kinds.push(!!document.querySelector('#onb .om-phone')); document.getElementById('onb-next').click(); await new Promise(r => setTimeout(r, 30)); if (!document.getElementById('onb')) break; } return kinds.every(Boolean); }));
     if (await fp.$('#onb-skip')) await fp.click('#onb-skip'); await fp.reload(); await fp.waitForTimeout(200);
     check('Intro-Animation beim Öffnen', await fp.evaluate(() => !!document.getElementById('intro')));
     await fp.waitForTimeout(2200);

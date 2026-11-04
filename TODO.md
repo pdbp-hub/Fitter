@@ -2,7 +2,7 @@
 
 ## Als Nächstes
 - [ ] **🔝 ALLERERSTES THEMA nächste Session: Points-Logik diskutieren** (Claude hat in Dev v0.4 einen mehrstufigen, schwer manipulierbaren Vorschlag eingebaut – siehe Einstellungen → Berechnungslogik)
-- [ ] **Ben:** Dev v0.5.0 testen → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.6.0 testen → „freigeben“ für Live
 - [ ] **Ben:** Impressum mit echten Daten füllen (Platzhalter in Einstellungen → Impressum)
 - [ ] **Nächste Session – Diskussion (Claude bereitet Vorschläge vor):**
   - [ ] **Points-Logik**: Elo-ähnlich, nicht manipulierbar (kein Volumen-Hacking, Beinpresse ≠ wertvoller als Curls) – mehrere Ansätze vergleichen
@@ -43,7 +43,6 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 - [ ] Daten in der Cloud mit Accounts (damit Nutzerdaten nicht verloren gehen)
 
 ## Später
-- [ ] **Google Fonts lokal einbinden** (Datenschutz: aktuell werden Schriften von Google-Servern geladen → IP-Übertragung) – vor Go-Live (2026-11-03)
 - [ ] Cloud-Speicherung + Accounts (Supabase)
 - [ ] Freunde: folgen, interagieren
 - [ ] **Läufe / Cardio** hinzufügen, ggf. auch aus externen Quellen (z. B. Apple Health, Strava) importieren (2026-11-01)
@@ -70,6 +69,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] 2026-11-04 – Dev v0.6.0: Schriften lokal (kein Google mehr; Live bekommt sie beim nächsten Release), Level-System (15 Level mit Namen + Icons, Points antippen), Freunde-Vorschlag (Ich | Freunde im Fortschritt), Intro 2 mit großem „Los geht's“ an Zehneck-Position, Intro 3 (Riss) + Intro 4 (Spin), Onboarding mit vollem Start-Ablauf + 2 neuen Slides + Marketing-Texten, Umbenennen statt ✎, Workout per Wischen löschen, Übung/Satz „Nur heute“ vs. „Dauerhaft“, 19 neue Icons + Seil-Icon für Kabelzug, Sortieren fix breit, eigene Übung aufgeräumt, Review: Maximalkraft + Info-i, Legenden in Trendfarbe, kein „= 0 %“, heute markiert, Tageskarte unten abgegrenzt, Texte ohne lange Striche, Prognose-Erklärung mit Formel, Darstellung-Reihenfolge + Icons, Tab-Tipp = zurück, Wischen vom Rand = zurück
 - [x] 2026-11-04 – Dev v0.5.0: Onboarding mit animierten App-Mockups + kürzere Texte; Startseite: gleiche Schriftgrößen (Points/Diese Woche, +X/vs. Vorwoche), weniger Leerraum unten; Dev-Werkzeuge eingeklappt; Icons in Einstellungen; „Mit Freunden teilen“ (QR-Code lokal erzeugt, Link kopieren, Teilen-Menü); TRAIN-Tab öffnet immer die Train-Seite (Bug); ✕ im Aufwärmen, unterer Beenden-Button entfernt; Intro 2 (Schreibmaschine → weiß schrumpft ins Zehneck) + Intro-Auswahl; Pre-Workout/Protein-Sprüche
 - [x] 2026-11-03 – Dev v0.4.0: +25 Begrüßungen je Sprache, 30 Review-Sprüche (Tageszeit/Rekord), Startseite ruhiger + größere Wochenzahlen, Akzentfarben ▲▼ (Einstellung mit Vorschau), Intro-Animation, Celebration (8 Effekte + Aus), Onboarding-Story + gelbe Dev-Werkzeuge, Datenschutzerklärung (Entwurf), Points v2 (Vorschlag), ~70 Übungen + Filter/Sortieren + breiter „Eigene Übung“-Button, unbegrenzte Favoriten (horizontal scrollbar), Sätze einzeln planen + ✕ pro Satz, Übung per Wischen löschen, Abbrechen beim Aufwärmen, neuer Mini-Leisten-Übergang (10× getestet), Dialoge/Info mittig, App-eigenes Dropdown, Chart-Kopf-Bug, Kalender-Button mittig, 5 Icons überarbeitet
 - [x] 2026-11-02 – Dev v0.3.1: Trend-Farben unter Darstellung mit zwei animierten Vorschauen (Original / Rot-Grün); Fortschritt-Einstellungen nur noch Prognose & Rückblick
