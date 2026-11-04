@@ -614,3 +614,84 @@ button { -webkit-user-select: none; user-select: none; touch-action: manipulatio
 .row > h1 { min-width: 0; font-size: clamp(24px, 7.6vw, 34px); }
 .pseg { flex: none; }
 #v-progress { overflow-x: hidden; }
+/* v0.7 */
+.ptsline strong, .weekhead { font-size: 30px; }
+.ptsline .pv { align-items: center; }
+.ptschev .chev { width: 20px; height: 20px; color: var(--fg); opacity: .6; }
+.ptsline small { font-size: 13px; }
+.sprof { width: 100%; display: flex; align-items: center; gap: 16px; padding: 18px 0 26px; border-bottom: 2px solid var(--fg); }
+.sprof .avatar { width: 76px; height: 76px; font-size: 26px; }
+.sprof b { display: block; font-family: var(--display); font-stretch: 110%; font-weight: 900; font-size: 24px; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sprof p { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+.sprof + div .setrow:first-child { border-top: 0; }
+.rtitle { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+.rtitle h1 { min-width: 0; overflow-wrap: anywhere; }
+.rtitle .textbtn { flex: none; }
+.redo { align-self: flex-start; color: var(--fg); margin-top: 4px; }
+.pseg { width: 100%; align-items: flex-end; border: 0; border-bottom: 1px solid var(--fg); }
+.pseg button { flex: 1; padding: 12px 10px; font-size: 13px; border: 1px solid var(--fg); border-bottom: 0; background: none; color: var(--muted); }
+.pseg button + button { margin-left: -1px; }
+.pseg button.on { background: var(--fg); color: var(--bg); padding: 17px 10px; font-size: 14px; }
+/* levels ladder */
+.lvl-ladder { position: relative; max-height: 400px; overflow-y: auto; overscroll-behavior: contain; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.lvl-ladder .lvl-row { position: relative; grid-template-columns: 44px 1fr auto; padding: 12px 4px; border-bottom: 0; }
+.lvl-ladder .lvl-row::before { content: ''; position: absolute; left: 25px; top: 0; bottom: 0; width: 2px; background: var(--line); z-index: 0; }
+.lvl-ladder .lvl-row.got::before { background: var(--fg); }
+.lvl-ladder .lvl-row.cur::before { top: 50%; }
+.lvl-ladder .lvl-row:first-child::before { top: 50%; } .lvl-ladder .lvl-row:last-child::before { bottom: 50%; }
+.lvl-ladder .lvl-ic { position: relative; z-index: 1; width: 44px; height: 44px; border: 0; background: var(--surface); }
+.lvl-ladder .lvl-row.got .lvl-ic { background: var(--fg); color: var(--bg); opacity: .85; }
+.lvl-ladder .lvl-row.cur { opacity: 1; background: var(--surface); outline: 2px solid var(--fg); outline-offset: -2px; margin: 6px 0; padding: 16px 4px; }
+.lvl-ladder .lvl-row.cur .lvl-ic { width: 52px; height: 52px; margin-left: -4px; opacity: 1; }
+.lvl-ladder .lvl-row.cur b { font-size: 18px; }
+.lvl-ladder b .num { color: var(--muted); margin-right: 4px; }
+.lvl-st { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .1em; padding-right: 8px; }
+.lvl-mini { display: block; height: 6px; border: 1px solid var(--fg); margin-top: 8px; max-width: 160px; } .lvl-mini i { display: block; height: 100%; background: var(--fg); }
+/* onboarding v3: fingers sit inside their targets */
+.om-finger.f1, .om-finger.f2, .om-finger.f3, .om-finger.fp, .om-finger.fa, .om-finger.fd1, .om-finger.fd2, .om-finger.fx { left: 50%; top: 50%; margin: -13px 0 0 -13px; opacity: 0; animation: none; }
+.om-c { position: relative; text-align: center; line-height: 1.05; font-size: 15px; width: 104px; height: 104px; margin: auto; align-self: center; }
+.om-flow .om-row b, .om-start, .om-plus, .om-addx, .om-del span, .om-plx em { position: relative; }
+.om-flow .f1 { animation: om-tapA 6s infinite; } .om-flow .f2 { animation: om-tapA 6s 2s infinite; } .om-flow .f3 { animation: om-tapA 6s 4s infinite; }
+@keyframes om-tapA { 0%, 6% { opacity: 0; transform: translate(14px, 22px); } 12% { opacity: 1; transform: none; } 17% { transform: scale(.72); } 22% { transform: none; opacity: 1; } 28%, 100% { opacity: 0; } }
+.om-adj, .om-delx { gap: 6px; padding: 14px 10px; }
+.om-bh { display: grid; grid-template-columns: 16px 1fr auto; align-items: center; gap: 6px; font-family: var(--display); font-weight: 900; font-size: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); background: var(--bg); position: relative; }
+.om-bh em { font-style: normal; font-family: var(--mono); font-size: 8px; color: var(--muted); }
+.om-n { font-family: var(--mono); font-size: 8px; color: var(--muted); position: relative; height: 10px; overflow: hidden; }
+.om-act { border: 1px solid var(--fg); padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+.om-act > small { font-family: var(--mono); font-size: 7px; letter-spacing: .1em; }
+.om-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.om-stp small { font-family: var(--mono); font-size: 6px; color: var(--muted); }
+.om-stp > div { display: grid; grid-template-columns: 12px 1fr 12px; align-items: center; gap: 2px; }
+.om-stp i { font-style: normal; border: 1px solid var(--line); text-align: center; font-size: 9px; line-height: 14px; }
+.om-stp b { text-align: center; font-family: var(--display); font-weight: 900; font-size: 12px; border-bottom: 2px solid var(--fg); height: 16px; overflow: hidden; }
+.om-stp .om-kg { height: 14px; } .om-stp .om-kg em { display: block; font-style: normal; animation: om-kg2 6s infinite; }
+@keyframes om-kg2 { 0%, 16% { transform: none; } 20%, 100% { transform: translateY(-14px); } }
+.om-adj .fp { animation: om-tapB 6s infinite; }
+@keyframes om-tapB { 0%, 4% { opacity: 0; transform: translate(14px, 22px); } 10% { opacity: 1; transform: none; } 15% { transform: scale(.72); } 20% { transform: none; opacity: 1; } 26%, 100% { opacity: 0; } }
+.om-pl { display: grid; grid-template-columns: 12px 1fr 10px; align-items: center; gap: 6px; border: 1px dashed var(--line); padding: 4px 6px; font-size: 9px; font-weight: 700; color: var(--muted); background: var(--bg); }
+.om-pl span { font-family: var(--mono); font-size: 8px; } .om-pl em { font-style: normal; font-size: 8px; }
+.om-adj .om-new { overflow: hidden; max-height: 0; animation: om-new2 6s infinite; }
+@keyframes om-new2 { 0%, 62% { max-height: 0; opacity: 0; } 70%, 96% { max-height: 30px; opacity: 1; } 100% { max-height: 0; opacity: 0; } }
+.om-addx { font-size: 9px; font-weight: 700; padding: 6px 0; align-self: flex-start; }
+.om-adj .fa { animation: om-tapC 6s infinite; }
+@keyframes om-tapC { 0%, 36% { opacity: 0; transform: translate(14px, 22px); } 44% { opacity: 1; transform: none; } 50% { transform: scale(.72); } 56% { transform: none; opacity: 1; } 62%, 100% { opacity: 0; } }
+/* delete slide: swipe Dips, tap delete, list moves up, then remove a set */
+.om-delx .om-swipe { animation: om-gone 7s infinite; overflow: hidden; }
+@keyframes om-gone { 0%, 40% { max-height: 30px; opacity: 1; } 47%, 95% { max-height: 0; opacity: 0; } 100% { max-height: 30px; opacity: 1; } }
+.om-delx .om-swipe .om-bh { animation: om-sw2 7s infinite; }
+@keyframes om-sw2 { 0%, 10% { transform: none; } 22%, 100% { transform: translateX(-58px); } }
+.om-delx .om-del span { width: 58px; display: block; }
+.om-delx .fd1 { animation: om-drag 7s infinite; }
+@keyframes om-drag { 0%, 6% { opacity: 0; transform: translateX(30px); } 10% { opacity: 1; transform: translateX(30px); } 22% { opacity: 1; transform: translateX(-28px); } 26%, 100% { opacity: 0; transform: translateX(-28px); } }
+.om-delx .fd2 { animation: om-tapD 7s infinite; }
+@keyframes om-tapD { 0%, 26% { opacity: 0; transform: translate(10px, 18px); } 31% { opacity: 1; transform: none; } 35% { transform: scale(.72); } 39% { transform: none; opacity: 1; } 42%, 100% { opacity: 0; } }
+.om-num em { display: block; font-style: normal; animation: om-num 7s infinite; }
+@keyframes om-num { 0%, 45% { transform: none; } 50%, 96% { transform: translateY(-10px); } 100% { transform: none; } }
+.om-delx .om-plx { overflow: hidden; animation: om-setgone 7s infinite; }
+@keyframes om-setgone { 0%, 74% { max-height: 24px; opacity: 1; padding: 4px 6px; } 80%, 96% { max-height: 0; opacity: 0; padding: 0 6px; border-width: 0; } 100% { max-height: 24px; opacity: 1; } }
+.om-delx .fx { animation: om-tapE 7s infinite; }
+@keyframes om-tapE { 0%, 56% { opacity: 0; transform: translate(10px, 18px); } 62% { opacity: 1; transform: none; } 66% { transform: scale(.72); } 70% { transform: none; opacity: 1; } 74%, 100% { opacity: 0; } }
+.om-ex2 { display: flex; flex-direction: column; gap: 4px; }
+.om-n3 { height: 10px; overflow: hidden; } .om-n3 em { display: block; font-style: normal; line-height: 10px; animation: om-n3 7s infinite; }
+@keyframes om-n3 { 0%, 78% { transform: none; } 82%, 96% { transform: translateY(-10px); } 100% { transform: none; } }
+.om-num em { line-height: 10px; }

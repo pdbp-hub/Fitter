@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.6.0';
+const APP_VERSION = '0.7.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -223,12 +223,12 @@ function pickSlogan(pr) {
   const L = SLOGANS[S.lang], h = new Date().getHours(), slot = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 18 ? 'day' : h >= 18 && h < 23 ? 'evening' : 'night';
   const pool = pr ? L.pr : L.any.concat(L[slot], L[slot]); return pool[Math.floor(Math.random() * pool.length)];
 }
-Object.assign(T.de, { share:'Mit Freunden teilen', shareHint:'QR-Code & Link zur App', shareText:'Lass deine Freunde den QR-Code scannen oder schick ihnen den Link.', copyLink:'Link kopieren', copied:'Link kopiert', shareNative:'Teilen …', introTitle:'Intro', introHint:'Animation beim Öffnen der App, antippen für Vorschau', intros:{ spin:'Intro 1 Zehneck', type:'Intro 2 Motivation', tear:'Intro 3 Riss', vortex:'Intro 4 Spin', off:'Aus' }, devShow:'Dev-Werkzeuge', setAdd:'+ Satz hinzufügen', delSetT:'Satz löschen?', delSetX:'Ist es der letzte Satz, wird die ganze Übung entfernt.', delExT:'Übung löschen?', delExX:'Die Übung und ihre Sätze werden aus diesem Workout entfernt.', delYes2:'Löschen', delNo:'Behalten', swipeDel:'Löschen', lastEx:'Mindestens eine Übung muss bleiben', warmCancel:'Abbrechen', accT:'Aus Versehen gestartet?', accX:'Das Workout wird abgebrochen, es wird nichts gespeichert.', accNo:'Nein, weiter aufwärmen', accYes:'Ja, abbrechen', celebTitle:'Celebration', celebHint:'Effekt beim Abschluss eines Workouts, antippen für Vorschau', celebs:{ confetti:'Konfetti', colorconf:'Konfetti bunt', cannons:'Kanonen', fireworks:'Feuerwerk', decagons:'Zehnecke', stars:'Sterne', streamers:'Luftschlangen', glitter:'Glitzer', off:'Aus' },
+Object.assign(T.de, { share:'Mit Freunden teilen', shareHint:'QR-Code & Link zur App', shareText:'Lass deine Freunde den QR-Code scannen oder schick ihnen den Link.', copyLink:'Link kopieren', copied:'Link kopiert', shareNative:'Teilen …', introTitle:'Intro', introHint:'Animation beim Öffnen der App, antippen für Vorschau', intros:{ spin:'Intro 1 Zehneck', type:'Intro 2 Motivation', tear:'Intro 3 Riss', vortex:'Intro 4 Spin', off:'Aus' }, devShow:'Dev-Werkzeuge', setAdd:'+ Satz hinzufügen', delSetT:'Satz löschen?', delSetX:'Ist es der letzte Satz, wird die ganze Übung entfernt.', delExT:'Übung löschen?', delExX:'Die Übung und ihre Sätze werden aus diesem Workout entfernt.', delYes2:'Löschen', delNo:'Behalten', swipeDel:'Löschen', lastEx:'Mindestens eine Übung muss bleiben', warmCancel:'Abbrechen', accT:'Aus Versehen gestartet?', accX:'Das Workout wird abgebrochen, es wird nichts gespeichert.', accNo:'Nein, weiter aufwärmen', accYes:'Ja, abbrechen', celebTitle:'Celebration', celebHint:'Effekt beim Abschluss eines Workouts, antippen für Vorschau', celebs:{ confetti:'Konfetti', colorconf:'Konfetti bunt', cannons:'Kanonen', fireworks:'Feuerwerk', decagons:'Zehnecke', stars:'Sterne', streamers:'Luftschlangen', glitter:'Glitzer', plates:'Hantelscheiben', shock:'Druckwelle', fountain:'Fontäne', off:'Aus' },
   privacy:'Datenschutzerklärung', privacyHint:'Entwurf', devTools:'Dev-Werkzeuge', devOnb:'Onboarding ansehen', devIntro:'Intro ansehen', devCeleb:'Celebration testen',
   onbSkip:'Überspringen', onbNext:'Weiter', onbGo:'Los geht’s',
   privacyHtml:'<p><i>Entwurf, Stand November 2026. Wird mit Einführung von Accounts/Cloud aktualisiert.</i></p><p><b>1. Verantwortlicher</b><br>[Vorname Nachname], [Anschrift], [E-Mail]</p><p><b>2. Grundsatz: Deine Daten bleiben auf deinem Gerät</b><br>Alle Eingaben, Workouts, Trainings, Sätze sowie Profilangaben wie Name, Alter und Körpergewicht, werden ausschließlich lokal im Speicher deines Browsers (localStorage) auf deinem Gerät gespeichert. Sie werden nicht an uns oder Dritte übertragen. Es gibt keine Registrierung, kein Tracking, keine Analyse-Tools, keine Werbung und keine Cookies.</p><p><b>3. Gesundheitsbezogene Daten</b><br>Körpergewicht und Trainingsdaten können Gesundheitsdaten im Sinne von Art. 9 DSGVO sein. Sie verlassen dein Gerät nicht.</p><p><b>4. Hosting (GitHub Pages)</b><br>Die App wird über GitHub Pages (GitHub Inc., USA) bereitgestellt. Beim Aufruf verarbeitet GitHub technisch notwendige Daten (z. B. IP-Adresse, Zeitpunkt, Browser) in Server-Logs, um die App auszuliefern und abzusichern. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO. Die Übermittlung in die USA erfolgt auf Grundlage des EU-US Data Privacy Framework.</p><p><b>5. Schriftarten</b><br>Derzeit werden Schriftarten von Google Fonts (Google Ireland Ltd.) geladen; dabei wird deine IP-Adresse an Google übertragen. Vor einer Veröffentlichung werden die Schriften lokal eingebunden.</p><p><b>6. Speicherdauer</b><br>Die Daten bleiben gespeichert, bis du sie in der App löschst (Einstellungen → Daten) oder die App bzw. die Browserdaten entfernst.</p><p><b>7. Deine Rechte</b><br>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde.</p>',
   accentTitle:'Akzentfarben', accentHint:'Färbt Veränderungen ▲▼ grün oder rot', accNeutral:'Neutral', accColor:'Farbig', fullCal:'Ganzer Kalender ▾', lessCal:'Weniger ▴' });
-Object.assign(T.en, { share:'Share with friends', shareHint:'QR code & link to the app', shareText:'Let your friends scan the QR code or send them the link.', copyLink:'Copy link', copied:'Link copied', shareNative:'Share …', introTitle:'Intro', introHint:'Animation when opening the app, tap to preview', intros:{ spin:'Intro 1 Decagon', type:'Intro 2 Motivation', tear:'Intro 3 Tear', vortex:'Intro 4 Spin', off:'Off' }, devShow:'Dev tools', setAdd:'+ Add set', delSetT:'Delete set?', delSetX:'If it is the last set, the whole exercise is removed.', delExT:'Delete exercise?', delExX:'The exercise and its sets are removed from this workout.', delYes2:'Delete', delNo:'Keep', swipeDel:'Delete', lastEx:'At least one exercise must remain', warmCancel:'Cancel', accT:'Started by accident?', accX:'The workout is cancelled, nothing is saved.', accNo:'No, keep warming up', accYes:'Yes, cancel', celebTitle:'Celebration', celebHint:'Effect when you finish a workout, tap to preview', celebs:{ confetti:'Confetti', colorconf:'Colour confetti', cannons:'Cannons', fireworks:'Fireworks', decagons:'Decagons', stars:'Stars', streamers:'Streamers', glitter:'Glitter', off:'Off' },
+Object.assign(T.en, { share:'Share with friends', shareHint:'QR code & link to the app', shareText:'Let your friends scan the QR code or send them the link.', copyLink:'Copy link', copied:'Link copied', shareNative:'Share …', introTitle:'Intro', introHint:'Animation when opening the app, tap to preview', intros:{ spin:'Intro 1 Decagon', type:'Intro 2 Motivation', tear:'Intro 3 Tear', vortex:'Intro 4 Spin', off:'Off' }, devShow:'Dev tools', setAdd:'+ Add set', delSetT:'Delete set?', delSetX:'If it is the last set, the whole exercise is removed.', delExT:'Delete exercise?', delExX:'The exercise and its sets are removed from this workout.', delYes2:'Delete', delNo:'Keep', swipeDel:'Delete', lastEx:'At least one exercise must remain', warmCancel:'Cancel', accT:'Started by accident?', accX:'The workout is cancelled, nothing is saved.', accNo:'No, keep warming up', accYes:'Yes, cancel', celebTitle:'Celebration', celebHint:'Effect when you finish a workout, tap to preview', celebs:{ confetti:'Confetti', colorconf:'Colour confetti', cannons:'Cannons', fireworks:'Fireworks', decagons:'Decagons', stars:'Stars', streamers:'Streamers', glitter:'Glitter', plates:'Weight plates', shock:'Shockwave', fountain:'Fountain', off:'Off' },
   privacy:'Privacy policy', privacyHint:'Draft', devTools:'Dev tools', devOnb:'Show onboarding', devIntro:'Show intro', devCeleb:'Test celebration',
   onbSkip:'Skip', onbNext:'Next', onbGo:'Let’s go',
   privacyHtml:'<p><i>Draft, November 2026. Will be updated when accounts/cloud sync are introduced.</i></p><p><b>1. Controller</b><br>[First name Last name], [address], [email]</p><p><b>2. Principle: your data stays on your device</b><br>All entries, workouts, sessions, sets and profile data such as name, age and body weight, are stored only locally in your browser storage (localStorage) on your device. They are not transmitted to us or third parties. There is no registration, no tracking, no analytics, no ads and no cookies.</p><p><b>3. Health-related data</b><br>Body weight and training data may be health data under Art. 9 GDPR. They do not leave your device.</p><p><b>4. Hosting (GitHub Pages)</b><br>The app is served via GitHub Pages (GitHub Inc., USA). When you open it, GitHub processes technically necessary data (e.g. IP address, time, browser) in server logs to deliver and secure the app. Legal basis: Art. 6 (1) (f) GDPR. Transfer to the USA is based on the EU-US Data Privacy Framework.</p><p><b>5. Fonts</b><br>Fonts are currently loaded from Google Fonts (Google Ireland Ltd.), which transmits your IP address to Google. Before publication the fonts will be hosted locally.</p><p><b>6. Storage period</b><br>Data is kept until you delete it in the app (Settings → Data) or remove the app or browser data.</p><p><b>7. Your rights</b><br>You have the right to access, rectification, erasure, restriction, data portability and objection, and to lodge a complaint with a supervisory authority.</p>',
@@ -239,13 +239,13 @@ Object.assign(T.en, { filter:'Filter', sortBy:'Sort', sorts:{ az:'A–Z', fav:'F
 Object.assign(T.de, {
   info1rm:'<b>Maximalkraft (1RM)</b><br>Das Gewicht, das du genau einmal schaffen würdest. Wir schätzen es aus deinen Sätzen mit der Epley-Formel:<br><code>1RM = Gewicht × (1 + Wdh. ÷ 30)</code><br>Beispiel: 60 kg × 10 Wdh. ergibt 80 kg.',
   infoFc:(l, h) => `<b>So entsteht die Prognose</b><br>Wir legen eine Trendkurve durch deine Werte ${l ? 'der letzten ' + l + ' Wochen' : 'aller Trainings'} und verlängern sie um ${h} Wochen:<br><code>Wert = a + b × ln(Woche)</code><br>Die Kurve flacht ab, weil Fortschritt mit der Zeit langsamer wird. Der graue Bereich zeigt, wie unsicher die Prognose ist.`,
-  strengthShort:'Maximalkraft', rename:'Name ändern', delToday:'Nur heute entfernen', delPerm:n => `Dauerhaft aus „${n}“ entfernen`, delSetToday:'Nur heute löschen', delSetPerm:n => `Dauerhaft aus „${n}“ löschen`,
+  strengthShort:'Maximalkraft', rename:'Name ändern', delToday:'Nur für dieses Training', delPerm:n => `Dauerhaft aus „${n}“ entfernen`, delSetToday:'Nur für dieses Training', delSetPerm:n => `Dauerhaft aus „${n}“ löschen`,
   delWT:'Workout löschen?', delWX:'Das Workout verschwindet aus deiner Liste. Bisherige Trainings bleiben im Verlauf.', never:'Doch nicht', addCustom:'Übung hinzufügen', todayShort:'Heute',
   sorts:{ az:'A–Z', fav:'Favoriten', recent:'Zuletzt' } });
 Object.assign(T.en, {
   info1rm:'<b>Max strength (1RM)</b><br>The weight you could lift exactly once. We estimate it from your sets with the Epley formula:<br><code>1RM = weight × (1 + reps ÷ 30)</code><br>Example: 60 kg × 10 reps gives 80 kg.',
   infoFc:(l, h) => `<b>How the forecast works</b><br>We fit a trend curve through your values ${l ? 'of the last ' + l + ' weeks' : 'of all sessions'} and extend it by ${h} weeks:<br><code>value = a + b × ln(week)</code><br>The curve flattens because progress slows over time. The grey area shows how uncertain the forecast is.`,
-  strengthShort:'Max strength', rename:'Rename', delToday:'Remove for today only', delPerm:n => `Remove from “${n}” for good`, delSetToday:'Delete for today only', delSetPerm:n => `Delete from “${n}” for good`,
+  strengthShort:'Max strength', rename:'Rename', delToday:'Only for this session', delPerm:n => `Remove from “${n}” for good`, delSetToday:'Only for this session', delSetPerm:n => `Delete from “${n}” for good`,
   delWT:'Delete workout?', delWX:'The workout disappears from your list. Past sessions stay in your history.', never:'Never mind', addCustom:'Add exercise', todayShort:'Today',
   sorts:{ az:'A–Z', fav:'Favourites', recent:'Recent' } });
 const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === 'function' ? v(...a) : v; };
@@ -416,32 +416,43 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 /* ---------- Tabs ---------- */
 let tab = 'start';
 function show(view) {
-  refreshAgo(); if (view !== 'settings') setPage = null; tab = view; if ($('popover')) $('popover').hidden = true;
+  refreshAgo(); tab = view; if ($('popover')) $('popover').hidden = true;
   ['start','select','progress','settings'].forEach(v => $('v-'+v).hidden = v !== view);
   document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('on', b.dataset.tab === view));
   document.querySelector('.navoct').classList.toggle('off', !(view === 'start' || view === 'select'));
   ({ start:renderStart, select:renderSelect, progress:renderProgress, settings:renderSettings })[view]();
   $('v-'+view).scrollTop = 0;
 }
-document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { if (b.dataset.tab === 'settings') setPage = null; show(b.dataset.tab); });
+// tab bar: another tab = back to where you were there; same tab again = its start page
+const tabMem = { start:'start' }, scrollMem = {};
+document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+  const tb = b.dataset.tab, curTab = tab === 'select' ? 'start' : tab;
+  if (tb === curTab) { if (tb === 'settings') setPage = null; if (tb === 'progress') { progTab = 'me'; selDay = null; } if (tb === 'start') editMode = false; tabMem.start = 'start'; show(tb); return; }
+  scrollMem[tab] = $('v-' + tab).scrollTop; if (curTab === 'start') tabMem.start = tab;
+  const v = tb === 'start' ? tabMem.start : tb; show(v); $('v-' + v).scrollTop = scrollMem[v] || 0;
+});
 // swipe from the left screen edge = back (settings sub page, workout list, sheets like "new workout")
 function goBack() {
   if (!$('osheet').classList.contains('down') && $('o-back')) { $('o-back').click(); return true; }
   if (!$('wsheet').classList.contains('down')) return false;
   if (tab === 'settings' && setPage) { setPage = null; renderSettings(); return true; }
-  if (tab === 'select') { show('start'); return true; }
+  if (tab === 'select') { tabMem.start = 'start'; show('start'); return true; }
   return false;
 }
-(() => { let x0 = null, y0 = 0;
-  document.addEventListener('pointerdown', e => { x0 = e.clientX < 24 ? e.clientX : null; y0 = e.clientY; }, true);
-  document.addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0, dy = Math.abs(e.clientY - y0); x0 = null; if (dx > 70 && dy < 60) goBack(); }, true);
+(() => { let x0 = null, y0 = 0; // touch events for iPhone (pointer events get cancelled when the page starts to scroll), pointer for mouse
+  const down = (x, y) => { x0 = x < 30 ? x : null; y0 = y; }, up = (x, y) => { if (x0 === null) return; const dx = x - x0, dy = Math.abs(y - y0); x0 = null; if (dx > 60 && dy < 70) goBack(); };
+  document.addEventListener('touchstart', e => { const p = e.touches[0]; down(p.clientX, p.clientY); }, { capture: true, passive: true });
+  document.addEventListener('touchmove', e => { if (x0 === null) return; const p = e.touches[0]; if (p.clientX - x0 > 60 && Math.abs(p.clientY - y0) < 70) { x0 = null; goBack(); } }, { capture: true, passive: true });
+  document.addEventListener('touchend', e => { const p = e.changedTouches[0]; up(p.clientX, p.clientY); }, { capture: true, passive: true });
+  document.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') down(e.clientX, e.clientY); }, true);
+  document.addEventListener('pointerup', e => { if (e.pointerType === 'mouse') up(e.clientX, e.clientY); }, true);
 })();
 
 let lastFinished = null; // { W, hist, at }
 function renderStart() {
   const canResume = lastFinished && Date.now() - lastFinished.at < 30 * 60000, wk = weekStats();
   $('v-start').innerHTML = `<div class="inner">
-    <div class="ptsline" id="ptsbtn" role="button" tabindex="0"><div class="pv"><b class="num">${fmt(totalPts())}</b><strong>${t('points')}</strong></div><small>${t('ptsWeek', wk.pts)}</small></div>
+    <div class="ptsline" id="ptsbtn" role="button" tabindex="0"><div class="pv"><b class="num">${fmt(totalPts())}</b><strong>${t('points')}</strong><span class="ptschev">${CHEV}</span></div><small>Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</small></div>
     <div class="hero"><button class="octa dec pulse" id="go"><span class="greet" id="greet">${esc(greetText)}</span><span class="cta">${t('cta')}</span><span class="tap">${t('tap')}</span></button></div>
     ${canResume ? `<button class="resume" id="resume"><span><b>${t('resume')}</b><small>${esc(lastFinished.W.name)} · ${t('resumeLeft', Math.ceil((30*60000 - (Date.now() - lastFinished.at)) / 60000))}</small></span>${CHEV}</button>` : ''}
     <div><div class="weekhead"><span>${t('thisWeek')}</span><small>${t('vsLastShort')}</small></div>
@@ -569,7 +580,7 @@ const nextOpen = () => { const o = [...W.ex.keys()]; return o.slice(W.cur + 1).c
 const allDoneAfter = () => W.ex.every((x, i) => i === W.cur ? x.sets.length + 1 >= x.target : x.sets.length >= x.target);
 
 function renderHead() {
-  const top = `<div class="wtop"><button class="iconbtn" id="minbtn" aria-label="Minimieren">⌄</button><div><div class="eyebrow">${esc(W.name)}</div><div class="overall num">${t('overall')} <span id="w-overall">${W.start ? mmss((Date.now()-W.start)/1000) : '00:00'}</span></div></div>${W.mode === 'train' || W.mode === 'warmup' ? `<button class="iconbtn" id="endbtn" aria-label="${t('endAbort')}">✕</button>` : '<span></span>'}</div>`;
+  const top = `<div class="wtop"><button class="iconbtn" id="minbtn" aria-label="Minimieren">⌄</button><div><div class="eyebrow">${W.mode === 'ready' ? t('ready') : esc(W.name)}</div><div class="overall num">${t('overall')} <span id="w-overall">${W.start ? mmss((Date.now()-W.start)/1000) : '00:00'}</span></div></div>${W.mode === 'train' || W.mode === 'warmup' ? `<button class="iconbtn" id="endbtn" aria-label="${t('endAbort')}">✕</button>` : '<span></span>'}</div>`;
   let ph = '';
   if (W.mode === 'train') {
     const lbl = W.phase === 'set' ? t('setLabel', curEx().sets.length + 1) : t('rest');
@@ -584,7 +595,7 @@ function renderW() {
   renderHead();
   let h = '';
   if (W.mode === 'ready') {
-    h = `<div><div class="row"><span class="eyebrow">${t('ready')}</span>${wById(W.src.id) && !W.renaming ? `<button class="textbtn" id="wrename" style="padding:0">${t('rename')}</button>` : ''}</div>${W.renaming ? `<input class="field" id="wname" value="${esc(W.name)}" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false">` : `<h1 id="wtitle">${esc(W.name)}</h1>`}<p class="hint" style="margin-top:8px">${t('readyHint')}</p></div><div class="sortlist" id="readylist">` +
+    h = `<div>${W.renaming ? `<input class="field" id="wname" value="${esc(W.name)}" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false">` : `<div class="rtitle"><h1 id="wtitle">${esc(W.name)}</h1>${wById(W.src.id) ? `<button class="textbtn" id="wrename" style="padding:0">${t('rename')}</button>` : ''}</div>`}<p class="hint" style="margin-top:8px">${t('readyHint')}</p></div><div class="sortlist" id="readylist">` +
       W.ex.map((e, i) => `<div class="srow ${W.rOpen === i ? 'ropen' : ''}"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(e.k)}<button class="exname tapzone" data-ropen="${i}">${esc(exName(e.k))}<small>${t('sets', e.target)} · ${esc(wLabel(e.k, e.w))} × ${e.r}</small></button><span class="grip" data-grip aria-label="ziehen">${GRIP}</span>${W.rOpen === i ? `<div class="redit">${ensurePlan(e).map((p, j) => `<div class="pset"><span class="idx num">${j + 1}</span><label class="pin"><input inputmode="decimal" enterkeyhint="done" class="num" data-pw="${i}:${j}" value="${fmtW(p.w)}"><span>${isBW(e.k) ? t('kgExtra') : 'kg'}</span></label><label class="pin"><input inputmode="numeric" enterkeyhint="done" class="num" data-pr="${i}:${j}" value="${p.r}"><span>${t('reps')}</span></label><button class="sx" data-psx="${i}:${j}" aria-label="${t('delSetT')}">✕</button></div>`).join('')}<button class="addset" data-padd="${i}">${t('setAdd')}</button></div>` : ''}</div>`).join('') + `</div><button class="addset" id="raddex" style="font-size:14px">${t('addEx')}</button>`;
     setBar(`<button class="mainbtn" id="startbtn">${t('start')}</button>`);
   } else if (W.mode === 'warmup' || W.mode === 'cooldown') {
@@ -619,7 +630,7 @@ function blockHTML(e, i) {
   if (open) {
     h += `<div class="setlist">`;
     e.sets.forEach((s, j) => {
-      if (W.edit && W.edit[0] === i && W.edit[1] === j) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', j+1)}</span><button class="reset" data-saveedit="1">${t('ok')}</button></div>${inputsHTML('ed', s.w, s.r, e.k)}</div>`;
+      if (W.edit && W.edit[0] === i && W.edit[1] === j) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', j+1)}</span><button class="reset" data-saveedit="1">${t('ok')}</button></div>${inputsHTML('ed', s.w, s.r, e.k)}${j === n - 1 ? `<button class="textbtn redo" data-redo="${i}">↺ ${S.lang === 'de' ? 'Satz zurücksetzen und neu machen' : 'Reset and redo this set'}</button>` : ''}</div>`;
       else h += `<button class="set" data-edit="${i}:${j}"><span class="idx num">${j+1}</span><span class="sv num">${esc(wLabel(e.k, s.w))} × ${s.r}</span><span class="st num">${mmss(s.d || 0)}</span><span>✓</span></button>`;
     });
     if (isCur && n < e.target) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', n+1)}</span>${W.phase === 'set' ? `<button class="reset" id="resetbtn" aria-label="Reset">↺ ${t('resetLbl')}</button>` : ''}</div>${inputsHTML('cu', e.w, e.r, e.k)}</div>`;
@@ -653,6 +664,7 @@ function bindW() {
   q('[data-addset]').forEach(b => b.onclick = () => { readInputs(); const e = W.ex[+b.dataset.addset]; ensurePlan(e); const l = e.plan[e.plan.length - 1] || e; e.plan.push({ w: l.w, r: l.r }); e.target++; renderW(); });
   q('[data-edit]').forEach(b => b.onclick = () => { readInputs(); W.edit = b.dataset.edit.split(':').map(Number); renderW(); });
   q('[data-saveedit]').forEach(b => b.onclick = () => { readInputs(); W.edit = null; renderW(); });
+  q('[data-redo]').forEach(b => b.onclick = () => { readInputs(); const i = +b.dataset.redo, e = W.ex[i], st = e.sets.pop(); W.edit = null; W.cur = i; W.open = {}; W.curClosed = false; applyPlan(e); e.w = st.w; e.r = st.r; W.phase = 'rest'; W.phaseStart = Date.now(); renderW(); });
   $('resetbtn') && ($('resetbtn').onclick = () => dialog(t('resetTitle'), t('resetText'), [[t('resetNo'), 'mainbtn', () => {}], [t('resetYes'), 'ghostbtn', () => { W.restCarry = (W.restCarry || 0) + (Date.now() - W.phaseStart); W.phaseStart = Date.now(); renderW(); }]]));
   q('[data-st]').forEach(b => b.onclick = () => {
     const [id, d] = b.dataset.st.split(':'); const inp = $(id); const isKg = id.endsWith('kg');
@@ -725,7 +737,8 @@ function drawSetChart(id) {
   let s = [lo + (hi - lo) * .15, hi - (hi - lo) * .15].map(v => `<line x1="${L}" x2="${W0-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">${nice(v)}</text>`).join('');
   if (prev.length) s += `<polyline points="${prev.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>` + prev.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="var(--bg)" stroke="var(--muted)" stroke-width="1.5"/>`).join('');
   const sum = a => a.reduce((p, q) => p + q, 0), col = S.trendColor && prev.length ? (sum(cur) >= sum(prev.slice(0, cur.length)) ? 'var(--up)' : 'var(--down)') : 'var(--fg)';
-  s += `<polyline points="${cur.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2.5"/>` + cur.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="4" fill="${col}"/>`).join('');
+  const dot = i => !S.trendColor || prev[i] === undefined ? col : cur[i] > prev[i] ? 'var(--up)' : cur[i] < prev[i] ? 'var(--down)' : 'var(--fg)';
+  s += `<polyline points="${cur.map((v, i) => `${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2.5"/>` + cur.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="${dot(i)}" stroke="var(--bg)" stroke-width="1.5"/>`).join('');
   for (let i = 0; i < n; i++) s += `<text x="${X(i)}" y="${H0-5}" text-anchor="middle" font-size="10" font-family="var(--mono)" fill="var(--muted)">${i+1}</text>`;
   s += '<g class="scrub"></g>';
   svg.setAttribute('viewBox', `0 0 ${W0} ${H0}`); svg.innerHTML = s;
@@ -743,6 +756,15 @@ function drawSetChart(id) {
   svg.addEventListener('pointermove', e => { if (down || e.pointerType === 'mouse') show(idxAt(e)); });
   const end = () => { down = false; show(null); };
   svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end); svg.addEventListener('pointerleave', end);
+}
+// dev tool: how the review charts look when a session is better, worse or mixed vs. last time
+function chartTestHTML() {
+  const mk = (cur, prev) => ({ e: { k:'bench', sets: cur.map(([w, r]) => ({ w, r })) }, prevSets: prev.map(([w, r]) => ({ w, r })) });
+  const cases = [['Besser', mk([[80, 8], [80, 8], [80, 7]], [[75, 8], [75, 7], [75, 6]])], ['Schlechter', mk([[70, 7], [70, 6], [70, 5]], [[75, 8], [75, 8], [75, 7]])],
+    ['Gemischt', mk([[80, 8], [75, 6], [75, 8]], [[75, 8], [75, 8], [75, 6]])], ['Gleich', mk([[75, 8], [75, 8], [75, 8]], [[75, 8], [75, 8], [75, 8]])]];
+  return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">Dev · Charts-Test</span><span style="width:44px"></span></div>
+    <p class="hint">Linie = Gesamtvergleich zum letzten Mal, Punkte = jeder Satz einzeln (besser grün, schlechter rot, gleich weiß). Farben nur mit „Trendfarben farbig“ (Darstellung). Metrik oben im Dropdown wechseln.</p>
+    ${cases.map(([n, x], i) => `<div class="rvblock"><h3>${n}</h3>${setChart(x, 'ct' + i)}</div>`).join('')}</div>`;
 }
 function bindRvCharts(root) {
   root.querySelectorAll('[data-metric]').forEach(box => {
@@ -867,6 +889,7 @@ function toggleFav(k) { const i = S.fav.indexOf(k); if (i >= 0) S.fav.splice(i, 
 function renderO() {
   const b = $('obody');
   if (O.mode === 'levels') { b.innerHTML = levelsHTML(); setOBar(''); $('o-back').onclick = closeO; return; }
+  if (O.mode === 'charttest') { b.innerHTML = chartTestHTML(); setOBar(''); $('o-back').onclick = closeO; bindRvCharts(b); return; }
   if (O.mode === 'add') {
     b.innerHTML = `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${t('addEx').replace('+ ', '')}</span><span style="width:44px"></span></div>
       <div class="searchrow"><input class="search" id="o-q" enterkeyhint="search" placeholder="${t('searchPh')}" value="${esc(O.q)}"></div>${filterRowHTML()}<div id="o-list"></div></div>`;
@@ -979,7 +1002,7 @@ function renderProgress() {
   const vol30 = last30.reduce((a, h) => a + sessVol(h), 0), min30 = last30.reduce((a, h) => a + h.dur, 0);
   if (progTab === 'friends') { renderFriends(); return; }
   $('v-progress').innerHTML = `<div class="inner">
-    <div class="row"><h1>${t('progress')}</h1>${progSwitch()}</div>
+    ${progSwitch()}
     <div class="sect" style="border-top:0;padding-top:0">
       <h2 class="hic">${SIC.cal}${t('history')}</h2>
       ${calOpen ? calHTML() : `<div class="strip-wrap"><div class="strip" id="strip">${Array.from({length:90}, (_, i) => dayTile(89 - i)).join('')}</div><button class="today-btn" id="todaybtn" hidden>${t('today')}</button></div>`}
@@ -1011,7 +1034,7 @@ function bindProgSwitch() { document.querySelectorAll('[data-ptab]').forEach(b =
 function renderFriends() {
   const de = S.lang === 'de', me = levelOf(totalPts());
   const demo = [['Max', 9, de ? 'Bankdrücken' : 'Bench press', 102, 1], ['Lena', 6, de ? 'Kniebeuge' : 'Squat', 95, 2], ['Tom', 4, de ? 'Kreuzheben' : 'Deadlift', 140, 4]];
-  $('v-progress').innerHTML = `<div class="inner"><div class="row"><h1>${t('progress')}</h1>${progSwitch()}</div>
+  $('v-progress').innerHTML = `<div class="inner">${progSwitch()}
     <div class="fr-me"><span class="lvl-ic">${levelIcon(me)}</span><div><b>${esc(S.name || (de ? 'Du' : 'You'))}</b><small>Level ${me + 1} · ${esc(LEVELS[me][S.lang])} · ${fmt(totalPts())} Points</small></div></div>
     <div class="fr-cta"><b>${de ? 'Freunde folgen, Level vergleichen' : 'Follow friends, compare levels'}</b><p class="hint">${de ? 'Kommt mit dem Cloud-Modus: Folge Freunden, sieh ihre Level, Rekorde und letzten Trainings.' : 'Coming with cloud sync: follow friends, see their levels, records and recent sessions.'}</p><button class="ghostbtn" id="fr-invite">${t('share')}</button></div>
     <div class="sect"><div class="row"><h2>${de ? 'Vorschau' : 'Preview'}</h2><span class="eyebrow">${de ? 'Beispieldaten' : 'Sample data'}</span></div>
@@ -1112,16 +1135,16 @@ function trendPreview(color) {
 // ---- Onboarding story: update whenever a central feature or the handling changes ----
 const ONBOARDING = {
   de: [
-    ['welcome', 'Willkommen bei TRAIN', 'Dein Gym-Tracker. Puristisch, schnell und nur für dich. Alles bleibt auf deinem Gerät.'],
-    ['start', 'In drei Taps zum Training', 'Zehneck antippen, Workout wählen, Start. Fertig. Der Timer läuft mit.'],
+    ['welcome', 'Willkommen bei TRAIN', 'Dein Gym-Tracker. Puristisch, schnell und nur für dich.'],
+    ['start', 'In drei Taps zum Training', 'Zehneck antippen, Workout wählen, Start. Zeit für neue Personal Bests.'],
     ['adjust', 'Dein Workout, deine Regeln', 'Gewicht, Wiederholungen und Sätze passt du jederzeit an. Neue Übung? Einfach hinzufügen.'],
     ['train', 'Heute keine Lust auf Dips?', 'Übung nach links wischen und weg damit. Einzelne Sätze löschst du mit ✕.'],
     ['mini', 'Immer dabei', 'Workout nach unten wischen. Es läuft als Leiste weiter, antippen holt es zurück.'],
     ['progress', 'Fortschritt sehen', 'Kalender, Rekorde und Prognosen bringen dein Training aufs nächste Level.'],
     ['points', 'Points & Level', 'Sammle Points und steig im Level auf. Regelmäßiges Training und echte Steigerungen werden belohnt.'] ],
   en: [
-    ['welcome', 'Welcome to TRAIN', 'Your gym tracker. Minimal, fast and just for you. Everything stays on your device.'],
-    ['start', 'Three taps to train', 'Tap the decagon, pick a workout, start. Done. The timer runs along.'],
+    ['welcome', 'Welcome to TRAIN', 'Your gym tracker. Minimal, fast and just for you.'],
+    ['start', 'Three taps to train', 'Tap the decagon, pick a workout, start. Time for new personal bests.'],
     ['adjust', 'Your workout, your rules', 'Change weight, reps and sets any time. New exercise? Just add it.'],
     ['train', 'Not feeling dips today?', 'Swipe the exercise left and it is gone. Delete single sets with ✕.'],
     ['mini', 'Always with you', 'Swipe the workout down. It keeps running as a bar, tap it to bring it back.'],
@@ -1131,15 +1154,21 @@ const ONBOARDING = {
 function onbVisual(kind) {
   const de = S.lang === 'de', row = (txt, go) => `<div class="om-row"><i></i><span>${txt}</span>${go ? '<b class="dec">GO</b>' : ''}</div>`;
   if (kind === 'welcome') return `<div class="om-phone"><div class="om-dec dec pulse">TRAIN</div></div>`;
+  const fin = c => `<span class="om-finger ${c}"></span>`;
   if (kind === 'start') return `<div class="om-phone om-flow">
-      <div class="om-stage s1"><div class="om-dec dec" style="width:104px;height:104px;font-size:15px">${de ? 'LOS GEHT’S' : 'LET’S GO'}</div></div>
-      <div class="om-stage s2"><div class="om-title"></div>${row('Push Day', 1)}${row('Pull Day', 1)}${row('Leg Day', 1)}</div>
-      <div class="om-stage s3"><div class="om-eb">${de ? 'BEREIT?' : 'READY?'}</div><div class="om-h">PUSH DAY</div><div class="om-line"></div><div class="om-line"></div><div class="om-line"></div><div class="om-start">START</div></div>
-      <span class="om-finger om-flowf"></span></div>`;
-  if (kind === 'adjust') return `<div class="om-phone"><div class="om-eb">${de ? 'BEREIT?' : 'READY?'}</div><div class="om-h">PUSH DAY</div>
-      <div class="om-set"><span>1</span><span class="om-kg"><i>70</i><i>72,5</i></span><em>× 8</em></div><div class="om-set"><span>2</span><span>72,5</span><em>× 8</em></div>
-      <div class="om-new">${row(de ? 'Seitheben' : 'Lateral raise')}</div><div class="om-add">${de ? '+ Übung hinzufügen' : '+ Add exercise'}</div><span class="om-finger om-addf"></span></div>`;
-  if (kind === 'train') return `<div class="om-phone"><div class="om-title"></div><div class="om-swipe"><div class="om-del"><span>${t('swipeDel')}</span></div>${row('Dips')}</div><div class="om-set"><span>1</span><span>+10 kg</span><em>✕</em></div><div class="om-set om-set-x"><span>2</span><span>+10 kg</span><em>✕</em></div><span class="om-finger om-swipe-f"></span></div>`;
+      <div class="om-stage s1"><div class="om-dec dec om-c">${de ? 'LOS<br>GEHT’S' : 'LET’S<br>GO'}${fin('f1')}</div></div>
+      <div class="om-stage s2"><div class="om-title"></div><div class="om-row"><i></i><span>Push Day</span><b class="dec">GO${fin('f2')}</b></div>${row('Pull Day', 1)}${row('Leg Day', 1)}</div>
+      <div class="om-stage s3"><div class="om-eb">${de ? 'BEREIT?' : 'READY?'}</div><div class="om-h">PUSH DAY</div><div class="om-line"></div><div class="om-line"></div><div class="om-line"></div><div class="om-start">START${fin('f3')}</div></div></div>`;
+  const step = (lbl, v, anim) => `<div class="om-stp"><small>${lbl}</small><div><i>−</i><b>${anim ? `<span class="om-kg"><em>${v}</em><em>${anim}</em></span>` : v}</b><i class="om-plus">+${anim ? fin('fp') : ''}</i></div></div>`;
+  if (kind === 'adjust') return `<div class="om-phone om-adj"><div class="om-bh"><span class="om-n">01</span><span>${de ? 'BANKDRÜCKEN' : 'BENCH PRESS'}</span><em>0/3</em></div>
+      <div class="om-act"><small>${de ? 'SATZ 1' : 'SET 1'}</small><div class="om-steps">${step('KG', '72,5', '75')}${step(de ? 'WDH.' : 'REPS', '8')}</div></div>
+      <div class="om-pl"><span>2</span>72,5 kg × 8<em>✕</em></div><div class="om-pl"><span>3</span>72,5 kg × 8<em>✕</em></div>
+      <div class="om-new"><div class="om-bh"><span class="om-n">02</span><span>${de ? 'SEITHEBEN' : 'LATERAL RAISE'}</span><em>0/3</em></div></div>
+      <div class="om-addx">${de ? '+ Übung hinzufügen' : '+ Add exercise'}${fin('fa')}</div></div>`;
+  if (kind === 'train') return `<div class="om-phone om-delx">
+      <div class="om-swipe"><div class="om-del"><span>${t('swipeDel')}${fin('fd2')}</span></div><div class="om-bh om-dips"><span class="om-n">01</span><span>DIPS</span><em>0/3</em>${fin('fd1')}</div></div>
+      <div class="om-ex2"><div class="om-bh"><span class="om-n"><span class="om-num"><em>02</em><em>01</em></span></span><span>${de ? 'TRIZEPSDRÜCKEN' : 'TRICEPS PUSHDOWN'}</span><em>0/3</em></div>
+        <div class="om-pl"><span>1</span>30 kg × 12<em>✕</em></div><div class="om-pl om-plx"><span>2</span>30 kg × 12<em>✕${fin('fx')}</em></div><div class="om-pl"><span class="om-n3"><em>3</em><em>2</em></span>30 kg × 12<em>✕</em></div></div></div>`;
   if (kind === 'mini') return `<div class="om-phone"><div class="om-sheet"><div class="om-eb" style="text-align:center">PUSH DAY</div><div class="om-tdec dec"><span>01:23</span></div><div class="om-line"></div><div class="om-line"></div></div>
       <div class="om-bar"><span><small>${de ? 'PAUSE' : 'REST'}</small><b>${de ? 'Bankdrücken' : 'Bench press'}</b></span><b>01:23</b></div><div class="om-nav"></div></div>`;
   if (kind === 'progress') return `<div class="om-phone om-chart">${trendPreview(S.trendColor)}</div>`;
@@ -1218,7 +1247,7 @@ const LVL_IC = {
   deca:'<polygon points="' + P(decPts(12, 12, 10.2)) + '"/><path d="M12 6.2l1.8 3.7 4 .6-2.9 2.8.7 4L12 15.4l-3.6 1.9.7-4-2.9-2.8 4-.6z" fill="currentColor"/>' };
 const levelIcon = i => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${LVL_IC[LEVELS[i].ic]}</svg>`;
 const levelOf = pts => { let i = 0; LEVELS.forEach((l, k) => { if (pts >= l.p) i = k; }); return i; };
-function openLevels() { O = { mode:'levels' }; renderO(); openO(); $('obody').scrollTop = 0; }
+function openLevels() { O = { mode:'levels' }; renderO(); openO(); $('obody').scrollTop = 0; const lad = $('ladder'), c = lad && lad.querySelector('.cur'); if (c) lad.scrollTop = c.offsetTop - lad.clientHeight / 2 + c.offsetHeight / 2; }
 function levelsHTML() {
   const pts = totalPts(), li = levelOf(pts), cur = LEVELS[li], nxt = LEVELS[li + 1];
   const pct = nxt ? Math.round((pts - cur.p) / (nxt.p - cur.p) * 100) : 100;
@@ -1226,7 +1255,7 @@ function levelsHTML() {
     <div class="lvl-hero"><div class="lvl-dec dec">${levelIcon(li)}</div><div class="eyebrow">Level ${li + 1} / ${LEVELS.length}</div><h1>${esc(cur[S.lang])}</h1>
       <div class="lvl-pts num"><b>${fmt(pts)}</b> Points</div>
       ${nxt ? `<div class="lvl-bar"><i style="width:${pct}%"></i></div><p class="hint">${S.lang === 'de' ? `Noch ${fmt(nxt.p - pts)} Points bis ${esc(nxt.de)}` : `${fmt(nxt.p - pts)} points to ${esc(nxt.en)}`}</p>` : ''}</div>
-    <div class="sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div>${LEVELS.map((l, i) => `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''}"><span class="lvl-ic">${levelIcon(i)}</span><div><b>${i + 1}. ${esc(l[S.lang])}</b><small class="num">${fmt(l.p)} Points</small></div><span class="num">${i < li ? '✓' : i === li ? '●' : ''}</span></div>`).join('')}</div></div></div>`;
+    <div class="sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div class="lvl-ladder" id="ladder">${LEVELS.map((l, i) => i).reverse().map(i => { const l = LEVELS[i]; return `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''}"><span class="lvl-ic dec">${levelIcon(i)}</span><div><b><span class="num">${i + 1}</span> ${esc(l[S.lang])}</b><small class="num">${i > li ? (S.lang === 'de' ? `noch ${fmt(l.p - pts)} Points` : `${fmt(l.p - pts)} points to go`) : `${fmt(l.p)} Points`}</small>${i === li && nxt ? `<span class="lvl-mini"><i style="width:${pct}%"></i></span>` : ''}</div><span class="num lvl-st">${i < li ? '✓' : i === li ? (S.lang === 'de' ? 'DU' : 'YOU') : ''}</span></div>`; }).join('')}</div></div></div>`;
 }
 function playIntroTear() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1274,7 +1303,12 @@ function celebrate(kind = S.celeb) {
   if (kind === 'stars') for (let i = 0; i < 60; i++) add({ x: R(0, Wd), y: R(-220, -10), vx: R(-.5, .5), vy: R(2, 4), g: .05, shape: 'star', size: R(6, 12), col: mono[i % 4], decay: R(.004, .007) });
   if (kind === 'streamers') for (let i = 0; i < 44; i++) add({ x: R(0, Wd), y: R(-160, -10), vx: R(-1, 1), vy: R(2, 5), g: .08, shape: 'streamer', size: R(14, 26), col: mono[i % 4], vr: R(-.3, .3), decay: R(.004, .007) });
   if (kind === 'glitter') for (let i = 0; i < 130; i++) add({ x: R(0, Wd), y: R(0, Ht * .6), vx: R(-.3, .3), vy: R(-.2, .6), g: .01, shape: 'circle', size: R(1.5, 3.5), col: FG, tw: R(0, 6.28), decay: R(.006, .012) });
+  if (kind === 'plates') for (let i = 0; i < 34; i++) add({ x: R(0, Wd), y: R(-500, -20), vx: R(-.6, .6), vy: R(1, 3), g: .16, shape: 'plate', size: R(16, 30), col: mono[i % 4], vr: R(-.08, .08), decay: R(.003, .005) });
+  if (kind === 'shock') for (let i = 0; i < 7; i++) add({ x: Wd / 2, y: Ht * .4, g: 0, vr: .01, shape: 'ring', size: 20, grow: R(7, 9), col: FG, delay: i * 9, decay: .011, drag: 1 });
+  if (kind === 'fountain') for (let i = 0; i < 160; i++) add({ x: Wd / 2 + R(-8, 8), y: Ht + 5, vx: R(-3.2, 3.2), vy: R(-19, -12), g: .32, col: mono[i % 4], shape: i % 3 ? 'rect' : 'dec', size: R(5, 9), delay: Math.floor(i / 4), decay: R(.006, .01) });
   const shape = p => { const z = p.size; ctx.beginPath();
+    if (p.shape === 'plate') { ctx.arc(0, 0, z / 2, 0, 6.29); ctx.arc(0, 0, z / 6, 0, 6.29, true); ctx.fill('evenodd'); return; }
+    if (p.shape === 'ring') { for (let i = 0; i < 10; i++) { const a = i * .628; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * z / 2, Math.sin(a) * z / 2); } ctx.closePath(); ctx.strokeStyle = p.col; ctx.lineWidth = 3; ctx.stroke(); return; }
     if (p.shape === 'rect') ctx.rect(-z / 2, -z / 4, z, z / 2); else if (p.shape === 'streamer') ctx.rect(-z / 2, -1.5, z, 3);
     else if (p.shape === 'circle') ctx.arc(0, 0, z / 2, 0, 6.29);
     else if (p.shape === 'dec') for (let i = 0; i < 10; i++) { const a = i * .628; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * z / 2, Math.sin(a) * z / 2); }
@@ -1284,13 +1318,20 @@ function celebrate(kind = S.celeb) {
   const step = now => {
     ctx.clearRect(0, 0, Wd, Ht); let alive = 0;
     P.forEach(p => { if (p.delay > 0) { p.delay--; alive++; return; } if (p.life <= 0) return; alive++;
-      p.vx *= p.drag; p.vy = p.vy * p.drag + p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay;
+      p.vx *= p.drag; p.vy = p.vy * p.drag + p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay; if (p.grow) p.size += p.grow;
       ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.4)) * (p.tw !== undefined ? .5 + .5 * Math.sin(now / 90 + p.tw) : 1); ctx.fillStyle = p.col; ctx.translate(p.x, p.y); ctx.rotate(p.rot); shape(p); ctx.restore(); });
     if (alive && now - t0 < 3200) requestAnimationFrame(step); else cv.remove();
   };
   requestAnimationFrame(step);
 }
 let setPage = null, devOpen = false;
+// intro preview from settings: play it on the start screen, then come back to the same settings page
+function previewIntro() {
+  const page = setPage, y = $('v-settings').scrollTop; show('start');
+  const back = () => { if (tab !== 'start') return; setPage = page; show('settings'); $('v-settings').scrollTop = y; };
+  requestAnimationFrame(() => { playIntroSel(); if (!$('intro')) return setTimeout(back, 300);
+    const iv = setInterval(() => { if (!$('intro')) { clearInterval(iv); setTimeout(back, 350); } }, 100); });
+}
 const gl = inner => `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round">${inner}</svg>`;
 const CELEB_IC = {
   confetti: gl('<rect x="9" y="10" width="7" height="4" transform="rotate(-20 12 12)" fill="currentColor"/><rect x="28" y="7" width="7" height="4" transform="rotate(25 31 9)" fill="currentColor"/><rect x="19" y="24" width="7" height="4" transform="rotate(10 22 26)" fill="currentColor"/><rect x="33" y="27" width="6" height="4" transform="rotate(-35 36 29)" fill="currentColor"/><circle cx="12" cy="33" r="2.5" fill="currentColor"/><circle cx="24" cy="14" r="2" fill="currentColor"/>'),
@@ -1300,6 +1341,9 @@ const CELEB_IC = {
   decagons: gl('<polygon points="' + P(decPts(16, 16, 7)) + '" fill="currentColor"/><polygon points="' + P(decPts(33, 22, 5)) + '"/><polygon points="' + P(decPts(20, 34, 5)) + '"/>'),
   stars: gl('<path d="M16 8l2.4 5 5.4.6-4 3.7 1.1 5.3L16 20l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z" fill="currentColor"/><path d="M33 22l1.8 3.7 4 .5-3 2.8.8 4L33 31l-3.6 2 .8-4-3-2.8 4-.5z"/>'),
   streamers: gl('<path d="M8 10c6 0 6 8 12 8s6-8 12-8 6 8 8 8"/><path d="M8 26c6 0 6 8 12 8s6-8 12-8 6 8 8 8"/>'),
+  plates: gl('<circle cx="17" cy="16" r="9"/><circle cx="17" cy="16" r="2.5"/><circle cx="33" cy="32" r="7" fill="currentColor"/><circle cx="33" cy="32" r="2" fill="var(--bg)" stroke="none"/>'),
+  shock: gl('<polygon points="' + P(decPts(24, 24, 18)) + '" stroke-width="1.6"/><polygon points="' + P(decPts(24, 24, 11)) + '"/><polygon points="' + P(decPts(24, 24, 4)) + '" fill="currentColor"/>'),
+  fountain: gl('<path d="M24 42V22"/><path d="M24 22c-4-8-10-10-14-8M24 22c4-8 10-10 14-8" /><circle cx="10" cy="20" r="2" fill="currentColor"/><circle cx="38" cy="20" r="2" fill="currentColor"/><circle cx="24" cy="9" r="2.2" fill="currentColor"/><path d="M16 42h16"/>'),
   glitter: gl('<circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="30" cy="10" r="1.2" fill="currentColor"/><circle cx="22" cy="22" r="2.2" fill="currentColor"/><circle cx="36" cy="28" r="1.6" fill="currentColor"/><circle cx="14" cy="34" r="1.3" fill="currentColor"/><circle cx="28" cy="38" r="1.8" fill="currentColor"/>'),
   off: gl('<path d="M14 24h20"/>') };
 const INTRO_IC = {
@@ -1312,8 +1356,8 @@ const SHARE_URL = 'https://pdbp-hub.github.io/Fitter/';
 const SET_IC = {
   display:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>',
   progress:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19L9 12l4 3 8-9"/><path d="M15 6h6v6"/></svg>',
-  logic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 4H6l7 8-7 8h12"/></svg>',
-  data:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>',
+  logic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2.5" width="14" height="19"/><path d="M8 6.5h8v3H8z"/><path d="M8.5 13h1M11.5 13h1M14.5 13h1M8.5 16h1M11.5 16h1M14.5 16v2.5M8.5 18.5h4" stroke-linecap="square"/></svg>',
+  data:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2.5" width="10" height="19" rx="1.5"/><path d="M11 18.5h2"/><path d="M12 6.5v6M9.5 10l2.5 2.5 2.5-2.5"/></svg>',
   imprint:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 12h7M9 16h7"/></svg>',
   share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/></svg>',
   dev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>' };
@@ -1333,15 +1377,14 @@ function renderSettings() {
   let h = '';
   if (!setPage) {
     const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div>${CHEV}</button>`;
-    h = `<h1>${t('settings')}</h1><div>
-      ${item('profile', t('spProfile'), t('spProfileHint'), `<span class="avatar dec" style="width:48px;height:48px;font-size:17px">${esc(initials)}</span>`)}
+    h = `<button class="sprof" data-sp="profile"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>${S.name ? t('spProfile') + ' · ' : ''}Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
       ${item('display', t('spDisplay'), t('spDisplayHint'), sic('display'))}
       ${item('progress', t('spProgress'), t('spProgressHint'), sic('progress'))}
       ${item('logic', t('spLogic'), t('spLogicHint'), sic('logic'))}
       ${item('data', t('spData'), t('spDataHint'), sic('data'))}
       ${item('share', t('share'), t('shareHint'), sic('share'))}
       ${item('imprint', t('spImprint'), t('spImprintHint'), sic('imprint'))}</div>
-      ${ENV === 'dev' ? `<button class="devbtn" id="devtoggle">${SET_IC.dev}<span>${t('devShow')} ${devOpen ? '▴' : '▾'}</span></button>${devOpen ? `<div class="devtools"><button id="dev-onb">${t('devOnb')}</button><button id="dev-intro">${t('devIntro')}</button><button id="dev-celeb">${t('devCeleb')}</button></div>` : ''}` : ''}
+      ${ENV === 'dev' ? `<button class="devbtn" id="devtoggle">${SET_IC.dev}<span>${t('devShow')} ${devOpen ? '▴' : '▾'}</span></button>${devOpen ? `<div class="devtools"><button id="dev-onb">${t('devOnb')}</button><button id="dev-intro">${t('devIntro')}</button><button id="dev-celeb">${t('devCeleb')}</button><button id="dev-charts">Charts-Test</button></div>` : ''}` : ''}
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'profile') {
     h = head(t('spProfile')) + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"></div>
@@ -1396,12 +1439,13 @@ function renderSettings() {
   const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
   document.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { setPage = b.dataset.sp; renderSettings(); $('v-settings').scrollTop = 0; });
   on('dev-onb', showOnboarding);
-  on('dev-intro', () => { show('start'); requestAnimationFrame(() => playIntroSel()); });
+  on('dev-intro', () => previewIntro());
   on('devtoggle', () => { devOpen = !devOpen; renderSettings(); });
-  document.querySelectorAll('[data-intro]').forEach(b => b.onclick = () => { S.intro = b.dataset.intro; save(); if (S.intro !== 'off') { show('start'); requestAnimationFrame(() => playIntroSel()); } else renderSettings(); });
+  document.querySelectorAll('[data-intro]').forEach(b => b.onclick = () => { S.intro = b.dataset.intro; save(); if (S.intro !== 'off') previewIntro(); else renderSettings(); });
   on('copylink', copyLink); on('nativeshare', () => navigator.share({ title: 'TRAIN', url: SHARE_URL }).catch(() => {}));
   if (setPage === 'share') drawQR();
   on('dev-celeb', () => celebrate());
+  on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
   document.querySelectorAll('[data-celeb]').forEach(b => b.onclick = () => { S.celeb = b.dataset.celeb; renderSettings(); celebrate(); });
   on('spback', () => { setPage = null; renderSettings(); $('v-settings').scrollTop = 0; });
   on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));

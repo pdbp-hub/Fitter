@@ -1,23 +1,9 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **🔝 Feedback-Runde zu Dev v0.6.0 umsetzen (→ v0.7.0, nur Dev)** (2026-11-04)
-  - [ ] Onboarding Folie 1: „Alles bleibt auf deinem Gerät“ entfernen
-  - [ ] Onboarding Folie 2: Text „Zehneck antippen, Workout wählen, Start.“ (+ evtl. Spruch „Zeit für neue Personal Bests“); „LOS GEHT'S“ im Zehneck zentrieren; letzte Stufe nur Finger tippt START (kein „BEREIT?“-Tipp, keine Timer-Stufe)
-  - [ ] Onboarding Folie 3 (Anpassen): Mockup wie echte App (±-Stepper, Sätze), Übungstitel zeigen, Finger tippt wirklich „+ Übung hinzufügen“, neue Zeile „Seitheben“ wie echte Zeile (kein Extra-Kasten)
-  - [ ] Onboarding Folie 4 (Löschen): 1 Dips, 2 andere Push-Übung; Dips wischen → Löschen → weg, Übung 2 rutscht hoch und wird 1; dann Satz-✕ → Satz weg; fließend
-  - [ ] Startseite: „+X diese Woche“ ersetzen durch Level („Level 1 · Frischling“, gleicher Grauton); „Points“-Label etwas größer; Points antippbar erkennbar machen (Icon/Unterstrich, kein Kasten)
-  - [ ] Levels-Seite: umgekehrt (15 oben, 1 unten), Liga-Ansicht um aktuelles Level, scrollbar (schönere Darstellung vorschlagen)
-  - [ ] Einstellungen: Überschrift „Einstellungen“ weg; Profil-Kachel höher, nur Linie unten, Hauptelement; bessere Icons für Berechnungslogik (kein Σ) und Daten (keine Münzen); 3 weitere Celebrations (12 = 3×4); Intro-Vorschau spielt Intro und kehrt zu Einstellungen/Darstellung zurück (nicht zu Train)
-  - [ ] Navigation: Wischen vom linken Rand auf iPhone reparieren (Touch-Events); Tab-Logik: anderer Tab = dessen letzte Unterseite bleibt; gleicher Tab erneut = Tab-Startseite (alle 3 Tabs)
-  - [ ] Bereit-Bildschirm: „BEREIT?“ über dem Namen weg; Kopfzeile oben „Bereit?“ statt „Push Day“ (über Gesamtzeit); großer weißer Workout-Name + „Name ändern“ daneben
-  - [ ] Löschen-Dialog: „Nur heute löschen“ → „Nur für dieses Training“
-  - [ ] Erledigte Sätze zurücksetzen/neu machen können (mind. den letzten), z. B. in der Bearbeiten-Ansicht eines erledigten Satzes
-  - [ ] Review-Chart: Farblogik bei gemischt besser/schlechter vorschlagen (Linie wie Aktie vs. pro Satz vs. Säulen) + Dev-Werkzeug „Charts-Test“ (besser/schlechter/gemischt × Volumen/Wdh./Maximalkraft)
-  - [ ] Fortschritt: Überschrift „Fortschritt“ weg; erste Zeile volle Breite „Ich | Freunde“, gewähltes Segment etwas höher/betonte Umrandung
-- [ ] **Danach: Cloud-Modus** (Supabase EU, siehe `HANDOVER.md` → Briefing). Ben entscheidet Anmeldemethode (Empfehlung: E-Mail-Link ohne Passwort) und legt Supabase-Account an
+- [ ] **Ben:** Dev v0.7.0 testen → „freigeben“ für Live (enthält alles aus v0.6 + v0.7)
+- [ ] **🔝 Als Nächstes: Cloud-Modus** (Supabase EU, siehe `HANDOVER.md` → Briefing). Ben entscheidet Anmeldemethode (Empfehlung: E-Mail-Link ohne Passwort) und legt Supabase-Account an
 - [ ] **🔝 ALLERERSTES THEMA nächste Session: Points-Logik diskutieren** (Claude hat in Dev v0.4 einen mehrstufigen, schwer manipulierbaren Vorschlag eingebaut – siehe Einstellungen → Berechnungslogik)
-- [ ] **Ben:** Dev v0.6.0 testen → „freigeben“ für Live
 - [ ] **Ben:** Impressum mit echten Daten füllen (Platzhalter in Einstellungen → Impressum)
 - [ ] **Nächste Session – Diskussion (Claude bereitet Vorschläge vor):**
   - [ ] **Points-Logik**: Elo-ähnlich, nicht manipulierbar (kein Volumen-Hacking, Beinpresse ≠ wertvoller als Curls) – mehrere Ansätze vergleichen
@@ -85,6 +71,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.7.0** (2026-11-04): Onboarding-Folien 1–4 überarbeitet (echte App-Optik, Finger tippt genau, Löschen-Ablauf), Startseite Level statt „+X diese Woche“ + antippbare Points (Chevron), Level-Leiter (15 oben, scrollt zum aktuellen Level), Einstellungen ohne Überschrift mit großer Profil-Kachel, neue Icons Berechnungslogik/Daten, 3 neue Celebrations (Hantelscheiben, Druckwelle, Fontäne), Intro-Vorschau kehrt zu Darstellung zurück, Tabs merken Unterseite (gleicher Tab nochmal = Startseite), Rand-Wischen per Touch (iPhone), Bereit-Bildschirm neu, „Nur für dieses Training“, erledigten Satz zurücksetzen, Review-Chart: Linie = Gesamtvergleich, Punkte = pro Satz farbig, Dev „Charts-Test“, Fortschritt „Ich | Freunde“ volle Breite
 - [x] 2026-11-04 – Dev v0.6.0: Schriften lokal (kein Google mehr; Live bekommt sie beim nächsten Release), Level-System (15 Level mit Namen + Icons, Points antippen), Freunde-Vorschlag (Ich | Freunde im Fortschritt), Intro 2 mit großem „Los geht's“ an Zehneck-Position, Intro 3 (Riss) + Intro 4 (Spin), Onboarding mit vollem Start-Ablauf + 2 neuen Slides + Marketing-Texten, Umbenennen statt ✎, Workout per Wischen löschen, Übung/Satz „Nur heute“ vs. „Dauerhaft“, 19 neue Icons + Seil-Icon für Kabelzug, Sortieren fix breit, eigene Übung aufgeräumt, Review: Maximalkraft + Info-i, Legenden in Trendfarbe, kein „= 0 %“, heute markiert, Tageskarte unten abgegrenzt, Texte ohne lange Striche, Prognose-Erklärung mit Formel, Darstellung-Reihenfolge + Icons, Tab-Tipp = zurück, Wischen vom Rand = zurück
 - [x] 2026-11-04 – Dev v0.5.0: Onboarding mit animierten App-Mockups + kürzere Texte; Startseite: gleiche Schriftgrößen (Points/Diese Woche, +X/vs. Vorwoche), weniger Leerraum unten; Dev-Werkzeuge eingeklappt; Icons in Einstellungen; „Mit Freunden teilen“ (QR-Code lokal erzeugt, Link kopieren, Teilen-Menü); TRAIN-Tab öffnet immer die Train-Seite (Bug); ✕ im Aufwärmen, unterer Beenden-Button entfernt; Intro 2 (Schreibmaschine → weiß schrumpft ins Zehneck) + Intro-Auswahl; Pre-Workout/Protein-Sprüche
 - [x] 2026-11-03 – Dev v0.4.0: +25 Begrüßungen je Sprache, 30 Review-Sprüche (Tageszeit/Rekord), Startseite ruhiger + größere Wochenzahlen, Akzentfarben ▲▼ (Einstellung mit Vorschau), Intro-Animation, Celebration (8 Effekte + Aus), Onboarding-Story + gelbe Dev-Werkzeuge, Datenschutzerklärung (Entwurf), Points v2 (Vorschlag), ~70 Übungen + Filter/Sortieren + breiter „Eigene Übung“-Button, unbegrenzte Favoriten (horizontal scrollbar), Sätze einzeln planen + ✕ pro Satz, Übung per Wischen löschen, Abbrechen beim Aufwärmen, neuer Mini-Leisten-Übergang (10× getestet), Dialoge/Info mittig, App-eigenes Dropdown, Chart-Kopf-Bug, Kalender-Button mittig, 5 Icons überarbeitet

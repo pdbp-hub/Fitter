@@ -25,7 +25,9 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   page.on('pageerror', e => errors.push(e.message));
   let failed = 0;
   const check = (name, ok) => { console.log((ok ? '  ✓ ' : '  ✗ ') + name); if (!ok) failed++; };
-  const click = async sel => { await page.evaluate(q => { const el = document.querySelector(q); if (el && el.closest('.screen')) el.scrollIntoView({ block: 'center' }); }, sel).catch(() => {}); await page.click(sel, { force: true }); await page.waitForTimeout(120); };
+  const click = async sel => { await page.evaluate(q => { const el = document.querySelector(q); if (el && el.closest('.screen')) el.scrollIntoView({ block: 'center' }); }, sel).catch(() => {}); await page.click(sel, { force: true }); await page.waitForTimeout(120);
+    // tabs remember their sub page (v0.7): tap again to reach the tab's start page, which is what the tests expect
+    if (/^\[data-tab=/.test(sel) && !(await page.evaluate(() => { const v = document.querySelector('.screen:not([hidden])'); return !v || (v.id === 'v-start') || (v.id === 'v-settings' && !document.getElementById('spback')) || (v.id === 'v-progress' && !document.querySelector('.fr-me')); }))) { await page.click(sel, { force: true }); await page.waitForTimeout(120); } };
   const ev = fn => page.evaluate(fn);
   const settle = () => page.waitForTimeout(450); // Sheet-Animationen abwarten
 
@@ -145,7 +147,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=start]');
     check('Startseite: 3 Kennzahlen inkl. Minuten', await ev(() => document.querySelectorAll('.weekstats > div').length === 3 && /Minuten|Minutes/.test(document.querySelector('.weekstats').textContent)));
     check('„Diese Woche“ und „Points“ gleich groß', await ev(() => getComputedStyle(document.querySelector('.weekhead')).fontSize === getComputedStyle(document.querySelector('.ptsline strong')).fontSize));
-    check('„+X diese Woche“ und „vs. Vorwoche“ gleich groß', await ev(() => getComputedStyle(document.querySelector('.weekhead small')).fontSize === getComputedStyle(document.querySelector('.ptsline small')).fontSize));
+    check('Startseite zeigt Level statt „+X diese Woche“', await ev(() => /^Level \d+ · /.test(document.querySelector('.ptsline small').textContent)));
     check('Startseite scrollt weiterhin nicht', await ev(() => { const s = document.getElementById('v-start'); return s.scrollHeight <= s.clientHeight; }));
     await click('#go'); await click('.witem'); await settle();
     const before = await ev(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts[0].ex[0][1]);
@@ -275,7 +277,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await back();
     await sp('display');
     check('Intro-Auswahl (4 Intros + Aus)', await ev(() => document.querySelectorAll('[data-intro]').length === 5));
-    check('Akzentfarben + Celebration unter Darstellung', await ev(() => document.querySelectorAll('[data-acc]').length === 2 && document.querySelectorAll('[data-celeb]').length === 9));
+    check('Akzentfarben + Celebration unter Darstellung', await ev(() => document.querySelectorAll('[data-acc]').length === 2 && document.querySelectorAll('[data-celeb]').length === 12));
     await back(); await sp('data');
     check('Datenschutzerklärung unter Daten', !!(await page.$('[data-sp="privacy"]')));
     await back(); await sp('logic');
@@ -314,12 +316,12 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Heute markiert in der Tagesleiste', await ev(() => /Heute|Today/.test(document.querySelector('[data-day="0"] small').textContent)));
     await click('[data-ptab="friends"]');
     check('Freunde-Vorschlag im Fortschritt', await ev(() => document.querySelectorAll('.fr-row').length === 3 && !!document.getElementById('fr-invite')));
-    check('Fortschritt-Kopf passt in die Breite (REGRESSION)', await ev(() => { const v = document.getElementById('v-progress'); return v.scrollWidth <= v.clientWidth + 1 && document.querySelector('#v-progress h1').getBoundingClientRect().left >= 0; }));
+    check('Fortschritt-Kopf passt in die Breite (REGRESSION)', await ev(() => { const v = document.getElementById('v-progress'); return v.scrollWidth <= v.clientWidth + 1 && document.querySelector('#v-progress .pseg').getBoundingClientRect().left >= 0; }));
     await click('[data-ptab="me"]');
     await click('[data-tab=settings]'); await sp('display');
     check('Trend-Farben direkt unter der Überschrift', await ev(() => { const h = [...document.querySelectorAll('#v-settings b')].find(b => /Trend/.test(b.textContent)); const nx = h.parentElement.nextElementSibling; return nx && !!nx.querySelector('[data-trc]'); }));
     check('5 Intros mit eigenen Icons', await ev(() => document.querySelectorAll('[data-intro] svg').length === 5));
-    check('Celebrations mit eigenen Icons', await ev(() => new Set([...document.querySelectorAll('[data-celeb] svg')].map(s => s.innerHTML)).size === 9));
+    check('Celebrations mit eigenen Icons', await ev(() => new Set([...document.querySelectorAll('[data-celeb] svg')].map(s => s.innerHTML)).size === 12));
     await click('[data-acc="1"]');
     check('Akzent-Vorschau „Neutral“ bleibt weiß (REGRESSION)', await ev(() => { const e = document.querySelector('[data-acc="0"] .dl.up'); return getComputedStyle(e).color === getComputedStyle(document.getElementById('app')).getPropertyValue('--fg').trim() || !/rgb\(53, 196, 106\)/.test(getComputedStyle(e).color); }));
     await click('[data-acc="0"]');
@@ -340,6 +342,41 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await fp.waitForTimeout(6000);
     check('Intro 2 endet im Start-Zehneck', await fp.evaluate(() => !document.getElementById('intro') && getComputedStyle(document.getElementById('go')).visibility === 'visible'));
     await fresh.close();
+  }
+
+  if (TARGET) {
+    console.log('Neu in v0.7');
+    const vis = id => ev(new Function(`return !document.getElementById('${id}').hidden`));
+    if (await page.$('#overlay:not([hidden])')) await click('[data-db="0"]');
+    await click('[data-tab=settings]');
+    check('Einstellungen: keine Überschrift, Profil-Kachel oben', await ev(() => !document.querySelector('#v-settings h1') && !!document.querySelector('#v-settings .sprof')));
+    await click('[data-sp="display"]'); await page.click('[data-tab=progress]', { force: true }); await page.waitForTimeout(150); await page.click('[data-tab=settings]', { force: true }); await page.waitForTimeout(150);
+    check('Tab-Wechsel behält Unterseite (Einstellungen › Darstellung)', await ev(() => !!document.querySelector('[data-intro]')));
+    await page.click('[data-tab=settings]', { force: true }); await page.waitForTimeout(150);
+    check('Gleichen Tab nochmal = Startseite des Tabs', await ev(() => !!document.querySelector('#v-settings .sprof')));
+    check('Fortschritt: „Ich | Freunde“ volle Breite, keine Überschrift', await (async () => { await click('[data-tab=progress]'); return ev(() => { const g = document.querySelector('#v-progress .pseg'), v = document.querySelector('#v-progress .inner'); return !document.querySelector('#v-progress h1') && g.getBoundingClientRect().width > v.getBoundingClientRect().width - 40; }); })());
+    await click('[data-tab=settings]'); await click('[data-sp="display"]'); await page.evaluate(() => document.querySelector('[data-intro="spin"]').click()); await page.waitForTimeout(2600);
+    check('Intro-Vorschau kehrt zu Einstellungen › Darstellung zurück', await ev(() => !document.getElementById('v-settings').hidden && !!document.querySelector('[data-intro]')));
+    await click('#spback'); if (!(await page.$('#dev-charts'))) await click('#devtoggle');
+    await click('#dev-charts'); await settle();
+    check('Dev: Charts-Test zeigt 4 Fälle', await ev(() => document.querySelectorAll('#obody svg.chart').length === 4));
+    await click('#o-back'); await settle();
+    await click('[data-tab=start]'); await click('#ptsbtn'); await settle();
+    check('Level-Leiter: 15 oben, aktuelles Level sichtbar', await ev(() => { const r = document.querySelectorAll('#ladder .lvl-row'), lad = document.getElementById('ladder'), c = lad.querySelector('.cur').getBoundingClientRect(), b = lad.getBoundingClientRect(); return r.length === 15 && /^15/.test(r[0].querySelector('b').textContent.trim()) && c.top >= b.top - 1 && c.bottom <= b.bottom + 1; }));
+    await click('#o-back'); await settle();
+    await click('#go'); await click('.witem'); await settle();
+    check('Bereit: Kopfzeile „Bereit?“, Name groß mit „Name ändern“ daneben', await ev(() => /Bereit|Ready/.test(document.querySelector('.wtop .eyebrow').textContent) && !!document.querySelector('.rtitle #wtitle') && !!document.querySelector('.rtitle #wrename')));
+    await click('#startbtn'); await click('#warmdone'); await click('#mainact'); await click('#mainact');
+    check('Satz erledigt', await ev(() => W.ex[W.cur].sets.length === 1));
+    await click('[data-edit="0:0"]');
+    check('Erledigter Satz: „zurücksetzen und neu machen“ vorhanden', !!(await page.$('[data-redo]')));
+    await click('[data-redo]');
+    check('Satz zurückgesetzt: wieder Satz 1 offen', await ev(() => W.ex[0].sets.length === 0 && W.cur === 0 && W.phase === 'rest'));
+    await page.evaluate(() => document.querySelector('[data-tsx]').click()); await page.waitForTimeout(200);
+    check('Löschen-Dialog: „Nur für dieses Training“', await ev(() => /Nur für dieses Training|Only for this session/.test(document.getElementById('overlay').textContent)));
+    await click('[data-db="0"]'); await click('#endbtn'); await page.waitForTimeout(150);
+    await page.evaluate(() => { const b = [...document.querySelectorAll('#overlay button')].pop(); b.click(); }); await page.waitForTimeout(200);
+    if (await page.$('#overlay:not([hidden])')) await page.evaluate(() => [...document.querySelectorAll('#overlay button')][1].click()); await settle();
   }
 
   if (!TARGET) {

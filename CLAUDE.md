@@ -26,7 +26,7 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
 - **Info-i** öffnen immer ein Fenster **mittig** auf dem Bildschirm mit ✕ (kein Aufklappen im Seiteninhalt, nur ein Info-i pro Element – oben am Titel). Alle Dialoge/Overlays erscheinen **mittig**, nie unten.
 - **Onboarding pflegen**: Kommt ein zentrales Feature dazu oder ändert sich die Bedienung, die Onboarding-Story (`ONBOARDING` in `app.js`) aktualisieren. In Dev unter Einstellungen → gelbe Dev-Werkzeuge ansehbar. Visuals sind kleine animierte App-Mockups (`onbVisual`), keine Deko-Zehnecke.
 - **Texte**: keine langen Gedankenstriche („ – “) und keine dünnen Pfeile („→“) in UI-Texten. Navigation-Pfeile als dicke Chevrons (`CHEV`). Maximalkraft-Erklärung nur aus `info1rm` (überall gleich).
-- **Navigation**: Tab in der Menüleiste antippen = zurück zur Startseite des Tabs. Wischen vom linken Bildschirmrand = zurück (`goBack`).
+- **Navigation**: Anderen Tab antippen = dort weiter, wo man war (Unterseite bleibt). Gleichen Tab nochmal antippen = Startseite des Tabs. Wischen vom linken Bildschirmrand = zurück (`goBack`).
 - **Bedienkonventionen**: Übung löschen = nach links wischen (rote Fläche + Nachfrage). Satz löschen = ✕ in der Satzzeile (+ Nachfrage). Beim Löschen immer wählen lassen: „Nur heute“ oder „Dauerhaft aus <Workout>“. Workout löschen = in der Liste nach links wischen. Letzter Satz weg → Übung weg.
 - **Go-Live-Checkliste** (in `TODO.md`): Sobald Ben die App teilen oder live gehen will → zuerst die Checkliste prüfen und offene Punkte (Impressum, Datenschutz, getrennte Test-/Live-Version …) ansprechen, bevor es weitergeht.
 
