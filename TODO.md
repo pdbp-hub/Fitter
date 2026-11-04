@@ -1,6 +1,20 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Finale Feedback-Runde zu Dev v0.8.0 (→ v0.9.0)** (2026-11-04)
+  - [ ] Onboarding: Folie 2 Finger tippt wieder GO; Folie 3 Seitheben nicht abgeschnitten, darunter seine Sätze statt „Übung hinzufügen“; Folie 4 „Löschen“ mittig in Rot, „0/3“ mit Abstand zum Rand
+  - [ ] Intros: nach jeder Vorschau der Zehneck-Morph in den Einstellungen-Tab; Intro 2: „Los geht's“ steht genau wie im Zehneck (zweizeilig, gleiche Stelle)
+  - [ ] Zurück-Wischen: Seite bewegt sich nur waagerecht; dahinter ist schon die vorige Seite zu sehen (z. B. Einstellungen)
+  - [ ] Profil: Einstellungen oben = dasselbe Profil wie bei Freunde (ansehen + „Profil bearbeiten“); neuer Punkt „Persönliche Daten“ (Körpergewicht, Alter, mitzählen, Account); Name + @Benutzername in zweiter Zeile (nicht editierbar, kommt mit Account + Kennwort, vorerst @test); Lieblingsübungen = Stern-Favoriten, Auswahl der 3 PBs + Sichtbarkeits-Toggles in „Profil bearbeiten“; mehr Toggles; Icons bei Diese Woche/Personal Bests/Letztes Training
+  - [ ] Einstellungen: Prognose-Einstellungen in Darstellung verschieben; Berechnungslogik-Untertitel kürzer
+  - [ ] Level-Seite: Kopf schrumpft kontinuierlich ab dem ersten Scrollen (Icon wandert nach links); aktueller Level-Kasten: Icon nicht abgeschnitten, Inhalt nach rechts
+  - [ ] Review nicht abgeschlossen + runtergewischt: Mini-Leiste zeigen statt verstecktem Review hinter dem Zehneck
+  - [ ] Bereit: „Name ändern“ oben bündig mit Name; Übung aufgeklappt mit +/− wie im Training
+  - [ ] Wisch-Löschen: nicht weiter ziehen als die rote Fläche („Löschen“ bleibt mittig)
+  - [ ] „Satz beenden / → nächste Übung“ sauber zentriert
+  - [ ] Startseite: „=“ durch „±0“ ersetzen; dreistellige Prozente dürfen nichts überlappen (Test)
+  - [ ] Fortschritt: etwas weniger Abstand Überschrift ↔ „Ich | Freunde“; Umschalter randlos über volle Bildschirmbreite mit Personen-Icons
+  - [ ] Review-Charts: Linie zu einem Punkt hat die Farbe dieses Punkts; Charts-Test mit 4 Sätzen
 - [ ] **Ben:** Dev v0.8.0 testen → „freigeben“ für Live (enthält alles aus v0.6 bis v0.8)
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
