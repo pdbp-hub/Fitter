@@ -1,8 +1,21 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Feedback-Runde zu Dev v0.7.0 (→ v0.8.0)** (2026-11-04)
+  - [ ] Intro 2: 3-zeilige Begrüßung überlappt „Los geht's“ (höher starten); lange Wörter („Mitternachts-Gains.“) laufen rechts raus
+  - [ ] Intro 3: lange Wörter laufen raus; weiße Fläche deckt unten die Menüleiste nicht ab
+  - [ ] Intro-Vorschau: Startseite etwas länger zeigen und mit passendem Übergang zurück zu Einstellungen (Spin dreht raus, Riss zerreißt, 1 + 2 eigener Morph)
+  - [ ] Startseite: „Diese Woche“ wieder einzeilig, „vs. Vorwoche“ wieder in einer Zeile (ungewollte Änderung aus v0.7 zurücknehmen)
+  - [ ] Level-Seite: nur eine Sache scrollt; beim Scrollen schrumpft der Kopf (Icon nach links, Titel klein), alle Level bis 1 sichtbar
+  - [ ] „Testdaten neu erzeugen“ aus Daten raus, nur in Dev-Werkzeugen
+  - [ ] Zurück-Wischen: Seite folgt dem Finger und gleitet raus (kein Springen)
+  - [ ] Einstellungen: Überschrift zurück, dicke weiße Linie, Profil-Kachel (breiter), dicke weiße Linie, dann Einträge
+  - [ ] Fortschritt: Überschrift zurück, darunter mit Abstand „Ich | Freunde“, gewähltes Segment nur minimal hervorstehend; Abstand unter „Ganzer Kalender“ = Abstand unter Viererkachel
+  - [ ] Freunde: „Du“-Zeile mit Profilbild (vorerst Buchstabe); „Freunde finden“ (Suche per @Benutzername + QR-Code) statt „Mit Freunden teilen“; Freunde-Zeilen zeigen letztes Workout (z. B. Push Day gestern); Freunde-Profile antippbar (Level, Personal Bests der Lieblingsübungen, Woche als Zehneck-Kacheln: Workouts, bewegt, Minuten)
+  - [ ] Profil: Anzeigename änderbar, @Benutzername nur einmal festlegbar, Lieblingsübungen für Personal Bests, Sichtbarkeit (was Freunde sehen), Vorschau „so sehen dich andere“
+  - [ ] Übungs-Icons: Rückenstrecker, Reverse Fly, Russian Twists (Person statt Kurzhantel), Schrägbankdrücken (Person auf Schrägbank)
 - [ ] **Ben:** Dev v0.7.0 testen → „freigeben“ für Live (enthält alles aus v0.6 + v0.7)
-- [ ] **🔝 Als Nächstes: Cloud-Modus** (Supabase EU, siehe `HANDOVER.md` → Briefing). Ben entscheidet Anmeldemethode (Empfehlung: E-Mail-Link ohne Passwort) und legt Supabase-Account an
+- [ ] **🔝 Danach: Cloud-Modus** (erstes To-do: Freunde finden/folgen live schalten) (Supabase EU, siehe `HANDOVER.md` → Briefing). Ben entscheidet Anmeldemethode (Empfehlung: E-Mail-Link ohne Passwort) und legt Supabase-Account an
 - [ ] **🔝 ALLERERSTES THEMA nächste Session: Points-Logik diskutieren** (Claude hat in Dev v0.4 einen mehrstufigen, schwer manipulierbaren Vorschlag eingebaut – siehe Einstellungen → Berechnungslogik)
 - [ ] **Ben:** Impressum mit echten Daten füllen (Platzhalter in Einstellungen → Impressum)
 - [ ] **Nächste Session – Diskussion (Claude bereitet Vorschläge vor):**
