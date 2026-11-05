@@ -1081,23 +1081,30 @@ function renderProgress() {
   const last30 = HISTORY.filter(h => h.ago < 30);
   const vol30 = last30.reduce((a, h) => a + sessVol(h), 0), min30 = last30.reduce((a, h) => a + trainMin(h), 0);
   if (progTab === 'friends') { renderFriends(); return; }
+  const wkS = weekStats(), min7 = HISTORY.filter(h => h.ago < 7).reduce((a, h) => a + trainMin(h), 0), last7 = HISTORY.filter(h => h.ago < 7), vol7 = last7.reduce((a, h) => a + sessVol(h), 0), de = S.lang === 'de';
+  const hm = m => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
   $('v-progress').innerHTML = `<div class="inner">
-    <h1 class="progh1">${t('progress')}</h1>${progSwitch()}
-    <div class="sect" style="border-top:0;padding-top:0">
+    ${progSwitch()}
+    <div class="sect sect-hist" style="border-top:0;padding-top:0">
       <h2 class="hic">${SIC.cal}${t('history')}</h2>
       ${calOpen ? calHTML() : `<div class="strip-wrap"><div class="strip" id="strip">${Array.from({length:90}, (_, i) => dayTile(89 - i)).join('')}</div><button class="today-btn" id="todaybtn" hidden>${t('today')}</button></div>`}
       <button class="calbtn" id="calbtn">${calOpen ? t('lessCal') : t('fullCal')}</button>
       <div id="daycard">${dayCard()}</div>
     </div>
-    <div class="sect"><h2 class="hic">${SIC.hist}${t('last30')}</h2>
-      <div class="statgrid num"><div><b>${last30.length}</b><span>${t('wCount')}</span></div><div><b>${volTxt(vol30)}</b><span>${t('movedW')}</span></div><div><b>${Math.floor(min30/60)} h ${min30%60} min</b><span>${t('trainTime')}</span></div><div><b>${prCount(30)}</b><span>${t('prs')}</span></div></div></div>
-    <div class="sect"><h2 class="hic">${SIC.ex}${t('forEx')}</h2>
+    <div class="sect"><h2 class="hic">${SIC.ex}${de ? 'Analyse' : 'Analysis'}</h2>
       <button class="exsel" id="exsel"><b>${esc(exName(S.chartKey))}</b><span class="drop">▼</span></button>
       ${S.fav.length ? `<div class="favs">${S.fav.map(k => `<button class="fav ${k===S.chartKey?'on':''}" data-ck="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
       <div id="charts"></div>
     </div>
-    <div class="sect"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div></div>
+    <div class="sect"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div>${pbCount() > 5 ? `<button class="calbtn" id="pball">${pbAll ? (de ? 'Weniger ▴' : 'Less ▴') : (de ? `Alle ${pbCount()} anzeigen ▾` : `Show all ${pbCount()} ▾`)}</button>` : ''}</div>
+    <div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Rückblick' : 'Recap'}</h2>
+      <div class="recap num"><span></span><span>${de ? '7 Tage' : '7 days'}</span><span>${de ? '30 Tage' : '30 days'}</span>
+        <span>${t('wCount')}</span><b>${last7.length}</b><b>${last30.length}</b>
+        <span>${t('movedW')}</span><b>${volTxt(vol7)}</b><b>${volTxt(vol30)}</b>
+        <span>${t('trainTime')}</span><b>${hm(min7)}</b><b>${hm(min30)}</b>
+        <span>${t('prs')}</span><b>${prCount(7)}</b><b>${prCount(30)}</b></div></div>
   </div>`;
+  $('pball') && ($('pball').onclick = () => { pbAll = !pbAll; renderProgress(); });
   bindProgSwitch();
   $('calbtn').onclick = () => { calOpen = !calOpen; renderProgress(); };
   $('exsel').onclick = openPicker;
@@ -1110,7 +1117,7 @@ function renderProgress() {
   renderCharts();
 }
 const PIC1 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5"/></svg>', PIC2 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8.5" r="3.2"/><path d="M2.5 20.5c0-3.9 2.9-6.6 6.5-6.6s6.5 2.7 6.5 6.6"/><circle cx="16.5" cy="7" r="2.7"/><path d="M15.6 12.4c3.4-.4 6 2 6 5.6"/></svg>';
-const progSwitch = () => `<div class="seg pseg"><button data-ptab="me" class="${progTab === 'me' ? 'on' : ''}">${PIC1}${S.lang === 'de' ? 'Ich' : 'Me'}</button><button data-ptab="friends" class="${progTab === 'friends' ? 'on' : ''}">${PIC2}${S.lang === 'de' ? 'Freunde' : 'Friends'}</button></div>`;
+const progSwitch = () => `<div class="ptabs"><button data-ptab="me" class="${progTab === 'me' ? 'on' : ''}">${PIC1}${S.lang === 'de' ? 'Ich' : 'Me'}</button><button data-ptab="friends" class="${progTab === 'friends' ? 'on' : ''}">${PIC2}${S.lang === 'de' ? 'Freunde' : 'Friends'}</button></div>`;
 function bindProgSwitch() { document.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { progTab = b.dataset.ptab; renderProgress(); $('v-progress').scrollTop = 0; }); }
 const initialsOf = n => ((n || '').trim().split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
 // sample friends until the cloud mode exists
@@ -1128,7 +1135,7 @@ function myProfile() { const pts = totalPts(), wk = weekStats(), h = [...HISTORY
 const avatarHTML = (name, size) => `<span class="avatar dec" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .34)}px">${esc(initialsOf(name))}</span>`;
 function renderFriends() {
   const de = S.lang === 'de', me = myProfile();
-  $('v-progress').innerHTML = `<div class="inner"><h1 class="progh1">${t('progress')}</h1>${progSwitch()}
+  $('v-progress').innerHTML = `<div class="inner">${progSwitch()}
     <button class="fr-me" id="fr-me">${avatarHTML(me.name, 52)}<div><b>${esc(me.name)}</b><small>${me.user ? '@' + esc(me.user) + ' · ' : ''}Level ${me.lv + 1} · ${esc(LEVELS[me.lv][S.lang])} · ${fmt(me.pts)} Points</small></div>${CHEV}</button>
     <div class="fr-cta"><b>${de ? 'Freunde folgen, Level vergleichen' : 'Follow friends, compare levels'}</b><p class="hint">${de ? 'Kommt mit dem Cloud-Modus: Folge Freunden, sieh ihre Level, Rekorde und letzten Trainings.' : 'Coming with cloud sync: follow friends, see their levels, records and recent sessions.'}</p><button class="mainbtn" id="fr-find">${de ? 'Freunde finden' : 'Find friends'}</button></div>
     <div class="sect"><div class="row"><h2>${de ? 'Vorschau' : 'Preview'}</h2><span class="eyebrow">${de ? 'Beispieldaten' : 'Sample data'}</span></div>
@@ -1189,9 +1196,11 @@ function calHTML() {
     g += ago < 0 ? `<button disabled style="opacity:.3">${dd}</button>` : `<button class="${h?'on':''} ${ago===0?'today':''} ${selDay===ago?'sel':''}" data-day="${ago}">${dd}</button>`; }
   return `<div style="display:flex;flex-direction:column;gap:10px"><div class="row"><button class="iconbtn" id="calprev" aria-label="zurück" style="width:36px;height:36px;font-size:16px">‹</button><b>${m.toLocaleDateString(loc(), { month:'long', year:'numeric' })}</b><button class="iconbtn" id="calnext" aria-label="vor" style="width:36px;height:36px;font-size:16px;${calMonth<0?'':'opacity:.3'}">›</button></div><div class="calgrid">${g}</div></div>`;
 }
+let pbAll = false;
+const pbCount = () => Object.keys(EX).filter(k => sessionsFor(k).some(s => s.best > 0)).length;
 function pbHTML() {
   return Object.keys(EX).map(k => { const ss = sessionsFor(k).filter(s => s.best > 0); if (!ss.length) return null; const b = ss.reduce((x, y) => y.best > x.best ? y : x); const s = b.sets.reduce((x, y) => e1rm(effW(k, y.w), y.r) > e1rm(effW(k, x.w), x.r) ? y : x); return { k, ago:b.ago, w:s.w, r:s.r, best:b.best }; })
-    .filter(Boolean).sort((a, b) => a.ago - b.ago).slice(0, 6).map(p => `<div class="pb"><b>${esc(exName(p.k))}</b><span class="pw num">${esc(wLabel(p.k, p.w))} × ${p.r}</span><small>${dShort(dayDate(p.ago))}</small><small>${t('approx', fmt(Math.round(p.best)))}</small></div>`).join('');
+    .filter(Boolean).sort((a, b) => a.ago - b.ago).slice(0, pbAll ? 999 : 5).map(p => `<div class="pb"><b>${esc(exName(p.k))}</b><span class="pw num">${esc(wLabel(p.k, p.w))} × ${p.r}</span><small>${dShort(dayDate(p.ago))}</small><small>${t('approx', fmt(Math.round(p.best)))}</small></div>`).join('');
 }
 function renderCharts() {
   const k = S.chartKey; const ss = sessionsFor(k).slice(0, 12).reverse();
@@ -1482,7 +1491,7 @@ function celebrate(kind = S.celeb) {
   };
   requestAnimationFrame(step);
 }
-let setPage = null, devOpen = false;
+let setPage = null, devOpen = false, faqOpen = null;
 // ================= Seasons (Weihnachten, Ostern) =================
 // live: docs/season.json decides for every user; dev: a local preview can override it
 const SEASONS = { xmas: { de:'Weihnachten', en:'Christmas' }, easter: { de:'Ostern', en:'Easter' } };
@@ -1781,7 +1790,7 @@ function renderSettings() {
   } else if (setPage === 'help') {
     const de = S.lang === 'de';
     h = head(de ? 'Hilfe' : 'Help') + `<button class="mainbtn" id="help-onb">${de ? 'Einführung ansehen' : 'Watch the intro'}</button>
-      <div><b>${de ? 'Häufige Fragen' : 'FAQ'}</b></div><div>${FAQ[S.lang].map(([q], j) => `<button class="setrow sprow" data-faq="${j}"><div style="flex:1;text-align:left"><b>${esc(q)}</b></div>${CHEV}</button>`).join('')}</div>`;
+      <div><b>${de ? 'Häufige Fragen' : 'FAQ'}</b></div><div>${FAQ[S.lang].map(([q, a], j) => `<div class="faq ${faqOpen === j ? 'open' : ''}"><button class="faq-q" data-faq="${j}"><b>${esc(q)}</b>${CHEV}</button>${faqOpen === j ? `<div class="faq-a"><p>${a}</p>${j === 4 ? `<div class="faq-vis">${onbVisual('train')}</div>` : ''}</div>` : ''}</div>`).join('')}</div>`;
   } else if (setPage === 'dev') {
     h = head(t('devTools')) + devHTML();
   } else if (setPage === 'general') {
@@ -1848,7 +1857,7 @@ function renderSettings() {
   document.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { setPage = b.dataset.sp; renderSettings(); $('v-settings').scrollTop = 0; });
   on('help-onb', () => showOnboarding(true));
   on('pushtog', () => setPush(!S.push));
-  document.querySelectorAll('[data-faq]').forEach(b => b.onclick = () => { const [q, a] = FAQ[S.lang][+b.dataset.faq]; showInfo(`<b>${esc(q)}</b><p>${a}</p>`); });
+  document.querySelectorAll('[data-faq]').forEach(b => b.onclick = () => { const j = +b.dataset.faq; faqOpen = faqOpen === j ? null : j; const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; });
   if (setPage === 'dev') bindDev();
   document.querySelectorAll('[data-intro]').forEach(b => b.onclick = () => { S.intro = b.dataset.intro; save(); if (S.intro !== 'off') previewIntro(); else renderSettings(); });
   on('copylink', copyLink); on('nativeshare', () => navigator.share({ title: 'TRAIN', url: SHARE_URL }).catch(() => {}));

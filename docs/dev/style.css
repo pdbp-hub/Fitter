@@ -886,3 +886,24 @@ body:has(#onb) .overlay, body:has(#inst) .overlay { z-index: 96; }
 .logic2 .logic p { color: var(--fg); font-size: 14px; line-height: 1.45; margin: 4px 0 0; }
 .logic2 .logic p b { font-weight: 800; }
 .sph1 { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: normal; }
+/* v0.11 progress tab: "Ich | Freunde" as the page heading */
+.ptabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); margin-top: -4px; }
+.ptabs button { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 0 14px; font-family: var(--display); font-stretch: 112%; font-weight: 900; font-size: 26px; text-transform: uppercase; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.ptabs button svg { width: 22px; height: 22px; flex: none; }
+.ptabs button.on { color: var(--fg); border-bottom-color: var(--fg); }
+.sect-hist { gap: 12px; margin-bottom: -12px; }
+.sect-hist .day { padding: 6px 2px; gap: 2px; }
+.sect-hist .day b { font-size: 16px; }
+.recap { display: grid; grid-template-columns: 1.3fr 1fr 1fr; align-items: baseline; }
+.recap > * { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.recap > span:nth-child(-n+3) { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding-top: 0; }
+.recap > span { font-size: 13px; color: var(--muted); }
+.recap b { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 20px; text-align: right; }
+.recap > span:nth-child(2), .recap > span:nth-child(3) { text-align: right; }
+/* FAQ */
+.faq { border-bottom: 1px solid var(--line); }
+.faq-q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0; text-align: left; }
+.faq-q .chev { transform: rotate(90deg); transition: transform .2s; }
+.faq.open .faq-q .chev { transform: rotate(-90deg); }
+.faq-a { padding: 0 0 16px; } .faq-a p { margin: 0; font-size: 14px; line-height: 1.5; }
+.faq-vis { margin-top: 14px; }
