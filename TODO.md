@@ -1,6 +1,16 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Runde 2026-11-05 (→ v0.10.0)**
+  - [ ] Bug: Beim App-Start (nicht in der Vorschau) springt das weiße Zehneck nach dem Intro ein Stück nach unten (alle Intros)
+  - [ ] Onboarding: Folie 2 oberes Zehneck nicht mittig über den GO-Zehnecken; Zurück per Wischen (und Pfeiltasten); „Überspringen“ mit Rückfrage + Hinweis auf Einstellungen › Hilfe; Folie 4 „Löschen“ mittig im Rot + Finger tippt auf Löschen
+  - [ ] Einstellungen › **Hilfe** (für alle): Einführung erneut ansehen (mit ✕ + Rückfrage), FAQ (Grundgerüst)
+  - [ ] Dev-Werkzeuge als eigener Menüpunkt statt Aufklapper
+  - [ ] **Installations-Anleitung im Browser**: wird die App im Browser (nicht vom Homescreen) geöffnet → Willkommen-Overlay mit Zehneck, „App installieren“, Anleitung iPhone / Android Schritt für Schritt (animiert). Dev-Werkzeug: Link/Vorschau dieser Ansicht
+  - [ ] **Seasons**: Weihnachten (Schnee, Mütze aufs Zehneck, Weihnachts-Lade-Animation, Review-Design …) und Ostern (Hasen, Eier …), in Dev an/aus; „Live schalten für alle“ mit Rückfrage. Bei jedem Redesign die Season-Designs mitpflegen
+  - [ ] **Live-Version aus der Dev-App wählen** (Versionsverlauf-Dropdown, auch zurückrollen) – Umsetzung braucht Schreibzugriff (Entscheidung Ben: GitHub-Schlüssel vs. nach Cloud)
+  - [ ] **Push-Benachrichtigungen**: Nutzer-Schalter in Einstellungen; Dev-Werkzeug: eigene Nachricht an alle senden, automatische Motivation nach X Tagen Inaktivität, Sprüche-Liste bearbeitbar (Versand braucht Server → mit Cloud)
+  - [ ] Cloud: Pro/Contra, Limits, Kosten, Nutzerzahlen, Datenstruktur sparsam, Sicherheit E-Mails erklären
 - [ ] **Ben:** Dev v0.9.0 testen → „freigeben“ für Live (enthält alles aus v0.6 bis v0.9)
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben

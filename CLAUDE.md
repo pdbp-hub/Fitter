@@ -24,6 +24,7 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
   - Bei jeder Dev-Änderung `CACHE` in `docs/dev/sw.js` und `APP_VERSION` in `docs/dev/app.js` hochzählen.
 - **Nur das ändern, was Ben angefragt hat.** Alles andere bleibt exakt wie es ist (keine „Nebenbei-Verbesserungen“), damit keine Features verschwinden und keine neuen Bugs entstehen. Eigene Verbesserungsideen nur vorschlagen, nicht einbauen.
 - **Info-i** öffnen immer ein Fenster **mittig** auf dem Bildschirm mit ✕ (kein Aufklappen im Seiteninhalt, nur ein Info-i pro Element – oben am Titel). Alle Dialoge/Overlays erscheinen **mittig**, nie unten.
+- **Seasons pflegen**: Bei jedem Redesign die Season-Designs (Weihnachten, Ostern) mit anpassen.
 - **Onboarding pflegen**: Kommt ein zentrales Feature dazu oder ändert sich die Bedienung, die Onboarding-Story (`ONBOARDING` in `app.js`) aktualisieren. In Dev unter Einstellungen → gelbe Dev-Werkzeuge ansehbar. Visuals sind kleine animierte App-Mockups (`onbVisual`), keine Deko-Zehnecke.
 - **Texte**: keine langen Gedankenstriche („ – “) und keine dünnen Pfeile („→“) in UI-Texten. Navigation-Pfeile als dicke Chevrons (`CHEV`). Maximalkraft-Erklärung nur aus `info1rm` (überall gleich).
 - **Navigation**: Anderen Tab antippen = dort weiter, wo man war (Unterseite bleibt). Gleichen Tab nochmal antippen = Startseite des Tabs. Wischen vom linken Bildschirmrand = zurück (`goBack`).
