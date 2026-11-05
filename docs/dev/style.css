@@ -862,3 +862,27 @@ body:has(#onb) .overlay, body:has(#inst) .overlay { z-index: 96; }
 .ghwarn { width: 100%; background: #c8322b; color: #fff; text-align: left; padding: 12px 14px; font-size: 13px; font-weight: 700; line-height: 1.35; }
 .ghred { color: #ff6b63 !important; }
 .pinin { width: 100%; margin-top: 12px; background: var(--surface); border: 0; border-bottom: 2px solid var(--fg); color: var(--fg); text-align: center; font-family: var(--display); font-weight: 900; font-size: 28px; letter-spacing: .4em; padding: 8px 0; }
+/* v0.11 onboarding fixes */
+.om-row .om-gow { flex: none; width: 26px; }
+.om-delx .om-del { display: flex; justify-content: flex-end; align-items: stretch; padding: 0; }
+.om-delx .om-dl { flex: 0 0 58px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 900; letter-spacing: .04em; animation: om-press 7s infinite; }
+.om-delx > .om-finger.ff { margin: 0; z-index: 4; }
+.om-delx > .fd1 { left: 100px; top: 13px; }
+.om-delx > .fd2 { left: 114px; top: 13px; }
+.om-delx > .fx { left: 131px; top: 69px; }
+/* v0.11 settings */
+.sprof-top { margin-top: -6px; }
+.tog-green .toggle[aria-checked="true"] { background: #2ec55e; border-color: #2ec55e; }
+.tog-green .toggle[aria-checked="true"] i { background: #fff; }
+.togprev { display: grid; place-items: center; height: 58px; }
+.togprev .toggle { pointer-events: none; animation: togbg 2.4s ease-in-out infinite; }
+.togprev .toggle i { animation: togknob 2.4s ease-in-out infinite; }
+@keyframes togknob { 0%, 15% { left: 3px; background: var(--fg); } 45%, 85% { left: 25px; background: var(--bg); } 100% { left: 3px; background: var(--fg); } }
+@keyframes togbg { 0%, 15% { background: transparent; } 45%, 85% { background: var(--fg); } 100% { background: transparent; } }
+.togprev.green .toggle { animation-name: togbg-g; } .togprev.green .toggle i { animation-name: togknob-g; }
+@keyframes togknob-g { 0%, 15% { left: 3px; background: var(--fg); } 45%, 85% { left: 25px; background: #fff; } 100% { left: 3px; background: var(--fg); } }
+@keyframes togbg-g { 0%, 15% { background: transparent; border-color: var(--fg); } 45%, 85% { background: #2ec55e; border-color: #2ec55e; } 100% { background: transparent; border-color: var(--fg); } }
+.logic2 .logic h3 { margin: 0 0 6px; font-family: var(--display); font-stretch: 110%; font-weight: 900; font-size: 17px; text-transform: uppercase; letter-spacing: .02em; }
+.logic2 .logic p { color: var(--fg); font-size: 14px; line-height: 1.45; margin: 4px 0 0; }
+.logic2 .logic p b { font-weight: 800; }
+.sph1 { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: normal; }

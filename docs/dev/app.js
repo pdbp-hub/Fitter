@@ -248,6 +248,26 @@ Object.assign(T.en, {
   strengthShort:'Max strength', rename:'Rename', delToday:'Only for this session', delPerm:n => `Remove from “${n}” for good`, delSetToday:'Only for this session', delSetPerm:n => `Delete from “${n}” for good`,
   delWT:'Delete workout?', delWX:'The workout disappears from your list. Past sessions stay in your history.', never:'Never mind', addCustom:'Add exercise', todayShort:'Today',
   sorts:{ az:'A–Z', fav:'Favourites', recent:'Recent' } });
+Object.assign(T.de, { logic: [
+  ['Points', '<p>Belohnt <b>Fortschritt</b> und <b>Dranbleiben</b>, nicht viele Kilos.</p><p><b>Pro Übung</b> (ab 2 Sätzen), heute vs. dein Bestwert der letzten 8 Wochen:</p><p>Neuer Bestwert <code>10 + 3 × Steigerung %</code> (max. 40) · Gehalten 6 · Schwächer 2 · Erstes Mal 5</p><p><b>Pro Trainingstag</b> +10 (max. 5 pro Woche), 2. Tag der Woche +15.</p><p>Fair: Prozente statt Kilos, max. 6 Übungen pro Training, Wdh. über 12 zählen wie 12.</p>'],
+  ['Maximalkraft (1RM)', T.de.info1rm],
+  ['Volumen', '<p><code>Gewicht × Wiederholungen</code>, alle Sätze zusammen.</p>'],
+  ['Trainingszeit', '<p>Nur die Zeit in den Sätzen. Pausen zählen nicht.</p>'],
+  ['Prognose', '<p>Trendlinie durch deine letzten Trainings, in die Zukunft verlängert. Der graue Bereich zeigt, wie stark deine Werte schwanken.</p>'],
+  ['Trend-Farben', '<p>Grün, wenn der letzte Wert mindestens so hoch ist wie der erste, sonst rot.</p>'],
+  ['Neue Rekorde', '<p>Dein geschätztes 1RM einer Übung ist höher als je zuvor.</p>'],
+  ['Körpergewicht', '<p>Bei Dips, Klimmzügen & Co. zählt nur das Zusatzgewicht. Optional mit Körpergewicht.</p>'],
+  ['Vergleich zur Vorwoche', '<p>Diese Woche (ab Montag) gegen die ganze Vorwoche.</p>'] ] });
+Object.assign(T.en, { logic: [
+  ['Points', '<p>Rewards <b>progress</b> and <b>consistency</b>, not lots of kilos.</p><p><b>Per exercise</b> (from 2 sets), today vs. your best of the last 8 weeks:</p><p>New best <code>10 + 3 × gain %</code> (max. 40) · Held 6 · Weaker 2 · First time 5</p><p><b>Per training day</b> +10 (max. 5 per week), 2nd day of the week +15.</p><p>Fair: percent instead of kilos, max. 6 exercises per session, reps above 12 count as 12.</p>'],
+  ['Max strength (1RM)', T.en.info1rm],
+  ['Volume', '<p><code>weight × reps</code>, all sets added up.</p>'],
+  ['Training time', '<p>Only the time in your sets. Rests do not count.</p>'],
+  ['Forecast', '<p>Trend line through your recent sessions, extended into the future. The grey band shows how much your values vary.</p>'],
+  ['Trend colours', '<p>Green if the last value is at least as high as the first, otherwise red.</p>'],
+  ['New records', '<p>Your estimated 1RM of an exercise is higher than ever before.</p>'],
+  ['Body weight', '<p>For dips, pull-ups & co. only the added weight counts. Optionally with body weight.</p>'],
+  ['Compared to last week', '<p>This week (from Monday) against the whole previous week.</p>'] ] });
 const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === 'function' ? v(...a) : v; };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -286,7 +306,9 @@ function sessionPoints(ex, date) {
 }
 const ptsFor = h => sessionPoints(h.ex, h.date);
 const totalPts = () => HISTORY.reduce((a, h) => a + ptsFor(h), 0);
-function weekStats() { const dow = (new Date().getDay() + 6) % 7; const cur = HISTORY.filter(h => h.ago <= dow), prev = HISTORY.filter(h => h.ago > dow && h.ago <= dow + 7); const v1 = cur.reduce((a, h) => a + sessVol(h), 0), v0 = prev.reduce((a, h) => a + sessVol(h), 0); const m1 = cur.reduce((a, h) => a + (h.dur || 0), 0), m0 = prev.reduce((a, h) => a + (h.dur || 0), 0); return { n: cur.length, n0: prev.length, vol: v1, vol0: v0, min: m1, min0: m0, pct: v0 ? Math.round((v1 / v0 - 1) * 100) : null, pts: cur.reduce((a, h) => a + ptsFor(h), 0) }; }
+// training minutes = time under load (sum of set timers), rests not counted
+const trainMin = h => { const sec = h.ex.reduce((a, e) => a + e.sets.reduce((b, x) => b + (x.d || 0), 0), 0); return sec ? Math.max(1, Math.round(sec / 60)) : 0; };
+function weekStats() { const dow = (new Date().getDay() + 6) % 7; const cur = HISTORY.filter(h => h.ago <= dow), prev = HISTORY.filter(h => h.ago > dow && h.ago <= dow + 7); const v1 = cur.reduce((a, h) => a + sessVol(h), 0), v0 = prev.reduce((a, h) => a + sessVol(h), 0); const m1 = cur.reduce((a, h) => a + trainMin(h), 0), m0 = prev.reduce((a, h) => a + trainMin(h), 0); return { n: cur.length, n0: prev.length, vol: v1, vol0: v0, min: m1, min0: m0, pct: v0 ? Math.round((v1 / v0 - 1) * 100) : null, pts: cur.reduce((a, h) => a + ptsFor(h), 0) }; }
 const deltaTag = (a, b, abs) => { if (!b && !a) return ''; if (!b) return '<em class="dl up">▲</em>'; const d = abs ? a - b : Math.round((a / b - 1) * 100); if (d === 0) return '<em class="dl">±0</em>'; return `<em class="dl ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}${abs ? '' : ' %'}</em>`; };
 const pctTag = d => d === null || d === undefined || d === 0 ? '' : `<em class="dl ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : '='} ${Math.abs(d)} %</em>`;
 function prCount(days) { let n = 0; const seen = {}; [...HISTORY].sort((a, b) => b.ago - a.ago || a.date - b.date).forEach(h => h.ex.forEach(e => { const b = Math.max(...e.sets.map(s => e1rm(Math.max(0, effW(e.k, s.w)), s.r))); if (b > 0 && seen[e.k] !== undefined && b > seen[e.k] && h.ago < days) n++; seen[e.k] = Math.max(seen[e.k] ?? 0, b); })); return n; }
@@ -414,7 +436,7 @@ function showInfo(html) {
   p.innerHTML = `<div class="popover" role="dialog"><button class="x" aria-label="Schließen">✕</button><div>${html}</div></div>`; p.hidden = false;
   p.querySelector('.x').onclick = () => p.hidden = true; p.onclick = e => { if (e.target === p) p.hidden = true; };
 }
-function applyClasses() { $('app').className = 'app pm-' + S.pulse + (S.inverted ? ' inverted' : '') + (S.accent ? ' accent' : ''); document.body.style.background = S.inverted ? '#f3f3ef' : '#0b0b0a'; }
+function applyClasses() { const keep = [...$('app').classList].filter(c => c.startsWith('season-')).map(c => ' ' + c).join(''); $('app').className = 'app pm-' + S.pulse + (S.inverted ? ' inverted' : '') + (S.accent ? ' accent' : '') + (S.togGreen ? ' tog-green' : '') + keep; document.body.style.background = S.inverted ? '#f3f3ef' : '#0b0b0a'; }
 function fitGreet() { const g = $('greet'); if (!g) return; let z = 15; g.style.fontSize = z + 'px'; while (g.scrollWidth > g.clientWidth && z > 10) { z -= .5; g.style.fontSize = z + 'px'; } }
 window.addEventListener('resize', fitGreet);
 
@@ -1057,7 +1079,7 @@ function forecast(d, ss) {
 const histOn = ago => HISTORY.find(h => h.ago === ago);
 function renderProgress() {
   const last30 = HISTORY.filter(h => h.ago < 30);
-  const vol30 = last30.reduce((a, h) => a + sessVol(h), 0), min30 = last30.reduce((a, h) => a + h.dur, 0);
+  const vol30 = last30.reduce((a, h) => a + sessVol(h), 0), min30 = last30.reduce((a, h) => a + trainMin(h), 0);
   if (progTab === 'friends') { renderFriends(); return; }
   $('v-progress').innerHTML = `<div class="inner">
     <h1 class="progh1">${t('progress')}</h1>${progSwitch()}
@@ -1102,7 +1124,7 @@ const pbKeys = () => { const k = (S.pbEx || []).filter(x => S.fav.includes(x)); 
 function myProfile() { const pts = totalPts(), wk = weekStats(), h = [...HISTORY].sort((a, b) => a.ago - b.ago || b.date - a.date)[0], m = HISTORY.filter(x => x.ago < 30);
   const cnt = {}; m.forEach(x => { const n = x.wname || (wById(x.wid) || {}).name; if (n) cnt[n] = (cnt[n] || 0) + 1; }); const fav = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
   return { me: true, name: S.name || (S.lang === 'de' ? 'Du' : 'You'), user: userName(), lv: levelOf(pts), pts, last: h ? [h.wname || (wById(h.wid) || {}).name || '', h.ago] : null, week: [wk.n, wk.vol, wk.min],
-    month: [m.length, m.reduce((a, x) => a + x.dur, 0), prCount(30)], fav: fav ? [fav, cnt[fav]] : null, pbs: pbKeys().map(myPB).filter(Boolean), vis: S.vis }; }
+    month: [m.length, m.reduce((a, x) => a + trainMin(x), 0), prCount(30)], fav: fav ? [fav, cnt[fav]] : null, pbs: pbKeys().map(myPB).filter(Boolean), vis: S.vis }; }
 const avatarHTML = (name, size) => `<span class="avatar dec" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .34)}px">${esc(initialsOf(name))}</span>`;
 function renderFriends() {
   const de = S.lang === 'de', me = myProfile();
@@ -1267,9 +1289,9 @@ function onbVisual(kind) {
       <div class="om-addx">${de ? '+ Übung hinzufügen' : '+ Add exercise'}${fin('fa')}</div>
       <div class="om-new"><div class="om-bh"><span class="om-n">02</span><span>${de ? 'SEITHEBEN' : 'LATERAL RAISE'}</span><em>0/3</em></div><div class="om-pl"><span>1</span>10 kg × 12<em>✕</em></div><div class="om-pl"><span>2</span>10 kg × 12<em>✕</em></div><div class="om-pl"><span>3</span>10 kg × 12<em>✕</em></div></div></div>`;
   if (kind === 'train') return `<div class="om-phone om-delx">
-      <div class="om-swipe"><div class="om-del"><span>${t('swipeDel')}${fin('fd2')}</span></div><div class="om-bh om-dips"><span class="om-n">01</span><span>DIPS</span><em>0/3</em>${fin('fd1')}</div></div>
+      <div class="om-swipe"><div class="om-del"><b class="om-dl">${t('swipeDel')}</b></div><div class="om-bh om-dips"><span class="om-n">01</span><span>DIPS</span><em>0/3</em></div></div>
       <div class="om-ex2"><div class="om-bh"><span class="om-n"><span class="om-num"><em>02</em><em>01</em></span></span><span>${de ? 'TRIZEPSDRÜCKEN' : 'TRICEPS PUSHDOWN'}</span><em>0/3</em></div>
-        <div class="om-pl"><span>1</span>30 kg × 12<em>✕</em></div><div class="om-pl om-plx"><span>2</span>30 kg × 12<em>✕${fin('fx')}</em></div><div class="om-pl"><span class="om-n3"><em>3</em><em>2</em></span>30 kg × 12<em>✕</em></div></div></div>`;
+        <div class="om-pl"><span>1</span>30 kg × 12<em>✕</em></div><div class="om-pl om-plx"><span>2</span>30 kg × 12<em>✕</em></div><div class="om-pl"><span class="om-n3"><em>3</em><em>2</em></span>30 kg × 12<em>✕</em></div></div>${fin('fd1 ff')}${fin('fd2 ff')}${fin('fx ff')}</div>`;
   if (kind === 'mini') return `<div class="om-phone"><div class="om-sheet"><div class="om-eb" style="text-align:center">PUSH DAY</div><div class="om-tdec dec"><span>01:23</span></div><div class="om-line"></div><div class="om-line"></div></div>
       <div class="om-bar"><span><small>${de ? 'PAUSE' : 'REST'}</small><b>${de ? 'Bankdrücken' : 'Bench press'}</b></span><b>01:23</b></div><div class="om-nav"></div></div>`;
   if (kind === 'progress') return `<div class="om-phone om-chart">${trendPreview(S.trendColor)}</div>`;
@@ -1718,6 +1740,7 @@ const SET_IC = {
   imprint:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 12h7M9 16h7"/></svg>',
   share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/></svg>',
   personal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14"/><circle cx="9" cy="11" r="2.4"/><path d="M5.5 16.5c.6-2 2-3 3.5-3s2.9 1 3.5 3M14.5 10h4M14.5 13.5h4"/></svg>',
+  general:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><rect x="14" y="4.5" width="4" height="5"/><rect x="8" y="14.5" width="4" height="5"/></svg>',
   help:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.4a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.3-2.7 4.1"/><path d="M12 17.6v.4"/></svg>',
   dev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>' };
 const sic = k => `<span class="sic">${SET_IC[k]}</span>`;
@@ -1736,14 +1759,14 @@ function renderSettings() {
   let h = '';
   if (!setPage) {
     const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div>${CHEV}</button>`;
-    h = `<h1 class="seth1">${t('settings')}</h1><button class="sprof" id="sprof"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>@${esc(userName())} · Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
-      ${item('personal', S.lang === 'de' ? 'Persönliche Daten' : 'Personal data', S.lang === 'de' ? 'Körpergewicht, Alter, Account' : 'Body weight, age, account', sic('personal'))}
+    h = `<button class="sprof sprof-top" id="sprof"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>@${esc(userName())} · Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
+      ${item('general', S.lang === 'de' ? 'Allgemein' : 'General', S.lang === 'de' ? 'Mitteilungen' : 'Notifications', sic('general'))}
+      ${item('personal', S.lang === 'de' ? 'Persönliche Daten' : 'Personal data', S.lang === 'de' ? 'Körpergewicht, Alter, Account, Daten' : 'Body weight, age, account, data', sic('personal'))}
       ${item('display', t('spDisplay'), t('spDisplayHint'), sic('display'))}
       ${item('logic', t('spLogic'), t('spLogicHint'), sic('logic'))}
-      ${item('data', t('spData'), t('spDataHint'), sic('data'))}
       ${item('share', t('share'), t('shareHint'), sic('share'))}
       ${item('help', S.lang === 'de' ? 'Hilfe' : 'Help', S.lang === 'de' ? 'Einführung, häufige Fragen' : 'Intro, FAQ', sic('help'))}
-      ${item('imprint', t('spImprint'), t('spImprintHint'), sic('imprint'))}
+      ${item('imprint', S.lang === 'de' ? 'Impressum & Datenschutz' : 'Imprint & privacy', S.lang === 'de' ? 'Anbieter, Datenschutzerklärung' : 'Provider, privacy policy', sic('imprint'))}
       ${ENV === 'dev' ? `<button class="setrow sprow devrow" data-sp="dev">${sic('dev')}<div style="flex:1;text-align:left"><b>${t('devTools')}</b><p>${S.lang === 'de' ? 'Nur in der Dev-Version' : 'Dev version only'}</p></div>${CHEV}</button>` : ''}</div>
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'profile') {
@@ -1761,20 +1784,26 @@ function renderSettings() {
       <div><b>${de ? 'Häufige Fragen' : 'FAQ'}</b></div><div>${FAQ[S.lang].map(([q], j) => `<button class="setrow sprow" data-faq="${j}"><div style="flex:1;text-align:left"><b>${esc(q)}</b></div>${CHEV}</button>`).join('')}</div>`;
   } else if (setPage === 'dev') {
     h = head(t('devTools')) + devHTML();
+  } else if (setPage === 'general') {
+    h = head(S.lang === 'de' ? 'Allgemein' : 'General') + `<div>
+        <div class="setrow"><div><b>${S.lang === 'de' ? 'Mitteilungen' : 'Notifications'}</b><p>${S.lang === 'de' ? 'Motivation, wenn du länger nicht trainiert hast' : 'Motivation when you have not trained for a while'}</p></div>${tog('pushtog', !!S.push)}</div></div>`;
   } else if (setPage === 'personal') {
     h = head(S.lang === 'de' ? 'Persönliche Daten' : 'Personal data') + `<div>
         <div class="setrow"><div><b>${t('bodyweight')}</b><p>${t('bwHint')}</p></div><label class="kgin"><input id="bw" inputmode="decimal" enterkeyhint="done" class="num" placeholder="—" value="${S.bodyweight ? fmtW(S.bodyweight) : ''}"><span>kg</span></label></div>
         <div class="setrow"><div><b>${t('age')}</b><p>${t('ageHint')}</p></div><label class="kgin"><input id="age" inputmode="numeric" enterkeyhint="done" class="num" placeholder="—" value="${S.age || ''}"><span>${S.lang === 'de' ? 'J.' : 'y'}</span></label></div>
         <div class="setrow"><div><b>${t('bwPoints')}</b><button class="info" id="bwi" aria-label="Info">i</button><p>${S.bodyweight ? t('bwPointsHint') : t('bwPointsOff')}</p></div>${tog('bwp', S.bwPoints, !S.bodyweight)}</div>
-        <div class="setrow"><div><b>${S.lang === 'de' ? 'Mitteilungen' : 'Notifications'}</b><p>${S.lang === 'de' ? 'Motivation, wenn du ein paar Tage nicht trainiert hast' : 'Motivation when you have not trained for a few days'}</p></div>${tog('pushtog', !!S.push)}</div>
         <div class="setrow" style="opacity:.45"><div><b>${t('account')}</b><p>${t('accountHint')}</p></div>${CHEV}</div>
-      </div>`;
+      </div>
+      <div style="margin-top:8px"><b>${t('spData')}</b><p class="hint" style="margin-top:4px">${t('localHint')}</p></div>
+      <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>`;
   } else if (setPage === 'display') {
     h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
       <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div></div>
       <div style="margin-top:8px"><b>${t('trendColor')}</b><p class="hint" style="margin-top:4px">${t('trendColorHint')}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.trendColor ? 'on' : ''}" data-trc="${v}">${trendPreview(!!v)}<span>${t(v ? 'trcColor' : 'trcBW')}</span></button>`).join('')}</div>
+      <div style="margin-top:8px"><b>${S.lang === 'de' ? 'Schalter' : 'Switches'}</b><p class="hint" style="margin-top:4px">${S.lang === 'de' ? 'Farbe eines eingeschalteten Schalters' : 'Colour of a switch that is on'}</p></div>
+      <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === !!S.togGreen ? 'on' : ''}" data-tgc="${v}"><span class="togprev ${v ? 'green' : ''}"><span class="toggle" aria-checked="true"><i></i></span></span><span>${v ? (S.lang === 'de' ? 'Grün' : 'Green') : (S.lang === 'de' ? 'Schwarz-Weiß' : 'Black & white')}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('accentTitle')}</b><p class="hint" style="margin-top:4px">${t('accentHint')}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.accent ? 'on' : ''} ${v ? 'accent' : ''}" data-acc="${v}"><span class="accprev num"><em class="dl up">▲ 12 %</em><em class="dl down">▼ 4 %</em></span><span>${t(v ? 'accColor' : 'accNeutral')}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('introTitle')}</b><p class="hint" style="margin-top:4px">${t('introHint')}</p></div>
@@ -1795,7 +1824,7 @@ function renderSettings() {
       <div class="setrow setcol"><div><b>${t('fcTitle')}</b><button class="info" id="fci" aria-label="Info">i</button><p>${t('fcHint')}</p></div>${seg('fch', [[0, t('fcOff')], [4, '4 ' + wk], [6, '6 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk]], S.fcHor)}</div>
       <div class="setrow setcol" ${S.fcHor ? '' : 'style="opacity:.4;pointer-events:none"'}><div><b>${t('lookTitle')}</b><p>${t('lookHint')}</p></div>${seg('fcl', [[4, '4 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk], [0, t('all')]], S.fcLook)}</div></div>`;
   } else if (setPage === 'logic') {
-    h = head(t('spLogic')) + `<div>${t('logic').map(([a, b]) => `<div class="logic"><b>${a}</b><p>${b}</p></div>`).join('')}</div>`;
+    h = head(t('spLogic')) + `<div class="logic2">${t('logic').map(([a, b]) => `<div class="logic"><h3>${a}</h3>${b.startsWith('<p>') ? b : `<p>${b.replace(/^<b>[^<]*<\/b><br>/, '')}</p>`}</div>`).join('')}</div>`;
   } else if (setPage === 'share') {
     h = head(t('share')) + `<p class="hint" style="font-size:14px">${t('shareText')}</p>
       <div class="qrbox" id="qrbox" aria-label="QR-Code"></div>
@@ -1803,7 +1832,8 @@ function renderSettings() {
       <button class="mainbtn" id="copylink">${t('copyLink')}</button>
       ${navigator.share ? `<button class="ghostbtn" id="nativeshare">${t('shareNative')}</button>` : ''}`;
   } else if (setPage === 'imprint') {
-    h = head(t('spImprint')) + `<div class="logic" style="border-top:1px solid var(--line)">${t('imprint')}</div>`;
+    h = head(S.lang === 'de' ? 'Impressum & Datenschutz' : 'Imprint & privacy') + `<div class="logic" style="border-top:1px solid var(--line)">${t('imprint')}</div>
+      <button class="setrow sprow" data-sp="privacy"><div style="flex:1;text-align:left"><b>${t('privacy')}</b><p>${t('privacyHint')}</p></div>${CHEV}</button>`;
   } else if (setPage === 'data') {
     h = head(t('spData')) + `<p class="hint">${t('localHint')}</p>
       <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>
@@ -1829,6 +1859,7 @@ function renderSettings() {
   $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
   on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));
   on('inv', () => { S.inverted = !S.inverted; applyClasses(); renderSettings(); });
+  document.querySelectorAll('[data-tgc]').forEach(b => b.onclick = () => { S.togGreen = b.dataset.tgc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { S.accent = b.dataset.acc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-trc]').forEach(b => b.onclick = () => { S.trendColor = b.dataset.trc === '1'; renderSettings(); });
   on('bwi', () => showInfo(t('bwInfo')));
