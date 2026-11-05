@@ -471,6 +471,7 @@ document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
 function goBack() {
   if (!$('osheet').classList.contains('down') && $('o-back')) { $('o-back').click(); return true; }
   if (!$('wsheet').classList.contains('down')) return false;
+  if (tab === 'settings' && setPage === 'profile' && PD) { leaveProfileEdit(); return true; }
   if (tab === 'settings' && setPage) { setPage = null; renderSettings(); return true; }
   if (tab === 'select') { tabMem.start = 'start'; show('start'); return true; }
   return false;
@@ -479,6 +480,7 @@ function goBack() {
 function backTarget() {
   if (!$('osheet').classList.contains('down') && $('o-back')) return $('osheet');
   if (!$('wsheet').classList.contains('down')) return null;
+  if (tab === 'settings' && setPage === 'profile' && pdDirty()) return null; // unsaved profile changes: no swipe, the back button asks first
   if ((tab === 'settings' && setPage) || tab === 'select') return $('v-' + tab);
   return null;
 }
@@ -961,9 +963,10 @@ function renderO() {
   const b = $('obody');
   b.classList.toggle('lvlmode', O.mode === 'levels');
   if (O.mode === 'levels') { b.innerHTML = levelsHTML(); setOBar(''); $('o-back').onclick = closeO; return; }
-  if (O.mode === 'profile') { b.innerHTML = profileHTML(O.p); setOBar(''); $('o-back').onclick = () => O.from === 'find' ? (O = { mode:'find', q:O.q }, renderO()) : closeO();
+  if (O.mode === 'profile') { b.innerHTML = profileHTML(O.p); setOBar(''); bindProfileScroll(); $('pfphoto') && ($('pfphoto').parentNode.onclick = photoView); $('o-back').onclick = () => O.from === 'find' ? (O = { mode:'find', q:O.q }, renderO()) : closeO();
     $('pf-follow') && ($('pf-follow').onclick = () => { const f = O.follow || {}; f[O.p.user] = !f[O.p.user]; const p = O.p, fr = O.from, q = O.q; O = { mode:'profile', p, from:fr, q, follow:f }; renderO(); toast(S.lang === 'de' ? 'Vorschau: Folgen kommt mit dem Cloud-Modus' : 'Preview: following comes with cloud sync'); });
-    $('pf-edit') && ($('pf-edit').onclick = () => { closeO(); setPage = 'profile'; show('settings'); $('v-settings').scrollTop = 0; }); return; }
+    $('pf-edit') && ($('pf-edit').onclick = () => { closeO(); PD = null; setPage = 'profile'; show('settings'); $('v-settings').scrollTop = 0; }); return; }
+  if (O.mode !== 'profile') b.onscroll = null;
   if (O.mode === 'find') { b.innerHTML = findHTML(); setOBar(''); $('o-back').onclick = closeO;
     loadQR(() => { const box = $('qrbox'); if (!box || !window.qrcode) return; const q = qrcode(0, 'M'); q.addData(SHARE_URL + '?u=' + encodeURIComponent(userName())); q.make(); box.innerHTML = q.createSvgTag(6, 2); });
     const qi = $('f-q'); qi.oninput = () => { O.q = qi.value; const pos = qi.selectionStart; renderO(); const n = $('f-q'); n.focus(); n.setSelectionRange(pos, pos); };
@@ -1130,13 +1133,25 @@ const userName = () => S.username || 'test'; // placeholder until accounts (user
 const pbKeys = () => { const k = (S.pbEx || []).filter(x => S.fav.includes(x)); return (k.length ? k : S.fav).slice(0, 3); };
 function myProfile() { const pts = totalPts(), wk = weekStats(), h = [...HISTORY].sort((a, b) => a.ago - b.ago || b.date - a.date)[0], m = HISTORY.filter(x => x.ago < 30);
   const cnt = {}; m.forEach(x => { const n = x.wname || (wById(x.wid) || {}).name; if (n) cnt[n] = (cnt[n] || 0) + 1; }); const fav = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
-  return { me: true, name: S.name || (S.lang === 'de' ? 'Du' : 'You'), user: userName(), lv: levelOf(pts), pts, last: h ? [h.wname || (wById(h.wid) || {}).name || '', h.ago] : null, week: [wk.n, wk.vol, wk.min],
+  return { me: true, photo: S.photo, name: S.name || (S.lang === 'de' ? 'Du' : 'You'), user: userName(), lv: levelOf(pts), pts, last: h ? [h.wname || (wById(h.wid) || {}).name || '', h.ago] : null, week: [wk.n, wk.vol, wk.min],
     month: [m.length, m.reduce((a, x) => a + trainMin(x), 0), prCount(30)], fav: fav ? [fav, cnt[fav]] : null, pbs: pbKeys().map(myPB).filter(Boolean), vis: S.vis }; }
-const avatarHTML = (name, size) => `<span class="avatar dec" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .34)}px">${esc(initialsOf(name))}</span>`;
+const avatarHTML = (name, size, photo, id) => `<span class="avatar dec ${photo ? 'hasph' : ''}" ${id ? `id="${id}"` : ''} style="width:${size}px;height:${size}px;font-size:${Math.round(size * .34)}px${photo ? `;background-image:url(${photo})` : ''}">${photo ? '' : esc(initialsOf(name))}</span>`;
+// own profile photo: tap = big view with blurred background, change / delete (stored small, ~20 KB)
+function photoView() {
+  const de = S.lang === 'de', el = document.createElement('div'); el.className = 'phview'; el.id = 'phview';
+  el.innerHTML = `<button class="iconbtn phx" aria-label="${de ? 'Schließen' : 'Close'}">✕</button>${avatarHTML(S.name || '?', Math.min(innerWidth - 80, 320), S.photo)}
+    <div class="phbtns"><label class="mainbtn phpick">${S.photo ? (de ? 'Profilbild ändern' : 'Change photo') : (de ? 'Profilbild hinzufügen' : 'Add photo')}<input type="file" accept="image/*" hidden id="phfile"></label>${S.photo ? `<button class="ghostbtn" id="phdel">${de ? 'Profilbild löschen' : 'Delete photo'}</button>` : ''}</div>`;
+  $('app').appendChild(el); el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180 });
+  const close = () => { el.remove(); if (O && O.mode === 'profile' && O.p.me) { O.p = myProfile(); renderO(); } if (tab === 'settings') renderSettings(); };
+  el.querySelector('.phx').onclick = close; el.onclick = e => { if (e.target === el) close(); };
+  $('phdel') && ($('phdel').onclick = () => dialog(de ? 'Profilbild löschen?' : 'Delete photo?', '', [[de ? 'Behalten' : 'Keep', 'mainbtn', () => {}], [de ? 'Löschen' : 'Delete', 'ghostbtn', () => { S.photo = ''; save(); close(); }]]));
+  $('phfile').onchange = e => { const f = e.target.files[0]; if (!f) return; const img = new Image(); img.onload = () => { const z = 256, c = document.createElement('canvas'); c.width = c.height = z; const k = Math.max(z / img.width, z / img.height), w = img.width * k, h = img.height * k;
+    c.getContext('2d').drawImage(img, (z - w) / 2, (z - h) / 2, w, h); S.photo = c.toDataURL('image/jpeg', .8); save(); URL.revokeObjectURL(img.src); close(); }; img.src = URL.createObjectURL(f); };
+}
 function renderFriends() {
   const de = S.lang === 'de', me = myProfile();
   $('v-progress').innerHTML = `<div class="inner">${progSwitch()}
-    <button class="fr-me" id="fr-me">${avatarHTML(me.name, 52)}<div><b>${esc(me.name)}</b><small>${me.user ? '@' + esc(me.user) + ' · ' : ''}Level ${me.lv + 1} · ${esc(LEVELS[me.lv][S.lang])} · ${fmt(me.pts)} Points</small></div>${CHEV}</button>
+    <button class="fr-me" id="fr-me">${avatarHTML(me.name, 52, S.photo)}<div><b>${esc(me.name)}</b><small>${me.user ? '@' + esc(me.user) + ' · ' : ''}Level ${me.lv + 1} · ${esc(LEVELS[me.lv][S.lang])} · ${fmt(me.pts)} Points</small></div>${CHEV}</button>
     <div class="fr-cta"><b>${de ? 'Freunde folgen, Level vergleichen' : 'Follow friends, compare levels'}</b><p class="hint">${de ? 'Kommt mit dem Cloud-Modus: Folge Freunden, sieh ihre Level, Rekorde und letzten Trainings.' : 'Coming with cloud sync: follow friends, see their levels, records and recent sessions.'}</p><button class="mainbtn" id="fr-find">${de ? 'Freunde finden' : 'Find friends'}</button></div>
     <div class="sect"><div class="row"><h2>${de ? 'Vorschau' : 'Preview'}</h2><span class="eyebrow">${de ? 'Beispieldaten' : 'Sample data'}</span></div>
       <div>${DEMO_FRIENDS.map((f, i) => `<button class="fr-row" data-fr="${i}">${avatarHTML(f.name, 44)}<div><b>${esc(f.name)}</b><small>${levelIcon(f.lv)} Level ${f.lv + 1} · ${esc(LEVELS[f.lv][S.lang])}</small></div><div class="fr-kpi"><b>${esc(f.last[0])}</b><small>${t('ago', f.last[1])}</small></div></button>`).join('')}</div></div></div>`;
@@ -1148,19 +1163,26 @@ function renderFriends() {
 function openProfile(p, from) { O = { mode:'profile', p, from }; renderO(); openO(); $('obody').scrollTop = 0; }
 // a profile as others see it (own profile respects the visibility settings)
 function profileHTML(p) {
-  const de = S.lang === 'de', v0 = p.vis || {}, v = k => v0[k] !== false;
+  const de = S.lang === 'de', v0 = p.vis || {}, v = k => v0[k] !== false, hm = m => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
   const dec = (val, lbl) => `<div class="pdec dec"><b class="num">${val}</b><span>${lbl}</span></div>`;
-  return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${p.me ? (de ? 'Dein Profil' : 'Your profile') : (de ? 'Profil' : 'Profile')}</span><span style="width:44px"></span></div>
-    <div class="pf-head">${avatarHTML(p.name, 104)}<h1>${esc(p.name)}</h1>${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}
+  return `<div class="inner pf"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${p.me ? (de ? 'Dein Profil' : 'Your profile') : (de ? 'Profil' : 'Profile')}</span><span style="width:44px"></span></div>
+    <div class="pf-mini" id="pfmini">${avatarHTML(p.name, 36, p.photo)}<div><b>${esc(p.name)}</b><small>${v('level') ? `Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])}` : (p.user ? '@' + esc(p.user) : '')}</small></div></div>
+    <div class="pf-head" id="pfhead"><span class="pf-av">${avatarHTML(p.name, 112, p.photo, p.me ? 'pfphoto' : '')}${p.me ? '<span class="pf-plus">+</span>' : ''}</span><h1>${esc(p.name)}</h1>${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}
       ${v('level') ? `<div class="pf-lvl">${levelIcon(p.lv)}<span>Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])} · <span class="num">${fmt(p.pts)}</span> Points</span></div>` : ''}
-      ${p.me ? '' : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div>
-    ${v('week') ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('thisWeek')}</h2><div class="pdecs">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2], t('minutes'))}</div></div>` : ''}
-    ${v('month') && p.month ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('last30')}</h2><div class="pdecs">${dec(p.month[0], t('workouts'))}${dec(Math.round(p.month[1] / 60) + ' h', de ? 'Training' : 'Training')}${dec(p.month[2], de ? 'Rekorde' : 'Records')}</div></div>` : ''}
+      ${p.me ? `<button class="ghostbtn pf-follow" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div>
+    ${v('week') ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('thisWeek')}</h2><div class="pdecs">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2] + ' min', de ? 'Training' : 'Training')}</div></div>` : ''}
+    ${v('month') && p.month ? `<div class="sect"><h2 class="hic">${SIC.hist}${t('last30')}</h2><div class="pf-line num"><div><b>${p.month[0]}</b><span>${t('workouts')}</span></div><div><b>${hm(p.month[1])}</b><span>${de ? 'Training' : 'Training'}</span></div><div><b>${p.month[2]}</b><span>${de ? 'Rekorde' : 'Records'}</span></div></div></div>` : ''}
     ${v('pbs') && p.pbs.length ? `<div class="sect"><h2 class="hic">${SIC.pb}Personal Bests</h2><div>${p.pbs.map(([k, w, r]) => `<div class="pf-pb"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><span class="num">${esc(wLabel(k, w))} × ${r}</span></div>`).join('')}</div></div>` : ''}
     ${v('last') && p.last ? `<div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Letztes Training' : 'Last session'}</h2><div class="pf-last"><b>${esc(p.last[0])}</b><span>${t('ago', p.last[1])}</span></div></div>` : ''}
-    ${v('fav') && p.fav ? `<div class="sect"><h2 class="hic">${SIC.ex}${de ? 'Lieblings-Workout' : 'Favourite workout'}</h2><div class="pf-last"><b>${esc(p.fav[0])}</b><span>${de ? `${p.fav[1]}× in 30 Tagen` : `${p.fav[1]}× in 30 days`}</span></div></div>` : ''}
-    ${p.me ? `<button class="ghostbtn" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<p class="hint">${de ? 'Beispieldaten. Folgen funktioniert mit dem Cloud-Modus.' : 'Sample data. Following works with cloud sync.'}</p>`}</div>`;
+    ${v('fav') && p.fav ? `<div class="sect"><h2 class="hic">${SIC.ex}${de ? 'Meist trainiert' : 'Most trained'}</h2><div class="pf-last"><b>${esc(p.fav[0])}</b><span>${de ? `${p.fav[1]}× in den letzten 30 Tagen` : `${p.fav[1]}× in the last 30 days`}</span></div></div>` : ''}
+    ${p.me ? '' : `<p class="hint">${de ? 'Beispieldaten. Folgen funktioniert mit dem Cloud-Modus.' : 'Sample data. Following works with cloud sync.'}</p>`}</div>`;
 }
+// profile: the big head scrolls away, a small bar with photo + name slides in (continuously, like the level page)
+function bindProfileScroll() { const ob = $('obody'), head = $('pfhead'), mini = $('pfmini'); if (!head || !mini) return; const H = head.offsetHeight, av = head.querySelector('.pf-av');
+  let raf = 0; const lay = () => { raf = 0; const y = ob.scrollTop, k = Math.max(0, Math.min(1, y / (H * .8))), m = Math.max(0, Math.min(1, (y - H * .45) / (H * .35)));
+    av.style.transform = `scale(${1 - .45 * k})`; av.style.opacity = 1 - k * .8; mini.style.opacity = m; mini.style.transform = `translateY(${(1 - m) * -10}px)`; mini.style.pointerEvents = m > .5 ? 'auto' : 'none'; };
+  ob.onscroll = () => { if (!raf) raf = requestAnimationFrame(lay); }; lay(); }
+
 function findHTML() {
   const de = S.lang === 'de', q = (O.q || '').toLowerCase().replace(/^@/, ''), hits = q ? DEMO_FRIENDS.filter(f => f.user.includes(q) || f.name.toLowerCase().includes(q)) : [];
   return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${de ? 'Freunde finden' : 'Find friends'}</span><span style="width:44px"></span></div>
@@ -1491,7 +1513,14 @@ function celebrate(kind = S.celeb) {
   };
   requestAnimationFrame(step);
 }
-let setPage = null, devOpen = false, faqOpen = null;
+let setPage = null, devOpen = false, faqOpen = null, PD = null; // PD = profile draft (saved only with "Änderungen speichern")
+const VISK = ['level', 'week', 'month', 'pbs', 'last', 'fav'], visNorm = v => Object.fromEntries(VISK.map(k => [k, (v || {})[k] !== false]));
+const pdDirty = () => !!PD && (PD.name !== S.name || JSON.stringify(visNorm(PD.vis)) !== JSON.stringify(visNorm(S.vis)) || JSON.stringify(PD.pbEx) !== JSON.stringify(pbKeys()));
+function pdSave() { S.name = PD.name.trim(); S.vis = PD.vis; S.pbEx = PD.pbEx; save(); PD = null; toast(S.lang === 'de' ? 'Gespeichert' : 'Saved'); setPage = null; renderSettings(); openProfile(myProfile(), 'settings'); }
+// leaving the edit page: unsaved changes → save or discard; always back to the profile
+function leaveProfileEdit() { const de = S.lang === 'de', back = () => { PD = null; setPage = null; renderSettings(); openProfile(myProfile(), 'settings'); };
+  if (!pdDirty()) return back();
+  dialog(de ? 'Änderungen speichern?' : 'Save changes?', de ? 'Du hast dein Profil geändert.' : 'You changed your profile.', [[de ? 'Speichern' : 'Save', 'mainbtn', pdSave], [de ? 'Verwerfen' : 'Discard', 'ghostbtn', back], [de ? 'Weiter bearbeiten' : 'Keep editing', 'textbtn', () => {}]]); }
 // ================= Seasons (Weihnachten, Ostern) =================
 // live: docs/season.json decides for every user; dev: a local preview can override it
 const SEASONS = { xmas: { de:'Weihnachten', en:'Christmas' }, easter: { de:'Ostern', en:'Easter' } };
@@ -1768,7 +1797,7 @@ function renderSettings() {
   let h = '';
   if (!setPage) {
     const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div>${CHEV}</button>`;
-    h = `<button class="sprof sprof-top" id="sprof"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>@${esc(userName())} · Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
+    h = `<button class="sprof sprof-top" id="sprof">${avatarHTML(S.name || '?', 84, S.photo)}<div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>@${esc(userName())} · Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
       ${item('general', S.lang === 'de' ? 'Allgemein' : 'General', S.lang === 'de' ? 'Mitteilungen' : 'Notifications', sic('general'))}
       ${item('personal', S.lang === 'de' ? 'Persönliche Daten' : 'Personal data', S.lang === 'de' ? 'Körpergewicht, Alter, Account, Daten' : 'Body weight, age, account, data', sic('personal'))}
       ${item('display', t('spDisplay'), t('spDisplayHint'), sic('display'))}
@@ -1779,14 +1808,18 @@ function renderSettings() {
       ${ENV === 'dev' ? `<button class="setrow sprow devrow" data-sp="dev">${sic('dev')}<div style="flex:1;text-align:left"><b>${t('devTools')}</b><p>${S.lang === 'de' ? 'Nur in der Dev-Version' : 'Dev version only'}</p></div>${CHEV}</button>` : ''}</div>
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'profile') {
-    const de = S.lang === 'de';
-    const vtog = (k, l, ic) => `<div class="setrow"><div class="vrow">${ic ? `<span class="hic">${ic}</span>` : ''}<b>${l}</b></div>${tog('vis-' + k, S.vis[k] !== false)}</div>`;
-    h = head(de ? 'Profil bearbeiten' : 'Edit profile') + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;min-width:0"><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"><p class="hint" style="margin-top:6px">${de ? 'Anzeigename für Freunde' : 'Display name for friends'}</p></div></div>
-      <div class="setrow"><div><b>${de ? 'Benutzername' : 'Username'}</b><p>${de ? 'Damit dich Freunde finden' : 'So friends can find you'}</p></div><span class="userfix num">@${esc(userName())}</span></div>
-      <div style="margin-top:8px"><b>Personal Bests</b><p class="hint" style="margin-top:4px">${S.fav.length ? (de ? 'Bis zu 3 deiner Lieblingsübungen (★) zeigen ihre Bestleistung im Profil.' : 'Up to 3 of your favourite exercises (★) show their best on your profile.') : (de ? 'Markiere Übungen mit ★ als Lieblingsübung, dann kannst du sie hier wählen.' : 'Mark exercises with ★ as favourites to pick them here.')}</p></div>
-      ${S.fav.length ? `<div class="pbpick">${S.fav.map(k => `<button class="${pbKeys().includes(k) ? 'on' : ''}" data-pbex="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
-      <div style="margin-top:8px"><b>${de ? 'Im Profil zeigen' : 'Show on profile'}</b><p class="hint" style="margin-top:4px">${de ? 'Was Freunde sehen können' : 'What friends can see'}</p></div>
-      <div>${vtog('level', 'Level & Points', '')}${vtog('week', t('thisWeek'), SIC.cal)}${vtog('month', t('last30'), SIC.cal)}${vtog('pbs', 'Personal Bests', SIC.pb)}${vtog('last', de ? 'Letztes Training' : 'Last session', SIC.hist)}${vtog('fav', de ? 'Lieblings-Workout' : 'Favourite workout', SIC.ex)}</div>`;
+    const de = S.lang === 'de'; if (!PD) PD = { name: S.name, vis: visNorm(S.vis), pbEx: pbKeys().slice() };
+    const on = k => PD.vis[k] !== false, blk = (k, ic, title, body) => `<div class="pe-blk ${on(k) ? '' : 'off'}"><div class="pe-h"><span class="hic">${ic}</span><b>${title}</b>${tog('vis-' + k, on(k))}</div>${body ? `<div class="pe-b">${body}</div>` : ''}</div>`;
+    h = head(de ? 'Profil bearbeiten' : 'Edit profile') + `<div class="pe-top"><button class="pe-av" id="pe-photo">${avatarHTML(PD.name || '?', 88, S.photo)}<span class="pf-plus">+</span></button>
+        <div class="pe-names"><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(PD.name)}"><span class="pe-user num">@${esc(userName())}</span><p class="hint">${de ? 'Anzeigename für Freunde. Dein @Benutzername ist fest.' : 'Display name for friends. Your @username is fixed.'}</p></div></div>
+      <div class="pe-list">
+      ${blk('level', levelIcon(levelOf(totalPts())), 'Level & Points', '')}
+      ${blk('week', SIC.cal, t('thisWeek'), '')}
+      ${blk('month', SIC.hist, t('last30'), '')}
+      ${blk('pbs', SIC.pb, 'Personal Bests', S.fav.length ? `<p class="hint">${de ? 'Bis zu 3 deiner ★-Lieblingsübungen' : 'Up to 3 of your ★ favourites'}</p><div class="pbpick">${S.fav.map(k => `<button class="${PD.pbEx.includes(k) ? 'on' : ''}" data-pbex="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : `<p class="hint">${de ? 'Markiere Übungen mit ★, dann kannst du sie hier wählen.' : 'Star exercises to pick them here.'}</p>`)}
+      ${blk('last', SIC.hist, de ? 'Letztes Training' : 'Last session', '')}
+      ${blk('fav', SIC.ex, de ? 'Meist trainiert' : 'Most trained', '')}
+      </div>${pdDirty() ? `<button class="mainbtn savebar" id="pe-save">${de ? 'Änderungen speichern' : 'Save changes'}</button>` : ''}`;
   } else if (setPage === 'help') {
     const de = S.lang === 'de';
     h = head(de ? 'Hilfe' : 'Help') + `<button class="mainbtn" id="help-onb">${de ? 'Einführung ansehen' : 'Watch the intro'}</button>
@@ -1865,15 +1898,18 @@ function renderSettings() {
   document.querySelectorAll('[data-celeb]').forEach(b => b.onclick = () => { S.celeb = b.dataset.celeb; renderSettings(); celebrate(); });
   on('spback', () => { setPage = null; renderSettings(); $('v-settings').scrollTop = 0; });
   on('resetall', () => dialog(t('resetAllTitle'), t('resetAllText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => dialog(t('resetAllTitle'), '', [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); }]])]]));
-  $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
+  setPage !== 'profile' && $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
   on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));
   on('inv', () => { S.inverted = !S.inverted; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-tgc]').forEach(b => b.onclick = () => { S.togGreen = b.dataset.tgc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { S.accent = b.dataset.acc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-trc]').forEach(b => b.onclick = () => { S.trendColor = b.dataset.trc === '1'; renderSettings(); });
   on('bwi', () => showInfo(t('bwInfo')));
-  ['level', 'week', 'month', 'pbs', 'last', 'fav'].forEach(k => on('vis-' + k, () => { S.vis = Object.assign({}, S.vis, { [k]: S.vis[k] === false }); renderSettings(); }));
-  document.querySelectorAll('[data-pbex]').forEach(b => b.onclick = () => { const k = b.dataset.pbex, cur = pbKeys(); if (cur.includes(k)) S.pbEx = cur.filter(x => x !== k); else if (cur.length < 3) S.pbEx = cur.concat(k); else toast(S.lang === 'de' ? 'Es werden 3 Personal Bests gezeigt. Erst eine abwählen.' : '3 personal bests are shown. Deselect one first.'); renderSettings(); });
+  if (setPage === 'profile' && PD) { const keepY = () => { const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; };
+    ['level', 'week', 'month', 'pbs', 'last', 'fav'].forEach(k => on('vis-' + k, () => { PD.vis[k] = PD.vis[k] === false; keepY(); }));
+    $('pname').oninput = e => { const was = pdDirty(); PD.name = e.target.value; if (was !== pdDirty()) { const pos = e.target.selectionStart; keepY(); const n = $('pname'); n.focus(); n.setSelectionRange(pos, pos); } };
+    on('pe-photo', photoView); on('pe-save', pdSave); on('spback', () => leaveProfileEdit()); }
+  document.querySelectorAll('[data-pbex]').forEach(b => b.onclick = () => { const k = b.dataset.pbex, cur = PD.pbEx; if (cur.includes(k)) PD.pbEx = cur.filter(x => x !== k); else if (cur.length < 3) PD.pbEx = cur.concat(k); else { toast(S.lang === 'de' ? 'Es werden 3 Personal Bests gezeigt. Erst eine abwählen.' : '3 personal bests are shown. Deselect one first.'); return; } const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; });
   on('sprof', () => openProfile(myProfile(), 'settings'));
   on('fci', () => showInfo(t('infoFc', S.fcLook, S.fcHor || 6)));
   $('age') && ($('age').onchange = e => { const v = parseNum(e.target.value); S.age = v && v > 0 ? Math.round(v) : null; renderSettings(); });

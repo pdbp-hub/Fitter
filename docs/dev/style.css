@@ -907,3 +907,34 @@ body:has(#onb) .overlay, body:has(#inst) .overlay { z-index: 96; }
 .faq.open .faq-q .chev { transform: rotate(-90deg); }
 .faq-a { padding: 0 0 16px; } .faq-a p { margin: 0; font-size: 14px; line-height: 1.5; }
 .faq-vis { margin-top: 14px; }
+/* v0.11 profile */
+.avatar.hasph { background-size: cover; background-position: center; }
+.phview { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 24px; }
+.phview .phx { position: absolute; top: calc(16px + env(safe-area-inset-top, 0px)); right: 16px; }
+.phbtns { display: flex; flex-direction: column; gap: 10px; width: min(100%, 320px); }
+.phpick { display: grid; place-items: center; cursor: pointer; }
+.pf-av { position: relative; display: inline-block; transform-origin: 50% 0; will-change: transform; cursor: pointer; }
+.pf-plus { position: absolute; right: 4px; bottom: 4px; width: 28px; height: 28px; background: var(--bg); color: var(--fg); border: 2px solid var(--fg); display: grid; place-items: center; font-weight: 900; font-size: 18px; line-height: 1; clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
+.pf-mini { position: sticky; top: -16px; z-index: 5; margin: -24px -16px 0; padding: 10px 16px; display: flex; align-items: center; gap: 12px; background: var(--bg); border-bottom: 1px solid var(--line); opacity: 0; pointer-events: none; will-change: opacity, transform; }
+.pf-mini b { display: block; font-family: var(--display); font-stretch: 110%; font-weight: 900; font-size: 16px; text-transform: uppercase; }
+.pf-mini small { font-size: 12px; color: var(--muted); }
+.pf .pdecs { gap: 8px; } .pf .pdec b { font-size: 20px; } .pf .pdec span { font-size: 9px; }
+.pf .pdec { aspect-ratio: auto; height: 84px; padding: 4px; }
+.pf-line { display: grid; grid-template-columns: repeat(3, 1fr); }
+.pf-line > div { display: flex; flex-direction: column; gap: 2px; padding: 2px 10px; } .pf-line > div:first-child { padding-left: 0; } .pf-line > div + div { border-left: 1px solid var(--fg); }
+.pf-line b { font-family: var(--display); font-stretch: 75%; font-weight: 800; font-size: 22px; } .pf-line span { font-size: 11px; color: var(--muted); }
+/* profile edit */
+.pe-top { display: flex; gap: 16px; align-items: flex-start; }
+.pe-av { position: relative; flex: none; }
+.pe-names { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.pe-user { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.pe-blk { border-bottom: 1px solid var(--line); padding: 14px 0; }
+.pe-blk:first-child { border-top: 1px solid var(--line); }
+.pe-h { display: flex; align-items: center; gap: 12px; } .pe-h b { flex: 1; font-family: var(--display); font-stretch: 110%; font-weight: 900; font-size: 17px; text-transform: uppercase; }
+.pe-h .hic svg { width: 20px; height: 20px; }
+.pe-blk.off .pe-h b, .pe-blk.off .pe-h .hic { opacity: .4; }
+.pe-b { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.pe-list { padding-bottom: 80px; }
+.savebar { position: fixed; left: 16px; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 15; width: auto; max-width: 480px; margin: 0 auto; box-shadow: 0 -8px 24px rgba(0,0,0,.5); animation: savein .25s ease-out; }
+@keyframes savein { from { transform: translateY(20px); opacity: 0; } }
+.phpick { display: flex; align-items: center; justify-content: center; text-align: center; }
