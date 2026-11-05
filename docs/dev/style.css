@@ -938,3 +938,53 @@ body:has(#onb) .overlay, body:has(#inst) .overlay { z-index: 96; }
 .savebar { position: fixed; left: 16px; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 15; width: auto; max-width: 480px; margin: 0 auto; box-shadow: 0 -8px 24px rgba(0,0,0,.5); animation: savein .25s ease-out; }
 @keyframes savein { from { transform: translateY(20px); opacity: 0; } }
 .phpick { display: flex; align-items: center; justify-content: center; text-align: center; }
+/* v0.11 dev tools in app style */
+.dev2 { display: flex; flex-direction: column; gap: 24px; }
+.dev2 .sect h2 { color: #ffd400; }
+.dlabel { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.dseg { width: 100%; } .dseg button { flex: 1; padding: 10px 4px; font-size: 11px; }
+.dopts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dopts button { border: 1px solid var(--line); padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: var(--display); font-weight: 800; font-size: 13px; text-transform: uppercase; }
+.dopts button small { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; color: var(--muted); }
+.dopts button.on { border: 2px solid #ffd400; } .dopts button.on small { color: #ffd400; font-weight: 700; }
+.dvers { grid-template-columns: repeat(4, 1fr); } .dvers button span { font-size: 15px; }
+.dlist { display: flex; flex-direction: column; }
+.drow { display: flex; gap: 10px; align-items: center; border-bottom: 1px solid var(--line); padding: 4px 0; }
+.drow input { flex: 1; min-width: 0; background: none; border: 0; color: var(--fg); font-size: 14px; padding: 10px 0; outline: none; }
+.drow .textbtn { flex: none; }
+.dstat { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); padding: 8px 0; } .dstat span { color: var(--muted); font-size: 13px; }
+.dlink { display: grid; place-items: center; text-decoration: none; }
+.inst .mainbtn { font-family: var(--display); font-stretch: 110%; font-weight: 900; text-transform: uppercase; letter-spacing: .02em; }
+.ins-home b.ins-app { aspect-ratio: 1; border-radius: 9px; background: #0b0b0a; border: 1px solid var(--line); display: grid; place-items: center; animation: om-pts 2.4s ease-in-out infinite; }
+.ins-app .dec { width: 74%; height: 74%; background: #f3f3ef; color: #0b0b0a; display: grid; place-items: center; font-size: 6px; font-weight: 900; }
+/* v0.11 seasons */
+#season .flake { border-radius: 0; background: center / contain no-repeat; }
+#season .sleigh { top: var(--y, 12vh); left: 0; width: 210px; opacity: .95; color: inherit; animation: fly 24s linear infinite; }
+#season .sleigh.rtl { animation-name: fly-rtl; } #season .sleigh.rtl .sl-in { transform: scaleX(-1); }
+@keyframes fly { 0% { transform: translate(-240px, 20px) rotate(-4deg); } 22% { transform: translate(calc(100vw + 30px), -20px) rotate(-4deg); } 100% { transform: translate(calc(100vw + 30px), -20px); } }
+@keyframes fly-rtl { 0% { transform: translate(calc(100vw + 30px), 20px) rotate(4deg); } 22% { transform: translate(-240px, -20px) rotate(4deg); } 100% { transform: translate(-240px, -20px); } }
+#season .sleigh svg { width: 100%; height: auto; display: block; overflow: visible; }
+.sleigh .wave { transform-origin: 50px 38px; animation: wave .6s ease-in-out infinite alternate; }
+@keyframes wave { from { transform: rotate(-18deg); } to { transform: rotate(14deg); } }
+.sleigh .leg-a, .sleigh .leg-b { transform-box: fill-box; transform-origin: top; animation: gallop .35s ease-in-out infinite alternate; } .sleigh .leg-b { animation-direction: alternate-reverse; }
+@keyframes gallop { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+.sleigh .rudolph { filter: drop-shadow(0 0 4px #ff2a2a); animation: glow 1s ease-in-out infinite alternate; }
+@keyframes glow { from { opacity: .7; } to { opacity: 1; } }
+#season .bunny { bottom: calc(96px + env(safe-area-inset-bottom, 0px) + var(--y, 0px)); width: 58px; opacity: 1; color: inherit; animation: bunnyrun 20s linear infinite; }
+#season .bunny.rtl { animation-name: bunnyrun-rtl; } #season .bunny.rtl .bn-in { transform: scaleX(-1); }
+@keyframes bunnyrun-rtl { 0% { transform: translateX(calc(100vw + 20px)); } 30% { transform: translateX(-70px); } 100% { transform: translateX(-70px); } }
+#season .bunny svg { animation: hop2 .55s cubic-bezier(.3,.6,.4,1) infinite; transform-origin: 50% 100%; }
+@keyframes hop2 { 0% { transform: translateY(0) scale(1.06, .92); } 40% { transform: translateY(-22px) scale(.96, 1.05) rotate(-6deg); } 80% { transform: translateY(-4px) rotate(4deg); } 100% { transform: translateY(0) scale(1.06, .92); } }
+/* decorations sit on the start decagon and pulse with it */
+.hero > * { grid-area: 1 / 1; }
+.ss-wrap { position: relative; z-index: 2; pointer-events: none; width: min(80vw, 46vh, 340px); aspect-ratio: 1; }
+.ss-wrap .ss-deco { position: absolute; transform: none; width: auto; left: auto; top: auto; }
+.season-xmas .ss-wrap .ss-deco { left: 78%; top: 11.5%; width: 40%; transform: translate(-50%, -86%) rotate(36deg); transform-origin: 50% 86%; }
+.season-easter .ss-wrap .ss-deco { left: 50%; top: 3%; width: 36%; transform: translate(-50%, -92%); }
+.ss-wrap .ss-deco svg { width: 100%; height: auto; display: block; overflow: visible; animation: decohop 2.6s ease-in-out infinite; }
+@keyframes decohop { 0%, 60%, 100% { transform: translateY(0); } 70% { transform: translateY(-7%); } 80% { transform: translateY(0); } 86% { transform: translateY(-2%); } }
+/* timer decagon in the workout */
+.season-xmas .ss-mini { left: 78%; top: 11.5%; width: 42%; transform: translate(-50%, -86%) rotate(36deg); transform-origin: 50% 86%; }
+.season-easter .ss-mini { left: 50%; top: 3%; width: 38%; transform: translate(-50%, -92%); }
+.season-easter .wtop .overall, .season-xmas .wtop .overall { display: flex; justify-content: space-between; }
+.season-easter .wtop > div:nth-child(2) .eyebrow { visibility: hidden; }

@@ -323,7 +323,7 @@ const LAST = {}; Object.keys(EX).forEach(k => { const s = sessionsFor(k)[0]; if 
 function lastAgoW(id) { const h = HISTORY.filter(x => x.wid === id).sort((a,b) => a.ago - b.ago)[0]; return h ? h.ago : null; }
 function lastAgoEx(k) { const s = sessionsFor(k)[0]; return s ? s.ago : null; }
 function toast(msg) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; $('app').appendChild(d); setTimeout(() => d.remove(), 2200); }
-function greeting() { const h = new Date().getHours(); const slot = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 14 ? 'noon' : h >= 14 && h < 18 ? 'afternoon' : h >= 18 && h < 22 ? 'evening' : 'night'; const l = t('greet')[slot]; return l[Math.floor(Math.random() * l.length)]; }
+function greeting() { try { const sz = seasonNow(); if (sz && Math.random() < .6) { const l = SEASON_GREET[sz][S.lang]; return l[Math.floor(Math.random() * l.length)]; } } catch (e) { /* seasons not loaded yet */ } const h = new Date().getHours(); const slot = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 14 ? 'noon' : h >= 14 && h < 18 ? 'afternoon' : h >= 18 && h < 22 ? 'evening' : 'night'; const l = t('greet')[slot]; return l[Math.floor(Math.random() * l.length)]; }
 let greetText = '';
 const ICON = {
   bb:'<path d="M.8 12h22.4"/><rect x="2.6" y="8" width="1.8" height="8" rx=".3"/><rect x="4.6" y="9.3" width="1.2" height="5.4" rx=".3"/><rect x="19.6" y="8" width="1.8" height="8" rx=".3"/><rect x="18.2" y="9.3" width="1.2" height="5.4" rx=".3"/>',
@@ -522,7 +522,7 @@ function renderStart() {
   const canResume = lastFinished && Date.now() - lastFinished.at < 30 * 60000, wk = weekStats();
   $('v-start').innerHTML = `<div class="inner">${ghWarn()}
     <div class="ptsline" id="ptsbtn" role="button" tabindex="0"><div class="pv"><b class="num">${fmt(totalPts())}</b><strong>${t('points')}</strong><span class="ptschev">${CHEV}</span></div><small>Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</small></div>
-    <div class="hero">${seasonDeco() ? `<span class="ss-deco">${seasonDeco()}</span>` : ''}<button class="octa dec pulse" id="go"><span class="greet" id="greet">${esc(greetText)}</span><span class="cta">${t('cta')}</span><span class="tap">${t('tap')}</span></button></div>
+    <div class="hero">${seasonDeco() ? `<span class="ss-wrap pulse"><span class="ss-deco">${seasonDeco()}</span></span>` : ''}<button class="octa dec pulse" id="go"><span class="greet" id="greet">${esc(greetText)}</span><span class="cta">${t('cta')}</span><span class="tap">${t('tap')}</span></button></div>
     ${canResume ? `<button class="resume" id="resume"><span><b>${t('resume')}</b><small>${esc(lastFinished.W.name)} · ${t('resumeLeft', Math.ceil((30*60000 - (Date.now() - lastFinished.at)) / 60000))}</small></span>${CHEV}</button>` : ''}
     <div><div class="weekhead"><span>${t('thisWeek')}</span><small>${t('vsLastShort')}</small></div>
       <div class="weekstats num"><div><b>${wk.n}</b><span>${t('workouts')} ${deltaTag(wk.n, wk.n0, true)}</span></div><div><b>${volTxt(wk.vol)}</b><span>${t('moved')} ${deltaTag(wk.vol, wk.vol0)}</span></div><div><b>${wk.min}</b><span>${t('minutes')} ${deltaTag(wk.min, wk.min0)}</span></div></div></div>
@@ -1531,21 +1531,35 @@ const loadAnim = () => seasonNow() || S.anim;
 function fetchRemote() {
   fetch(ROOT + 'season.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(j => { const n = SEASONS[j.season] ? j.season : ''; if (n !== REMOTE_SEASON) { REMOTE_SEASON = n; applySeason(); } }).catch(() => {});
 }
-const HAT = '<svg class="ss-hat" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 62 C20 30 40 8 70 6 C84 5 92 14 94 26 C82 20 70 22 62 34 L58 62 Z" fill="#d6262e"/><circle cx="94" cy="28" r="9" fill="#fff"/><rect x="2" y="56" width="66" height="18" rx="9" fill="#fff"/></svg>';
-const EARS = '<svg class="ss-ears" viewBox="0 0 100 80" aria-hidden="true"><path d="M30 78 C18 50 18 12 32 4 C44 -2 48 40 44 78 Z" fill="#f3f3ef" stroke="#0b0b0a" stroke-width="3"/><path d="M33 70 C26 50 27 22 33 14 C38 22 39 50 38 70 Z" fill="#f4a7c0"/><path d="M58 78 C56 40 62 0 74 4 C88 10 84 50 72 78 Z" fill="#f3f3ef" stroke="#0b0b0a" stroke-width="3"/><path d="M63 70 C63 48 66 22 72 14 C78 24 74 50 68 70 Z" fill="#f4a7c0"/></svg>';
-const SLEIGH = '<svg viewBox="0 0 220 60" aria-hidden="true"><g fill="currentColor"><path d="M150 40h52c6 0 10-6 8-12l-4-10h-8l3 9h-46z"/><path d="M146 50h70v4h-70z"/><circle cx="182" cy="14" r="6"/><path d="M176 22h12v14h-12z"/><path d="M60 30c10-10 26-12 40-4l6-12 4 2-4 14c6 6 4 12-2 14H64c-8 0-10-8-4-14z"/><path d="M66 44l-6 14h4l6-12zM94 44l6 14h-4l-6-12z"/><path d="M104 16l6-12 3 1-5 12zM100 14l-2-12 3-1 2 12z"/><path d="M6 32c8-8 22-10 34-4l5-10 4 2-3 12c5 5 3 10-2 12H10c-7 0-8-7-4-12z"/><path d="M12 44l-5 12h4l5-10zM36 44l5 12h-4l-5-10z"/><path d="M40 40l110 4v2L40 42z"/></g></svg>';
-const BUNNY = '<svg viewBox="0 0 80 70" aria-hidden="true"><g fill="currentColor"><ellipse cx="38" cy="48" rx="22" ry="16"/><circle cx="62" cy="34" r="11"/><path d="M58 26c-4-14-2-24 3-24s5 12 3 24z"/><path d="M66 26c0-14 4-23 9-22s2 13-4 23z"/><circle cx="16" cy="44" r="6"/><path d="M48 60h10v8H48zM24 60h10v8H24z"/></g></svg>';
+// Santa hat: white brim, red cap leaning right, white pompom (fully inside the viewBox)
+const HAT = '<svg class="ss-hat" viewBox="0 0 100 92" aria-hidden="true"><path d="M14 70 C18 40 34 14 60 10 C76 8 86 16 88 30 C80 26 70 28 64 36 C58 46 58 58 60 70 Z" fill="#d6262e"/><path d="M60 10 C76 8 86 16 88 30 C80 26 70 28 64 36" fill="#b51c24"/><circle cx="86" cy="32" r="9" fill="#fff"/><rect x="8" y="64" width="62" height="18" rx="9" fill="#fff"/></svg>';
+// bunny ears: brown outside, pink inside (same colours as the hopping bunny)
+const EARS = '<svg class="ss-ears" viewBox="0 0 100 90" aria-hidden="true"><g transform="rotate(-10 32 86)"><path d="M24 88 C14 58 14 16 30 6 C44 -2 50 44 42 88 Z" fill="#9a6b3f"/><path d="M28 80 C22 56 23 24 31 14 C38 24 40 54 37 80 Z" fill="#f4a7c0"/></g><g transform="rotate(10 68 86)"><path d="M58 88 C52 44 58 -2 72 6 C88 16 86 58 76 88 Z" fill="#9a6b3f"/><path d="M63 80 C62 54 64 24 71 14 C79 24 78 56 72 80 Z" fill="#f4a7c0"/></g></svg>';
+// Santa in a red sleigh, pulled by brown reindeer, Rudolph in front with a red nose (faces right = flies right)
+const REIN = (x, nose) => `<g transform="translate(${x} 0)"><g class="leg-a"><path d="M10 52 l-6 16 M16 52 l-2 17" stroke="#6b4423" stroke-width="3" stroke-linecap="round"/></g><g class="leg-b"><path d="M34 52 l8 15 M40 51 l4 16" stroke="#6b4423" stroke-width="3" stroke-linecap="round"/></g><ellipse cx="26" cy="46" rx="20" ry="9" fill="#8b5a2b"/><path d="M6 44 q-6 -2 -6 -6" stroke="#8b5a2b" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M42 44 q6 -10 8 -18" stroke="#8b5a2b" stroke-width="8" stroke-linecap="round" fill="none"/><ellipse cx="55" cy="24" rx="8" ry="6" fill="#8b5a2b"/><path d="M50 18 l-4 -12 m2 6 l-6 -2 M56 18 l2 -13 m-1 6 l5 -3" stroke="#5a3a1c" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="56" cy="22" r="1.4" fill="#111"/><circle cx="63" cy="26" r="${nose ? 3.6 : 2.4}" fill="${nose ? '#ff2a2a' : '#3a2412'}" ${nose ? 'class="rudolph"' : ''}/></g>`;
+const SLEIGH = `<svg viewBox="0 0 300 80" aria-hidden="true"><path d="M86 52 C120 50 140 46 164 44 M86 52 C120 52 150 50 228 44" stroke="#c9a227" stroke-width="1.5" fill="none"/>${REIN(150, false)}${REIN(222, true)}
+  <g class="santa"><circle cx="40" cy="26" r="9" fill="#f2c9a0"/><path d="M31 27 q9 16 18 0 q-2 8 -9 9 q-7 -1 -9 -9z" fill="#fff"/><path d="M31 22 q9 -16 20 -4 l6 -6" stroke="#d6262e" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="58" cy="12" r="3.5" fill="#fff"/><rect x="30" y="20" width="21" height="4" rx="2" fill="#fff"/><path d="M28 36 h24 v14 h-24z" fill="#d6262e"/>
+  <g class="wave"><path d="M50 38 l12 -12" stroke="#d6262e" stroke-width="5" stroke-linecap="round"/><circle cx="63" cy="25" r="3.5" fill="#f3f3ef"/></g></g>
+  <path d="M10 40 h74 c6 0 8 6 6 12 l-4 8 h-70 c-6 0 -8 -4 -8 -8z" fill="#d6262e"/><path d="M18 44 h58" stroke="#ffd400" stroke-width="2"/><path d="M4 66 h84 c6 0 8 -6 4 -8" stroke="#c9a227" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M20 60 v6 M74 60 v6" stroke="#c9a227" stroke-width="3"/></svg>`;
+// brown bunny with pink inner ears, side view, faces right
+const BUNNY = '<svg viewBox="0 0 90 70" aria-hidden="true"><ellipse cx="36" cy="46" rx="22" ry="15" fill="#9a6b3f"/><circle cx="22" cy="48" r="12" fill="#9a6b3f"/><ellipse cx="40" cy="52" rx="12" ry="7" fill="#c49a6c"/><circle cx="12" cy="44" r="6" fill="#fff"/><circle cx="60" cy="34" r="12" fill="#9a6b3f"/><path d="M56 26 C48 10 50 0 56 2 C62 4 62 16 61 25 Z" fill="#9a6b3f"/><path d="M57 22 C53 12 54 6 56 6 C59 8 59 15 59 22 Z" fill="#f4a7c0"/><path d="M63 25 C62 9 68 1 72 4 C76 8 70 18 66 26 Z" fill="#8a5d35"/><circle cx="65" cy="32" r="2" fill="#111"/><circle cx="71" cy="37" r="2" fill="#f4a7c0"/><path d="M50 58 l4 8 M28 58 l-4 8" stroke="#7a5230" stroke-width="5" stroke-linecap="round"/></svg>';
+const FLAKE = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10"/><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M5.2 8.1l-.6-2.8M5.2 8.1l-2.7.8M18.8 15.9l.6 2.8M18.8 15.9l2.7-.8M5.2 15.9l-2.7-.8M5.2 15.9l-.6 2.8M18.8 8.1l2.7.8M18.8 8.1l.6-2.8"/></svg>');
 function applySeason() {
   const sz = seasonNow(), app = $('app'); app.classList.toggle('season-xmas', sz === 'xmas'); app.classList.toggle('season-easter', sz === 'easter');
   let layer = $('season'); if (!sz) { if (layer) layer.remove(); if (tab === 'start' && !W) renderStart(); return; }
-  if (!layer || layer.dataset.s !== sz) { if (layer) layer.remove(); layer = document.createElement('div'); layer.id = 'season'; layer.dataset.s = sz; layer.setAttribute('aria-hidden', 'true');
+  if (!layer || layer.dataset.s !== sz) { if (layer) layer.remove(); greetText = greeting(); layer = document.createElement('div'); layer.id = 'season'; layer.dataset.s = sz; layer.setAttribute('aria-hidden', 'true');
     const R = (a, b) => (a + Math.random() * (b - a)).toFixed(2);
-    if (sz === 'xmas') layer.innerHTML = Array.from({ length: 34 }, () => `<i class="flake" style="left:${R(0, 100)}%;width:${R(3, 7)}px;height:${R(3, 7)}px;animation-duration:${R(9, 18)}s,${R(3, 6)}s;animation-delay:-${R(0, 18)}s,-${R(0, 6)}s;opacity:${R(.35, .85)}"></i>`).join('') + `<div class="sleigh">${SLEIGH}</div>`;
-    else layer.innerHTML = Array.from({ length: 12 }, (_, i) => `<i class="egg" style="left:${R(2, 94)}%;animation-duration:${R(14, 24)}s;animation-delay:-${R(0, 24)}s;--c:${['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0'][i % 5]}"></i>`).join('') + `<div class="bunny">${BUNNY}</div>`;
+    if (sz === 'xmas') layer.innerHTML = Array.from({ length: 30 }, () => { const z = R(7, 15); return `<i class="flake" style="left:${R(0, 100)}%;width:${z}px;height:${z}px;background-image:url('${FLAKE}');animation-duration:${R(10, 20)}s,${R(3, 6)}s;animation-delay:-${R(0, 20)}s,-${R(0, 6)}s;opacity:${R(.45, .9)}"></i>`; }).join('') + `<div class="sleigh"><div class="sl-in">${SLEIGH}</div></div>`;
+    else layer.innerHTML = `<div class="bunny"><div class="bn-in">${BUNNY}</div></div>`;
+    // every pass a new route: other height, other direction
+    const flyer = layer.querySelector('.sleigh, .bunny'), reroute = () => { const rtl = Math.random() < .5; flyer.style.setProperty('--y', sz === 'xmas' ? (Math.random() < .5 ? R(1, 7) : R(58, 64)) + 'vh' : R(0, 24) + 'px'); flyer.classList.toggle('rtl', rtl); };
+    reroute(); flyer.addEventListener('animationiteration', reroute);
     $('app').appendChild(layer); }
   if (tab === 'start' && !W) renderStart();
 }
 const seasonDeco = () => seasonNow() === 'xmas' ? HAT : seasonNow() === 'easter' ? EARS : '';
+const SEASON_GREET = { xmas: { de: ['Ho ho ho, Zeit für Gains.', 'Plätzchen verbrennen sich nicht von allein.', 'Fit unterm Tannenbaum.', 'Jingle Bells, schwere Hanteln.', 'Erst Training, dann Glühwein.'], en: ['Ho ho ho, gains time.', 'Cookies do not burn themselves.', 'Fit under the tree.', 'Jingle bells, heavy weights.', 'Training first, mulled wine later.'] },
+  easter: { de: ['Hopp hopp, ab ins Gym.', 'Schokohasen trainieren nicht.', 'Eier suchen? Lieber Gains finden.', 'Frohe Ostern, starke Beine.', 'Der Osterhase macht Kniebeugen.'], en: ['Hop hop, off to the gym.', 'Chocolate bunnies do not train.', 'Hunting eggs? Find gains instead.', 'Happy Easter, strong legs.', 'The Easter bunny does squats.'] } };
 
 // ================= Browser vs. home screen: install guide =================
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -1561,7 +1575,7 @@ function showInstall(preview) {
     if (k === 'share') return `<div class="om-phone ins"><div class="ins-page"></div><div class="ins-bar"><i></i><i></i><span class="ins-hl">${sh}<span class="om-finger ins-f"></span></span><i></i><i></i></div></div>`;
     if (k === 'menu') return `<div class="om-phone ins"><div class="ins-top"><span>pdbp-hub.github.io</span><span class="ins-hl">⋮<span class="om-finger ins-f"></span></span></div><div class="ins-page"></div></div>`;
     if (k === 'add') return `<div class="om-phone ins"><div class="ins-sheet"><div class="ins-row"></div><div class="ins-row"></div><div class="ins-row ins-hl">${osn === 'ios' ? (de ? 'Zum Home-Bildschirm' : 'Add to Home Screen') : (de ? 'App installieren' : 'Install app')} ＋<span class="om-finger ins-f"></span></div><div class="ins-row"></div></div></div>`;
-    if (k === 'done') return `<div class="om-phone ins ins-home">${Array.from({ length: 7 }, () => '<i></i>').join('')}<b class="dec">TRAIN</b></div>`;
+    if (k === 'done') return `<div class="om-phone ins ins-home">${Array.from({ length: 7 }, () => '<i></i>').join('')}<b class="ins-app"><span class="dec">TRAIN</span></b></div>`;
     return `<div class="om-phone ins"><div class="ins-top"><span>pdbp-hub.github.io/Fitter</span></div><div class="ins-page"><div class="om-dec dec" style="width:70px;height:70px;font-size:11px">TRAIN</div></div></div>`; };
   const draw = () => {
     if (!os) { el.innerHTML = `<div class="onb-in inst-home"><div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview ? '<button class="iconbtn" id="inst-x" aria-label="Schließen">✕</button>' : '<span></span>'}</div>
@@ -1641,55 +1655,72 @@ function confirmLive(title, text, fn) {
 }
 let VERSIONS = null;
 function loadVersions(cb) { Promise.all([fetch(ROOT + 'versions/index.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []), fetch(ROOT + 'live.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]).then(([v, l]) => { VERSIONS = v; REMOTE_LIVE = l.version || null; cb(); }); }
+const PUSH_CATS = {
+  inactive: { de: ['Deine Hanteln vermissen dich.', 'Eine Woche Pause ist genug. Zeit fürs Comeback!', 'Dein Level wartet auf Points.'], en: ['Your dumbbells miss you.', 'A week off is enough. Comeback time!', 'Your level is waiting for points.'] },
+  record: { de: ['Starkes Training heute! Gönn dir eine Pause.', 'Neuer Rekord. Jetzt Protein und Schlaf.', 'Das war stark. Erholung gehört dazu.'], en: ['Strong session today! Take a break.', 'New record. Now protein and sleep.', 'That was strong. Recovery is part of it.'] } };
+const pushCfg = () => { const c = S.pushCfg || {}; return { inactive: Object.assign({ on: true, days: 7, msgs: S.pushMsgs || PUSH_CATS.inactive[S.lang] }, c.inactive), record: Object.assign({ on: true, msgs: PUSH_CATS.record[S.lang] }, c.record) }; };
+const DEV_LINK = 'https://pdbp-hub.github.io/Fitter/dev/?install';
 function devHTML() {
-  const sz = S.seasonPreview == null ? 'live' : S.seasonPreview || 'off', segb = (v, l) => `<button data-spv="${v}" class="${sz === v ? 'on' : ''}">${l}</button>`;
-  const msgs = S.pushMsgs || PUSH_DEFAULT[S.lang];
-  return `<div class="devtools">
-    <b>Ansehen & testen</b>
-    <button id="dev-onb">${t('devOnb')}</button><button id="dev-intro">${t('devIntro')}</button><button id="dev-celeb">${t('devCeleb')}</button><button id="dev-charts">Charts-Test</button><button id="dev-inst">Browser-Ansicht (Installations-Anleitung)</button><button id="reseed">${t('reseed')}</button>
-    <p class="hint">Link zum Testen im Browser: <span class="num">pdbp-hub.github.io/Fitter/?install</span> <button class="textbtn" id="dev-instlink">kopieren</button></p>
+  const de = S.lang === 'de', sz = S.seasonPreview == null ? 'live' : S.seasonPreview || 'off', pc = pushCfg();
+  const tool = (id, title, hint) => `<button class="setrow sprow" id="${id}"><div style="flex:1;text-align:left"><b>${title}</b>${hint ? `<p>${hint}</p>` : ''}</div>${CHEV}</button>`;
+  const seg = (attr, opts, cur) => `<div class="seg dseg">${opts.map(([v, l]) => `<button data-${attr}="${v}" class="${cur === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  const list = cat => `<div class="dlist">${pc[cat].msgs.map((m, j) => `<div class="drow"><input data-pmsg="${cat}:${j}" value="${esc(m)}"><button class="textbtn" data-ptest="${cat}:${j}">Test</button><button class="sx" data-pdel="${cat}:${j}" aria-label="Löschen">✕</button></div>`).join('')}<button class="addset" data-padd="${cat}">+ Spruch</button></div>`;
+  const vers = VERSIONS || [], showV = devVerAll ? vers : vers.slice(0, 4);
+  return `<div class="dev2">
+    <div class="sect"><h2>Ansehen & testen</h2><div>
+      ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('reseed', t('reseed'))}</div>
+      <a class="ghostbtn dlink" href="${DEV_LINK}" target="_blank" rel="noopener">Im Browser (Safari) öffnen</a></div>
 
-    <b style="margin-top:18px">Seasons</b>
-    <p class="hint">Vorschau nur hier in Dev. „Live“ = was alle Nutzer gerade sehen: <b>${REMOTE_SEASON ? SEASONS[REMOTE_SEASON].de : 'keine'}</b></p>
-    <div class="seg devseg">${segb('live', 'Wie live')}${segb('off', 'Aus')}${segb('xmas', 'Weihnachten')}${segb('easter', 'Ostern')}</div>
-    <div class="devrowbtns"><button class="ghostbtn" data-golive="xmas">Weihnachten live</button><button class="ghostbtn" data-golive="easter">Ostern live</button><button class="ghostbtn" data-golive="">Season aus (live)</button></div>
+    <div class="sect"><h2>Seasons</h2>
+      <div class="dlabel">Vorschau, nur hier in Dev</div>${seg('spv', [['live', 'Wie live'], ['off', 'Aus'], ['xmas', 'Weihnachten'], ['easter', 'Ostern']], sz)}
+      <div class="dlabel">Live für alle Nutzer</div>
+      <div class="dopts">${[['', 'Keine'], ['xmas', 'Weihnachten'], ['easter', 'Ostern']].map(([v, l]) => `<button class="${REMOTE_SEASON === v ? 'on' : ''}" data-golive="${v}">${l}${REMOTE_SEASON === v ? '<small>LIVE</small>' : ''}</button>`).join('')}</div>
+      <p class="hint">Antippen = live schalten (mit Rückfrage und PIN).</p></div>
 
-    <b style="margin-top:18px">Live-Version</b>
-    <p class="hint">Live läuft: <b class="num">${REMOTE_LIVE || 'Standard (letzte Freigabe)'}</b>. Version wählen und live schalten, auch zurück auf eine ältere.</p>
-    <div class="devrowbtns"><select id="dev-ver" class="devsel">${(VERSIONS || []).map(v => `<option value="${esc(v.v)}" ${v.v === REMOTE_LIVE ? 'selected' : ''}>${esc(v.v)}${v.date ? ' · ' + esc(v.date) : ''}</option>`).join('') || '<option>(Liste wird geladen …)</option>'}</select><button class="ghostbtn" id="dev-verlive">Live schalten</button></div>
+    <div class="sect"><h2>Live-Version</h2>
+      <div class="dopts dvers">${showV.map(v => `<button class="${v.v === REMOTE_LIVE ? 'on' : ''}" data-ver="${esc(v.v)}"><span class="num">${esc(v.v)}</span><small>${v.v === REMOTE_LIVE ? 'LIVE' : esc(v.date || '')}</small></button>`).join('') || '<p class="hint">Liste wird geladen …</p>'}</div>
+      ${vers.length > 4 ? `<button class="calbtn" id="dev-verall">${devVerAll ? 'Weniger ▴' : `Alle ${vers.length} Versionen ▾`}</button>` : ''}
+      <p class="hint">${REMOTE_LIVE ? '' : 'Live läuft die letzte Freigabe. '}Antippen = diese Version live schalten.</p></div>
 
-    <b style="margin-top:18px">Push-Mitteilungen</b>
-    <p class="hint">Automatisch nach <b class="num">${S.pushDays || 4}</b> Tagen ohne Training, zufälliger Spruch aus der Liste. Versand an alle braucht den Server und kommt mit dem Cloud-Modus. „Test an mich“ geht schon jetzt.</p>
-    <div class="seg devseg">${[2, 3, 4, 7].map(d => `<button data-pdays="${d}" class="${(S.pushDays || 4) === d ? 'on' : ''}">${d} Tage</button>`).join('')}</div>
-    <div class="pushlist">${msgs.map((m, j) => `<div class="pushrow"><input data-pmsg="${j}" value="${esc(m)}"><button class="sx" data-pdel="${j}" aria-label="Löschen">✕</button><button class="textbtn" data-ptest="${j}">Test</button></div>`).join('')}</div>
-    <button id="dev-padd">+ Spruch hinzufügen</button>
-    <div class="pushrow"><input id="dev-pnow" placeholder="Eigene Nachricht an alle (z. B. Aktion)"><button class="textbtn" id="dev-psend">Senden</button></div>
+    <div class="sect"><h2>Push-Mitteilungen</h2>
+      <div class="pe-h"><b>Nach Inaktivität</b>${`<button class="toggle" id="pc-inactive" role="switch" aria-checked="${pc.inactive.on}"><i></i></button>`}</div>
+      <div class="dlabel">Wenn so lange kein Training war</div>${seg('pdays', [[4, '4 Tage'], [7, '7 Tage'], [14, '14 Tage']], pc.inactive.days)}
+      ${list('inactive')}
+      <div class="pe-h" style="margin-top:14px"><b>Nach einem Rekord</b>${`<button class="toggle" id="pc-record" role="switch" aria-checked="${pc.record.on}"><i></i></button>`}</div>
+      <div class="dlabel">5 Minuten nach dem Speichern, wenn ein neuer Rekord dabei war</div>
+      ${list('record')}
+      <div class="dlabel" style="margin-top:14px">Eigene Nachricht an alle</div>
+      <div class="drow"><input id="dev-pnow" placeholder="z. B. Aktion"><button class="textbtn" id="dev-psend">Senden</button></div>
+      <p class="hint">Automatik und Senden an alle laufen mit dem Cloud-Modus. „Test“ schickt dir die Mitteilung schon jetzt.</p></div>
 
-    <b style="margin-top:18px">Freigabe-Schlüssel</b>
-    <p class="hint">Für „live schalten“ braucht die App einmalig einen GitHub-Schlüssel (fein eingeschränkt: nur dieses Repo, nur Inhalte schreiben). Er bleibt nur auf diesem Gerät gespeichert, verschlüsselt mit deiner 6-stelligen Master-PIN, nie in den App-Daten oder der Cloud. PIN vergessen: Schlüssel entfernen und neu hinterlegen. Status: <b>${ghKey() ? 'hinterlegt' : 'fehlt'}</b>${ghKey() ? ` · <b class="${(ghDaysLeft() ?? 99) <= 2 ? 'ghred' : ''}">${ghExpText() || 'Laufzeit unbekannt'}</b>` : ''}</p>
-    <div class="pushrow"><input id="dev-ghkey" type="password" placeholder="github_pat_…" autocomplete="off"><button class="textbtn" id="dev-ghsave">${ghKey() ? 'Ersetzen' : 'Speichern'}</button>${ghKey() ? '<button class="textbtn" id="dev-ghdel">Entfernen</button>' : ''}</div>
+    <div class="sect"><h2>Freigabe-Schlüssel</h2>
+      <div class="dstat"><span>Status</span><b class="${ghKey() && (ghDaysLeft() ?? 99) <= 2 ? 'ghred' : ''}">${ghKey() ? (ghExpText() || 'hinterlegt') : 'fehlt'}</b></div>
+      <div class="drow"><input id="dev-ghkey" type="password" placeholder="github_pat_…" autocomplete="off"><button class="textbtn" id="dev-ghsave">${ghKey() ? 'Ersetzen' : 'Speichern'}</button>${ghKey() ? '<button class="textbtn" id="dev-ghdel">Entfernen</button>' : ''}</div>
+      <p class="hint">Nur auf diesem Gerät, verschlüsselt mit deiner 6-stelligen PIN. PIN vergessen: entfernen und neu hinterlegen.</p></div>
   </div>`;
 }
+let devVerAll = false;
 function bindDev() {
-  const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
-  if (!VERSIONS) loadVersions(() => { if (setPage === 'dev') renderSettings(); });
+  const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; }, rr = () => { const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; };
+  if (!VERSIONS) loadVersions(() => { if (setPage === 'dev') rr(); });
   on('dev-onb', () => showOnboarding(true)); on('dev-intro', () => previewIntro()); on('dev-celeb', () => celebrate(seasonNow() || S.celeb));
   on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
-  on('dev-inst', () => showInstall(true));
-  on('dev-instlink', () => { const u = 'https://pdbp-hub.github.io/Fitter/?install'; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast(t('copied')), () => toast(u)); });
+  on('dev-inst', () => showInstall(true)); on('dev-verall', () => { devVerAll = !devVerAll; rr(); });
   on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
-  document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); renderSettings(); });
-  document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive;
-    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das ${SEASONS[v].de}s-Design.` : 'Alle Nutzer sehen wieder das normale Design.', async k => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`, k); REMOTE_SEASON = v; renderSettings(); }); });
-  on('dev-verlive', () => { const v = $('dev-ver').value; if (!VERSIONS || !VERSIONS.some(x => x.v === v)) return;
-    confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async k => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`, k); REMOTE_LIVE = v; renderSettings(); }); });
-  document.querySelectorAll('[data-pdays]').forEach(b => b.onclick = () => { S.pushDays = +b.dataset.pdays; save(); renderSettings(); });
-  const msgs = () => S.pushMsgs || PUSH_DEFAULT[S.lang].slice();
-  document.querySelectorAll('[data-pmsg]').forEach(inp => inp.onchange = () => { const m = msgs(); m[+inp.dataset.pmsg] = inp.value.trim(); S.pushMsgs = m.filter(Boolean); save(); renderSettings(); });
-  document.querySelectorAll('[data-pdel]').forEach(b => b.onclick = () => dialog('Spruch löschen?', esc(msgs()[+b.dataset.pdel]), [['Behalten', 'mainbtn', () => {}], ['Löschen', 'ghostbtn', () => { const m = msgs(); m.splice(+b.dataset.pdel, 1); S.pushMsgs = m; save(); renderSettings(); }]]));
-  document.querySelectorAll('[data-ptest]').forEach(b => b.onclick = () => testPush(msgs()[+b.dataset.ptest]));
-  on('dev-padd', () => { S.pushMsgs = msgs().concat(S.lang === 'de' ? 'Neuer Spruch' : 'New line'); save(); renderSettings(); });
-  on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return; dialog('An alle senden?', esc(v) + '<br><br>Der Versand an alle Nutzer braucht einen Server und kommt mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
+  document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); rr(); });
+  document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive; if (v === REMOTE_SEASON) return;
+    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das ${SEASONS[v].de}s-Design.` : 'Alle Nutzer sehen wieder das normale Design.', async k => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`, k); REMOTE_SEASON = v; rr(); }); });
+  document.querySelectorAll('[data-ver]').forEach(b => b.onclick = () => { const v = b.dataset.ver; if (v === REMOTE_LIVE) return;
+    confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async k => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`, k); REMOTE_LIVE = v; rr(); }); });
+  const cfg = () => { const c = pushCfg(); return c; }, put = c => { S.pushCfg = c; save(); rr(); };
+  on('pc-inactive', () => { const c = cfg(); c.inactive.on = !c.inactive.on; put(c); }); on('pc-record', () => { const c = cfg(); c.record.on = !c.record.on; put(c); });
+  document.querySelectorAll('[data-pdays]').forEach(b => b.onclick = () => { const c = cfg(); c.inactive.days = +b.dataset.pdays; put(c); });
+  const ref = x => { const [cat, j] = x.split(':'); return [cat, +j]; };
+  document.querySelectorAll('[data-pmsg]').forEach(inp => inp.onchange = () => { const c = cfg(), [cat, j] = ref(inp.dataset.pmsg); c[cat].msgs = c[cat].msgs.slice(); c[cat].msgs[j] = inp.value.trim(); c[cat].msgs = c[cat].msgs.filter(Boolean); put(c); });
+  document.querySelectorAll('[data-pdel]').forEach(b => b.onclick = () => { const c = cfg(), [cat, j] = ref(b.dataset.pdel); dialog('Spruch löschen?', esc(c[cat].msgs[j]), [['Behalten', 'mainbtn', () => {}], ['Löschen', 'ghostbtn', () => { c[cat].msgs = c[cat].msgs.filter((_, i) => i !== j); put(c); }]]); });
+  document.querySelectorAll('[data-ptest]').forEach(b => b.onclick = () => { const [cat, j] = ref(b.dataset.ptest); testPush(cfg()[cat].msgs[j]); });
+  document.querySelectorAll('[data-padd]').forEach(b => b.onclick = () => { const c = cfg(), cat = b.dataset.padd; c[cat].msgs = c[cat].msgs.concat('Neuer Spruch'); put(c); });
+  on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return; dialog('An alle senden?', esc(v) + '<br><br>Senden an alle läuft mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
   on('dev-ghsave', () => { const v = $('dev-ghkey').value.trim(); if (!v) return;
     const store = async (d, pin) => { try { localStorage.setItem('fitter.ghkey', await ghSeal(v, pin)); localStorage.setItem('fitter.ghexp', String(Date.now() + d * 864e5)); ['fitter.ghnote', 'fitter.ghfail', 'fitter.ghlock'].forEach(x => localStorage.removeItem(x)); } catch (e) { toast('Speichern fehlgeschlagen'); } renderSettings(); toast('Schlüssel mit PIN gespeichert'); };
     const keep = d => () => askPin('Master-PIN festlegen', 'Wähle eine 6-stellige PIN. Ohne sie kann niemand aus dieser App live schalten.', p1 => {
