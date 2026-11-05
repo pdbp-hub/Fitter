@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.9.0';
+const APP_VERSION = '0.10.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -367,6 +367,9 @@ function fitWords(node, text, avail) {
 let svgId = 0;
 function animSVG(kind, cool, paused) {
   const R = 94, o = decPts(100,100,R); const id = 'c' + (++svgId); let s = '';
+  // seasons: candy-cane stripes rising inside the decagon (Christmas), bouncing coloured eggs (Easter)
+  if (kind === 'xmas') { s = `<defs><clipPath id="${id}"><polygon points="${P(o)}"/></clipPath><pattern id="${id}p" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="28" height="28" fill="#f3f3ef"/><rect width="14" height="28" fill="#d6262e"/></pattern></defs><polygon points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="4"/><g clip-path="url(#${id})"><rect class="an a-fill" x="0" y="0" width="200" height="200" fill="url(#${id}p)"/></g>`; }
+  if (kind === 'easter') { s = `<polygon points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="4"/>`; ['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0'].forEach((c, i) => { s += `<ellipse class="an a-egg" style="animation-delay:${(i * .22).toFixed(2)}s" cx="${44 + i * 28}" cy="120" rx="12" ry="16" fill="${c}"/>`; }); }
   if (kind === 'breath') s = `<polygon class="an a-ring" points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="3"/><polygon class="an a-breath" points="${P(o)}" fill="var(--fg)"/>`;
   if (kind === 'fill') s = `<defs><clipPath id="${id}"><polygon points="${P(o)}"/></clipPath></defs><polygon points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="4"/><g clip-path="url(#${id})"><rect class="an a-fill" x="0" y="0" width="200" height="200" fill="var(--fg)"/></g>`;
   if (kind === 'shards') o.forEach((p, i) => { const q = o[(i+1)%10], mx = (p[0]+q[0])/2 - 100, my = (p[1]+q[1])/2 - 100; s += `<polygon class="an a-shard" style="--dx:${(mx*.55).toFixed(0)}px;--dy:${(my*.55).toFixed(0)}px;animation-delay:${(i*.07).toFixed(2)}s" points="100,100 ${P([p,q])}" fill="var(--fg)" stroke="var(--bg)" stroke-width="2"/>`; });
@@ -495,7 +498,7 @@ function renderStart() {
   const canResume = lastFinished && Date.now() - lastFinished.at < 30 * 60000, wk = weekStats();
   $('v-start').innerHTML = `<div class="inner">
     <div class="ptsline" id="ptsbtn" role="button" tabindex="0"><div class="pv"><b class="num">${fmt(totalPts())}</b><strong>${t('points')}</strong><span class="ptschev">${CHEV}</span></div><small>Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</small></div>
-    <div class="hero"><button class="octa dec pulse" id="go"><span class="greet" id="greet">${esc(greetText)}</span><span class="cta">${t('cta')}</span><span class="tap">${t('tap')}</span></button></div>
+    <div class="hero">${seasonDeco() ? `<span class="ss-deco">${seasonDeco()}</span>` : ''}<button class="octa dec pulse" id="go"><span class="greet" id="greet">${esc(greetText)}</span><span class="cta">${t('cta')}</span><span class="tap">${t('tap')}</span></button></div>
     ${canResume ? `<button class="resume" id="resume"><span><b>${t('resume')}</b><small>${esc(lastFinished.W.name)} · ${t('resumeLeft', Math.ceil((30*60000 - (Date.now() - lastFinished.at)) / 60000))}</small></span>${CHEV}</button>` : ''}
     <div><div class="weekhead"><span>${t('thisWeek')}</span><small>${t('vsLastShort')}</small></div>
       <div class="weekstats num"><div><b>${wk.n}</b><span>${t('workouts')} ${deltaTag(wk.n, wk.n0, true)}</span></div><div><b>${volTxt(wk.vol)}</b><span>${t('moved')} ${deltaTag(wk.vol, wk.vol0)}</span></div><div><b>${wk.min}</b><span>${t('minutes')} ${deltaTag(wk.min, wk.min0)}</span></div></div></div>
@@ -626,7 +629,7 @@ function renderHead() {
   let ph = '';
   if (W.mode === 'train') {
     const lbl = W.phase === 'set' ? t('setLabel', curEx().sets.length + 1) : t('rest');
-    ph = `<div class="wphase"><div class="wdec ${W.rise ? 'rise' : ''}">${animSVG(S.anim, W.phase !== 'set', false)}<svg viewBox="0 0 200 200" class="outline" aria-hidden="true"><polygon points="${P(decPts(100,100,97))}" fill="none" stroke="var(--fg)" stroke-width="3"/></svg><div class="inside"><span class="plabel">${lbl}</span><span class="pval num" id="phasetime">00:00</span></div></div></div>`;
+    ph = `<div class="wphase"><div class="wdec ${W.rise ? 'rise' : ''}">${seasonDeco() ? `<span class="ss-mini">${seasonDeco()}</span>` : ''}${animSVG(loadAnim(), W.phase !== 'set', false)}<svg viewBox="0 0 200 200" class="outline" aria-hidden="true"><polygon points="${P(decPts(100,100,97))}" fill="none" stroke="var(--fg)" stroke-width="3"/></svg><div class="inside"><span class="plabel">${lbl}</span><span class="pval num" id="phasetime">00:00</span></div></div></div>`;
     W.rise = false;
   }
   $('whead').firstElementChild.innerHTML = top + ph;
@@ -642,7 +645,7 @@ function renderW() {
     setBar(`<button class="mainbtn" id="startbtn">${t('start')}</button>`);
   } else if (W.mode === 'warmup' || W.mode === 'cooldown') {
     const cool = W.mode === 'cooldown';
-    h = `<div class="pill">${t(W.mode)}</div><div class="animwrap">${animSVG(S.anim, cool)}</div><div class="bigtime num" id="phasetime">00:00</div>`;
+    h = `<div class="pill">${t(W.mode)}</div><div class="animwrap">${animSVG(loadAnim(), cool)}</div><div class="bigtime num" id="phasetime">00:00</div>`;
     setBar(cool ? `<button class="mainbtn" id="finishbtn">${t('finish')}</button>` : `<button class="mainbtn" id="warmdone">${t('warmDone')}</button>`);
   } else if (W.mode === 'train') {
     h = `<div class="sortlist" id="blocks">` + W.ex.map((e, i) => blockHTML(e, i)).join('') + `</div>`;
@@ -733,7 +736,7 @@ function bindW() {
     renderW();
   });
 }
-function toReview() { setTimeout(() => celebrate(), 250); W.mode = 'review'; W.end = Date.now(); W.slogan = pickSlogan(W.ex.some(e => e.sets.length && (() => { const p = sessionsFor(e.k); const b = Math.max(...e.sets.map(x => e1rm(Math.max(0, effW(e.k, x.w)), Math.min(x.r, 12)))); return p.length && b > Math.max(...p.map(q => q.best)); })())); renderW(); $('wbody').scrollTop = 0; }
+function toReview() { setTimeout(() => celebrate(seasonNow() || S.celeb), 250); W.mode = 'review'; W.end = Date.now(); W.slogan = pickSlogan(W.ex.some(e => e.sets.length && (() => { const p = sessionsFor(e.k); const b = Math.max(...e.sets.map(x => e1rm(Math.max(0, effW(e.k, x.w)), Math.min(x.r, 12)))); return p.length && b > Math.max(...p.map(q => q.best)); })())); renderW(); $('wbody').scrollTop = 0; }
 // scrolls so the current exercise (and its active set) stays fully visible
 function keepCurInView() {
   const body = $('wbody'), b = body.querySelector('.block.cur'); if (!b) return;
@@ -1271,32 +1274,45 @@ function onbVisual(kind) {
   if (kind === 'progress') return `<div class="om-phone om-chart">${trendPreview(S.trendColor)}</div>`;
   return `<div class="om-phone"><div class="om-pts"><b>+42</b><span>Points</span></div><div class="om-lvl">${levelIcon(4)}<span>${esc(LEVELS[4][S.lang])}</span></div><div class="om-meter"><i></i></div></div>`;
 }
-function showOnboarding() {
-  let i = 0; const el = document.createElement('div'); el.id = 'onb'; el.className = 'onb'; $('app').appendChild(el);
-  const close = () => { S.onboarded = true; save(); el.remove(); };
-  const draw = () => { const L = ONBOARDING[S.lang], [anim, title, text] = L[i], last = i === L.length - 1;
-    el.innerHTML = `<div class="onb-in"><div class="row"><span class="eyebrow num">${i + 1} / ${L.length}</span><button class="textbtn" id="onb-skip">${t('onbSkip')}</button></div>
-      <div class="onb-vis">${onbVisual(anim)}</div><div><h1>${esc(title)}</h1><p class="onb-txt">${esc(text)}</p></div>
-      <div class="onb-dots">${L.map((_, j) => `<i class="${j === i ? 'on' : ''}"></i>`).join('')}</div>
-      <button class="mainbtn" id="onb-next">${last ? t('onbGo') : t('onbNext')}</button></div>`;
-    $('onb-skip').onclick = close; $('onb-next').onclick = () => { if (last) close(); else { i++; draw(); } }; };
+// onboarding: first start (skip with a question) or from Settings > Help (✕ with a question); swipe / arrow keys to go back and forth
+function showOnboarding(fromHelp) {
+  let i = 0; const el = document.createElement('div'); el.id = 'onb'; el.className = 'onb'; $('app').appendChild(el); const de = S.lang === 'de';
+  const close = () => { S.onboarded = true; save(); el.remove(); document.removeEventListener('keydown', key); };
+  const ask = () => dialog(fromHelp ? (de ? 'Einführung schließen?' : 'Close the intro?') : (de ? 'Wirklich überspringen?' : 'Skip the intro?'), de ? 'Du kannst sie jederzeit unter Einstellungen › Hilfe wieder ansehen.' : 'You can watch it again any time in Settings › Help.',
+    [[de ? 'Weiter ansehen' : 'Keep watching', 'mainbtn', () => {}], [fromHelp ? (de ? 'Schließen' : 'Close') : (de ? 'Überspringen' : 'Skip'), 'ghostbtn', close]]);
+  const go = d => { const L = ONBOARDING[S.lang], n = i + d; if (n < 0 || n >= L.length) return; i = n; draw(d); };
+  const key = e => { if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); };
+  document.addEventListener('keydown', key);
+  let x0 = null, y0 = 0;
+  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener('touchend', e => { if (x0 === null) return; const p = e.changedTouches[0], dx = p.clientX - x0, dy = p.clientY - y0; x0 = null; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) go(dx < 0 ? 1 : -1); }, { passive: true });
+  const draw = d => { const L = ONBOARDING[S.lang], [anim, title, text] = L[i], last = i === L.length - 1;
+    el.innerHTML = `<div class="onb-in"><div class="row"><span class="eyebrow num">${i + 1} / ${L.length}</span>${fromHelp ? `<button class="iconbtn" id="onb-skip" aria-label="${de ? 'Schließen' : 'Close'}">✕</button>` : `<button class="textbtn" id="onb-skip">${t('onbSkip')}</button>`}</div>
+      <div class="onb-vis">${onbVisual(anim)}</div><div class="onb-copy"><h1>${esc(title)}</h1><p class="onb-txt">${esc(text)}</p></div>
+      <div class="onb-dots">${L.map((_, j) => `<button class="${j === i ? 'on' : ''}" data-onbdot="${j}" aria-label="${j + 1}"><i></i></button>`).join('')}</div>
+      <div class="onb-nav">${i ? `<button class="ghostbtn" id="onb-prev" aria-label="${de ? 'Zurück' : 'Back'}">${CHEV}</button>` : ''}<button class="mainbtn" id="onb-next">${last ? (fromHelp ? (de ? 'Fertig' : 'Done') : t('onbGo')) : t('onbNext')}</button></div></div>`;
+    if (d) el.querySelector('.onb-in').animate([{ opacity: 0, transform: `translateX(${d > 0 ? 30 : -30}px)` }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'ease-out' });
+    $('onb-skip').onclick = ask; $('onb-next').onclick = () => { if (last) close(); else go(1); };
+    $('onb-prev') && ($('onb-prev').onclick = () => go(-1));
+    el.querySelectorAll('[data-onbdot]').forEach(b => b.onclick = () => { const j = +b.dataset.onbdot; if (j !== i) { const dd = j - i; i = j; draw(dd); } }); };
   draw();
 }
 function playIntro() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const r = go.getBoundingClientRect(), size = r.width, cx = innerWidth / 2 - size / 2, cy = innerHeight / 2 - size / 2;
+  const r = goRect(go), size = r.width, cx = innerWidth / 2 - size / 2, cy = innerHeight / 2 - size / 2;
   const el = document.createElement('div'); el.id = 'intro'; el.innerHTML = `<div class="intro-bg"></div><div class="intro-dec dec" style="width:${size}px;height:${size}px;left:${cx}px;top:${cy}px"><span>TRAIN</span></div>`;
   $('app').appendChild(el); go.style.visibility = 'hidden';
   const d = el.querySelector('.intro-dec'), bg = el.querySelector('.intro-bg'), label = d.querySelector('span');
   d.animate([{ transform: 'scale(.1) rotate(-144deg)', opacity: 0 }, { transform: 'scale(.52) rotate(-20deg)', opacity: 1, offset: .6 }, { transform: 'scale(.48) rotate(0deg)', opacity: 1 }], { duration: 950, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' }).finished
     .then(() => { label.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }); bg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
-      return d.animate([{ transform: 'scale(.48)' }, { transform: `translate(${r.left - cx}px, ${r.top - cy}px) scale(1)` }], { duration: 650, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished; })
+      const r2 = goRect(go);
+      return d.animate([{ transform: 'scale(.48)' }, { transform: `translate(${r2.left - cx}px, ${r2.top - cy}px) scale(${r2.width / size})` }], { duration: 650, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished; })
     .then(() => { go.style.visibility = ''; el.remove(); })
     .catch(() => { go.style.visibility = ''; el.remove(); });
 }
 function playIntroType() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const r = go.getBoundingClientRect(), g = greetText, m = g.match(/^(.+?[.!?,])\s+(.+)$/), parts = m ? [m[1], m[2]] : [g];
+  const r = goRect(go), g = greetText, m = g.match(/^(.+?[.!?,])\s+(.+)$/), parts = m ? [m[1], m[2]] : [g];
   const el = document.createElement('div'); el.id = 'intro'; el.className = 'intro2';
   const ce = go.querySelector('.cta'), cr = ce.getBoundingClientRect(), ccs = getComputedStyle(ce), cfs = ccs.fontSize;
   el.innerHTML = `<div class="i2-box"><p class="i2-line"></p><p class="i2-line"></p></div><p class="i2-cta" style="left:${cr.left}px;width:${cr.width}px;top:${cr.top}px;font-size:${cfs};line-height:${ccs.lineHeight};letter-spacing:${ccs.letterSpacing}"></p>`;
@@ -1315,7 +1331,7 @@ function playIntroType() {
     await sleep(800); if (done) return;
     el.querySelector('.i2-box').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
     const big = decPts(innerWidth / 2, H / 2, Math.hypot(innerWidth, H) / 2 / Math.cos(Math.PI / 10) + 4);
-    const small = decPts(r.left + r.width / 2, r.top + r.height / 2, r.width / 2);
+    const r2 = goRect(go), small = decPts(r2.left + r2.width / 2, r2.top + r2.height / 2, r2.width / 2);
     await el.animate([{ clipPath: poly(big) }, { clipPath: poly(small) }], { duration: 750, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished.catch(() => {});
     finish();
   })();
@@ -1394,7 +1410,7 @@ function playIntroTear() {
 // intro 4: a white decagon fills the screen, spins and shrinks into the start decagon
 function playIntroVortex() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const r = go.getBoundingClientRect(), k = Math.hypot(innerWidth, innerHeight) / r.width * 1.25;
+  const r = goRect(go), k = Math.hypot(innerWidth, innerHeight) / r.width * 1.25;
   const el = document.createElement('div'); el.id = 'intro'; el.className = 'intro4';
   el.innerHTML = `<div class="i4-dec dec" style="left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px"></div>`;
   $('app').appendChild(el); go.style.visibility = 'hidden';
@@ -1419,10 +1435,13 @@ function celebrate(kind = S.celeb) {
   if (kind === 'stars') for (let i = 0; i < 60; i++) add({ x: R(0, Wd), y: R(-220, -10), vx: R(-.5, .5), vy: R(2, 4), g: .05, shape: 'star', size: R(6, 12), col: mono[i % 4], decay: R(.004, .007) });
   if (kind === 'streamers') for (let i = 0; i < 44; i++) add({ x: R(0, Wd), y: R(-160, -10), vx: R(-1, 1), vy: R(2, 5), g: .08, shape: 'streamer', size: R(14, 26), col: mono[i % 4], vr: R(-.3, .3), decay: R(.004, .007) });
   if (kind === 'glitter') for (let i = 0; i < 130; i++) add({ x: R(0, Wd), y: R(0, Ht * .6), vx: R(-.3, .3), vy: R(-.2, .6), g: .01, shape: 'circle', size: R(1.5, 3.5), col: FG, tw: R(0, 6.28), decay: R(.006, .012) });
+  if (kind === 'xmas') { const pal = ['#f3f3ef', '#f3f3ef', '#d6262e', '#2e9e4f', '#ffd400']; for (let i = 0; i < 120; i++) add({ x: R(0, Wd), y: R(-300, -10), vx: R(-.8, .8), vy: R(1.5, 3.5), g: .03, shape: i % 3 ? 'circle' : 'star', size: R(4, 10), col: pal[i % 5], decay: R(.003, .006) }); }
+  if (kind === 'easter') { const pal = ['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0']; for (let i = 0; i < 46; i++) { const a = R(0, 6.28), sp = R(4, 10); add({ x: Wd / 2, y: Ht * .35, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 4, g: .22, shape: 'egg', size: R(12, 20), col: pal[i % 5], decay: R(.005, .009) }); } }
   if (kind === 'plates') for (let i = 0; i < 34; i++) add({ x: R(0, Wd), y: R(-500, -20), vx: R(-.6, .6), vy: R(1, 3), g: .16, shape: 'plate', size: R(16, 30), col: mono[i % 4], vr: R(-.08, .08), decay: R(.003, .005) });
   if (kind === 'shock') for (let i = 0; i < 7; i++) add({ x: Wd / 2, y: Ht * .4, g: 0, vr: .01, shape: 'ring', size: 20, grow: R(7, 9), col: FG, delay: i * 9, decay: .011, drag: 1 });
   if (kind === 'fountain') for (let i = 0; i < 160; i++) add({ x: Wd / 2 + R(-8, 8), y: Ht + 5, vx: R(-3.2, 3.2), vy: R(-19, -12), g: .32, col: mono[i % 4], shape: i % 3 ? 'rect' : 'dec', size: R(5, 9), delay: Math.floor(i / 4), decay: R(.006, .01) });
   const shape = p => { const z = p.size; ctx.beginPath();
+    if (p.shape === 'egg') { ctx.ellipse(0, 0, z * .36, z / 2, 0, 0, 6.29); ctx.fill(); return; }
     if (p.shape === 'plate') { ctx.arc(0, 0, z / 2, 0, 6.29); ctx.arc(0, 0, z / 6, 0, 6.29, true); ctx.fill('evenodd'); return; }
     if (p.shape === 'ring') { for (let i = 0; i < 10; i++) { const a = i * .628; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * z / 2, Math.sin(a) * z / 2); } ctx.closePath(); ctx.strokeStyle = p.col; ctx.lineWidth = 3; ctx.stroke(); return; }
     if (p.shape === 'rect') ctx.rect(-z / 2, -z / 4, z, z / 2); else if (p.shape === 'streamer') ctx.rect(-z / 2, -1.5, z, 3);
@@ -1441,6 +1460,168 @@ function celebrate(kind = S.celeb) {
   requestAnimationFrame(step);
 }
 let setPage = null, devOpen = false;
+// ================= Seasons (Weihnachten, Ostern) =================
+// live: docs/season.json decides for every user; dev: a local preview can override it
+const SEASONS = { xmas: { de:'Weihnachten', en:'Christmas' }, easter: { de:'Ostern', en:'Easter' } };
+let REMOTE_SEASON = '', REMOTE_LIVE = null;
+const ROOT = ENV === 'dev' ? '../' : '';
+const seasonNow = () => (ENV === 'dev' && S.seasonPreview != null ? S.seasonPreview : REMOTE_SEASON) || '';
+const loadAnim = () => seasonNow() || S.anim;
+function fetchRemote() {
+  fetch(ROOT + 'season.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(j => { const n = SEASONS[j.season] ? j.season : ''; if (n !== REMOTE_SEASON) { REMOTE_SEASON = n; applySeason(); } }).catch(() => {});
+}
+const HAT = '<svg class="ss-hat" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 62 C20 30 40 8 70 6 C84 5 92 14 94 26 C82 20 70 22 62 34 L58 62 Z" fill="#d6262e"/><circle cx="94" cy="28" r="9" fill="#fff"/><rect x="2" y="56" width="66" height="18" rx="9" fill="#fff"/></svg>';
+const EARS = '<svg class="ss-ears" viewBox="0 0 100 80" aria-hidden="true"><path d="M30 78 C18 50 18 12 32 4 C44 -2 48 40 44 78 Z" fill="#f3f3ef" stroke="#0b0b0a" stroke-width="3"/><path d="M33 70 C26 50 27 22 33 14 C38 22 39 50 38 70 Z" fill="#f4a7c0"/><path d="M58 78 C56 40 62 0 74 4 C88 10 84 50 72 78 Z" fill="#f3f3ef" stroke="#0b0b0a" stroke-width="3"/><path d="M63 70 C63 48 66 22 72 14 C78 24 74 50 68 70 Z" fill="#f4a7c0"/></svg>';
+const SLEIGH = '<svg viewBox="0 0 220 60" aria-hidden="true"><g fill="currentColor"><path d="M150 40h52c6 0 10-6 8-12l-4-10h-8l3 9h-46z"/><path d="M146 50h70v4h-70z"/><circle cx="182" cy="14" r="6"/><path d="M176 22h12v14h-12z"/><path d="M60 30c10-10 26-12 40-4l6-12 4 2-4 14c6 6 4 12-2 14H64c-8 0-10-8-4-14z"/><path d="M66 44l-6 14h4l6-12zM94 44l6 14h-4l-6-12z"/><path d="M104 16l6-12 3 1-5 12zM100 14l-2-12 3-1 2 12z"/><path d="M6 32c8-8 22-10 34-4l5-10 4 2-3 12c5 5 3 10-2 12H10c-7 0-8-7-4-12z"/><path d="M12 44l-5 12h4l5-10zM36 44l5 12h-4l-5-10z"/><path d="M40 40l110 4v2L40 42z"/></g></svg>';
+const BUNNY = '<svg viewBox="0 0 80 70" aria-hidden="true"><g fill="currentColor"><ellipse cx="38" cy="48" rx="22" ry="16"/><circle cx="62" cy="34" r="11"/><path d="M58 26c-4-14-2-24 3-24s5 12 3 24z"/><path d="M66 26c0-14 4-23 9-22s2 13-4 23z"/><circle cx="16" cy="44" r="6"/><path d="M48 60h10v8H48zM24 60h10v8H24z"/></g></svg>';
+function applySeason() {
+  const sz = seasonNow(), app = $('app'); app.classList.toggle('season-xmas', sz === 'xmas'); app.classList.toggle('season-easter', sz === 'easter');
+  let layer = $('season'); if (!sz) { if (layer) layer.remove(); if (tab === 'start' && !W) renderStart(); return; }
+  if (!layer || layer.dataset.s !== sz) { if (layer) layer.remove(); layer = document.createElement('div'); layer.id = 'season'; layer.dataset.s = sz; layer.setAttribute('aria-hidden', 'true');
+    const R = (a, b) => (a + Math.random() * (b - a)).toFixed(2);
+    if (sz === 'xmas') layer.innerHTML = Array.from({ length: 34 }, () => `<i class="flake" style="left:${R(0, 100)}%;width:${R(3, 7)}px;height:${R(3, 7)}px;animation-duration:${R(9, 18)}s,${R(3, 6)}s;animation-delay:-${R(0, 18)}s,-${R(0, 6)}s;opacity:${R(.35, .85)}"></i>`).join('') + `<div class="sleigh">${SLEIGH}</div>`;
+    else layer.innerHTML = Array.from({ length: 12 }, (_, i) => `<i class="egg" style="left:${R(2, 94)}%;animation-duration:${R(14, 24)}s;animation-delay:-${R(0, 24)}s;--c:${['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0'][i % 5]}"></i>`).join('') + `<div class="bunny">${BUNNY}</div>`;
+    $('app').appendChild(layer); }
+  if (tab === 'start' && !W) renderStart();
+}
+const seasonDeco = () => seasonNow() === 'xmas' ? HAT : seasonNow() === 'easter' ? EARS : '';
+
+// ================= Browser vs. home screen: install guide =================
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+function showInstall(preview) {
+  const de = S.lang === 'de', el = document.createElement('div'); el.id = 'inst'; el.className = 'onb inst'; $('app').appendChild(el);
+  const STEPS = {
+    ios: de ? [['Safari öffnen', 'Öffne diese Seite in Safari (nicht in einer anderen App).', 'safari'], ['Teilen antippen', 'Tippe unten auf das Teilen-Symbol (Quadrat mit Pfeil nach oben).', 'share'], ['„Zum Home-Bildschirm“', 'Scrolle in der Liste nach unten und tippe auf „Zum Home-Bildschirm“.', 'add'], ['Hinzufügen', 'Tippe oben rechts auf „Hinzufügen“. TRAIN liegt jetzt auf deinem Homescreen.', 'done']]
+      : [['Open Safari', 'Open this page in Safari (not inside another app).', 'safari'], ['Tap Share', 'Tap the share icon at the bottom (square with an arrow).', 'share'], ['“Add to Home Screen”', 'Scroll down the list and tap “Add to Home Screen”.', 'add'], ['Add', 'Tap “Add” at the top right. TRAIN is now on your home screen.', 'done']],
+    android: de ? [['Chrome öffnen', 'Öffne diese Seite in Chrome.', 'chrome'], ['Menü öffnen', 'Tippe oben rechts auf die drei Punkte (⋮).', 'menu'], ['„App installieren“', 'Tippe auf „App installieren“ oder „Zum Startbildschirm hinzufügen“.', 'add'], ['Installieren', 'Bestätige mit „Installieren“. TRAIN liegt jetzt auf deinem Startbildschirm.', 'done']]
+      : [['Open Chrome', 'Open this page in Chrome.', 'chrome'], ['Open the menu', 'Tap the three dots (⋮) at the top right.', 'menu'], ['“Install app”', 'Tap “Install app” or “Add to Home screen”.', 'add'], ['Install', 'Confirm with “Install”. TRAIN is now on your home screen.', 'done']] };
+  let os = null, i = 0;
+  const vis = (k, osn) => { const sh = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v10h14V11"/></svg>';
+    if (k === 'share') return `<div class="om-phone ins"><div class="ins-page"></div><div class="ins-bar"><i></i><i></i><span class="ins-hl">${sh}<span class="om-finger ins-f"></span></span><i></i><i></i></div></div>`;
+    if (k === 'menu') return `<div class="om-phone ins"><div class="ins-top"><span>pdbp-hub.github.io</span><span class="ins-hl">⋮<span class="om-finger ins-f"></span></span></div><div class="ins-page"></div></div>`;
+    if (k === 'add') return `<div class="om-phone ins"><div class="ins-sheet"><div class="ins-row"></div><div class="ins-row"></div><div class="ins-row ins-hl">${osn === 'ios' ? (de ? 'Zum Home-Bildschirm' : 'Add to Home Screen') : (de ? 'App installieren' : 'Install app')} ＋<span class="om-finger ins-f"></span></div><div class="ins-row"></div></div></div>`;
+    if (k === 'done') return `<div class="om-phone ins ins-home">${Array.from({ length: 7 }, () => '<i></i>').join('')}<b class="dec">TRAIN</b></div>`;
+    return `<div class="om-phone ins"><div class="ins-top"><span>pdbp-hub.github.io/Fitter</span></div><div class="ins-page"><div class="om-dec dec" style="width:70px;height:70px;font-size:11px">TRAIN</div></div></div>`; };
+  const draw = () => {
+    if (!os) { el.innerHTML = `<div class="onb-in inst-home"><div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview ? '<button class="iconbtn" id="inst-x" aria-label="Schließen">✕</button>' : '<span></span>'}</div>
+        <div class="inst-hero"><div class="octa dec pulse inst-dec"><span class="cta">TRAIN</span></div></div>
+        <div><h1>${de ? 'Willkommen bei TRAIN' : 'Welcome to TRAIN'}</h1><p class="onb-txt">${de ? 'Dein Gym-Tracker. Installiere ihn auf deinem Homescreen, dann läuft er wie eine echte App.' : 'Your gym tracker. Add it to your home screen and it runs like a real app.'}</p></div>
+        <div class="inst-pick"><b>${de ? 'App installieren: Anleitung für' : 'Install the app: guide for'}</b><div class="inst-os"><button class="mainbtn" data-os="ios">iPhone</button><button class="mainbtn" data-os="android">Android</button></div>
+        <button class="textbtn" id="inst-web">${de ? 'Ohne Installation im Browser weiter' : 'Continue in the browser'}</button></div></div>`;
+      el.querySelectorAll('[data-os]').forEach(b => b.onclick = () => { os = b.dataset.os; i = 0; draw(); });
+    } else { const L = STEPS[os], [h, tx, k] = L[i], last = i === L.length - 1;
+      el.innerHTML = `<div class="onb-in"><div class="row"><button class="iconbtn" id="inst-back" aria-label="${de ? 'Zurück' : 'Back'}">←</button><span class="eyebrow num">${os === 'ios' ? 'iPhone' : 'Android'} · ${i + 1} / ${L.length}</span><span style="width:44px"></span></div>
+        <div class="onb-vis">${vis(k, os)}</div><div><h1>${esc(h)}</h1><p class="onb-txt">${esc(tx)}</p></div>
+        <div class="onb-dots">${L.map((_, j) => `<button class="${j === i ? 'on' : ''}"><i></i></button>`).join('')}</div>
+        <div class="onb-nav"><button class="mainbtn" id="inst-next">${last ? (de ? 'Verstanden' : 'Got it') : t('onbNext')}</button></div></div>`;
+      $('inst-back').onclick = () => { if (i) i--; else os = null; draw(); };
+      $('inst-next').onclick = () => { if (last) { os = null; draw(); } else { i++; draw(); } }; }
+    $('inst-x') && ($('inst-x').onclick = () => el.remove());
+    $('inst-web') && ($('inst-web').onclick = () => { el.remove(); if (!preview) sessionStorage.setItem('fitter.web', '1'); });
+  };
+  let x0 = null; el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+  el.addEventListener('touchend', e => { if (x0 === null || !os) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (dx < -50 && i < STEPS[os].length - 1) { i++; draw(); } else if (dx > 50) { if (i) i--; else os = null; draw(); } }, { passive: true });
+  draw();
+}
+
+// ================= Push notifications =================
+const PUSH_DEFAULT = { de: ['Deine Hanteln vermissen dich.', 'Zeit für ein neues Personal Best?', 'Ein Training heute, ein stärkeres Du morgen.', 'Dein Level wartet auf Points.'], en: ['Your dumbbells miss you.', 'Time for a new personal best?', 'One session today, a stronger you tomorrow.', 'Your level is waiting for points.'] };
+async function setPush(on) {
+  const de = S.lang === 'de';
+  if (!on) { S.push = false; save(); renderSettings(); return; }
+  if (!('Notification' in window)) { dialog(de ? 'Mitteilungen' : 'Notifications', de ? 'Auf dem iPhone gehen Mitteilungen nur, wenn TRAIN vom Homescreen aus geöffnet wird (ab iOS 16.4).' : 'On iPhone, notifications only work when TRAIN is opened from the home screen (iOS 16.4+).', [['OK', 'mainbtn', () => {}]]); return; }
+  const p = await Notification.requestPermission();
+  if (p !== 'granted') { toast(de ? 'Mitteilungen wurden nicht erlaubt' : 'Notifications were not allowed'); return; }
+  S.push = true; save(); renderSettings();
+}
+async function testPush(text) {
+  try { if (Notification.permission !== 'granted' && (await Notification.requestPermission()) !== 'granted') return toast('Keine Erlaubnis');
+    const reg = await navigator.serviceWorker.ready; reg.showNotification('TRAIN', { body: text, icon: 'icons/icon-192.png' }); } catch (e) { toast('Test nicht möglich: ' + e.message); }
+}
+
+// ================= GitHub key (dev only): lets Ben switch the live version / season himself =================
+const GH = { repo: 'pdbp-hub/Fitter', branch: 'claude/fitness-tracking-app-setup-ix8ivv' };
+const ghKey = () => { try { return localStorage.getItem('fitter.ghkey') || ''; } catch (e) { return ''; } };
+async function ghWrite(path, obj, msg) {
+  const k = ghKey(); if (!k) throw new Error('Kein Schlüssel hinterlegt');
+  const url = `https://api.github.com/repos/${GH.repo}/contents/${path}`, hd = { Authorization: 'Bearer ' + k, Accept: 'application/vnd.github+json' };
+  const cur = await fetch(url + '?ref=' + encodeURIComponent(GH.branch), { headers: hd }); const sha = cur.ok ? (await cur.json()).sha : undefined;
+  const body = { message: msg, branch: GH.branch, content: btoa(unescape(encodeURIComponent(JSON.stringify(obj, null, 2) + '\n'))) }; if (sha) body.sha = sha;
+  const r = await fetch(url, { method: 'PUT', headers: hd, body: JSON.stringify(body) }); if (!r.ok) throw new Error('GitHub: ' + r.status);
+}
+function confirmLive(title, text, fn) {
+  dialog(title, text, [[S.lang === 'de' ? 'Abbrechen' : 'Cancel', 'mainbtn', () => {}], [S.lang === 'de' ? 'Ja, live schalten' : 'Yes, go live', 'ghostbtn', async () => {
+    if (!ghKey()) { dialog('Schlüssel fehlt', 'Live schalten braucht einmalig einen GitHub-Schlüssel (siehe Dev-Werkzeuge › Freigabe-Schlüssel).', [['OK', 'mainbtn', () => {}]]); return; }
+    try { await fn(); toast('Live geschaltet. Nutzer sehen es beim nächsten Öffnen.'); } catch (e) { dialog('Hat nicht geklappt', esc(e.message), [['OK', 'mainbtn', () => {}]]); } }]]);
+}
+let VERSIONS = null;
+function loadVersions(cb) { Promise.all([fetch(ROOT + 'versions/index.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []), fetch(ROOT + 'live.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]).then(([v, l]) => { VERSIONS = v; REMOTE_LIVE = l.version || null; cb(); }); }
+function devHTML() {
+  const sz = S.seasonPreview == null ? 'live' : S.seasonPreview || 'off', segb = (v, l) => `<button data-spv="${v}" class="${sz === v ? 'on' : ''}">${l}</button>`;
+  const msgs = S.pushMsgs || PUSH_DEFAULT[S.lang];
+  return `<div class="devtools">
+    <b>Ansehen & testen</b>
+    <button id="dev-onb">${t('devOnb')}</button><button id="dev-intro">${t('devIntro')}</button><button id="dev-celeb">${t('devCeleb')}</button><button id="dev-charts">Charts-Test</button><button id="dev-inst">Browser-Ansicht (Installations-Anleitung)</button><button id="reseed">${t('reseed')}</button>
+    <p class="hint">Link zum Testen im Browser: <span class="num">pdbp-hub.github.io/Fitter/?install</span> <button class="textbtn" id="dev-instlink">kopieren</button></p>
+
+    <b style="margin-top:18px">Seasons</b>
+    <p class="hint">Vorschau nur hier in Dev. „Live“ = was alle Nutzer gerade sehen: <b>${REMOTE_SEASON ? SEASONS[REMOTE_SEASON].de : 'keine'}</b></p>
+    <div class="seg devseg">${segb('live', 'Wie live')}${segb('off', 'Aus')}${segb('xmas', 'Weihnachten')}${segb('easter', 'Ostern')}</div>
+    <div class="devrowbtns"><button class="ghostbtn" data-golive="xmas">Weihnachten live</button><button class="ghostbtn" data-golive="easter">Ostern live</button><button class="ghostbtn" data-golive="">Season aus (live)</button></div>
+
+    <b style="margin-top:18px">Live-Version</b>
+    <p class="hint">Live läuft: <b class="num">${REMOTE_LIVE || 'Standard (letzte Freigabe)'}</b>. Version wählen und live schalten, auch zurück auf eine ältere.</p>
+    <div class="devrowbtns"><select id="dev-ver" class="devsel">${(VERSIONS || []).map(v => `<option value="${esc(v.v)}" ${v.v === REMOTE_LIVE ? 'selected' : ''}>${esc(v.v)}${v.date ? ' · ' + esc(v.date) : ''}</option>`).join('') || '<option>(Liste wird geladen …)</option>'}</select><button class="ghostbtn" id="dev-verlive">Live schalten</button></div>
+
+    <b style="margin-top:18px">Push-Mitteilungen</b>
+    <p class="hint">Automatisch nach <b class="num">${S.pushDays || 4}</b> Tagen ohne Training, zufälliger Spruch aus der Liste. Versand an alle braucht den Server und kommt mit dem Cloud-Modus. „Test an mich“ geht schon jetzt.</p>
+    <div class="seg devseg">${[2, 3, 4, 7].map(d => `<button data-pdays="${d}" class="${(S.pushDays || 4) === d ? 'on' : ''}">${d} Tage</button>`).join('')}</div>
+    <div class="pushlist">${msgs.map((m, j) => `<div class="pushrow"><input data-pmsg="${j}" value="${esc(m)}"><button class="sx" data-pdel="${j}" aria-label="Löschen">✕</button><button class="textbtn" data-ptest="${j}">Test</button></div>`).join('')}</div>
+    <button id="dev-padd">+ Spruch hinzufügen</button>
+    <div class="pushrow"><input id="dev-pnow" placeholder="Eigene Nachricht an alle (z. B. Aktion)"><button class="textbtn" id="dev-psend">Senden</button></div>
+
+    <b style="margin-top:18px">Freigabe-Schlüssel</b>
+    <p class="hint">Für „live schalten“ braucht die App einmalig einen GitHub-Schlüssel (fein eingeschränkt: nur dieses Repo, nur Inhalte schreiben). Er bleibt nur auf diesem Gerät gespeichert. Status: <b>${ghKey() ? 'hinterlegt' : 'fehlt'}</b></p>
+    <div class="pushrow"><input id="dev-ghkey" type="password" placeholder="github_pat_…" autocomplete="off"><button class="textbtn" id="dev-ghsave">${ghKey() ? 'Ersetzen' : 'Speichern'}</button>${ghKey() ? '<button class="textbtn" id="dev-ghdel">Entfernen</button>' : ''}</div>
+  </div>`;
+}
+function bindDev() {
+  const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
+  if (!VERSIONS) loadVersions(() => { if (setPage === 'dev') renderSettings(); });
+  on('dev-onb', () => showOnboarding(true)); on('dev-intro', () => previewIntro()); on('dev-celeb', () => celebrate(seasonNow() || S.celeb));
+  on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
+  on('dev-inst', () => showInstall(true));
+  on('dev-instlink', () => { const u = 'https://pdbp-hub.github.io/Fitter/?install'; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast(t('copied')), () => toast(u)); });
+  on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
+  document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); renderSettings(); });
+  document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive;
+    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das ${SEASONS[v].de}s-Design.` : 'Alle Nutzer sehen wieder das normale Design.', async () => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`); REMOTE_SEASON = v; renderSettings(); }); });
+  on('dev-verlive', () => { const v = $('dev-ver').value; if (!VERSIONS || !VERSIONS.some(x => x.v === v)) return;
+    confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async () => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`); REMOTE_LIVE = v; renderSettings(); }); });
+  document.querySelectorAll('[data-pdays]').forEach(b => b.onclick = () => { S.pushDays = +b.dataset.pdays; save(); renderSettings(); });
+  const msgs = () => S.pushMsgs || PUSH_DEFAULT[S.lang].slice();
+  document.querySelectorAll('[data-pmsg]').forEach(inp => inp.onchange = () => { const m = msgs(); m[+inp.dataset.pmsg] = inp.value.trim(); S.pushMsgs = m.filter(Boolean); save(); renderSettings(); });
+  document.querySelectorAll('[data-pdel]').forEach(b => b.onclick = () => dialog('Spruch löschen?', esc(msgs()[+b.dataset.pdel]), [['Behalten', 'mainbtn', () => {}], ['Löschen', 'ghostbtn', () => { const m = msgs(); m.splice(+b.dataset.pdel, 1); S.pushMsgs = m; save(); renderSettings(); }]]));
+  document.querySelectorAll('[data-ptest]').forEach(b => b.onclick = () => testPush(msgs()[+b.dataset.ptest]));
+  on('dev-padd', () => { S.pushMsgs = msgs().concat(S.lang === 'de' ? 'Neuer Spruch' : 'New line'); save(); renderSettings(); });
+  on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return; dialog('An alle senden?', esc(v) + '<br><br>Der Versand an alle Nutzer braucht einen Server und kommt mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
+  on('dev-ghsave', () => { const v = $('dev-ghkey').value.trim(); if (!v) return; try { localStorage.setItem('fitter.ghkey', v); } catch (e) {} renderSettings(); toast('Schlüssel gespeichert'); });
+  on('dev-ghdel', () => { try { localStorage.removeItem('fitter.ghkey'); } catch (e) {} renderSettings(); });
+}
+
+const FAQ = {
+  de: [['Wo werden meine Daten gespeichert?', 'Aktuell nur auf deinem Handy (im Browser-Speicher der App). Mit dem Cloud-Modus kommt ein Account, dann werden sie zusätzlich sicher gesichert.'],
+    ['Wie bekomme ich die App auf den Homescreen?', 'iPhone: in Safari auf Teilen tippen, dann „Zum Home-Bildschirm“. Android: in Chrome das Menü (⋮) öffnen, dann „App installieren“ oder „Zum Startbildschirm hinzufügen“.'],
+    ['Wie werden Points berechnet?', 'Points gibt es für echte Steigerungen deiner Maximalkraft und für regelmäßiges Training. Details: Einstellungen › Berechnungslogik.'],
+    ['Was ist die Maximalkraft (1RM)?', 'Das Gewicht, das du theoretisch genau einmal schaffen würdest. Die App schätzt es aus Gewicht und Wiederholungen deiner Sätze.'],
+    ['Wie lösche ich eine Übung oder einen Satz?', 'Übung nach links wischen und „Löschen“ antippen. Einen geplanten Satz löschst du mit ✕. Du wählst jeweils, ob nur für dieses Training oder dauerhaft.'],
+    ['Ich habe aus Versehen einen Satz beendet.', 'Tippe den erledigten Satz an und dann „Satz zurücksetzen und neu machen“.']],
+  en: [['Where is my data stored?', 'Right now only on your phone (in the app’s browser storage). Cloud sync will add an account and a secure backup.'],
+    ['How do I get the app on my home screen?', 'iPhone: in Safari tap Share, then “Add to Home Screen”. Android: in Chrome open the menu (⋮), then “Install app” or “Add to Home screen”.'],
+    ['How are points calculated?', 'You earn points for real gains in max strength and for training regularly. Details: Settings › Calculation logic.'],
+    ['What is max strength (1RM)?', 'The weight you could lift exactly once. The app estimates it from weight and reps of your sets.'],
+    ['How do I delete an exercise or a set?', 'Swipe the exercise left and tap “Delete”. Delete a planned set with ✕. You choose: only for this session or for good.'],
+    ['I finished a set by mistake.', 'Tap the finished set, then “Reset and redo this set”.']] };
 // intro preview from settings: play it on the start screen, then come back to the same settings page
 function previewIntro() {
   const page = setPage, y = $('v-settings').scrollTop, kind = S.intro; show('start');
@@ -1507,6 +1688,7 @@ const SET_IC = {
   imprint:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 12h7M9 16h7"/></svg>',
   share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/></svg>',
   personal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14"/><circle cx="9" cy="11" r="2.4"/><path d="M5.5 16.5c.6-2 2-3 3.5-3s2.9 1 3.5 3M14.5 10h4M14.5 13.5h4"/></svg>',
+  help:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.4a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.3-2.7 4.1"/><path d="M12 17.6v.4"/></svg>',
   dev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>' };
 const sic = k => `<span class="sic">${SET_IC[k]}</span>`;
 function loadQR(cb) { if (window.qrcode) return cb(); const sc = document.createElement('script'); sc.src = 'vendor/qrcode.js'; sc.onload = cb; document.head.appendChild(sc); }
@@ -1530,8 +1712,9 @@ function renderSettings() {
       ${item('logic', t('spLogic'), t('spLogicHint'), sic('logic'))}
       ${item('data', t('spData'), t('spDataHint'), sic('data'))}
       ${item('share', t('share'), t('shareHint'), sic('share'))}
-      ${item('imprint', t('spImprint'), t('spImprintHint'), sic('imprint'))}</div>
-      ${ENV === 'dev' ? `<button class="devbtn" id="devtoggle">${SET_IC.dev}<span>${t('devShow')} ${devOpen ? '▴' : '▾'}</span></button>${devOpen ? `<div class="devtools"><button id="dev-onb">${t('devOnb')}</button><button id="dev-intro">${t('devIntro')}</button><button id="dev-celeb">${t('devCeleb')}</button><button id="dev-charts">Charts-Test</button><button id="reseed">${t('reseed')}</button></div>` : ''}` : ''}
+      ${item('help', S.lang === 'de' ? 'Hilfe' : 'Help', S.lang === 'de' ? 'Einführung, häufige Fragen' : 'Intro, FAQ', sic('help'))}
+      ${item('imprint', t('spImprint'), t('spImprintHint'), sic('imprint'))}
+      ${ENV === 'dev' ? `<button class="setrow sprow devrow" data-sp="dev">${sic('dev')}<div style="flex:1;text-align:left"><b>${t('devTools')}</b><p>${S.lang === 'de' ? 'Nur in der Dev-Version' : 'Dev version only'}</p></div>${CHEV}</button>` : ''}</div>
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'profile') {
     const de = S.lang === 'de';
@@ -1542,11 +1725,18 @@ function renderSettings() {
       ${S.fav.length ? `<div class="pbpick">${S.fav.map(k => `<button class="${pbKeys().includes(k) ? 'on' : ''}" data-pbex="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
       <div style="margin-top:8px"><b>${de ? 'Im Profil zeigen' : 'Show on profile'}</b><p class="hint" style="margin-top:4px">${de ? 'Was Freunde sehen können' : 'What friends can see'}</p></div>
       <div>${vtog('level', 'Level & Points', '')}${vtog('week', t('thisWeek'), SIC.cal)}${vtog('month', t('last30'), SIC.cal)}${vtog('pbs', 'Personal Bests', SIC.pb)}${vtog('last', de ? 'Letztes Training' : 'Last session', SIC.hist)}${vtog('fav', de ? 'Lieblings-Workout' : 'Favourite workout', SIC.ex)}</div>`;
+  } else if (setPage === 'help') {
+    const de = S.lang === 'de';
+    h = head(de ? 'Hilfe' : 'Help') + `<button class="mainbtn" id="help-onb">${de ? 'Einführung ansehen' : 'Watch the intro'}</button>
+      <div><b>${de ? 'Häufige Fragen' : 'FAQ'}</b></div><div>${FAQ[S.lang].map(([q], j) => `<button class="setrow sprow" data-faq="${j}"><div style="flex:1;text-align:left"><b>${esc(q)}</b></div>${CHEV}</button>`).join('')}</div>`;
+  } else if (setPage === 'dev') {
+    h = head(t('devTools')) + devHTML();
   } else if (setPage === 'personal') {
     h = head(S.lang === 'de' ? 'Persönliche Daten' : 'Personal data') + `<div>
         <div class="setrow"><div><b>${t('bodyweight')}</b><p>${t('bwHint')}</p></div><label class="kgin"><input id="bw" inputmode="decimal" enterkeyhint="done" class="num" placeholder="—" value="${S.bodyweight ? fmtW(S.bodyweight) : ''}"><span>kg</span></label></div>
         <div class="setrow"><div><b>${t('age')}</b><p>${t('ageHint')}</p></div><label class="kgin"><input id="age" inputmode="numeric" enterkeyhint="done" class="num" placeholder="—" value="${S.age || ''}"><span>${S.lang === 'de' ? 'J.' : 'y'}</span></label></div>
         <div class="setrow"><div><b>${t('bwPoints')}</b><button class="info" id="bwi" aria-label="Info">i</button><p>${S.bodyweight ? t('bwPointsHint') : t('bwPointsOff')}</p></div>${tog('bwp', S.bwPoints, !S.bodyweight)}</div>
+        <div class="setrow"><div><b>${S.lang === 'de' ? 'Mitteilungen' : 'Notifications'}</b><p>${S.lang === 'de' ? 'Motivation, wenn du ein paar Tage nicht trainiert hast' : 'Motivation when you have not trained for a few days'}</p></div>${tog('pushtog', !!S.push)}</div>
         <div class="setrow" style="opacity:.45"><div><b>${t('account')}</b><p>${t('accountHint')}</p></div>${CHEV}</div>
       </div>`;
   } else if (setPage === 'display') {
@@ -1596,17 +1786,15 @@ function renderSettings() {
   save();
   const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
   document.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { setPage = b.dataset.sp; renderSettings(); $('v-settings').scrollTop = 0; });
-  on('dev-onb', showOnboarding);
-  on('dev-intro', () => previewIntro());
-  on('devtoggle', () => { devOpen = !devOpen; renderSettings(); });
+  on('help-onb', () => showOnboarding(true));
+  on('pushtog', () => setPush(!S.push));
+  document.querySelectorAll('[data-faq]').forEach(b => b.onclick = () => { const [q, a] = FAQ[S.lang][+b.dataset.faq]; showInfo(`<b>${esc(q)}</b><p>${a}</p>`); });
+  if (setPage === 'dev') bindDev();
   document.querySelectorAll('[data-intro]').forEach(b => b.onclick = () => { S.intro = b.dataset.intro; save(); if (S.intro !== 'off') previewIntro(); else renderSettings(); });
   on('copylink', copyLink); on('nativeshare', () => navigator.share({ title: 'TRAIN', url: SHARE_URL }).catch(() => {}));
   if (setPage === 'share') drawQR();
-  on('dev-celeb', () => celebrate());
-  on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
   document.querySelectorAll('[data-celeb]').forEach(b => b.onclick = () => { S.celeb = b.dataset.celeb; renderSettings(); celebrate(); });
   on('spback', () => { setPage = null; renderSettings(); $('v-settings').scrollTop = 0; });
-  on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
   on('resetall', () => dialog(t('resetAllTitle'), t('resetAllText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => dialog(t('resetAllTitle'), '', [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); }]])]]));
   $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
   on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));
@@ -1659,6 +1847,18 @@ if (ENV === 'dev' && !STORED && !location.search.includes('noseed')) { seedMock(
 if (STORED && STORED.lastFinished) { const h = HISTORY.find(x => x.id === STORED.lastFinished.histId); if (h) lastFinished = { W: deserW(STORED.lastFinished.w), hist: h, at: STORED.lastFinished.at }; }
 show('start');
 const TESTRUN = location.search.includes('test');
-if (!TESTRUN) { if (!S.onboarded) showOnboarding(); else requestAnimationFrame(() => playIntroSel()); }
+// app start: wait until the fonts are in, otherwise the start screen shifts after the intro measured it (decagon jumps down)
+// the decagon's position without its pulse (the pulse scales it, so a measurement mid-pulse would be off by a few px)
+function goRect(go) { const a = go.style.animation; go.style.animation = 'none'; const r = go.getBoundingClientRect(); go.style.animation = a; return r; }
+function startIntro() { const go = $('go'); if (go && S.intro !== 'off') go.style.visibility = 'hidden';
+  // iPhone home screen: the layout can still move for a moment after launch (status bar, fonts) – wait until it is still
+  const stable = done => { let last = null, same = 0, n = 0; const f = () => { const g = $('go'); if (!g) return done(); const r = goRect(g), k = Math.round(r.top) + ',' + Math.round(r.left) + ',' + Math.round(r.width);
+      same = k === last ? same + 1 : 0; last = k; if (same >= 4 || ++n > 60) done(); else requestAnimationFrame(f); }; requestAnimationFrame(f); };
+  const run = () => { fitGreet(); stable(() => { if ($('go')) $('go').style.visibility = ''; playIntroSel(); }); };
+  Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise(r => setTimeout(r, 800))]).then(run, run); }
+fetchRemote(); applySeason();
+const wantInstall = location.search.includes('install') || (!TESTRUN && !isStandalone() && !sessionStorage.getItem('fitter.web') && /iPhone|iPad|Android/i.test(navigator.userAgent));
+if (wantInstall) showInstall(false);
+else if (!TESTRUN) { if (!S.onboarded) showOnboarding(); else startIntro(); }
 if (STORED && STORED.active) { W = deserW(STORED.active); renderW(); openW(); }
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});

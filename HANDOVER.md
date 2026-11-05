@@ -3,7 +3,7 @@
 **Zuerst lesen:** `CLAUDE.md` (Arbeitsweise, Regeln), dann `TODO.md` (offene Punkte), dann diese Datei.
 
 ## Projektstand in einem Satz
-Gym-Tracker-PWA „TRAIN“ (Arbeitstitel, Ben sucht noch einen Namen), schwarz-weiß, Zehneck als Markenzeichen. Live v0.1.1 läuft für Ben, Dev v0.9.0 enthält alle neuen Features und wartet auf „freigeben“.
+Gym-Tracker-PWA „TRAIN“ (Arbeitstitel, Ben sucht noch einen Namen), schwarz-weiß, Zehneck als Markenzeichen. Live v0.1.1 läuft für Ben, Dev v0.10.0 enthält alle neuen Features und wartet auf „freigeben“.
 
 ## Links & Ablauf
 - Live: https://pdbp-hub.github.io/Fitter/ (`docs/`, weißes Icon) · Dev: https://pdbp-hub.github.io/Fitter/dev/ (`docs/dev/`, gelbes Icon, Testdaten)
@@ -34,3 +34,10 @@ Gym-Tracker-PWA „TRAIN“ (Arbeitstitel, Ben sucht noch einen Namen), schwarz-
 - **Ablauf:** (1) Ben legt Supabase-Account + 2 Projekte an (Claude führt durch, ~5 min), gibt pro Projekt Projekt-URL + „anon key“ (öffentlich, durch RLS geschützt). (2) Claude baut in Dev: Login-Screen, Abgleich, **Übernahme der bisherigen lokalen Daten** beim ersten Login. (3) Freunde: folgen, Level/Rekorde sehen, Sichtbarkeits-Einstellung. (4) Datenschutzerklärung anpassen + Auftragsverarbeitungsvertrag (DPA) mit Supabase, dann erst teilen.
 - **Offene Entscheidung Ben – Anmeldemethode:** E-Mail-Link ohne Passwort (Empfehlung, einfachste) · E-Mail + Passwort · Apple/Google (bequemer, Apple braucht kostenpflichtiges Entwicklerkonto).
 - Bibliothek `supabase-js` lokal in `vendor/` ablegen (Regel: nichts von fremden Servern nachladen).
+
+## Seasons, Versionen, Install-Anleitung, Push (ab v0.10)
+- Seasons: `docs/season.json` (für alle), Dev-Vorschau `S.seasonPreview`; Code `SEASONS`, `applySeason`, `seasonDeco`, Lade-Animation `loadAnim()`, Celebration-Arten 'xmas'/'easter'. Bei Redesigns mitpflegen.
+- Versionen: `docs/versions/<v>/` + `index.json` (Skript `tools/archive_versions.py`, läuft bei jeder Freigabe). `docs/live.json` wählt die Live-Version; Lader wird von `tools/release.py` in die Live-index.html eingebaut.
+- Schreiben aus der App (Season/Version live): `ghWrite()` per GitHub-Schlüssel, nur auf Bens Gerät (localStorage `fitter.ghkey`).
+- Install-Anleitung: `showInstall()`, erscheint im Handy-Browser (nicht Homescreen) oder mit `?install`.
+- Push: Nutzer-Schalter in Persönliche Daten (`setPush`), Sprüche/Tage in Dev-Werkzeugen (`S.pushMsgs`, `S.pushDays`), Versand an alle braucht Server (Cloud).

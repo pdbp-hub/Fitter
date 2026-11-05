@@ -117,7 +117,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   check('Einstellungen bleiben nach Neuladen (Sprache, Puls)', await ev(() => document.getElementById('app').classList.contains('pm-beat') && document.querySelector('.navbtn span').textContent === 'Progress'));
   await click('[data-tab=settings]'); await sp('display'); await click('#l-de'); await back();
   if (TARGET) {
-    check('Einstellungen in Unterseiten gegliedert', await ev(() => document.querySelectorAll('[data-sp]').length === 6 && !!document.getElementById('sprof')));
+    check('Einstellungen in Unterseiten gegliedert', await ev(() => document.querySelectorAll('[data-sp]').length === 8 && !!document.getElementById('sprof')));
     await sp('display');
     check('8 Puls- und 12 Lade-Animationen', await ev(() => document.querySelectorAll('[data-pulse]').length === 8 && document.querySelectorAll('[data-anim]').length === 12));
     await back(); await sp('logic');
@@ -268,10 +268,10 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=progress]');
     check('Mehr als 3 Favoriten, horizontal scrollbar', await ev(() => { const f = document.querySelector('.favs'); return f && f.children.length > 3 && f.scrollWidth > f.clientWidth; }));
     await click('[data-tab=settings]');
-    check('Dev-Werkzeuge eingeklappt', await ev(() => !document.getElementById('dev-onb') && !!document.getElementById('devtoggle')));
-    await click('#devtoggle');
-    check('Dev-Werkzeuge aufklappbar', await ev(() => !!document.getElementById('dev-onb')));
-    await click('#devtoggle');
+    check('Dev-Werkzeuge als eigener Menüpunkt', await ev(() => !document.getElementById('dev-onb') && !!document.querySelector('[data-sp="dev"]')));
+    await click('[data-sp="dev"]');
+    check('Dev-Werkzeuge-Seite öffnet', await ev(() => !!document.getElementById('dev-onb')));
+    await click('#spback');
     check('Einstellungen mit Icons', await ev(() => document.querySelectorAll('.sprow .sic').length >= 6));
     await sp('share');
     await page.waitForTimeout(300);
@@ -336,11 +336,11 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await fp.goto(URL + 'dev/?noseed'); await fp.waitForTimeout(400);
     check('Onboarding beim ersten Start', await fp.evaluate(() => !!document.getElementById('onb')));
     check('Onboarding zeigt App-Animationen statt Zehnecke', await fp.evaluate(async () => { const kinds = []; for (let i = 0; i < 7; i++) { kinds.push(!!document.querySelector('#onb .om-phone')); document.getElementById('onb-next').click(); await new Promise(r => setTimeout(r, 30)); if (!document.getElementById('onb')) break; } return kinds.every(Boolean); }));
-    if (await fp.$('#onb-skip')) await fp.click('#onb-skip'); await fp.reload(); await fp.waitForTimeout(200);
+    if (await fp.$('#onb-skip')) await fp.click('#onb-skip'); await fp.reload(); await fp.waitForTimeout(700);
     check('Intro-Animation beim Öffnen', await fp.evaluate(() => !!document.getElementById('intro')));
     await fp.waitForTimeout(2200);
     check('Intro endet im Start-Zehneck', await fp.evaluate(() => !document.getElementById('intro') && getComputedStyle(document.getElementById('go')).visibility === 'visible'));
-    await fp.evaluate(() => { S.intro = 'type'; save(); }); await fp.reload(); await fp.waitForTimeout(300);
+    await fp.evaluate(() => { S.intro = 'type'; save(); }); await fp.reload(); await fp.waitForTimeout(800);
     check('Intro 2 (Schreibmaschine) startet weiß', await fp.evaluate(() => !!document.querySelector('#intro.intro2')));
     await fp.waitForTimeout(6000);
     check('Intro 2 endet im Start-Zehneck', await fp.evaluate(() => !document.getElementById('intro') && getComputedStyle(document.getElementById('go')).visibility === 'visible'));
@@ -361,7 +361,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Fortschritt: Überschrift, darunter „Ich | Freunde“ volle Breite', await (async () => { await click('[data-tab=progress]'); return ev(() => { const g = document.querySelector('#v-progress .pseg'), v = document.querySelector('#v-progress .inner'); return !!document.querySelector('#v-progress h1.progh1') && g.getBoundingClientRect().width > v.getBoundingClientRect().width - 40; }); })());
     await click('[data-tab=settings]'); await click('[data-sp="display"]'); await page.evaluate(() => document.querySelector('[data-intro="spin"]').click()); await page.waitForTimeout(4500);
     check('Intro-Vorschau kehrt zu Einstellungen › Darstellung zurück', await ev(() => !document.getElementById('v-settings').hidden && !!document.querySelector('[data-intro]')));
-    await click('#spback'); if (!(await page.$('#dev-charts'))) await click('#devtoggle');
+    await click('#spback'); await click('[data-sp="dev"]');
     await click('#dev-charts'); await settle();
     check('Dev: Charts-Test zeigt 5 Fälle mit je 4 Sätzen', await ev(() => document.querySelectorAll('#obody svg.chart').length === 5 && document.querySelectorAll('#rv-ct2 circle[r="4.5"]').length === 4));
     await click('#o-back'); await settle();
@@ -422,6 +422,42 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('#minbtn').catch(() => {}); await ev(() => minimize()); await page.waitForTimeout(800);
     check('Review runtergewischt: Mini-Leiste sichtbar (REGRESSION)', await ev(() => !document.getElementById('mini').hidden && /Review/.test(document.getElementById('m-phase').textContent)));
     await click('#mini'); await page.waitForTimeout(700); await click('#donebtn'); await settle();
+  }
+
+  if (TARGET) {
+    console.log('Neu in v0.10');
+    const cdp2 = await ctx.newCDPSession(page), touch = (type, x, y) => cdp2.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+    if (await page.$('#overlay:not([hidden])')) await click('[data-db="0"]');
+    await ev(() => showOnboarding(true)); await page.waitForTimeout(200);
+    const sw = async dx => { await touch('touchStart', 200, 500); await touch('touchMove', 200 + dx / 2, 500); await touch('touchMove', 200 + dx, 502); await touch('touchEnd'); await page.waitForTimeout(350); };
+    await sw(-150); await sw(-150);
+    check('Onboarding: nach links wischen = weiter', await ev(() => /^3 \//.test(document.querySelector('#onb .eyebrow').textContent)));
+    await sw(150);
+    check('Onboarding: nach rechts wischen = zurück', await ev(() => /^2 \//.test(document.querySelector('#onb .eyebrow').textContent)));
+    await click('#onb-prev');
+    check('Onboarding: Zurück-Knopf', await ev(() => /^1 \//.test(document.querySelector('#onb .eyebrow').textContent)));
+    await click('#onb-skip');
+    check('Onboarding aus Hilfe: ✕ fragt nach, Dialog liegt über dem Onboarding', await ev(() => { const o = document.getElementById('overlay'); return !o.hidden && /Hilfe|Help/.test(o.textContent) && +getComputedStyle(o).zIndex > +getComputedStyle(document.getElementById('onb')).zIndex; }));
+    await click('#overlay .ghostbtn'); await page.waitForTimeout(200);
+    check('Onboarding geschlossen', await ev(() => !document.getElementById('onb')));
+    await click('[data-tab=settings]'); await click('[data-sp="help"]');
+    check('Hilfe: Einführung + häufige Fragen', await ev(() => !!document.getElementById('help-onb') && document.querySelectorAll('[data-faq]').length >= 5));
+    await click('[data-faq="0"]'); check('FAQ öffnet mittiges Info-Fenster', await ev(() => !document.getElementById('popover').hidden)); await click('#popover .x');
+    await click('#spback'); await click('[data-sp="dev"]');
+    await click('[data-spv="xmas"]'); await page.waitForTimeout(300);
+    check('Season Weihnachten: Schnee + Mütze auf dem Zehneck', await (async () => { await click('[data-tab=start]'); return ev(() => document.querySelectorAll('#season .flake').length > 10 && !!document.querySelector('.hero .ss-hat')); })());
+    await click('[data-tab=settings]'); await click('[data-sp="dev"]'); await click('[data-spv="easter"]'); await page.waitForTimeout(300);
+    check('Season Ostern: Eier + Hasenohren', await (async () => { await click('[data-tab=start]'); return ev(() => document.querySelectorAll('#season .egg').length > 5 && !!document.querySelector('.hero .ss-ears')); })());
+    await click('[data-tab=settings]'); await click('[data-sp="dev"]'); await click('[data-spv="live"]'); await page.waitForTimeout(400);
+    check('Season wie live (keine) = normales Design', await ev(() => !document.getElementById('season')));
+    check('Versionsliste geladen (0.1.1 bis aktuell)', await (async () => { await page.waitForTimeout(600); return ev(() => [...document.querySelectorAll('#dev-ver option')].map(o => o.value).includes('0.1.1') && [...document.querySelectorAll('#dev-ver option')].map(o => o.value).includes(APP_VERSION)); })());
+    await click('#dev-verlive'); await page.waitForTimeout(200); await click('#overlay .ghostbtn'); await page.waitForTimeout(300);
+    check('Live schalten ohne Schlüssel: Hinweis statt Fehler', await ev(() => /Schlüssel/.test(document.getElementById('overlay').textContent))); await click('#overlay .mainbtn');
+    await click('#dev-inst'); await page.waitForTimeout(200);
+    check('Browser-Ansicht: Willkommen + iPhone/Android', await ev(() => !!document.getElementById('inst') && document.querySelectorAll('[data-os]').length === 2));
+    await click('[data-os="android"]'); check('Android-Anleitung Schritt 1', await ev(() => /Android · 1/.test(document.querySelector('#inst .eyebrow').textContent)));
+    await click('#inst-back'); await click('#inst-x');
+    await click('#spback');
   }
 
   if (!TARGET) {
