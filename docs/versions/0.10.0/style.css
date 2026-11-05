@@ -854,3 +854,7 @@ body:has(#onb) .overlay, body:has(#inst) .overlay { z-index: 96; }
 .ins-home { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 18px 14px; align-content: start; }
 .ins-home i { aspect-ratio: 1; border-radius: 8px; background: var(--line); }
 .ins-home b { aspect-ratio: 1; background: var(--fg); color: var(--bg); display: grid; place-items: center; font-size: 7px; font-weight: 900; animation: om-pts 2.4s ease-in-out infinite; }
+.onb-dots i { display: block; }
+.ss-mini { left: -8%; top: -12%; width: 40%; }
+.season-easter .ss-mini { left: 30%; top: -30%; width: 40%; }
+.wdec .ss-mini svg { position: static; inset: auto; opacity: 1; width: 100%; height: auto; }

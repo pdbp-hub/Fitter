@@ -3,8 +3,9 @@
 ## Als Nächstes
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
 - [ ] Live-Versionswahl greift ab der nächsten Freigabe (release.py baut den Lader in die Live-App ein)
+- [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.10.0 testen → „freigeben“ für Live (enthält alles aus v0.6 bis v0.10)
+- [ ] **Ben:** Dev v0.10.1 testen (v. a. Intro-Sprung auf dem iPhone) → „freigeben“ für Live (enthält alles aus v0.6 bis v0.10)
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
   - [ ] Account mit **Benutzername + Kennwort** (Benutzername einmalig, ersetzt Platzhalter @test), Übernahme der lokalen Daten
@@ -79,6 +80,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.10.1** (2026-11-05): Freigabe-Schlüssel mit Laufzeit (7/30/60/90 Tage), roter Banner + Mitteilung 2 Tage vor Ablauf, Test: Schlüssel nie in App-Daten
 - [x] **Dev v0.10.0** (2026-11-05): Intro-Start wartet auf ruhiges Layout (Zehneck-Sprung), Onboarding wischen/zurück/Punkte + Rückfrage beim Überspringen, GO-Zehneck ausgerichtet, Löschen-Tipp animiert, Einstellungen › Hilfe (Einführung mit ✕, FAQ), Dev-Werkzeuge als eigene Seite, Installations-Anleitung im Browser (iPhone/Android, `?install`), Seasons Weihnachten/Ostern (Schnee/Schlitten/Mütze, Eier/Hase/Ohren, eigene Lade-Animation + Celebration), Versionsarchiv 0.1–0.10 + Live-Versionswahl, Mitteilungen-Schalter + Sprüche-Verwaltung + Test-Mitteilung
 - [x] **Dev v0.9.0** (2026-11-04): Onboarding-Feinschliff (GO-Tipp sichtbar, Seitheben mit Sätzen, Löschen mittig), Intro-Vorschau immer mit Zehneck-Morph, Intro 2 „Los geht's“ deckungsgleich, Zurück-Wischen nur waagerecht mit echter vorheriger Seite dahinter, Profil = gleiche Ansicht wie bei Freunde (+ Bearbeiten mit Sichtbarkeit, ★-Favoriten für Personal Bests, Letzte 30 Tage, Lieblings-Workout), „Persönliche Daten“, Prognose-Einstellungen in Darstellung, Level-Kopf schrumpft fließend, Review-Mini-Leiste, Bereit mit +/− pro Satz, Wisch-Löschen begrenzt, „±0“, Fortschritt-Umschalter randlos mit Icons, Chart-Linien in Punktfarbe, Charts-Test mit 4 Sätzen
 - [x] **Dev v0.8.0** (2026-11-04): Intro 2/3 auf iPhone-Höhe korrigiert + lange Wörter passen, Intro-Vorschau mit Übergang zurück zu Einstellungen, „Diese Woche“ wieder einzeilig, Level-Seite mit einer Scrollfläche + schrumpfendem Kopf, „Testdaten“ nur in Dev-Werkzeugen, Zurück-Wischen folgt dem Finger, Überschriften Einstellungen/Fortschritt zurück, Profil (Anzeigename, @Benutzername einmalig, Lieblingsübungen, Sichtbarkeit, Vorschau), Freunde (Profile antippbar, Woche als Zehnecke, Freunde finden per Name/QR), Icons Rückenstrecker/Reverse Fly/Russian Twists/Schrägbankdrücken

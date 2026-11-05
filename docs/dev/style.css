@@ -858,3 +858,6 @@ body:has(#onb) .overlay, body:has(#inst) .overlay { z-index: 96; }
 .ss-mini { left: -8%; top: -12%; width: 40%; }
 .season-easter .ss-mini { left: 30%; top: -30%; width: 40%; }
 .wdec .ss-mini svg { position: static; inset: auto; opacity: 1; width: 100%; height: auto; }
+/* v0.10.1 key expiry warning (dev only) */
+.ghwarn { width: 100%; background: #c8322b; color: #fff; text-align: left; padding: 12px 14px; font-size: 13px; font-weight: 700; line-height: 1.35; }
+.ghred { color: #ff6b63 !important; }

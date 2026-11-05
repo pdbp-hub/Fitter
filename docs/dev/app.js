@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.10.0';
+const APP_VERSION = '0.10.1';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -496,7 +496,7 @@ function backTarget() {
 let lastFinished = null; // { W, hist, at }
 function renderStart() {
   const canResume = lastFinished && Date.now() - lastFinished.at < 30 * 60000, wk = weekStats();
-  $('v-start').innerHTML = `<div class="inner">
+  $('v-start').innerHTML = `<div class="inner">${ghWarn()}
     <div class="ptsline" id="ptsbtn" role="button" tabindex="0"><div class="pv"><b class="num">${fmt(totalPts())}</b><strong>${t('points')}</strong><span class="ptschev">${CHEV}</span></div><small>Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</small></div>
     <div class="hero">${seasonDeco() ? `<span class="ss-deco">${seasonDeco()}</span>` : ''}<button class="octa dec pulse" id="go"><span class="greet" id="greet">${esc(greetText)}</span><span class="cta">${t('cta')}</span><span class="tap">${t('tap')}</span></button></div>
     ${canResume ? `<button class="resume" id="resume"><span><b>${t('resume')}</b><small>${esc(lastFinished.W.name)} · ${t('resumeLeft', Math.ceil((30*60000 - (Date.now() - lastFinished.at)) / 60000))}</small></span>${CHEV}</button>` : ''}
@@ -505,6 +505,7 @@ function renderStart() {
   </div>`;
   fitGreet();
   $('ptsbtn').onclick = openLevels;
+  $('ghwarn') && ($('ghwarn').onclick = () => { setPage = 'dev'; show('settings'); });
   $('go').onclick = () => W ? openW() : show('select');
   $('resume') && ($('resume').onclick = () => { const i = HISTORY.indexOf(lastFinished.hist); if (i >= 0) HISTORY.splice(i, 1); W = lastFinished.W; W.mode = 'train'; W.phase = 'rest'; W.phaseStart = Date.now(); delete W.end; lastFinished = null; renderW(); openW(); renderStart(); });
 }
@@ -1541,7 +1542,16 @@ async function testPush(text) {
 
 // ================= GitHub key (dev only): lets Ben switch the live version / season himself =================
 const GH = { repo: 'pdbp-hub/Fitter', branch: 'claude/fitness-tracking-app-setup-ix8ivv' };
+// the key lives ONLY in this device's storage, under its own name, never inside the app data (so a later cloud sync can never upload it)
 const ghKey = () => { try { return localStorage.getItem('fitter.ghkey') || ''; } catch (e) { return ''; } };
+const ghDaysLeft = () => { if (!ghKey()) return null; const x = +(localStorage.getItem('fitter.ghexp') || 0); return x ? Math.ceil((x - Date.now()) / 864e5) : null; };
+const ghExpText = () => { const d = ghDaysLeft(); if (d === null) return ''; const x = new Date(+localStorage.getItem('fitter.ghexp')).toLocaleDateString('de-DE'); return d <= 0 ? `abgelaufen am ${x}` : `gültig bis ${x} (noch ${d} ${d === 1 ? 'Tag' : 'Tage'})`; };
+// dev app: warn 2 days before the key runs out (banner on the start screen + a notification when the app is opened)
+function ghWarn() { const d = ghDaysLeft(); if (ENV !== 'dev' || d === null || d > 2) return '';
+  return `<button class="ghwarn" id="ghwarn">${d <= 0 ? 'Freigabe-Schlüssel ist abgelaufen.' : `Freigabe-Schlüssel läuft in ${d} ${d === 1 ? 'Tag' : 'Tagen'} ab.`} Bitte erneuern, sonst geht „live schalten“ aus der Dev-App nicht mehr.</button>`; }
+function ghNotify() { const d = ghDaysLeft(); if (ENV !== 'dev' || d === null || d > 2 || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const today = new Date().toDateString(); if (localStorage.getItem('fitter.ghnote') === today) return; localStorage.setItem('fitter.ghnote', today);
+  navigator.serviceWorker.ready.then(r => r.showNotification('TRAIN Dev', { body: d <= 0 ? 'Freigabe-Schlüssel ist abgelaufen. Bitte erneuern.' : `Freigabe-Schlüssel läuft in ${d} ${d === 1 ? 'Tag' : 'Tagen'} ab. Bitte erneuern.` })).catch(() => {}); }
 async function ghWrite(path, obj, msg) {
   const k = ghKey(); if (!k) throw new Error('Kein Schlüssel hinterlegt');
   const url = `https://api.github.com/repos/${GH.repo}/contents/${path}`, hd = { Authorization: 'Bearer ' + k, Accept: 'application/vnd.github+json' };
@@ -1581,7 +1591,7 @@ function devHTML() {
     <div class="pushrow"><input id="dev-pnow" placeholder="Eigene Nachricht an alle (z. B. Aktion)"><button class="textbtn" id="dev-psend">Senden</button></div>
 
     <b style="margin-top:18px">Freigabe-Schlüssel</b>
-    <p class="hint">Für „live schalten“ braucht die App einmalig einen GitHub-Schlüssel (fein eingeschränkt: nur dieses Repo, nur Inhalte schreiben). Er bleibt nur auf diesem Gerät gespeichert. Status: <b>${ghKey() ? 'hinterlegt' : 'fehlt'}</b></p>
+    <p class="hint">Für „live schalten“ braucht die App einmalig einen GitHub-Schlüssel (fein eingeschränkt: nur dieses Repo, nur Inhalte schreiben). Er bleibt nur auf diesem Gerät gespeichert, nie in den App-Daten oder der Cloud. Status: <b>${ghKey() ? 'hinterlegt' : 'fehlt'}</b>${ghKey() ? ` · <b class="${(ghDaysLeft() ?? 99) <= 2 ? 'ghred' : ''}">${ghExpText() || 'Laufzeit unbekannt'}</b>` : ''}</p>
     <div class="pushrow"><input id="dev-ghkey" type="password" placeholder="github_pat_…" autocomplete="off"><button class="textbtn" id="dev-ghsave">${ghKey() ? 'Ersetzen' : 'Speichern'}</button>${ghKey() ? '<button class="textbtn" id="dev-ghdel">Entfernen</button>' : ''}</div>
   </div>`;
 }
@@ -1605,8 +1615,10 @@ function bindDev() {
   document.querySelectorAll('[data-ptest]').forEach(b => b.onclick = () => testPush(msgs()[+b.dataset.ptest]));
   on('dev-padd', () => { S.pushMsgs = msgs().concat(S.lang === 'de' ? 'Neuer Spruch' : 'New line'); save(); renderSettings(); });
   on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return; dialog('An alle senden?', esc(v) + '<br><br>Der Versand an alle Nutzer braucht einen Server und kommt mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
-  on('dev-ghsave', () => { const v = $('dev-ghkey').value.trim(); if (!v) return; try { localStorage.setItem('fitter.ghkey', v); } catch (e) {} renderSettings(); toast('Schlüssel gespeichert'); });
-  on('dev-ghdel', () => { try { localStorage.removeItem('fitter.ghkey'); } catch (e) {} renderSettings(); });
+  on('dev-ghsave', () => { const v = $('dev-ghkey').value.trim(); if (!v) return;
+    const keep = d => () => { try { localStorage.setItem('fitter.ghkey', v); localStorage.setItem('fitter.ghexp', String(Date.now() + d * 864e5)); localStorage.removeItem('fitter.ghnote'); } catch (e) {} renderSettings(); toast('Schlüssel gespeichert'); };
+    dialog('Wie lange ist der Schlüssel gültig?', 'Die Laufzeit, die du bei GitHub gewählt hast. 2 Tage vor Ablauf erinnert dich die Dev-App.', [7, 30, 60, 90].map(d => [`${d} Tage`, d === 30 ? 'mainbtn' : 'ghostbtn', keep(d)]).concat([['Abbrechen', 'textbtn', () => {}]])); });
+  on('dev-ghdel', () => { try { ['fitter.ghkey', 'fitter.ghexp', 'fitter.ghnote'].forEach(k => localStorage.removeItem(k)); } catch (e) {} renderSettings(); });
 }
 
 const FAQ = {
@@ -1856,7 +1868,7 @@ function startIntro() { const go = $('go'); if (go && S.intro !== 'off') go.styl
       same = k === last ? same + 1 : 0; last = k; if (same >= 4 || ++n > 60) done(); else requestAnimationFrame(f); }; requestAnimationFrame(f); };
   const run = () => { fitGreet(); stable(() => { if ($('go')) $('go').style.visibility = ''; playIntroSel(); }); };
   Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise(r => setTimeout(r, 800))]).then(run, run); }
-fetchRemote(); applySeason();
+fetchRemote(); applySeason(); ghNotify();
 const wantInstall = location.search.includes('install') || (!TESTRUN && !isStandalone() && !sessionStorage.getItem('fitter.web') && /iPhone|iPad|Android/i.test(navigator.userAgent));
 if (wantInstall) showInstall(false);
 else if (!TESTRUN) { if (!S.onboarded) showOnboarding(); else startIntro(); }

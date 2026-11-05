@@ -8,6 +8,8 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
 - **Erst fragen, dann bauen.** Bei Unklarheiten immer *vorher* nachfragen, bevor Tokens in die Umsetzung fließen. Vor größeren Aufgaben kurz den Plan nennen und fragen: „Passt das so?“
 - Wenn Ben ausdrücklich um einen Vorschlag bittet → Vorschlag machen.
 - **Sparsam mit Tokens**: kurze, klare Antworten, keine unnötigen Umwege.
+- **Antwort nach einer Umsetzung** (ab 2026-11-05): NICHT auflisten, was umgesetzt wurde (Ben sieht es in der App). Stattdessen immer: (1) ob alles geklappt hat (Tests grün? was ließ sich nicht prüfen?), (2) **offene Fragen** und wo Ben **Feedback/Entscheidungen** geben muss, (3) die offenen To-dos aus `TODO.md`.
+- **Sicherheit**: Der GitHub-Freigabe-Schlüssel liegt nur im Gerätespeicher (`fitter.ghkey`), nie in den App-Daten (`fitter.*.v1`), nie in der Cloud, nie im Chat oder Repo.
 - **Sprache**: Mit Ben immer auf Deutsch kommunizieren.
 - **Kenntnisstand Ben**: Kann Code (Python, etwas Excel VBA) lesen, aber nicht selbst schreiben. Keine Erfahrung mit Web-Apps. Fachbegriffe kurz erklären.
 - **To-Do-Liste**: `TODO.md` ist die zentrale Liste.
@@ -21,7 +23,7 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
   - Tests: `node tests/smoke.js dev` (Dev komplett) und `node tests/smoke.js` (Live + Dev-Grundcheck).
   - Live (`docs/`) wird **nur** geändert, wenn Ben „freigeben“ sagt: `python3 tools/release.py` → Tests → committen → pushen. Ausnahme: dringende Bugs, nur nach Rückfrage.
   - `index.html`, `manifest.webmanifest`, `sw.js`, `icons/` sind pro Version eigenständig; geteilt wird nur `app.js` + `style.css` (per Release kopiert).
-  - Bei jeder Dev-Änderung `CACHE` in `docs/dev/sw.js` und `APP_VERSION` in `docs/dev/app.js` hochzählen.
+  - Bei jeder Dev-Änderung `CACHE` in `docs/dev/sw.js` und `APP_VERSION` in `docs/dev/app.js` hochzählen, danach `python3 tools/archive_versions.py` (Versionsarchiv für die Live-Versionswahl).
 - **Nur das ändern, was Ben angefragt hat.** Alles andere bleibt exakt wie es ist (keine „Nebenbei-Verbesserungen“), damit keine Features verschwinden und keine neuen Bugs entstehen. Eigene Verbesserungsideen nur vorschlagen, nicht einbauen.
 - **Info-i** öffnen immer ein Fenster **mittig** auf dem Bildschirm mit ✕ (kein Aufklappen im Seiteninhalt, nur ein Info-i pro Element – oben am Titel). Alle Dialoge/Overlays erscheinen **mittig**, nie unten.
 - **Seasons pflegen**: Bei jedem Redesign die Season-Designs (Weihnachten, Ostern) mit anpassen.
