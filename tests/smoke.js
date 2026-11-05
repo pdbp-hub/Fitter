@@ -460,13 +460,20 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await page.fill('#dev-ghkey', 'github_pat_TEST'); await click('#dev-ghsave'); await page.waitForTimeout(150);
     check('Schlüssel speichern fragt nach der Laufzeit', await ev(() => /gültig/.test(document.getElementById('overlay').textContent) && document.querySelectorAll('#overlay button').length >= 4));
     await click('#overlay .mainbtn'); await page.waitForTimeout(150);
+    check('Danach: 6-stellige Master-PIN festlegen', await ev(() => /PIN/.test(document.getElementById('overlay').textContent) && !!document.getElementById('pinin')));
+    await page.fill('#pinin', '123456'); await click('#overlay .mainbtn'); await page.waitForTimeout(150); await page.fill('#pinin', '123456'); await click('#overlay .mainbtn'); await page.waitForTimeout(800);
     check('Laufzeit wird angezeigt (30 Tage)', await ev(() => /noch 30 Tage/.test(document.getElementById('v-settings').textContent)));
-    check('Schlüssel liegt NIE in den App-Daten (später Cloud) (SICHERHEIT)', await ev(() => { save(); return !localStorage.getItem(STORE_KEY).includes('github_pat') && localStorage.getItem('fitter.ghkey') === 'github_pat_TEST'; }));
+    check('Schlüssel liegt NIE in den App-Daten (später Cloud) und nur verschlüsselt im Gerät (SICHERHEIT)', await ev(() => { save(); const k = localStorage.getItem('fitter.ghkey'); return !localStorage.getItem(STORE_KEY).includes('github_pat') && k.startsWith('enc1:') && !k.includes('github_pat'); }));
+    check('Richtige PIN entschlüsselt, falsche nicht', await ev(async () => (await ghOpen('123456')) === 'github_pat_TEST' && (await ghOpen('000000')) === null));
+    await click('[data-golive="xmas"]'); await click('#overlay .ghostbtn'); await page.waitForTimeout(150);
+    check('Live schalten fragt nach der Master-PIN', await ev(() => /Master-PIN/.test(document.getElementById('overlay').textContent)));
+    await page.fill('#pinin', '000000'); await click('#overlay .mainbtn'); await page.waitForTimeout(900);
+    check('Falsche PIN: nichts passiert, Fehlversuch gezählt', await ev(() => localStorage.getItem('fitter.ghfail') === '1' && !REMOTE_SEASON));
     await ev(() => localStorage.setItem('fitter.ghexp', String(Date.now() + 1.5 * 864e5)));
     await click('[data-tab=start]');
     check('2 Tage vor Ablauf: roter Banner auf der Startseite', await ev(() => /läuft in 2 Tagen ab/.test((document.getElementById('ghwarn') || {}).textContent || '')));
     await click('#ghwarn'); check('Banner führt zu den Dev-Werkzeugen', await ev(() => !!document.getElementById('dev-ghkey')));
-    await click('#dev-ghdel'); await click('[data-tab=start]');
+    await ev(() => document.getElementById('dev-ghdel').click()); await page.waitForTimeout(150); await click('[data-tab=start]');
     check('Schlüssel entfernt: kein Banner', await ev(() => !document.getElementById('ghwarn') && !localStorage.getItem('fitter.ghkey')));
     await click('[data-tab=settings]');
   }

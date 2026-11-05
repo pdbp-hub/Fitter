@@ -5,10 +5,10 @@
 - [ ] Live-Versionswahl greift ab der nächsten Freigabe (release.py baut den Lader in die Live-App ein)
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.10.1 testen (v. a. Intro-Sprung auf dem iPhone) → „freigeben“ für Live (enthält alles aus v0.6 bis v0.10)
+- [ ] **Ben:** Feedback zu den neuen Funktionen (Seasons, Hilfe, Installations-Anleitung, Dev-Werkzeuge) → dann „freigeben“ für Live (enthält alles aus v0.6 bis v0.10)
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
-  - [ ] Account mit **Benutzername + Kennwort** (Benutzername einmalig, ersetzt Platzhalter @test), Übernahme der lokalen Daten
+  - [ ] Account: Registrierung mit Benutzername (einmalig, ersetzt @test) + E-Mail + Kennwort; **Anmelden mit E-Mail ODER Benutzername + Kennwort**; Kennwort zurücksetzen per E-Mail (Entscheidung Ben 2026-11-05); Übernahme der lokalen Daten
   - [ ] Abgleich offline-first (localStorage bleibt Zwischenspeicher)
   - [ ] **Freunde live schalten**: Suche per @Benutzername, QR-Code scannen, Folgen, echte Profile statt Beispieldaten, Sichtbarkeit aus dem Profil serverseitig durchsetzen
   - [ ] Profilbild hochladen
@@ -80,6 +80,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.10.2** (2026-11-05): 6-stellige Master-PIN (Schlüssel verschlüsselt, PIN vor jedem Live schalten, 5 Fehlversuche = 10 min Sperre); „Ohne Installation weiter“ entfernt. Intro-Sprung beim Start laut Ben behoben
 - [x] **Dev v0.10.1** (2026-11-05): Freigabe-Schlüssel mit Laufzeit (7/30/60/90 Tage), roter Banner + Mitteilung 2 Tage vor Ablauf, Test: Schlüssel nie in App-Daten
 - [x] **Dev v0.10.0** (2026-11-05): Intro-Start wartet auf ruhiges Layout (Zehneck-Sprung), Onboarding wischen/zurück/Punkte + Rückfrage beim Überspringen, GO-Zehneck ausgerichtet, Löschen-Tipp animiert, Einstellungen › Hilfe (Einführung mit ✕, FAQ), Dev-Werkzeuge als eigene Seite, Installations-Anleitung im Browser (iPhone/Android, `?install`), Seasons Weihnachten/Ostern (Schnee/Schlitten/Mütze, Eier/Hase/Ohren, eigene Lade-Animation + Celebration), Versionsarchiv 0.1–0.10 + Live-Versionswahl, Mitteilungen-Schalter + Sprüche-Verwaltung + Test-Mitteilung
 - [x] **Dev v0.9.0** (2026-11-04): Onboarding-Feinschliff (GO-Tipp sichtbar, Seitheben mit Sätzen, Löschen mittig), Intro-Vorschau immer mit Zehneck-Morph, Intro 2 „Los geht's“ deckungsgleich, Zurück-Wischen nur waagerecht mit echter vorheriger Seite dahinter, Profil = gleiche Ansicht wie bei Freunde (+ Bearbeiten mit Sichtbarkeit, ★-Favoriten für Personal Bests, Letzte 30 Tage, Lieblings-Workout), „Persönliche Daten“, Prognose-Einstellungen in Darstellung, Level-Kopf schrumpft fließend, Review-Mini-Leiste, Bereit mit +/− pro Satz, Wisch-Löschen begrenzt, „±0“, Fortschritt-Umschalter randlos mit Icons, Chart-Linien in Punktfarbe, Charts-Test mit 4 Sätzen

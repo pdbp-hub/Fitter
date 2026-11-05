@@ -861,3 +861,4 @@ body:has(#onb) .overlay, body:has(#inst) .overlay { z-index: 96; }
 /* v0.10.1 key expiry warning (dev only) */
 .ghwarn { width: 100%; background: #c8322b; color: #fff; text-align: left; padding: 12px 14px; font-size: 13px; font-weight: 700; line-height: 1.35; }
 .ghred { color: #ff6b63 !important; }
+.pinin { width: 100%; margin-top: 12px; background: var(--surface); border: 0; border-bottom: 2px solid var(--fg); color: var(--fg); text-align: center; font-family: var(--display); font-weight: 900; font-size: 28px; letter-spacing: .4em; padding: 8px 0; }

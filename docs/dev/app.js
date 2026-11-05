@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.10.1';
+const APP_VERSION = '0.10.2';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -1507,8 +1507,7 @@ function showInstall(preview) {
     if (!os) { el.innerHTML = `<div class="onb-in inst-home"><div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview ? '<button class="iconbtn" id="inst-x" aria-label="Schließen">✕</button>' : '<span></span>'}</div>
         <div class="inst-hero"><div class="octa dec pulse inst-dec"><span class="cta">TRAIN</span></div></div>
         <div><h1>${de ? 'Willkommen bei TRAIN' : 'Welcome to TRAIN'}</h1><p class="onb-txt">${de ? 'Dein Gym-Tracker. Installiere ihn auf deinem Homescreen, dann läuft er wie eine echte App.' : 'Your gym tracker. Add it to your home screen and it runs like a real app.'}</p></div>
-        <div class="inst-pick"><b>${de ? 'App installieren: Anleitung für' : 'Install the app: guide for'}</b><div class="inst-os"><button class="mainbtn" data-os="ios">iPhone</button><button class="mainbtn" data-os="android">Android</button></div>
-        <button class="textbtn" id="inst-web">${de ? 'Ohne Installation im Browser weiter' : 'Continue in the browser'}</button></div></div>`;
+        <div class="inst-pick"><b>${de ? 'App installieren: Anleitung für' : 'Install the app: guide for'}</b><div class="inst-os"><button class="mainbtn" data-os="ios">iPhone</button><button class="mainbtn" data-os="android">Android</button></div></div></div>`;
       el.querySelectorAll('[data-os]').forEach(b => b.onclick = () => { os = b.dataset.os; i = 0; draw(); });
     } else { const L = STEPS[os], [h, tx, k] = L[i], last = i === L.length - 1;
       el.innerHTML = `<div class="onb-in"><div class="row"><button class="iconbtn" id="inst-back" aria-label="${de ? 'Zurück' : 'Back'}">←</button><span class="eyebrow num">${os === 'ios' ? 'iPhone' : 'Android'} · ${i + 1} / ${L.length}</span><span style="width:44px"></span></div>
@@ -1518,7 +1517,6 @@ function showInstall(preview) {
       $('inst-back').onclick = () => { if (i) i--; else os = null; draw(); };
       $('inst-next').onclick = () => { if (last) { os = null; draw(); } else { i++; draw(); } }; }
     $('inst-x') && ($('inst-x').onclick = () => el.remove());
-    $('inst-web') && ($('inst-web').onclick = () => { el.remove(); if (!preview) sessionStorage.setItem('fitter.web', '1'); });
   };
   let x0 = null; el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
   el.addEventListener('touchend', e => { if (x0 === null || !os) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (dx < -50 && i < STEPS[os].length - 1) { i++; draw(); } else if (dx > 50) { if (i) i--; else os = null; draw(); } }, { passive: true });
@@ -1552,8 +1550,18 @@ function ghWarn() { const d = ghDaysLeft(); if (ENV !== 'dev' || d === null || d
 function ghNotify() { const d = ghDaysLeft(); if (ENV !== 'dev' || d === null || d > 2 || !('Notification' in window) || Notification.permission !== 'granted') return;
   const today = new Date().toDateString(); if (localStorage.getItem('fitter.ghnote') === today) return; localStorage.setItem('fitter.ghnote', today);
   navigator.serviceWorker.ready.then(r => r.showNotification('TRAIN Dev', { body: d <= 0 ? 'Freigabe-Schlüssel ist abgelaufen. Bitte erneuern.' : `Freigabe-Schlüssel läuft in ${d} ${d === 1 ? 'Tag' : 'Tagen'} ab. Bitte erneuern.` })).catch(() => {}); }
-async function ghWrite(path, obj, msg) {
-  const k = ghKey(); if (!k) throw new Error('Kein Schlüssel hinterlegt');
+// master PIN (6 digits): the key is stored only encrypted with the PIN (PBKDF2 + AES-GCM); every "go live" asks for the PIN
+const b64 = u => btoa(String.fromCharCode(...new Uint8Array(u))), unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function pinKey(pin, salt) { const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); }
+async function ghSeal(token, pin) { const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  const c = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await pinKey(pin, salt), new TextEncoder().encode(token)); return 'enc1:' + JSON.stringify({ s: b64(salt), i: b64(iv), c: b64(c) }); }
+async function ghOpen(pin) { const v = ghKey(); if (!v.startsWith('enc1:')) throw new Error('Schlüssel ohne PIN gespeichert, bitte neu hinterlegen');
+  const j = JSON.parse(v.slice(5)); try { const t = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(j.i) }, await pinKey(pin, unb64(j.s)), unb64(j.c)); return new TextDecoder().decode(t); } catch (e) { return null; } }
+const pinField = (id, label) => `${label}<br><input id="${id}" class="pinin num" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off">`;
+function askPin(title, text, cb) { dialog(title, pinField('pinin', text), [['OK', 'mainbtn', () => cb(($('pinin') || {}).value || '')], ['Abbrechen', 'ghostbtn', () => {}]]); setTimeout(() => $('pinin') && $('pinin').focus(), 50); }
+async function ghWrite(path, obj, msg, k) {
+  if (!k) throw new Error('Kein Schlüssel hinterlegt');
   const url = `https://api.github.com/repos/${GH.repo}/contents/${path}`, hd = { Authorization: 'Bearer ' + k, Accept: 'application/vnd.github+json' };
   const cur = await fetch(url + '?ref=' + encodeURIComponent(GH.branch), { headers: hd }); const sha = cur.ok ? (await cur.json()).sha : undefined;
   const body = { message: msg, branch: GH.branch, content: btoa(unescape(encodeURIComponent(JSON.stringify(obj, null, 2) + '\n'))) }; if (sha) body.sha = sha;
@@ -1562,7 +1570,14 @@ async function ghWrite(path, obj, msg) {
 function confirmLive(title, text, fn) {
   dialog(title, text, [[S.lang === 'de' ? 'Abbrechen' : 'Cancel', 'mainbtn', () => {}], [S.lang === 'de' ? 'Ja, live schalten' : 'Yes, go live', 'ghostbtn', async () => {
     if (!ghKey()) { dialog('Schlüssel fehlt', 'Live schalten braucht einmalig einen GitHub-Schlüssel (siehe Dev-Werkzeuge › Freigabe-Schlüssel).', [['OK', 'mainbtn', () => {}]]); return; }
-    try { await fn(); toast('Live geschaltet. Nutzer sehen es beim nächsten Öffnen.'); } catch (e) { dialog('Hat nicht geklappt', esc(e.message), [['OK', 'mainbtn', () => {}]]); } }]]);
+    const lock = +(localStorage.getItem('fitter.ghlock') || 0); if (lock > Date.now()) { dialog('Gesperrt', `Zu oft eine falsche PIN. Wieder möglich in ${Math.ceil((lock - Date.now()) / 60000)} min.`, [['OK', 'mainbtn', () => {}]]); return; }
+    askPin('Master-PIN', 'Zum Live schalten deine 6-stellige PIN eingeben.', async pin => {
+      const k = await ghOpen(pin).catch(e => { dialog('Hat nicht geklappt', esc(e.message), [['OK', 'mainbtn', () => {}]]); return undefined; }); if (k === undefined) return;
+      if (!k) { const n = +(localStorage.getItem('fitter.ghfail') || 0) + 1; localStorage.setItem('fitter.ghfail', String(n));
+        if (n >= 5) { localStorage.setItem('fitter.ghlock', String(Date.now() + 10 * 60000)); localStorage.setItem('fitter.ghfail', '0'); dialog('Gesperrt', '5× falsche PIN. Live schalten ist für 10 Minuten gesperrt. PIN vergessen? Schlüssel entfernen und neu hinterlegen.', [['OK', 'mainbtn', () => {}]]); }
+        else toast(`Falsche PIN (noch ${5 - n} Versuche)`); return; }
+      localStorage.setItem('fitter.ghfail', '0');
+      try { await fn(k); toast('Live geschaltet. Nutzer sehen es beim nächsten Öffnen.'); } catch (e) { dialog('Hat nicht geklappt', esc(e.message), [['OK', 'mainbtn', () => {}]]); } }); }]]);
 }
 let VERSIONS = null;
 function loadVersions(cb) { Promise.all([fetch(ROOT + 'versions/index.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []), fetch(ROOT + 'live.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]).then(([v, l]) => { VERSIONS = v; REMOTE_LIVE = l.version || null; cb(); }); }
@@ -1591,7 +1606,7 @@ function devHTML() {
     <div class="pushrow"><input id="dev-pnow" placeholder="Eigene Nachricht an alle (z. B. Aktion)"><button class="textbtn" id="dev-psend">Senden</button></div>
 
     <b style="margin-top:18px">Freigabe-Schlüssel</b>
-    <p class="hint">Für „live schalten“ braucht die App einmalig einen GitHub-Schlüssel (fein eingeschränkt: nur dieses Repo, nur Inhalte schreiben). Er bleibt nur auf diesem Gerät gespeichert, nie in den App-Daten oder der Cloud. Status: <b>${ghKey() ? 'hinterlegt' : 'fehlt'}</b>${ghKey() ? ` · <b class="${(ghDaysLeft() ?? 99) <= 2 ? 'ghred' : ''}">${ghExpText() || 'Laufzeit unbekannt'}</b>` : ''}</p>
+    <p class="hint">Für „live schalten“ braucht die App einmalig einen GitHub-Schlüssel (fein eingeschränkt: nur dieses Repo, nur Inhalte schreiben). Er bleibt nur auf diesem Gerät gespeichert, verschlüsselt mit deiner 6-stelligen Master-PIN, nie in den App-Daten oder der Cloud. PIN vergessen: Schlüssel entfernen und neu hinterlegen. Status: <b>${ghKey() ? 'hinterlegt' : 'fehlt'}</b>${ghKey() ? ` · <b class="${(ghDaysLeft() ?? 99) <= 2 ? 'ghred' : ''}">${ghExpText() || 'Laufzeit unbekannt'}</b>` : ''}</p>
     <div class="pushrow"><input id="dev-ghkey" type="password" placeholder="github_pat_…" autocomplete="off"><button class="textbtn" id="dev-ghsave">${ghKey() ? 'Ersetzen' : 'Speichern'}</button>${ghKey() ? '<button class="textbtn" id="dev-ghdel">Entfernen</button>' : ''}</div>
   </div>`;
 }
@@ -1605,9 +1620,9 @@ function bindDev() {
   on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
   document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); renderSettings(); });
   document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive;
-    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das ${SEASONS[v].de}s-Design.` : 'Alle Nutzer sehen wieder das normale Design.', async () => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`); REMOTE_SEASON = v; renderSettings(); }); });
+    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das ${SEASONS[v].de}s-Design.` : 'Alle Nutzer sehen wieder das normale Design.', async k => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`, k); REMOTE_SEASON = v; renderSettings(); }); });
   on('dev-verlive', () => { const v = $('dev-ver').value; if (!VERSIONS || !VERSIONS.some(x => x.v === v)) return;
-    confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async () => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`); REMOTE_LIVE = v; renderSettings(); }); });
+    confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async k => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`, k); REMOTE_LIVE = v; renderSettings(); }); });
   document.querySelectorAll('[data-pdays]').forEach(b => b.onclick = () => { S.pushDays = +b.dataset.pdays; save(); renderSettings(); });
   const msgs = () => S.pushMsgs || PUSH_DEFAULT[S.lang].slice();
   document.querySelectorAll('[data-pmsg]').forEach(inp => inp.onchange = () => { const m = msgs(); m[+inp.dataset.pmsg] = inp.value.trim(); S.pushMsgs = m.filter(Boolean); save(); renderSettings(); });
@@ -1616,7 +1631,10 @@ function bindDev() {
   on('dev-padd', () => { S.pushMsgs = msgs().concat(S.lang === 'de' ? 'Neuer Spruch' : 'New line'); save(); renderSettings(); });
   on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return; dialog('An alle senden?', esc(v) + '<br><br>Der Versand an alle Nutzer braucht einen Server und kommt mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
   on('dev-ghsave', () => { const v = $('dev-ghkey').value.trim(); if (!v) return;
-    const keep = d => () => { try { localStorage.setItem('fitter.ghkey', v); localStorage.setItem('fitter.ghexp', String(Date.now() + d * 864e5)); localStorage.removeItem('fitter.ghnote'); } catch (e) {} renderSettings(); toast('Schlüssel gespeichert'); };
+    const store = async (d, pin) => { try { localStorage.setItem('fitter.ghkey', await ghSeal(v, pin)); localStorage.setItem('fitter.ghexp', String(Date.now() + d * 864e5)); ['fitter.ghnote', 'fitter.ghfail', 'fitter.ghlock'].forEach(x => localStorage.removeItem(x)); } catch (e) { toast('Speichern fehlgeschlagen'); } renderSettings(); toast('Schlüssel mit PIN gespeichert'); };
+    const keep = d => () => askPin('Master-PIN festlegen', 'Wähle eine 6-stellige PIN. Ohne sie kann niemand aus dieser App live schalten.', p1 => {
+      if (!/^\d{6}$/.test(p1)) { toast('Bitte genau 6 Ziffern'); return; }
+      askPin('PIN wiederholen', 'Zur Sicherheit noch einmal.', p2 => { if (p2 !== p1) { toast('PINs stimmen nicht überein'); return; } store(d, p1); }); });
     dialog('Wie lange ist der Schlüssel gültig?', 'Die Laufzeit, die du bei GitHub gewählt hast. 2 Tage vor Ablauf erinnert dich die Dev-App.', [7, 30, 60, 90].map(d => [`${d} Tage`, d === 30 ? 'mainbtn' : 'ghostbtn', keep(d)]).concat([['Abbrechen', 'textbtn', () => {}]])); });
   on('dev-ghdel', () => { try { ['fitter.ghkey', 'fitter.ghexp', 'fitter.ghnote'].forEach(k => localStorage.removeItem(k)); } catch (e) {} renderSettings(); });
 }
