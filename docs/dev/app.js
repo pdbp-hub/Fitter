@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.10.2';
+const APP_VERSION = '0.11.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -1561,6 +1561,45 @@ const seasonDeco = () => seasonNow() === 'xmas' ? HAT : seasonNow() === 'easter'
 const SEASON_GREET = { xmas: { de: ['Ho ho ho, Zeit für Gains.', 'Plätzchen verbrennen sich nicht von allein.', 'Fit unterm Tannenbaum.', 'Jingle Bells, schwere Hanteln.', 'Erst Training, dann Glühwein.'], en: ['Ho ho ho, gains time.', 'Cookies do not burn themselves.', 'Fit under the tree.', 'Jingle bells, heavy weights.', 'Training first, mulled wine later.'] },
   easter: { de: ['Hopp hopp, ab ins Gym.', 'Schokohasen trainieren nicht.', 'Eier suchen? Lieber Gains finden.', 'Frohe Ostern, starke Beine.', 'Der Osterhase macht Kniebeugen.'], en: ['Hop hop, off to the gym.', 'Chocolate bunnies do not train.', 'Hunting eggs? Find gains instead.', 'Happy Easter, strong legs.', 'The Easter bunny does squats.'] } };
 
+
+// ================= Account (draft until the cloud exists; shown first, before the onboarding) =================
+const AGB_HTML = '<p><b>ENTWURF, noch nicht rechtlich geprüft.</b></p><p><b>1. Geltungsbereich</b><br>Diese Bedingungen gelten für die Nutzung der App TRAIN (Anbieter siehe Impressum).</p><p><b>2. Leistung</b><br>TRAIN hilft dir, Trainings zu planen und Fortschritte zu verfolgen. Die Nutzung ist kostenlos. Es besteht kein Anspruch auf ständige Verfügbarkeit.</p><p><b>3. Account</b><br>Du brauchst ein Mindestalter von 16 Jahren. Deine Zugangsdaten hältst du geheim. Der Benutzername darf keine Rechte Dritter verletzen und nicht beleidigend sein.</p><p><b>4. Gesundheit</b><br>TRAIN ersetzt keine ärztliche oder trainerische Beratung. Du trainierst auf eigene Verantwortung. Points, Prognosen und Schätzungen (z. B. Maximalkraft) sind Richtwerte.</p><p><b>5. Inhalte und Freunde</b><br>Was du für Freunde sichtbar machst, entscheidest du in deinem Profil. Missbrauch kann zur Sperrung führen.</p><p><b>6. Haftung</b><br>Der Anbieter haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper und Gesundheit, sonst nur bei Verletzung wesentlicher Pflichten und begrenzt auf den typischen Schaden.</p><p><b>7. Kündigung und Löschung</b><br>Du kannst deinen Account jederzeit in den Einstellungen löschen. Deine Daten werden dann gelöscht.</p><p><b>8. Änderungen</b><br>Änderungen dieser Bedingungen werden in der App angekündigt.</p><p><b>9. Schluss</b><br>Es gilt deutsches Recht.</p>';
+function showAuth(preview) {
+  const de = S.lang === 'de', el = document.createElement('div'); el.id = 'auth'; el.className = 'onb auth'; $('app').appendChild(el); let mode = 'home';
+  const done = () => { el.remove(); S.authSeen = true; save(); if (!preview && !S.onboarded) showOnboarding(); };
+  const legal = k => showInfo(k === 'agb' ? `<b>${de ? 'Allgemeine Geschäftsbedingungen' : 'Terms of use'}</b>${AGB_HTML}` : `<b>${t('privacy')}</b>${t('privacyHtml')}`);
+  const field = (id, label, type = 'text', ac = 'off') => `<label class="afield"><span>${label}</span><input id="${id}" type="${type}" autocomplete="${ac}" autocapitalize="none" autocorrect="off" spellcheck="false"></label>`;
+  const benefits = de ? ['Deine Trainings sind sicher gespeichert, auch bei Handywechsel', 'Freunden folgen und Level vergleichen', 'Live sehen, wenn Freunde neue Rekorde aufstellen', 'Auf mehreren Geräten trainieren'] : ['Your sessions are stored safely, even if you change phones', 'Follow friends and compare levels', 'See live when friends set new records', 'Train on several devices'];
+  const draw = () => {
+    const top = `<div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview || mode !== 'home' ? `<button class="iconbtn" id="au-x" aria-label="${mode === 'home' ? 'Schließen' : 'Zurück'}">${mode === 'home' ? '✕' : '←'}</button>` : '<span></span>'}</div>`;
+    if (mode === 'home') el.innerHTML = `<div class="onb-in">${top}<div class="inst-hero"><div class="octa dec inst-dec"><span class="cta">TRAIN</span></div></div>
+      <div><h1>${de ? 'Willkommen bei TRAIN' : 'Welcome to TRAIN'}</h1><p class="onb-txt">${de ? 'Mit Account sind deine Trainings sicher gespeichert und du kannst Freunden folgen.' : 'With an account your sessions are stored safely and you can follow friends.'}</p></div>
+      <div class="au-btns"><button class="mainbtn" data-am="signup">${de ? 'Account anlegen' : 'Create account'}</button><button class="ghostbtn" data-am="login">${de ? 'Anmelden' : 'Log in'}</button><button class="textbtn" data-am="guest">${de ? 'Als Gast fortfahren' : 'Continue as guest'}</button></div></div>`;
+    if (mode === 'signup') el.innerHTML = `<div class="onb-in">${top}<div><h1>${de ? 'Account anlegen' : 'Create account'}</h1></div>
+      <div class="au-form">${field('au-user', de ? 'Benutzername (fest, für Freunde sichtbar)' : 'Username (fixed, visible to friends)')}${field('au-mail', 'E-Mail', 'email', 'email')}${field('au-pw', de ? 'Kennwort (mind. 8 Zeichen)' : 'Password (min. 8 characters)', 'password', 'new-password')}
+        <label class="acheck"><input type="checkbox" id="au-agb"><span>${de ? 'Ich akzeptiere die <a data-legal="agb">AGB</a>.' : 'I accept the <a data-legal="agb">terms</a>.'}</span></label>
+        <label class="acheck"><input type="checkbox" id="au-dse"><span>${de ? 'Ich habe die <a data-legal="dse">Datenschutzerklärung</a> gelesen.' : 'I have read the <a data-legal="dse">privacy policy</a>.'}</span></label></div>
+      <button class="mainbtn" id="au-go">${de ? 'Account anlegen' : 'Create account'}</button></div>`;
+    if (mode === 'login') el.innerHTML = `<div class="onb-in">${top}<div><h1>${de ? 'Anmelden' : 'Log in'}</h1></div>
+      <div class="au-form">${field('au-id', de ? 'E-Mail oder Benutzername' : 'Email or username', 'text', 'username')}${field('au-pw', de ? 'Kennwort' : 'Password', 'password', 'current-password')}<button class="textbtn" id="au-forgot" style="align-self:flex-start">${de ? 'Kennwort vergessen?' : 'Forgot password?'}</button></div>
+      <button class="mainbtn" id="au-go">${de ? 'Anmelden' : 'Log in'}</button></div>`;
+    if (mode === 'guest') el.innerHTML = `<div class="onb-in">${top}<div><h1>${de ? 'Wirklich ohne Account?' : 'Really without an account?'}</h1><p class="onb-txt">${de ? 'Als Gast liegen deine Daten nur auf diesem Handy. Dir entgeht:' : 'As a guest your data stays on this phone only. You miss out on:'}</p></div>
+      <ul class="au-miss">${benefits.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+      <div class="au-btns"><button class="mainbtn" data-am="signup">${de ? 'Doch Account anlegen' : 'Create account after all'}</button><button class="textbtn" id="au-guest">${de ? 'Als Gast fortfahren' : 'Continue as guest'}</button></div></div>`;
+    el.querySelectorAll('[data-am]').forEach(b => b.onclick = () => { mode = b.dataset.am; draw(); });
+    el.querySelectorAll('[data-legal]').forEach(a => a.onclick = e => { e.preventDefault(); legal(a.dataset.legal); });
+    $('au-x') && ($('au-x').onclick = () => { if (mode === 'home') el.remove(); else { mode = 'home'; draw(); } });
+    $('au-guest') && ($('au-guest').onclick = () => { S.guest = true; done(); });
+    $('au-forgot') && ($('au-forgot').onclick = () => toast(de ? 'Kennwort zurücksetzen kommt mit dem Cloud-Modus' : 'Password reset comes with cloud sync'));
+    $('au-go') && ($('au-go').onclick = () => {
+      if (mode === 'signup') { const u = $('au-user').value.trim().toLowerCase().replace(/^@/, ''), m = $('au-mail').value.trim(), pw = $('au-pw').value;
+        const err = !/^[a-z0-9._]{3,20}$/.test(u) ? (de ? 'Benutzername: 3 bis 20 Zeichen, a-z, 0-9, Punkt, Unterstrich' : 'Username: 3 to 20 characters, a-z, 0-9, dot, underscore') : !/^\S+@\S+\.\S+$/.test(m) ? (de ? 'Bitte gültige E-Mail' : 'Please enter a valid email') : pw.length < 8 ? (de ? 'Kennwort zu kurz' : 'Password too short') : !$('au-agb').checked || !$('au-dse').checked ? (de ? 'Bitte AGB und Datenschutz bestätigen' : 'Please accept terms and privacy policy') : '';
+        if (err) return toast(err); }
+      dialog(de ? 'Vorschau' : 'Preview', de ? 'Accounts gibt es mit dem Cloud-Modus. Bis dahin geht es als Gast weiter.' : 'Accounts arrive with cloud sync. Until then you continue as a guest.', [['OK', 'mainbtn', () => { if (!preview) { S.guest = true; done(); } }]]); });
+  };
+  draw();
+}
+
 // ================= Browser vs. home screen: install guide =================
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 function showInstall(preview) {
@@ -1668,7 +1707,7 @@ function devHTML() {
   const vers = VERSIONS || [], showV = devVerAll ? vers : vers.slice(0, 4);
   return `<div class="dev2">
     <div class="sect"><h2>Ansehen & testen</h2><div>
-      ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('reseed', t('reseed'))}</div>
+      ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-auth', 'Anmeldung / Account anlegen', 'Entwurf, erscheint vor dem Onboarding')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('reseed', t('reseed'))}</div>
       <a class="ghostbtn dlink" href="${DEV_LINK}" target="_blank" rel="noopener">Im Browser (Safari) öffnen</a></div>
 
     <div class="sect"><h2>Seasons</h2>
@@ -1705,7 +1744,7 @@ function bindDev() {
   if (!VERSIONS) loadVersions(() => { if (setPage === 'dev') rr(); });
   on('dev-onb', () => showOnboarding(true)); on('dev-intro', () => previewIntro()); on('dev-celeb', () => celebrate(seasonNow() || S.celeb));
   on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
-  on('dev-inst', () => showInstall(true)); on('dev-verall', () => { devVerAll = !devVerAll; rr(); });
+  on('dev-inst', () => showInstall(true)); on('dev-auth', () => showAuth(true)); on('dev-verall', () => { devVerAll = !devVerAll; rr(); });
   on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
   document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); rr(); });
   document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive; if (v === REMOTE_SEASON) return;
@@ -1996,6 +2035,6 @@ function startIntro() { const go = $('go'); if (go && S.intro !== 'off') go.styl
 fetchRemote(); applySeason(); ghNotify();
 const wantInstall = location.search.includes('install') || (!TESTRUN && !isStandalone() && !sessionStorage.getItem('fitter.web') && /iPhone|iPad|Android/i.test(navigator.userAgent));
 if (wantInstall) showInstall(false);
-else if (!TESTRUN) { if (!S.onboarded) showOnboarding(); else startIntro(); }
+else if (!TESTRUN) { if (ENV === 'dev' && !S.authSeen && !S.onboarded) showAuth(false); else if (!S.onboarded) showOnboarding(); else startIntro(); }
 if (STORED && STORED.active) { W = deserW(STORED.active); renderW(); openW(); }
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});

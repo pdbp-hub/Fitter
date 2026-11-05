@@ -988,3 +988,13 @@ body:has(#onb) .overlay, body:has(#inst) .overlay { z-index: 96; }
 .season-easter .ss-mini { left: 50%; top: 3%; width: 38%; transform: translate(-50%, -92%); }
 .season-easter .wtop .overall, .season-xmas .wtop .overall { display: flex; justify-content: space-between; }
 .season-easter .wtop > div:nth-child(2) .eyebrow { visibility: hidden; }
+/* v0.11 account draft */
+.auth { z-index: 93; }
+.au-btns { display: flex; flex-direction: column; gap: 10px; } .au-btns .textbtn { align-self: center; }
+.au-form { display: flex; flex-direction: column; gap: 16px; }
+.afield { display: flex; flex-direction: column; gap: 6px; } .afield span { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.afield input { background: var(--surface); border: 0; border-bottom: 2px solid var(--fg); color: var(--fg); font-size: 17px; padding: 12px 10px; outline: none; }
+.acheck { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.4; } .acheck input { width: 22px; height: 22px; accent-color: var(--fg); flex: none; } .acheck a { text-decoration: underline; cursor: pointer; }
+.au-miss { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.au-miss li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.4; } .au-miss li::before { content: ''; flex: none; width: 12px; height: 12px; margin-top: 4px; background: var(--fg); clip-path: var(--dec); }
+.dlink { color: var(--fg); }

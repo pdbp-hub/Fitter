@@ -1,28 +1,13 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **🔝 Feedback-Runde zu v0.10.2 (2026-11-05, → v0.11)** – Ben: „ordentlich umsetzen, Zeit nehmen“
-  - [ ] **A Onboarding**: Folie 2 GO-Zehnecke rechtsbündig übereinander wie in der App (aktuell nicht ausgerichtet); Folie 4 „Löschen“ mittig im roten Feld + Finger-Kreis tippt sichtbar auf Löschen
-  - [ ] **B Hilfe/FAQ**: Fragen als aufklappbare Einträge (statt Overlay); bei „Übung/Satz löschen“ die Onboarding-Animation einbetten
-  - [ ] **C Einstellungen-Struktur**: Überschriften „Einstellungen“ und „Fortschritt“ raus; neuer Punkt ganz oben „Allgemein“ (Mitteilungen dorthin); „Persönliche Daten“ bekommt „Alle Daten löschen“; Punkt „Daten“ entfällt; „Impressum & Datenschutzerklärung“ zusammen
-  - [ ] **D Darstellung**: Toggle-Farbe wählbar (Schwarz-Weiß vs. Grün wenn an), mit animierter Vorschau wie bei den Trend-Farben
-  - [ ] **E Berechnungslogik**: nicht grau mit weißen Stichworten; kürzer, griffiger, weniger Füllwörter
-  - [ ] **F Profil bearbeiten**: Aufbau wie das Profil selbst, Toggle direkt neben jedem Block (auch Diese Woche, Letzte 30 Tage); „@test“-Zeile hässlich → Vorschlag; schwebender weißer Balken „Änderungen speichern“ sobald geändert; Zurück mit ungespeicherten Änderungen → „Speichern / Verwerfen“; Zurück landet im Profil
-  - [ ] **G Profil-Ansicht**: Kopf schrumpft beim Scrollen wie Level-Seite (Profilbild klein, Name rutscht hoch), flüssiger als bisher (Level-Seite auch etwas ruckelig); Zehneck-Kacheln nehmen viel Platz → kompakter; Blöcke abschaltbar; „Lieblings-Workout 7× in 30 Tagen“ verständlicher; eigenes Profilbild antippen → groß mit Blur, „Profilbild ändern / löschen“ (Upload-Vorbereitung)
-  - [ ] **H Fortschritt-Tab neu**: oben breiteres „Ich | Freunde“ (Vorschlag für schönere Einbindung), Verlauf (Kalender kompakter; Abstand unter „Ganzer Kalender“ = Abstand darüber), dann „Analyse“ (statt „Pro Übung“) mit Charts, dann Personal Bests (aufklappbar bei vielen), dann „Rückblick“ mit Letzte Woche + Letzte 30 Tage (weniger sperrig)
-  - [ ] **I Minuten**: „Minuten“ = reine Trainingszeit (ohne Pausen), auch Points; Begriffe einheitlich („Training“ vs. „Minuten“)
-  - [ ] **J Dev-Werkzeuge**: aufräumen im App-Stil (Schriften, Abstände, weniger grauer Text, Dropdown wie sonst); Seasons verständlich (Vorschau vs. live, aktueller Live-Zustand sichtbar markiert); Push-Logik als Kategorien: Inaktivität (1 Woche ohne Training), Rekord-Tag (5 min nach Speichern „starkes Training, gönn dir Pause“), eigene Nachricht; Sprüche je Kategorie bearbeitbar
-  - [ ] **K Installations-Anleitung**: Schrift prüfen (wie Headlines); Homescreen-Animation: App-Icon schwarz quadratisch mit weißem Zehneck; `?install`-Link muss im Browser die Anleitung zeigen; Knopf „In Safari öffnen“ statt Link kopieren
-  - [ ] **L Weihnachten**: echte Schneeflocken; Schlitten neu: Rentiere (braun, vorne Rudolph mit roter Nase) ziehen den Schlitten, roter Schlitten, Weihnachtsmann mit Mütze + weißem Bart winkt, verschiedene Flugbahnen/Richtungen; Mütze auf der oberen rechten Schrägkante des Zehnecks, Bommel nicht abgeschnitten, hüpft mit dem Puls mit; Timer-Mütze rechts oben; weihnachtliche Begrüßungssprüche
-  - [ ] **M Ostern**: fliegende Eier weg (max. 1–2 versteckte Eier); Hase schöner, braun, konsistent mit Ohren-Farben, hoppelt verschiedene Strecken; Hasenohren bewegen sich mit dem Zehneck; Timer-Kopf: „Gesamt“ links, Uhrzeit rechts, damit Ohren nicht überdecken; österliche Sprüche
-  - [ ] **N Account-Entwurf (vor Supabase)**: Startseite „Account anlegen / Anmelden“ als allererstes (vor Onboarding), „Als Gast fortfahren“ mit Hinweis was fehlt (Sicherung, Freunde live …); AGB + Datenschutz müssen akzeptiert werden (Entwürfe); Anmelden mit E-Mail oder Benutzername + Kennwort
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
 - [ ] Live-Versionswahl greift ab der nächsten Freigabe (release.py baut den Lader in die Live-App ein)
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Feedback zu den neuen Funktionen (Seasons, Hilfe, Installations-Anleitung, Dev-Werkzeuge) → dann „freigeben“ für Live (enthält alles aus v0.6 bis v0.10)
+- [ ] **Ben:** Dev v0.11.0 ansehen (Profil, Fortschritt, Seasons, Dev-Werkzeuge, Account-Entwurf) → Feedback → „freigeben“ für Live
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
   - [ ] Account: Registrierung mit Benutzername (einmalig, ersetzt @test) + E-Mail + Kennwort; **Anmelden mit E-Mail ODER Benutzername + Kennwort**; Kennwort zurücksetzen per E-Mail (Entscheidung Ben 2026-11-05); Übernahme der lokalen Daten
@@ -97,6 +82,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.11.0** (2026-11-05): Onboarding GO/Löschen, FAQ aufklappbar mit Animation, Einstellungen neu (Allgemein, Persönliche Daten + Löschen, Impressum & Datenschutz, keine Überschriften), Schalter-Farbe Grün, Berechnungslogik kurz, Trainingsminuten ohne Pausen, Profil neu (schrumpfender Kopf, Profilbild, kompakt) + Bearbeiten mit Schaltern/Speichern, Fortschritt neu (Analyse, PBs aufklappbar, Rückblick 7/30), Dev-Werkzeuge im App-Stil + Push-Kategorien, Safari-Link, Seasons neu (Flocken, Rentier-Schlitten, Mütze/Ohren pulsieren, Hase, Sprüche), Account-Entwurf (nur Dev) mit AGB/Datenschutz + Gast
 - [x] **Dev v0.10.2** (2026-11-05): 6-stellige Master-PIN (Schlüssel verschlüsselt, PIN vor jedem Live schalten, 5 Fehlversuche = 10 min Sperre); „Ohne Installation weiter“ entfernt. Intro-Sprung beim Start laut Ben behoben
 - [x] **Dev v0.10.1** (2026-11-05): Freigabe-Schlüssel mit Laufzeit (7/30/60/90 Tage), roter Banner + Mitteilung 2 Tage vor Ablauf, Test: Schlüssel nie in App-Daten
 - [x] **Dev v0.10.0** (2026-11-05): Intro-Start wartet auf ruhiges Layout (Zehneck-Sprung), Onboarding wischen/zurück/Punkte + Rückfrage beim Überspringen, GO-Zehneck ausgerichtet, Löschen-Tipp animiert, Einstellungen › Hilfe (Einführung mit ✕, FAQ), Dev-Werkzeuge als eigene Seite, Installations-Anleitung im Browser (iPhone/Android, `?install`), Seasons Weihnachten/Ostern (Schnee/Schlitten/Mütze, Eier/Hase/Ohren, eigene Lade-Animation + Celebration), Versionsarchiv 0.1–0.10 + Live-Versionswahl, Mitteilungen-Schalter + Sprüche-Verwaltung + Test-Mitteilung

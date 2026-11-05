@@ -248,6 +248,26 @@ Object.assign(T.en, {
   strengthShort:'Max strength', rename:'Rename', delToday:'Only for this session', delPerm:n => `Remove from “${n}” for good`, delSetToday:'Only for this session', delSetPerm:n => `Delete from “${n}” for good`,
   delWT:'Delete workout?', delWX:'The workout disappears from your list. Past sessions stay in your history.', never:'Never mind', addCustom:'Add exercise', todayShort:'Today',
   sorts:{ az:'A–Z', fav:'Favourites', recent:'Recent' } });
+Object.assign(T.de, { logic: [
+  ['Points', '<p>Belohnt <b>Fortschritt</b> und <b>Dranbleiben</b>, nicht viele Kilos.</p><p><b>Pro Übung</b> (ab 2 Sätzen), heute vs. dein Bestwert der letzten 8 Wochen:</p><p>Neuer Bestwert <code>10 + 3 × Steigerung %</code> (max. 40) · Gehalten 6 · Schwächer 2 · Erstes Mal 5</p><p><b>Pro Trainingstag</b> +10 (max. 5 pro Woche), 2. Tag der Woche +15.</p><p>Fair: Prozente statt Kilos, max. 6 Übungen pro Training, Wdh. über 12 zählen wie 12.</p>'],
+  ['Maximalkraft (1RM)', T.de.info1rm],
+  ['Volumen', '<p><code>Gewicht × Wiederholungen</code>, alle Sätze zusammen.</p>'],
+  ['Trainingszeit', '<p>Nur die Zeit in den Sätzen. Pausen zählen nicht.</p>'],
+  ['Prognose', '<p>Trendlinie durch deine letzten Trainings, in die Zukunft verlängert. Der graue Bereich zeigt, wie stark deine Werte schwanken.</p>'],
+  ['Trend-Farben', '<p>Grün, wenn der letzte Wert mindestens so hoch ist wie der erste, sonst rot.</p>'],
+  ['Neue Rekorde', '<p>Dein geschätztes 1RM einer Übung ist höher als je zuvor.</p>'],
+  ['Körpergewicht', '<p>Bei Dips, Klimmzügen & Co. zählt nur das Zusatzgewicht. Optional mit Körpergewicht.</p>'],
+  ['Vergleich zur Vorwoche', '<p>Diese Woche (ab Montag) gegen die ganze Vorwoche.</p>'] ] });
+Object.assign(T.en, { logic: [
+  ['Points', '<p>Rewards <b>progress</b> and <b>consistency</b>, not lots of kilos.</p><p><b>Per exercise</b> (from 2 sets), today vs. your best of the last 8 weeks:</p><p>New best <code>10 + 3 × gain %</code> (max. 40) · Held 6 · Weaker 2 · First time 5</p><p><b>Per training day</b> +10 (max. 5 per week), 2nd day of the week +15.</p><p>Fair: percent instead of kilos, max. 6 exercises per session, reps above 12 count as 12.</p>'],
+  ['Max strength (1RM)', T.en.info1rm],
+  ['Volume', '<p><code>weight × reps</code>, all sets added up.</p>'],
+  ['Training time', '<p>Only the time in your sets. Rests do not count.</p>'],
+  ['Forecast', '<p>Trend line through your recent sessions, extended into the future. The grey band shows how much your values vary.</p>'],
+  ['Trend colours', '<p>Green if the last value is at least as high as the first, otherwise red.</p>'],
+  ['New records', '<p>Your estimated 1RM of an exercise is higher than ever before.</p>'],
+  ['Body weight', '<p>For dips, pull-ups & co. only the added weight counts. Optionally with body weight.</p>'],
+  ['Compared to last week', '<p>This week (from Monday) against the whole previous week.</p>'] ] });
 const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === 'function' ? v(...a) : v; };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -286,7 +306,9 @@ function sessionPoints(ex, date) {
 }
 const ptsFor = h => sessionPoints(h.ex, h.date);
 const totalPts = () => HISTORY.reduce((a, h) => a + ptsFor(h), 0);
-function weekStats() { const dow = (new Date().getDay() + 6) % 7; const cur = HISTORY.filter(h => h.ago <= dow), prev = HISTORY.filter(h => h.ago > dow && h.ago <= dow + 7); const v1 = cur.reduce((a, h) => a + sessVol(h), 0), v0 = prev.reduce((a, h) => a + sessVol(h), 0); const m1 = cur.reduce((a, h) => a + (h.dur || 0), 0), m0 = prev.reduce((a, h) => a + (h.dur || 0), 0); return { n: cur.length, n0: prev.length, vol: v1, vol0: v0, min: m1, min0: m0, pct: v0 ? Math.round((v1 / v0 - 1) * 100) : null, pts: cur.reduce((a, h) => a + ptsFor(h), 0) }; }
+// training minutes = time under load (sum of set timers), rests not counted
+const trainMin = h => { const sec = h.ex.reduce((a, e) => a + e.sets.reduce((b, x) => b + (x.d || 0), 0), 0); return sec ? Math.max(1, Math.round(sec / 60)) : 0; };
+function weekStats() { const dow = (new Date().getDay() + 6) % 7; const cur = HISTORY.filter(h => h.ago <= dow), prev = HISTORY.filter(h => h.ago > dow && h.ago <= dow + 7); const v1 = cur.reduce((a, h) => a + sessVol(h), 0), v0 = prev.reduce((a, h) => a + sessVol(h), 0); const m1 = cur.reduce((a, h) => a + trainMin(h), 0), m0 = prev.reduce((a, h) => a + trainMin(h), 0); return { n: cur.length, n0: prev.length, vol: v1, vol0: v0, min: m1, min0: m0, pct: v0 ? Math.round((v1 / v0 - 1) * 100) : null, pts: cur.reduce((a, h) => a + ptsFor(h), 0) }; }
 const deltaTag = (a, b, abs) => { if (!b && !a) return ''; if (!b) return '<em class="dl up">▲</em>'; const d = abs ? a - b : Math.round((a / b - 1) * 100); if (d === 0) return '<em class="dl">±0</em>'; return `<em class="dl ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}${abs ? '' : ' %'}</em>`; };
 const pctTag = d => d === null || d === undefined || d === 0 ? '' : `<em class="dl ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : '='} ${Math.abs(d)} %</em>`;
 function prCount(days) { let n = 0; const seen = {}; [...HISTORY].sort((a, b) => b.ago - a.ago || a.date - b.date).forEach(h => h.ex.forEach(e => { const b = Math.max(...e.sets.map(s => e1rm(Math.max(0, effW(e.k, s.w)), s.r))); if (b > 0 && seen[e.k] !== undefined && b > seen[e.k] && h.ago < days) n++; seen[e.k] = Math.max(seen[e.k] ?? 0, b); })); return n; }
@@ -301,7 +323,7 @@ const LAST = {}; Object.keys(EX).forEach(k => { const s = sessionsFor(k)[0]; if 
 function lastAgoW(id) { const h = HISTORY.filter(x => x.wid === id).sort((a,b) => a.ago - b.ago)[0]; return h ? h.ago : null; }
 function lastAgoEx(k) { const s = sessionsFor(k)[0]; return s ? s.ago : null; }
 function toast(msg) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; $('app').appendChild(d); setTimeout(() => d.remove(), 2200); }
-function greeting() { const h = new Date().getHours(); const slot = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 14 ? 'noon' : h >= 14 && h < 18 ? 'afternoon' : h >= 18 && h < 22 ? 'evening' : 'night'; const l = t('greet')[slot]; return l[Math.floor(Math.random() * l.length)]; }
+function greeting() { try { const sz = seasonNow(); if (sz && Math.random() < .6) { const l = SEASON_GREET[sz][S.lang]; return l[Math.floor(Math.random() * l.length)]; } } catch (e) { /* seasons not loaded yet */ } const h = new Date().getHours(); const slot = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 14 ? 'noon' : h >= 14 && h < 18 ? 'afternoon' : h >= 18 && h < 22 ? 'evening' : 'night'; const l = t('greet')[slot]; return l[Math.floor(Math.random() * l.length)]; }
 let greetText = '';
 const ICON = {
   bb:'<path d="M.8 12h22.4"/><rect x="2.6" y="8" width="1.8" height="8" rx=".3"/><rect x="4.6" y="9.3" width="1.2" height="5.4" rx=".3"/><rect x="19.6" y="8" width="1.8" height="8" rx=".3"/><rect x="18.2" y="9.3" width="1.2" height="5.4" rx=".3"/>',
@@ -414,7 +436,7 @@ function showInfo(html) {
   p.innerHTML = `<div class="popover" role="dialog"><button class="x" aria-label="Schließen">✕</button><div>${html}</div></div>`; p.hidden = false;
   p.querySelector('.x').onclick = () => p.hidden = true; p.onclick = e => { if (e.target === p) p.hidden = true; };
 }
-function applyClasses() { $('app').className = 'app pm-' + S.pulse + (S.inverted ? ' inverted' : '') + (S.accent ? ' accent' : ''); document.body.style.background = S.inverted ? '#f3f3ef' : '#0b0b0a'; }
+function applyClasses() { const keep = [...$('app').classList].filter(c => c.startsWith('season-')).map(c => ' ' + c).join(''); $('app').className = 'app pm-' + S.pulse + (S.inverted ? ' inverted' : '') + (S.accent ? ' accent' : '') + (S.togGreen ? ' tog-green' : '') + keep; document.body.style.background = S.inverted ? '#f3f3ef' : '#0b0b0a'; }
 function fitGreet() { const g = $('greet'); if (!g) return; let z = 15; g.style.fontSize = z + 'px'; while (g.scrollWidth > g.clientWidth && z > 10) { z -= .5; g.style.fontSize = z + 'px'; } }
 window.addEventListener('resize', fitGreet);
 
@@ -449,6 +471,7 @@ document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
 function goBack() {
   if (!$('osheet').classList.contains('down') && $('o-back')) { $('o-back').click(); return true; }
   if (!$('wsheet').classList.contains('down')) return false;
+  if (tab === 'settings' && setPage === 'profile' && PD) { leaveProfileEdit(); return true; }
   if (tab === 'settings' && setPage) { setPage = null; renderSettings(); return true; }
   if (tab === 'select') { tabMem.start = 'start'; show('start'); return true; }
   return false;
@@ -457,6 +480,7 @@ function goBack() {
 function backTarget() {
   if (!$('osheet').classList.contains('down') && $('o-back')) return $('osheet');
   if (!$('wsheet').classList.contains('down')) return null;
+  if (tab === 'settings' && setPage === 'profile' && pdDirty()) return null; // unsaved profile changes: no swipe, the back button asks first
   if ((tab === 'settings' && setPage) || tab === 'select') return $('v-' + tab);
   return null;
 }
@@ -498,7 +522,7 @@ function renderStart() {
   const canResume = lastFinished && Date.now() - lastFinished.at < 30 * 60000, wk = weekStats();
   $('v-start').innerHTML = `<div class="inner">${ghWarn()}
     <div class="ptsline" id="ptsbtn" role="button" tabindex="0"><div class="pv"><b class="num">${fmt(totalPts())}</b><strong>${t('points')}</strong><span class="ptschev">${CHEV}</span></div><small>Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</small></div>
-    <div class="hero">${seasonDeco() ? `<span class="ss-deco">${seasonDeco()}</span>` : ''}<button class="octa dec pulse" id="go"><span class="greet" id="greet">${esc(greetText)}</span><span class="cta">${t('cta')}</span><span class="tap">${t('tap')}</span></button></div>
+    <div class="hero">${seasonDeco() ? `<span class="ss-wrap pulse"><span class="ss-deco">${seasonDeco()}</span></span>` : ''}<button class="octa dec pulse" id="go"><span class="greet" id="greet">${esc(greetText)}</span><span class="cta">${t('cta')}</span><span class="tap">${t('tap')}</span></button></div>
     ${canResume ? `<button class="resume" id="resume"><span><b>${t('resume')}</b><small>${esc(lastFinished.W.name)} · ${t('resumeLeft', Math.ceil((30*60000 - (Date.now() - lastFinished.at)) / 60000))}</small></span>${CHEV}</button>` : ''}
     <div><div class="weekhead"><span>${t('thisWeek')}</span><small>${t('vsLastShort')}</small></div>
       <div class="weekstats num"><div><b>${wk.n}</b><span>${t('workouts')} ${deltaTag(wk.n, wk.n0, true)}</span></div><div><b>${volTxt(wk.vol)}</b><span>${t('moved')} ${deltaTag(wk.vol, wk.vol0)}</span></div><div><b>${wk.min}</b><span>${t('minutes')} ${deltaTag(wk.min, wk.min0)}</span></div></div></div>
@@ -939,9 +963,10 @@ function renderO() {
   const b = $('obody');
   b.classList.toggle('lvlmode', O.mode === 'levels');
   if (O.mode === 'levels') { b.innerHTML = levelsHTML(); setOBar(''); $('o-back').onclick = closeO; return; }
-  if (O.mode === 'profile') { b.innerHTML = profileHTML(O.p); setOBar(''); $('o-back').onclick = () => O.from === 'find' ? (O = { mode:'find', q:O.q }, renderO()) : closeO();
+  if (O.mode === 'profile') { b.innerHTML = profileHTML(O.p); setOBar(''); bindProfileScroll(); $('pfphoto') && ($('pfphoto').parentNode.onclick = photoView); $('o-back').onclick = () => O.from === 'find' ? (O = { mode:'find', q:O.q }, renderO()) : closeO();
     $('pf-follow') && ($('pf-follow').onclick = () => { const f = O.follow || {}; f[O.p.user] = !f[O.p.user]; const p = O.p, fr = O.from, q = O.q; O = { mode:'profile', p, from:fr, q, follow:f }; renderO(); toast(S.lang === 'de' ? 'Vorschau: Folgen kommt mit dem Cloud-Modus' : 'Preview: following comes with cloud sync'); });
-    $('pf-edit') && ($('pf-edit').onclick = () => { closeO(); setPage = 'profile'; show('settings'); $('v-settings').scrollTop = 0; }); return; }
+    $('pf-edit') && ($('pf-edit').onclick = () => { closeO(); PD = null; setPage = 'profile'; show('settings'); $('v-settings').scrollTop = 0; }); return; }
+  if (O.mode !== 'profile') b.onscroll = null;
   if (O.mode === 'find') { b.innerHTML = findHTML(); setOBar(''); $('o-back').onclick = closeO;
     loadQR(() => { const box = $('qrbox'); if (!box || !window.qrcode) return; const q = qrcode(0, 'M'); q.addData(SHARE_URL + '?u=' + encodeURIComponent(userName())); q.make(); box.innerHTML = q.createSvgTag(6, 2); });
     const qi = $('f-q'); qi.oninput = () => { O.q = qi.value; const pos = qi.selectionStart; renderO(); const n = $('f-q'); n.focus(); n.setSelectionRange(pos, pos); };
@@ -1057,25 +1082,32 @@ function forecast(d, ss) {
 const histOn = ago => HISTORY.find(h => h.ago === ago);
 function renderProgress() {
   const last30 = HISTORY.filter(h => h.ago < 30);
-  const vol30 = last30.reduce((a, h) => a + sessVol(h), 0), min30 = last30.reduce((a, h) => a + h.dur, 0);
+  const vol30 = last30.reduce((a, h) => a + sessVol(h), 0), min30 = last30.reduce((a, h) => a + trainMin(h), 0);
   if (progTab === 'friends') { renderFriends(); return; }
+  const wkS = weekStats(), min7 = HISTORY.filter(h => h.ago < 7).reduce((a, h) => a + trainMin(h), 0), last7 = HISTORY.filter(h => h.ago < 7), vol7 = last7.reduce((a, h) => a + sessVol(h), 0), de = S.lang === 'de';
+  const hm = m => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
   $('v-progress').innerHTML = `<div class="inner">
-    <h1 class="progh1">${t('progress')}</h1>${progSwitch()}
-    <div class="sect" style="border-top:0;padding-top:0">
+    ${progSwitch()}
+    <div class="sect sect-hist" style="border-top:0;padding-top:0">
       <h2 class="hic">${SIC.cal}${t('history')}</h2>
       ${calOpen ? calHTML() : `<div class="strip-wrap"><div class="strip" id="strip">${Array.from({length:90}, (_, i) => dayTile(89 - i)).join('')}</div><button class="today-btn" id="todaybtn" hidden>${t('today')}</button></div>`}
       <button class="calbtn" id="calbtn">${calOpen ? t('lessCal') : t('fullCal')}</button>
       <div id="daycard">${dayCard()}</div>
     </div>
-    <div class="sect"><h2 class="hic">${SIC.hist}${t('last30')}</h2>
-      <div class="statgrid num"><div><b>${last30.length}</b><span>${t('wCount')}</span></div><div><b>${volTxt(vol30)}</b><span>${t('movedW')}</span></div><div><b>${Math.floor(min30/60)} h ${min30%60} min</b><span>${t('trainTime')}</span></div><div><b>${prCount(30)}</b><span>${t('prs')}</span></div></div></div>
-    <div class="sect"><h2 class="hic">${SIC.ex}${t('forEx')}</h2>
+    <div class="sect"><h2 class="hic">${SIC.ex}${de ? 'Analyse' : 'Analysis'}</h2>
       <button class="exsel" id="exsel"><b>${esc(exName(S.chartKey))}</b><span class="drop">▼</span></button>
       ${S.fav.length ? `<div class="favs">${S.fav.map(k => `<button class="fav ${k===S.chartKey?'on':''}" data-ck="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
       <div id="charts"></div>
     </div>
-    <div class="sect"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div></div>
+    <div class="sect"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div>${pbCount() > 5 ? `<button class="calbtn" id="pball">${pbAll ? (de ? 'Weniger ▴' : 'Less ▴') : (de ? `Alle ${pbCount()} anzeigen ▾` : `Show all ${pbCount()} ▾`)}</button>` : ''}</div>
+    <div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Rückblick' : 'Recap'}</h2>
+      <div class="recap num"><span></span><span>${de ? '7 Tage' : '7 days'}</span><span>${de ? '30 Tage' : '30 days'}</span>
+        <span>${t('wCount')}</span><b>${last7.length}</b><b>${last30.length}</b>
+        <span>${t('movedW')}</span><b>${volTxt(vol7)}</b><b>${volTxt(vol30)}</b>
+        <span>${t('trainTime')}</span><b>${hm(min7)}</b><b>${hm(min30)}</b>
+        <span>${t('prs')}</span><b>${prCount(7)}</b><b>${prCount(30)}</b></div></div>
   </div>`;
+  $('pball') && ($('pball').onclick = () => { pbAll = !pbAll; renderProgress(); });
   bindProgSwitch();
   $('calbtn').onclick = () => { calOpen = !calOpen; renderProgress(); };
   $('exsel').onclick = openPicker;
@@ -1088,7 +1120,7 @@ function renderProgress() {
   renderCharts();
 }
 const PIC1 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5"/></svg>', PIC2 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8.5" r="3.2"/><path d="M2.5 20.5c0-3.9 2.9-6.6 6.5-6.6s6.5 2.7 6.5 6.6"/><circle cx="16.5" cy="7" r="2.7"/><path d="M15.6 12.4c3.4-.4 6 2 6 5.6"/></svg>';
-const progSwitch = () => `<div class="seg pseg"><button data-ptab="me" class="${progTab === 'me' ? 'on' : ''}">${PIC1}${S.lang === 'de' ? 'Ich' : 'Me'}</button><button data-ptab="friends" class="${progTab === 'friends' ? 'on' : ''}">${PIC2}${S.lang === 'de' ? 'Freunde' : 'Friends'}</button></div>`;
+const progSwitch = () => `<div class="ptabs"><button data-ptab="me" class="${progTab === 'me' ? 'on' : ''}">${PIC1}${S.lang === 'de' ? 'Ich' : 'Me'}</button><button data-ptab="friends" class="${progTab === 'friends' ? 'on' : ''}">${PIC2}${S.lang === 'de' ? 'Freunde' : 'Friends'}</button></div>`;
 function bindProgSwitch() { document.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { progTab = b.dataset.ptab; renderProgress(); $('v-progress').scrollTop = 0; }); }
 const initialsOf = n => ((n || '').trim().split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
 // sample friends until the cloud mode exists
@@ -1101,13 +1133,25 @@ const userName = () => S.username || 'test'; // placeholder until accounts (user
 const pbKeys = () => { const k = (S.pbEx || []).filter(x => S.fav.includes(x)); return (k.length ? k : S.fav).slice(0, 3); };
 function myProfile() { const pts = totalPts(), wk = weekStats(), h = [...HISTORY].sort((a, b) => a.ago - b.ago || b.date - a.date)[0], m = HISTORY.filter(x => x.ago < 30);
   const cnt = {}; m.forEach(x => { const n = x.wname || (wById(x.wid) || {}).name; if (n) cnt[n] = (cnt[n] || 0) + 1; }); const fav = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
-  return { me: true, name: S.name || (S.lang === 'de' ? 'Du' : 'You'), user: userName(), lv: levelOf(pts), pts, last: h ? [h.wname || (wById(h.wid) || {}).name || '', h.ago] : null, week: [wk.n, wk.vol, wk.min],
-    month: [m.length, m.reduce((a, x) => a + x.dur, 0), prCount(30)], fav: fav ? [fav, cnt[fav]] : null, pbs: pbKeys().map(myPB).filter(Boolean), vis: S.vis }; }
-const avatarHTML = (name, size) => `<span class="avatar dec" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .34)}px">${esc(initialsOf(name))}</span>`;
+  return { me: true, photo: S.photo, name: S.name || (S.lang === 'de' ? 'Du' : 'You'), user: userName(), lv: levelOf(pts), pts, last: h ? [h.wname || (wById(h.wid) || {}).name || '', h.ago] : null, week: [wk.n, wk.vol, wk.min],
+    month: [m.length, m.reduce((a, x) => a + trainMin(x), 0), prCount(30)], fav: fav ? [fav, cnt[fav]] : null, pbs: pbKeys().map(myPB).filter(Boolean), vis: S.vis }; }
+const avatarHTML = (name, size, photo, id) => `<span class="avatar dec ${photo ? 'hasph' : ''}" ${id ? `id="${id}"` : ''} style="width:${size}px;height:${size}px;font-size:${Math.round(size * .34)}px${photo ? `;background-image:url(${photo})` : ''}">${photo ? '' : esc(initialsOf(name))}</span>`;
+// own profile photo: tap = big view with blurred background, change / delete (stored small, ~20 KB)
+function photoView() {
+  const de = S.lang === 'de', el = document.createElement('div'); el.className = 'phview'; el.id = 'phview';
+  el.innerHTML = `<button class="iconbtn phx" aria-label="${de ? 'Schließen' : 'Close'}">✕</button>${avatarHTML(S.name || '?', Math.min(innerWidth - 80, 320), S.photo)}
+    <div class="phbtns"><label class="mainbtn phpick">${S.photo ? (de ? 'Profilbild ändern' : 'Change photo') : (de ? 'Profilbild hinzufügen' : 'Add photo')}<input type="file" accept="image/*" hidden id="phfile"></label>${S.photo ? `<button class="ghostbtn" id="phdel">${de ? 'Profilbild löschen' : 'Delete photo'}</button>` : ''}</div>`;
+  $('app').appendChild(el); el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180 });
+  const close = () => { el.remove(); if (O && O.mode === 'profile' && O.p.me) { O.p = myProfile(); renderO(); } if (tab === 'settings') renderSettings(); };
+  el.querySelector('.phx').onclick = close; el.onclick = e => { if (e.target === el) close(); };
+  $('phdel') && ($('phdel').onclick = () => dialog(de ? 'Profilbild löschen?' : 'Delete photo?', '', [[de ? 'Behalten' : 'Keep', 'mainbtn', () => {}], [de ? 'Löschen' : 'Delete', 'ghostbtn', () => { S.photo = ''; save(); close(); }]]));
+  $('phfile').onchange = e => { const f = e.target.files[0]; if (!f) return; const img = new Image(); img.onload = () => { const z = 256, c = document.createElement('canvas'); c.width = c.height = z; const k = Math.max(z / img.width, z / img.height), w = img.width * k, h = img.height * k;
+    c.getContext('2d').drawImage(img, (z - w) / 2, (z - h) / 2, w, h); S.photo = c.toDataURL('image/jpeg', .8); save(); URL.revokeObjectURL(img.src); close(); }; img.src = URL.createObjectURL(f); };
+}
 function renderFriends() {
   const de = S.lang === 'de', me = myProfile();
-  $('v-progress').innerHTML = `<div class="inner"><h1 class="progh1">${t('progress')}</h1>${progSwitch()}
-    <button class="fr-me" id="fr-me">${avatarHTML(me.name, 52)}<div><b>${esc(me.name)}</b><small>${me.user ? '@' + esc(me.user) + ' · ' : ''}Level ${me.lv + 1} · ${esc(LEVELS[me.lv][S.lang])} · ${fmt(me.pts)} Points</small></div>${CHEV}</button>
+  $('v-progress').innerHTML = `<div class="inner">${progSwitch()}
+    <button class="fr-me" id="fr-me">${avatarHTML(me.name, 52, S.photo)}<div><b>${esc(me.name)}</b><small>${me.user ? '@' + esc(me.user) + ' · ' : ''}Level ${me.lv + 1} · ${esc(LEVELS[me.lv][S.lang])} · ${fmt(me.pts)} Points</small></div>${CHEV}</button>
     <div class="fr-cta"><b>${de ? 'Freunde folgen, Level vergleichen' : 'Follow friends, compare levels'}</b><p class="hint">${de ? 'Kommt mit dem Cloud-Modus: Folge Freunden, sieh ihre Level, Rekorde und letzten Trainings.' : 'Coming with cloud sync: follow friends, see their levels, records and recent sessions.'}</p><button class="mainbtn" id="fr-find">${de ? 'Freunde finden' : 'Find friends'}</button></div>
     <div class="sect"><div class="row"><h2>${de ? 'Vorschau' : 'Preview'}</h2><span class="eyebrow">${de ? 'Beispieldaten' : 'Sample data'}</span></div>
       <div>${DEMO_FRIENDS.map((f, i) => `<button class="fr-row" data-fr="${i}">${avatarHTML(f.name, 44)}<div><b>${esc(f.name)}</b><small>${levelIcon(f.lv)} Level ${f.lv + 1} · ${esc(LEVELS[f.lv][S.lang])}</small></div><div class="fr-kpi"><b>${esc(f.last[0])}</b><small>${t('ago', f.last[1])}</small></div></button>`).join('')}</div></div></div>`;
@@ -1119,19 +1163,26 @@ function renderFriends() {
 function openProfile(p, from) { O = { mode:'profile', p, from }; renderO(); openO(); $('obody').scrollTop = 0; }
 // a profile as others see it (own profile respects the visibility settings)
 function profileHTML(p) {
-  const de = S.lang === 'de', v0 = p.vis || {}, v = k => v0[k] !== false;
+  const de = S.lang === 'de', v0 = p.vis || {}, v = k => v0[k] !== false, hm = m => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
   const dec = (val, lbl) => `<div class="pdec dec"><b class="num">${val}</b><span>${lbl}</span></div>`;
-  return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${p.me ? (de ? 'Dein Profil' : 'Your profile') : (de ? 'Profil' : 'Profile')}</span><span style="width:44px"></span></div>
-    <div class="pf-head">${avatarHTML(p.name, 104)}<h1>${esc(p.name)}</h1>${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}
+  return `<div class="inner pf"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${p.me ? (de ? 'Dein Profil' : 'Your profile') : (de ? 'Profil' : 'Profile')}</span><span style="width:44px"></span></div>
+    <div class="pf-mini" id="pfmini">${avatarHTML(p.name, 36, p.photo)}<div><b>${esc(p.name)}</b><small>${v('level') ? `Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])}` : (p.user ? '@' + esc(p.user) : '')}</small></div></div>
+    <div class="pf-head" id="pfhead"><span class="pf-av">${avatarHTML(p.name, 112, p.photo, p.me ? 'pfphoto' : '')}${p.me ? '<span class="pf-plus">+</span>' : ''}</span><h1>${esc(p.name)}</h1>${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}
       ${v('level') ? `<div class="pf-lvl">${levelIcon(p.lv)}<span>Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])} · <span class="num">${fmt(p.pts)}</span> Points</span></div>` : ''}
-      ${p.me ? '' : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div>
-    ${v('week') ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('thisWeek')}</h2><div class="pdecs">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2], t('minutes'))}</div></div>` : ''}
-    ${v('month') && p.month ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('last30')}</h2><div class="pdecs">${dec(p.month[0], t('workouts'))}${dec(Math.round(p.month[1] / 60) + ' h', de ? 'Training' : 'Training')}${dec(p.month[2], de ? 'Rekorde' : 'Records')}</div></div>` : ''}
+      ${p.me ? `<button class="ghostbtn pf-follow" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div>
+    ${v('week') ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('thisWeek')}</h2><div class="pdecs">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2] + ' min', de ? 'Training' : 'Training')}</div></div>` : ''}
+    ${v('month') && p.month ? `<div class="sect"><h2 class="hic">${SIC.hist}${t('last30')}</h2><div class="pf-line num"><div><b>${p.month[0]}</b><span>${t('workouts')}</span></div><div><b>${hm(p.month[1])}</b><span>${de ? 'Training' : 'Training'}</span></div><div><b>${p.month[2]}</b><span>${de ? 'Rekorde' : 'Records'}</span></div></div></div>` : ''}
     ${v('pbs') && p.pbs.length ? `<div class="sect"><h2 class="hic">${SIC.pb}Personal Bests</h2><div>${p.pbs.map(([k, w, r]) => `<div class="pf-pb"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><span class="num">${esc(wLabel(k, w))} × ${r}</span></div>`).join('')}</div></div>` : ''}
     ${v('last') && p.last ? `<div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Letztes Training' : 'Last session'}</h2><div class="pf-last"><b>${esc(p.last[0])}</b><span>${t('ago', p.last[1])}</span></div></div>` : ''}
-    ${v('fav') && p.fav ? `<div class="sect"><h2 class="hic">${SIC.ex}${de ? 'Lieblings-Workout' : 'Favourite workout'}</h2><div class="pf-last"><b>${esc(p.fav[0])}</b><span>${de ? `${p.fav[1]}× in 30 Tagen` : `${p.fav[1]}× in 30 days`}</span></div></div>` : ''}
-    ${p.me ? `<button class="ghostbtn" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<p class="hint">${de ? 'Beispieldaten. Folgen funktioniert mit dem Cloud-Modus.' : 'Sample data. Following works with cloud sync.'}</p>`}</div>`;
+    ${v('fav') && p.fav ? `<div class="sect"><h2 class="hic">${SIC.ex}${de ? 'Meist trainiert' : 'Most trained'}</h2><div class="pf-last"><b>${esc(p.fav[0])}</b><span>${de ? `${p.fav[1]}× in den letzten 30 Tagen` : `${p.fav[1]}× in the last 30 days`}</span></div></div>` : ''}
+    ${p.me ? '' : `<p class="hint">${de ? 'Beispieldaten. Folgen funktioniert mit dem Cloud-Modus.' : 'Sample data. Following works with cloud sync.'}</p>`}</div>`;
 }
+// profile: the big head scrolls away, a small bar with photo + name slides in (continuously, like the level page)
+function bindProfileScroll() { const ob = $('obody'), head = $('pfhead'), mini = $('pfmini'); if (!head || !mini) return; const H = head.offsetHeight, av = head.querySelector('.pf-av');
+  let raf = 0; const lay = () => { raf = 0; const y = ob.scrollTop, k = Math.max(0, Math.min(1, y / (H * .8))), m = Math.max(0, Math.min(1, (y - H * .45) / (H * .35)));
+    av.style.transform = `scale(${1 - .45 * k})`; av.style.opacity = 1 - k * .8; mini.style.opacity = m; mini.style.transform = `translateY(${(1 - m) * -10}px)`; mini.style.pointerEvents = m > .5 ? 'auto' : 'none'; };
+  ob.onscroll = () => { if (!raf) raf = requestAnimationFrame(lay); }; lay(); }
+
 function findHTML() {
   const de = S.lang === 'de', q = (O.q || '').toLowerCase().replace(/^@/, ''), hits = q ? DEMO_FRIENDS.filter(f => f.user.includes(q) || f.name.toLowerCase().includes(q)) : [];
   return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${de ? 'Freunde finden' : 'Find friends'}</span><span style="width:44px"></span></div>
@@ -1167,9 +1218,11 @@ function calHTML() {
     g += ago < 0 ? `<button disabled style="opacity:.3">${dd}</button>` : `<button class="${h?'on':''} ${ago===0?'today':''} ${selDay===ago?'sel':''}" data-day="${ago}">${dd}</button>`; }
   return `<div style="display:flex;flex-direction:column;gap:10px"><div class="row"><button class="iconbtn" id="calprev" aria-label="zurück" style="width:36px;height:36px;font-size:16px">‹</button><b>${m.toLocaleDateString(loc(), { month:'long', year:'numeric' })}</b><button class="iconbtn" id="calnext" aria-label="vor" style="width:36px;height:36px;font-size:16px;${calMonth<0?'':'opacity:.3'}">›</button></div><div class="calgrid">${g}</div></div>`;
 }
+let pbAll = false;
+const pbCount = () => Object.keys(EX).filter(k => sessionsFor(k).some(s => s.best > 0)).length;
 function pbHTML() {
   return Object.keys(EX).map(k => { const ss = sessionsFor(k).filter(s => s.best > 0); if (!ss.length) return null; const b = ss.reduce((x, y) => y.best > x.best ? y : x); const s = b.sets.reduce((x, y) => e1rm(effW(k, y.w), y.r) > e1rm(effW(k, x.w), x.r) ? y : x); return { k, ago:b.ago, w:s.w, r:s.r, best:b.best }; })
-    .filter(Boolean).sort((a, b) => a.ago - b.ago).slice(0, 6).map(p => `<div class="pb"><b>${esc(exName(p.k))}</b><span class="pw num">${esc(wLabel(p.k, p.w))} × ${p.r}</span><small>${dShort(dayDate(p.ago))}</small><small>${t('approx', fmt(Math.round(p.best)))}</small></div>`).join('');
+    .filter(Boolean).sort((a, b) => a.ago - b.ago).slice(0, pbAll ? 999 : 5).map(p => `<div class="pb"><b>${esc(exName(p.k))}</b><span class="pw num">${esc(wLabel(p.k, p.w))} × ${p.r}</span><small>${dShort(dayDate(p.ago))}</small><small>${t('approx', fmt(Math.round(p.best)))}</small></div>`).join('');
 }
 function renderCharts() {
   const k = S.chartKey; const ss = sessionsFor(k).slice(0, 12).reverse();
@@ -1267,9 +1320,9 @@ function onbVisual(kind) {
       <div class="om-addx">${de ? '+ Übung hinzufügen' : '+ Add exercise'}${fin('fa')}</div>
       <div class="om-new"><div class="om-bh"><span class="om-n">02</span><span>${de ? 'SEITHEBEN' : 'LATERAL RAISE'}</span><em>0/3</em></div><div class="om-pl"><span>1</span>10 kg × 12<em>✕</em></div><div class="om-pl"><span>2</span>10 kg × 12<em>✕</em></div><div class="om-pl"><span>3</span>10 kg × 12<em>✕</em></div></div></div>`;
   if (kind === 'train') return `<div class="om-phone om-delx">
-      <div class="om-swipe"><div class="om-del"><span>${t('swipeDel')}${fin('fd2')}</span></div><div class="om-bh om-dips"><span class="om-n">01</span><span>DIPS</span><em>0/3</em>${fin('fd1')}</div></div>
+      <div class="om-swipe"><div class="om-del"><b class="om-dl">${t('swipeDel')}</b></div><div class="om-bh om-dips"><span class="om-n">01</span><span>DIPS</span><em>0/3</em></div></div>
       <div class="om-ex2"><div class="om-bh"><span class="om-n"><span class="om-num"><em>02</em><em>01</em></span></span><span>${de ? 'TRIZEPSDRÜCKEN' : 'TRICEPS PUSHDOWN'}</span><em>0/3</em></div>
-        <div class="om-pl"><span>1</span>30 kg × 12<em>✕</em></div><div class="om-pl om-plx"><span>2</span>30 kg × 12<em>✕${fin('fx')}</em></div><div class="om-pl"><span class="om-n3"><em>3</em><em>2</em></span>30 kg × 12<em>✕</em></div></div></div>`;
+        <div class="om-pl"><span>1</span>30 kg × 12<em>✕</em></div><div class="om-pl om-plx"><span>2</span>30 kg × 12<em>✕</em></div><div class="om-pl"><span class="om-n3"><em>3</em><em>2</em></span>30 kg × 12<em>✕</em></div></div>${fin('fd1 ff')}${fin('fd2 ff')}${fin('fx ff')}</div>`;
   if (kind === 'mini') return `<div class="om-phone"><div class="om-sheet"><div class="om-eb" style="text-align:center">PUSH DAY</div><div class="om-tdec dec"><span>01:23</span></div><div class="om-line"></div><div class="om-line"></div></div>
       <div class="om-bar"><span><small>${de ? 'PAUSE' : 'REST'}</small><b>${de ? 'Bankdrücken' : 'Bench press'}</b></span><b>01:23</b></div><div class="om-nav"></div></div>`;
   if (kind === 'progress') return `<div class="om-phone om-chart">${trendPreview(S.trendColor)}</div>`;
@@ -1460,7 +1513,14 @@ function celebrate(kind = S.celeb) {
   };
   requestAnimationFrame(step);
 }
-let setPage = null, devOpen = false;
+let setPage = null, devOpen = false, faqOpen = null, PD = null; // PD = profile draft (saved only with "Änderungen speichern")
+const VISK = ['level', 'week', 'month', 'pbs', 'last', 'fav'], visNorm = v => Object.fromEntries(VISK.map(k => [k, (v || {})[k] !== false]));
+const pdDirty = () => !!PD && (PD.name !== S.name || JSON.stringify(visNorm(PD.vis)) !== JSON.stringify(visNorm(S.vis)) || JSON.stringify(PD.pbEx) !== JSON.stringify(pbKeys()));
+function pdSave() { S.name = PD.name.trim(); S.vis = PD.vis; S.pbEx = PD.pbEx; save(); PD = null; toast(S.lang === 'de' ? 'Gespeichert' : 'Saved'); setPage = null; renderSettings(); openProfile(myProfile(), 'settings'); }
+// leaving the edit page: unsaved changes → save or discard; always back to the profile
+function leaveProfileEdit() { const de = S.lang === 'de', back = () => { PD = null; setPage = null; renderSettings(); openProfile(myProfile(), 'settings'); };
+  if (!pdDirty()) return back();
+  dialog(de ? 'Änderungen speichern?' : 'Save changes?', de ? 'Du hast dein Profil geändert.' : 'You changed your profile.', [[de ? 'Speichern' : 'Save', 'mainbtn', pdSave], [de ? 'Verwerfen' : 'Discard', 'ghostbtn', back], [de ? 'Weiter bearbeiten' : 'Keep editing', 'textbtn', () => {}]]); }
 // ================= Seasons (Weihnachten, Ostern) =================
 // live: docs/season.json decides for every user; dev: a local preview can override it
 const SEASONS = { xmas: { de:'Weihnachten', en:'Christmas' }, easter: { de:'Ostern', en:'Easter' } };
@@ -1471,21 +1531,35 @@ const loadAnim = () => seasonNow() || S.anim;
 function fetchRemote() {
   fetch(ROOT + 'season.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(j => { const n = SEASONS[j.season] ? j.season : ''; if (n !== REMOTE_SEASON) { REMOTE_SEASON = n; applySeason(); } }).catch(() => {});
 }
-const HAT = '<svg class="ss-hat" viewBox="0 0 100 80" aria-hidden="true"><path d="M8 62 C20 30 40 8 70 6 C84 5 92 14 94 26 C82 20 70 22 62 34 L58 62 Z" fill="#d6262e"/><circle cx="94" cy="28" r="9" fill="#fff"/><rect x="2" y="56" width="66" height="18" rx="9" fill="#fff"/></svg>';
-const EARS = '<svg class="ss-ears" viewBox="0 0 100 80" aria-hidden="true"><path d="M30 78 C18 50 18 12 32 4 C44 -2 48 40 44 78 Z" fill="#f3f3ef" stroke="#0b0b0a" stroke-width="3"/><path d="M33 70 C26 50 27 22 33 14 C38 22 39 50 38 70 Z" fill="#f4a7c0"/><path d="M58 78 C56 40 62 0 74 4 C88 10 84 50 72 78 Z" fill="#f3f3ef" stroke="#0b0b0a" stroke-width="3"/><path d="M63 70 C63 48 66 22 72 14 C78 24 74 50 68 70 Z" fill="#f4a7c0"/></svg>';
-const SLEIGH = '<svg viewBox="0 0 220 60" aria-hidden="true"><g fill="currentColor"><path d="M150 40h52c6 0 10-6 8-12l-4-10h-8l3 9h-46z"/><path d="M146 50h70v4h-70z"/><circle cx="182" cy="14" r="6"/><path d="M176 22h12v14h-12z"/><path d="M60 30c10-10 26-12 40-4l6-12 4 2-4 14c6 6 4 12-2 14H64c-8 0-10-8-4-14z"/><path d="M66 44l-6 14h4l6-12zM94 44l6 14h-4l-6-12z"/><path d="M104 16l6-12 3 1-5 12zM100 14l-2-12 3-1 2 12z"/><path d="M6 32c8-8 22-10 34-4l5-10 4 2-3 12c5 5 3 10-2 12H10c-7 0-8-7-4-12z"/><path d="M12 44l-5 12h4l5-10zM36 44l5 12h-4l-5-10z"/><path d="M40 40l110 4v2L40 42z"/></g></svg>';
-const BUNNY = '<svg viewBox="0 0 80 70" aria-hidden="true"><g fill="currentColor"><ellipse cx="38" cy="48" rx="22" ry="16"/><circle cx="62" cy="34" r="11"/><path d="M58 26c-4-14-2-24 3-24s5 12 3 24z"/><path d="M66 26c0-14 4-23 9-22s2 13-4 23z"/><circle cx="16" cy="44" r="6"/><path d="M48 60h10v8H48zM24 60h10v8H24z"/></g></svg>';
+// Santa hat: white brim, red cap leaning right, white pompom (fully inside the viewBox)
+const HAT = '<svg class="ss-hat" viewBox="0 0 100 92" aria-hidden="true"><path d="M14 70 C18 40 34 14 60 10 C76 8 86 16 88 30 C80 26 70 28 64 36 C58 46 58 58 60 70 Z" fill="#d6262e"/><path d="M60 10 C76 8 86 16 88 30 C80 26 70 28 64 36" fill="#b51c24"/><circle cx="86" cy="32" r="9" fill="#fff"/><rect x="8" y="64" width="62" height="18" rx="9" fill="#fff"/></svg>';
+// bunny ears: brown outside, pink inside (same colours as the hopping bunny)
+const EARS = '<svg class="ss-ears" viewBox="0 0 100 90" aria-hidden="true"><g transform="rotate(-10 32 86)"><path d="M24 88 C14 58 14 16 30 6 C44 -2 50 44 42 88 Z" fill="#9a6b3f"/><path d="M28 80 C22 56 23 24 31 14 C38 24 40 54 37 80 Z" fill="#f4a7c0"/></g><g transform="rotate(10 68 86)"><path d="M58 88 C52 44 58 -2 72 6 C88 16 86 58 76 88 Z" fill="#9a6b3f"/><path d="M63 80 C62 54 64 24 71 14 C79 24 78 56 72 80 Z" fill="#f4a7c0"/></g></svg>';
+// Santa in a red sleigh, pulled by brown reindeer, Rudolph in front with a red nose (faces right = flies right)
+const REIN = (x, nose) => `<g transform="translate(${x} 0)"><g class="leg-a"><path d="M10 52 l-6 16 M16 52 l-2 17" stroke="#6b4423" stroke-width="3" stroke-linecap="round"/></g><g class="leg-b"><path d="M34 52 l8 15 M40 51 l4 16" stroke="#6b4423" stroke-width="3" stroke-linecap="round"/></g><ellipse cx="26" cy="46" rx="20" ry="9" fill="#8b5a2b"/><path d="M6 44 q-6 -2 -6 -6" stroke="#8b5a2b" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M42 44 q6 -10 8 -18" stroke="#8b5a2b" stroke-width="8" stroke-linecap="round" fill="none"/><ellipse cx="55" cy="24" rx="8" ry="6" fill="#8b5a2b"/><path d="M50 18 l-4 -12 m2 6 l-6 -2 M56 18 l2 -13 m-1 6 l5 -3" stroke="#5a3a1c" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="56" cy="22" r="1.4" fill="#111"/><circle cx="63" cy="26" r="${nose ? 3.6 : 2.4}" fill="${nose ? '#ff2a2a' : '#3a2412'}" ${nose ? 'class="rudolph"' : ''}/></g>`;
+const SLEIGH = `<svg viewBox="0 0 300 80" aria-hidden="true"><path d="M86 52 C120 50 140 46 164 44 M86 52 C120 52 150 50 228 44" stroke="#c9a227" stroke-width="1.5" fill="none"/>${REIN(150, false)}${REIN(222, true)}
+  <g class="santa"><circle cx="40" cy="26" r="9" fill="#f2c9a0"/><path d="M31 27 q9 16 18 0 q-2 8 -9 9 q-7 -1 -9 -9z" fill="#fff"/><path d="M31 22 q9 -16 20 -4 l6 -6" stroke="#d6262e" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="58" cy="12" r="3.5" fill="#fff"/><rect x="30" y="20" width="21" height="4" rx="2" fill="#fff"/><path d="M28 36 h24 v14 h-24z" fill="#d6262e"/>
+  <g class="wave"><path d="M50 38 l12 -12" stroke="#d6262e" stroke-width="5" stroke-linecap="round"/><circle cx="63" cy="25" r="3.5" fill="#f3f3ef"/></g></g>
+  <path d="M10 40 h74 c6 0 8 6 6 12 l-4 8 h-70 c-6 0 -8 -4 -8 -8z" fill="#d6262e"/><path d="M18 44 h58" stroke="#ffd400" stroke-width="2"/><path d="M4 66 h84 c6 0 8 -6 4 -8" stroke="#c9a227" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M20 60 v6 M74 60 v6" stroke="#c9a227" stroke-width="3"/></svg>`;
+// brown bunny with pink inner ears, side view, faces right
+const BUNNY = '<svg viewBox="0 0 90 70" aria-hidden="true"><ellipse cx="36" cy="46" rx="22" ry="15" fill="#9a6b3f"/><circle cx="22" cy="48" r="12" fill="#9a6b3f"/><ellipse cx="40" cy="52" rx="12" ry="7" fill="#c49a6c"/><circle cx="12" cy="44" r="6" fill="#fff"/><circle cx="60" cy="34" r="12" fill="#9a6b3f"/><path d="M56 26 C48 10 50 0 56 2 C62 4 62 16 61 25 Z" fill="#9a6b3f"/><path d="M57 22 C53 12 54 6 56 6 C59 8 59 15 59 22 Z" fill="#f4a7c0"/><path d="M63 25 C62 9 68 1 72 4 C76 8 70 18 66 26 Z" fill="#8a5d35"/><circle cx="65" cy="32" r="2" fill="#111"/><circle cx="71" cy="37" r="2" fill="#f4a7c0"/><path d="M50 58 l4 8 M28 58 l-4 8" stroke="#7a5230" stroke-width="5" stroke-linecap="round"/></svg>';
+const FLAKE = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10"/><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M5.2 8.1l-.6-2.8M5.2 8.1l-2.7.8M18.8 15.9l.6 2.8M18.8 15.9l2.7-.8M5.2 15.9l-2.7-.8M5.2 15.9l-.6 2.8M18.8 8.1l2.7.8M18.8 8.1l.6-2.8"/></svg>');
 function applySeason() {
   const sz = seasonNow(), app = $('app'); app.classList.toggle('season-xmas', sz === 'xmas'); app.classList.toggle('season-easter', sz === 'easter');
   let layer = $('season'); if (!sz) { if (layer) layer.remove(); if (tab === 'start' && !W) renderStart(); return; }
-  if (!layer || layer.dataset.s !== sz) { if (layer) layer.remove(); layer = document.createElement('div'); layer.id = 'season'; layer.dataset.s = sz; layer.setAttribute('aria-hidden', 'true');
+  if (!layer || layer.dataset.s !== sz) { if (layer) layer.remove(); greetText = greeting(); layer = document.createElement('div'); layer.id = 'season'; layer.dataset.s = sz; layer.setAttribute('aria-hidden', 'true');
     const R = (a, b) => (a + Math.random() * (b - a)).toFixed(2);
-    if (sz === 'xmas') layer.innerHTML = Array.from({ length: 34 }, () => `<i class="flake" style="left:${R(0, 100)}%;width:${R(3, 7)}px;height:${R(3, 7)}px;animation-duration:${R(9, 18)}s,${R(3, 6)}s;animation-delay:-${R(0, 18)}s,-${R(0, 6)}s;opacity:${R(.35, .85)}"></i>`).join('') + `<div class="sleigh">${SLEIGH}</div>`;
-    else layer.innerHTML = Array.from({ length: 12 }, (_, i) => `<i class="egg" style="left:${R(2, 94)}%;animation-duration:${R(14, 24)}s;animation-delay:-${R(0, 24)}s;--c:${['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0'][i % 5]}"></i>`).join('') + `<div class="bunny">${BUNNY}</div>`;
+    if (sz === 'xmas') layer.innerHTML = Array.from({ length: 30 }, () => { const z = R(7, 15); return `<i class="flake" style="left:${R(0, 100)}%;width:${z}px;height:${z}px;background-image:url('${FLAKE}');animation-duration:${R(10, 20)}s,${R(3, 6)}s;animation-delay:-${R(0, 20)}s,-${R(0, 6)}s;opacity:${R(.45, .9)}"></i>`; }).join('') + `<div class="sleigh"><div class="sl-in">${SLEIGH}</div></div>`;
+    else layer.innerHTML = `<div class="bunny"><div class="bn-in">${BUNNY}</div></div>`;
+    // every pass a new route: other height, other direction
+    const flyer = layer.querySelector('.sleigh, .bunny'), reroute = () => { const rtl = Math.random() < .5; flyer.style.setProperty('--y', sz === 'xmas' ? (Math.random() < .5 ? R(1, 7) : R(58, 64)) + 'vh' : R(0, 24) + 'px'); flyer.classList.toggle('rtl', rtl); };
+    reroute(); flyer.addEventListener('animationiteration', reroute);
     $('app').appendChild(layer); }
   if (tab === 'start' && !W) renderStart();
 }
 const seasonDeco = () => seasonNow() === 'xmas' ? HAT : seasonNow() === 'easter' ? EARS : '';
+const SEASON_GREET = { xmas: { de: ['Ho ho ho, Zeit für Gains.', 'Plätzchen verbrennen sich nicht von allein.', 'Fit unterm Tannenbaum.', 'Jingle Bells, schwere Hanteln.', 'Erst Training, dann Glühwein.'], en: ['Ho ho ho, gains time.', 'Cookies do not burn themselves.', 'Fit under the tree.', 'Jingle bells, heavy weights.', 'Training first, mulled wine later.'] },
+  easter: { de: ['Hopp hopp, ab ins Gym.', 'Schokohasen trainieren nicht.', 'Eier suchen? Lieber Gains finden.', 'Frohe Ostern, starke Beine.', 'Der Osterhase macht Kniebeugen.'], en: ['Hop hop, off to the gym.', 'Chocolate bunnies do not train.', 'Hunting eggs? Find gains instead.', 'Happy Easter, strong legs.', 'The Easter bunny does squats.'] } };
 
 // ================= Browser vs. home screen: install guide =================
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -1501,7 +1575,7 @@ function showInstall(preview) {
     if (k === 'share') return `<div class="om-phone ins"><div class="ins-page"></div><div class="ins-bar"><i></i><i></i><span class="ins-hl">${sh}<span class="om-finger ins-f"></span></span><i></i><i></i></div></div>`;
     if (k === 'menu') return `<div class="om-phone ins"><div class="ins-top"><span>pdbp-hub.github.io</span><span class="ins-hl">⋮<span class="om-finger ins-f"></span></span></div><div class="ins-page"></div></div>`;
     if (k === 'add') return `<div class="om-phone ins"><div class="ins-sheet"><div class="ins-row"></div><div class="ins-row"></div><div class="ins-row ins-hl">${osn === 'ios' ? (de ? 'Zum Home-Bildschirm' : 'Add to Home Screen') : (de ? 'App installieren' : 'Install app')} ＋<span class="om-finger ins-f"></span></div><div class="ins-row"></div></div></div>`;
-    if (k === 'done') return `<div class="om-phone ins ins-home">${Array.from({ length: 7 }, () => '<i></i>').join('')}<b class="dec">TRAIN</b></div>`;
+    if (k === 'done') return `<div class="om-phone ins ins-home">${Array.from({ length: 7 }, () => '<i></i>').join('')}<b class="ins-app"><span class="dec">TRAIN</span></b></div>`;
     return `<div class="om-phone ins"><div class="ins-top"><span>pdbp-hub.github.io/Fitter</span></div><div class="ins-page"><div class="om-dec dec" style="width:70px;height:70px;font-size:11px">TRAIN</div></div></div>`; };
   const draw = () => {
     if (!os) { el.innerHTML = `<div class="onb-in inst-home"><div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview ? '<button class="iconbtn" id="inst-x" aria-label="Schließen">✕</button>' : '<span></span>'}</div>
@@ -1581,55 +1655,72 @@ function confirmLive(title, text, fn) {
 }
 let VERSIONS = null;
 function loadVersions(cb) { Promise.all([fetch(ROOT + 'versions/index.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []), fetch(ROOT + 'live.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]).then(([v, l]) => { VERSIONS = v; REMOTE_LIVE = l.version || null; cb(); }); }
+const PUSH_CATS = {
+  inactive: { de: ['Deine Hanteln vermissen dich.', 'Eine Woche Pause ist genug. Zeit fürs Comeback!', 'Dein Level wartet auf Points.'], en: ['Your dumbbells miss you.', 'A week off is enough. Comeback time!', 'Your level is waiting for points.'] },
+  record: { de: ['Starkes Training heute! Gönn dir eine Pause.', 'Neuer Rekord. Jetzt Protein und Schlaf.', 'Das war stark. Erholung gehört dazu.'], en: ['Strong session today! Take a break.', 'New record. Now protein and sleep.', 'That was strong. Recovery is part of it.'] } };
+const pushCfg = () => { const c = S.pushCfg || {}; return { inactive: Object.assign({ on: true, days: 7, msgs: S.pushMsgs || PUSH_CATS.inactive[S.lang] }, c.inactive), record: Object.assign({ on: true, msgs: PUSH_CATS.record[S.lang] }, c.record) }; };
+const DEV_LINK = 'https://pdbp-hub.github.io/Fitter/dev/?install';
 function devHTML() {
-  const sz = S.seasonPreview == null ? 'live' : S.seasonPreview || 'off', segb = (v, l) => `<button data-spv="${v}" class="${sz === v ? 'on' : ''}">${l}</button>`;
-  const msgs = S.pushMsgs || PUSH_DEFAULT[S.lang];
-  return `<div class="devtools">
-    <b>Ansehen & testen</b>
-    <button id="dev-onb">${t('devOnb')}</button><button id="dev-intro">${t('devIntro')}</button><button id="dev-celeb">${t('devCeleb')}</button><button id="dev-charts">Charts-Test</button><button id="dev-inst">Browser-Ansicht (Installations-Anleitung)</button><button id="reseed">${t('reseed')}</button>
-    <p class="hint">Link zum Testen im Browser: <span class="num">pdbp-hub.github.io/Fitter/?install</span> <button class="textbtn" id="dev-instlink">kopieren</button></p>
+  const de = S.lang === 'de', sz = S.seasonPreview == null ? 'live' : S.seasonPreview || 'off', pc = pushCfg();
+  const tool = (id, title, hint) => `<button class="setrow sprow" id="${id}"><div style="flex:1;text-align:left"><b>${title}</b>${hint ? `<p>${hint}</p>` : ''}</div>${CHEV}</button>`;
+  const seg = (attr, opts, cur) => `<div class="seg dseg">${opts.map(([v, l]) => `<button data-${attr}="${v}" class="${cur === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  const list = cat => `<div class="dlist">${pc[cat].msgs.map((m, j) => `<div class="drow"><input data-pmsg="${cat}:${j}" value="${esc(m)}"><button class="textbtn" data-ptest="${cat}:${j}">Test</button><button class="sx" data-pdel="${cat}:${j}" aria-label="Löschen">✕</button></div>`).join('')}<button class="addset" data-padd="${cat}">+ Spruch</button></div>`;
+  const vers = VERSIONS || [], showV = devVerAll ? vers : vers.slice(0, 4);
+  return `<div class="dev2">
+    <div class="sect"><h2>Ansehen & testen</h2><div>
+      ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('reseed', t('reseed'))}</div>
+      <a class="ghostbtn dlink" href="${DEV_LINK}" target="_blank" rel="noopener">Im Browser (Safari) öffnen</a></div>
 
-    <b style="margin-top:18px">Seasons</b>
-    <p class="hint">Vorschau nur hier in Dev. „Live“ = was alle Nutzer gerade sehen: <b>${REMOTE_SEASON ? SEASONS[REMOTE_SEASON].de : 'keine'}</b></p>
-    <div class="seg devseg">${segb('live', 'Wie live')}${segb('off', 'Aus')}${segb('xmas', 'Weihnachten')}${segb('easter', 'Ostern')}</div>
-    <div class="devrowbtns"><button class="ghostbtn" data-golive="xmas">Weihnachten live</button><button class="ghostbtn" data-golive="easter">Ostern live</button><button class="ghostbtn" data-golive="">Season aus (live)</button></div>
+    <div class="sect"><h2>Seasons</h2>
+      <div class="dlabel">Vorschau, nur hier in Dev</div>${seg('spv', [['live', 'Wie live'], ['off', 'Aus'], ['xmas', 'Weihnachten'], ['easter', 'Ostern']], sz)}
+      <div class="dlabel">Live für alle Nutzer</div>
+      <div class="dopts">${[['', 'Keine'], ['xmas', 'Weihnachten'], ['easter', 'Ostern']].map(([v, l]) => `<button class="${REMOTE_SEASON === v ? 'on' : ''}" data-golive="${v}">${l}${REMOTE_SEASON === v ? '<small>LIVE</small>' : ''}</button>`).join('')}</div>
+      <p class="hint">Antippen = live schalten (mit Rückfrage und PIN).</p></div>
 
-    <b style="margin-top:18px">Live-Version</b>
-    <p class="hint">Live läuft: <b class="num">${REMOTE_LIVE || 'Standard (letzte Freigabe)'}</b>. Version wählen und live schalten, auch zurück auf eine ältere.</p>
-    <div class="devrowbtns"><select id="dev-ver" class="devsel">${(VERSIONS || []).map(v => `<option value="${esc(v.v)}" ${v.v === REMOTE_LIVE ? 'selected' : ''}>${esc(v.v)}${v.date ? ' · ' + esc(v.date) : ''}</option>`).join('') || '<option>(Liste wird geladen …)</option>'}</select><button class="ghostbtn" id="dev-verlive">Live schalten</button></div>
+    <div class="sect"><h2>Live-Version</h2>
+      <div class="dopts dvers">${showV.map(v => `<button class="${v.v === REMOTE_LIVE ? 'on' : ''}" data-ver="${esc(v.v)}"><span class="num">${esc(v.v)}</span><small>${v.v === REMOTE_LIVE ? 'LIVE' : esc(v.date || '')}</small></button>`).join('') || '<p class="hint">Liste wird geladen …</p>'}</div>
+      ${vers.length > 4 ? `<button class="calbtn" id="dev-verall">${devVerAll ? 'Weniger ▴' : `Alle ${vers.length} Versionen ▾`}</button>` : ''}
+      <p class="hint">${REMOTE_LIVE ? '' : 'Live läuft die letzte Freigabe. '}Antippen = diese Version live schalten.</p></div>
 
-    <b style="margin-top:18px">Push-Mitteilungen</b>
-    <p class="hint">Automatisch nach <b class="num">${S.pushDays || 4}</b> Tagen ohne Training, zufälliger Spruch aus der Liste. Versand an alle braucht den Server und kommt mit dem Cloud-Modus. „Test an mich“ geht schon jetzt.</p>
-    <div class="seg devseg">${[2, 3, 4, 7].map(d => `<button data-pdays="${d}" class="${(S.pushDays || 4) === d ? 'on' : ''}">${d} Tage</button>`).join('')}</div>
-    <div class="pushlist">${msgs.map((m, j) => `<div class="pushrow"><input data-pmsg="${j}" value="${esc(m)}"><button class="sx" data-pdel="${j}" aria-label="Löschen">✕</button><button class="textbtn" data-ptest="${j}">Test</button></div>`).join('')}</div>
-    <button id="dev-padd">+ Spruch hinzufügen</button>
-    <div class="pushrow"><input id="dev-pnow" placeholder="Eigene Nachricht an alle (z. B. Aktion)"><button class="textbtn" id="dev-psend">Senden</button></div>
+    <div class="sect"><h2>Push-Mitteilungen</h2>
+      <div class="pe-h"><b>Nach Inaktivität</b>${`<button class="toggle" id="pc-inactive" role="switch" aria-checked="${pc.inactive.on}"><i></i></button>`}</div>
+      <div class="dlabel">Wenn so lange kein Training war</div>${seg('pdays', [[4, '4 Tage'], [7, '7 Tage'], [14, '14 Tage']], pc.inactive.days)}
+      ${list('inactive')}
+      <div class="pe-h" style="margin-top:14px"><b>Nach einem Rekord</b>${`<button class="toggle" id="pc-record" role="switch" aria-checked="${pc.record.on}"><i></i></button>`}</div>
+      <div class="dlabel">5 Minuten nach dem Speichern, wenn ein neuer Rekord dabei war</div>
+      ${list('record')}
+      <div class="dlabel" style="margin-top:14px">Eigene Nachricht an alle</div>
+      <div class="drow"><input id="dev-pnow" placeholder="z. B. Aktion"><button class="textbtn" id="dev-psend">Senden</button></div>
+      <p class="hint">Automatik und Senden an alle laufen mit dem Cloud-Modus. „Test“ schickt dir die Mitteilung schon jetzt.</p></div>
 
-    <b style="margin-top:18px">Freigabe-Schlüssel</b>
-    <p class="hint">Für „live schalten“ braucht die App einmalig einen GitHub-Schlüssel (fein eingeschränkt: nur dieses Repo, nur Inhalte schreiben). Er bleibt nur auf diesem Gerät gespeichert, verschlüsselt mit deiner 6-stelligen Master-PIN, nie in den App-Daten oder der Cloud. PIN vergessen: Schlüssel entfernen und neu hinterlegen. Status: <b>${ghKey() ? 'hinterlegt' : 'fehlt'}</b>${ghKey() ? ` · <b class="${(ghDaysLeft() ?? 99) <= 2 ? 'ghred' : ''}">${ghExpText() || 'Laufzeit unbekannt'}</b>` : ''}</p>
-    <div class="pushrow"><input id="dev-ghkey" type="password" placeholder="github_pat_…" autocomplete="off"><button class="textbtn" id="dev-ghsave">${ghKey() ? 'Ersetzen' : 'Speichern'}</button>${ghKey() ? '<button class="textbtn" id="dev-ghdel">Entfernen</button>' : ''}</div>
+    <div class="sect"><h2>Freigabe-Schlüssel</h2>
+      <div class="dstat"><span>Status</span><b class="${ghKey() && (ghDaysLeft() ?? 99) <= 2 ? 'ghred' : ''}">${ghKey() ? (ghExpText() || 'hinterlegt') : 'fehlt'}</b></div>
+      <div class="drow"><input id="dev-ghkey" type="password" placeholder="github_pat_…" autocomplete="off"><button class="textbtn" id="dev-ghsave">${ghKey() ? 'Ersetzen' : 'Speichern'}</button>${ghKey() ? '<button class="textbtn" id="dev-ghdel">Entfernen</button>' : ''}</div>
+      <p class="hint">Nur auf diesem Gerät, verschlüsselt mit deiner 6-stelligen PIN. PIN vergessen: entfernen und neu hinterlegen.</p></div>
   </div>`;
 }
+let devVerAll = false;
 function bindDev() {
-  const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
-  if (!VERSIONS) loadVersions(() => { if (setPage === 'dev') renderSettings(); });
+  const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; }, rr = () => { const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; };
+  if (!VERSIONS) loadVersions(() => { if (setPage === 'dev') rr(); });
   on('dev-onb', () => showOnboarding(true)); on('dev-intro', () => previewIntro()); on('dev-celeb', () => celebrate(seasonNow() || S.celeb));
   on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
-  on('dev-inst', () => showInstall(true));
-  on('dev-instlink', () => { const u = 'https://pdbp-hub.github.io/Fitter/?install'; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast(t('copied')), () => toast(u)); });
+  on('dev-inst', () => showInstall(true)); on('dev-verall', () => { devVerAll = !devVerAll; rr(); });
   on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
-  document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); renderSettings(); });
-  document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive;
-    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das ${SEASONS[v].de}s-Design.` : 'Alle Nutzer sehen wieder das normale Design.', async k => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`, k); REMOTE_SEASON = v; renderSettings(); }); });
-  on('dev-verlive', () => { const v = $('dev-ver').value; if (!VERSIONS || !VERSIONS.some(x => x.v === v)) return;
-    confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async k => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`, k); REMOTE_LIVE = v; renderSettings(); }); });
-  document.querySelectorAll('[data-pdays]').forEach(b => b.onclick = () => { S.pushDays = +b.dataset.pdays; save(); renderSettings(); });
-  const msgs = () => S.pushMsgs || PUSH_DEFAULT[S.lang].slice();
-  document.querySelectorAll('[data-pmsg]').forEach(inp => inp.onchange = () => { const m = msgs(); m[+inp.dataset.pmsg] = inp.value.trim(); S.pushMsgs = m.filter(Boolean); save(); renderSettings(); });
-  document.querySelectorAll('[data-pdel]').forEach(b => b.onclick = () => dialog('Spruch löschen?', esc(msgs()[+b.dataset.pdel]), [['Behalten', 'mainbtn', () => {}], ['Löschen', 'ghostbtn', () => { const m = msgs(); m.splice(+b.dataset.pdel, 1); S.pushMsgs = m; save(); renderSettings(); }]]));
-  document.querySelectorAll('[data-ptest]').forEach(b => b.onclick = () => testPush(msgs()[+b.dataset.ptest]));
-  on('dev-padd', () => { S.pushMsgs = msgs().concat(S.lang === 'de' ? 'Neuer Spruch' : 'New line'); save(); renderSettings(); });
-  on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return; dialog('An alle senden?', esc(v) + '<br><br>Der Versand an alle Nutzer braucht einen Server und kommt mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
+  document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); rr(); });
+  document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive; if (v === REMOTE_SEASON) return;
+    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das ${SEASONS[v].de}s-Design.` : 'Alle Nutzer sehen wieder das normale Design.', async k => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`, k); REMOTE_SEASON = v; rr(); }); });
+  document.querySelectorAll('[data-ver]').forEach(b => b.onclick = () => { const v = b.dataset.ver; if (v === REMOTE_LIVE) return;
+    confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async k => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`, k); REMOTE_LIVE = v; rr(); }); });
+  const cfg = () => { const c = pushCfg(); return c; }, put = c => { S.pushCfg = c; save(); rr(); };
+  on('pc-inactive', () => { const c = cfg(); c.inactive.on = !c.inactive.on; put(c); }); on('pc-record', () => { const c = cfg(); c.record.on = !c.record.on; put(c); });
+  document.querySelectorAll('[data-pdays]').forEach(b => b.onclick = () => { const c = cfg(); c.inactive.days = +b.dataset.pdays; put(c); });
+  const ref = x => { const [cat, j] = x.split(':'); return [cat, +j]; };
+  document.querySelectorAll('[data-pmsg]').forEach(inp => inp.onchange = () => { const c = cfg(), [cat, j] = ref(inp.dataset.pmsg); c[cat].msgs = c[cat].msgs.slice(); c[cat].msgs[j] = inp.value.trim(); c[cat].msgs = c[cat].msgs.filter(Boolean); put(c); });
+  document.querySelectorAll('[data-pdel]').forEach(b => b.onclick = () => { const c = cfg(), [cat, j] = ref(b.dataset.pdel); dialog('Spruch löschen?', esc(c[cat].msgs[j]), [['Behalten', 'mainbtn', () => {}], ['Löschen', 'ghostbtn', () => { c[cat].msgs = c[cat].msgs.filter((_, i) => i !== j); put(c); }]]); });
+  document.querySelectorAll('[data-ptest]').forEach(b => b.onclick = () => { const [cat, j] = ref(b.dataset.ptest); testPush(cfg()[cat].msgs[j]); });
+  document.querySelectorAll('[data-padd]').forEach(b => b.onclick = () => { const c = cfg(), cat = b.dataset.padd; c[cat].msgs = c[cat].msgs.concat('Neuer Spruch'); put(c); });
+  on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return; dialog('An alle senden?', esc(v) + '<br><br>Senden an alle läuft mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
   on('dev-ghsave', () => { const v = $('dev-ghkey').value.trim(); if (!v) return;
     const store = async (d, pin) => { try { localStorage.setItem('fitter.ghkey', await ghSeal(v, pin)); localStorage.setItem('fitter.ghexp', String(Date.now() + d * 864e5)); ['fitter.ghnote', 'fitter.ghfail', 'fitter.ghlock'].forEach(x => localStorage.removeItem(x)); } catch (e) { toast('Speichern fehlgeschlagen'); } renderSettings(); toast('Schlüssel mit PIN gespeichert'); };
     const keep = d => () => askPin('Master-PIN festlegen', 'Wähle eine 6-stellige PIN. Ohne sie kann niemand aus dieser App live schalten.', p1 => {
@@ -1718,6 +1809,7 @@ const SET_IC = {
   imprint:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 12h7M9 16h7"/></svg>',
   share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/></svg>',
   personal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14"/><circle cx="9" cy="11" r="2.4"/><path d="M5.5 16.5c.6-2 2-3 3.5-3s2.9 1 3.5 3M14.5 10h4M14.5 13.5h4"/></svg>',
+  general:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><rect x="14" y="4.5" width="4" height="5"/><rect x="8" y="14.5" width="4" height="5"/></svg>',
   help:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.4a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.3-2.7 4.1"/><path d="M12 17.6v.4"/></svg>',
   dev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>' };
 const sic = k => `<span class="sic">${SET_IC[k]}</span>`;
@@ -1736,45 +1828,55 @@ function renderSettings() {
   let h = '';
   if (!setPage) {
     const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div>${CHEV}</button>`;
-    h = `<h1 class="seth1">${t('settings')}</h1><button class="sprof" id="sprof"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>@${esc(userName())} · Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
-      ${item('personal', S.lang === 'de' ? 'Persönliche Daten' : 'Personal data', S.lang === 'de' ? 'Körpergewicht, Alter, Account' : 'Body weight, age, account', sic('personal'))}
+    h = `<button class="sprof sprof-top" id="sprof">${avatarHTML(S.name || '?', 84, S.photo)}<div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>@${esc(userName())} · Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
+      ${item('general', S.lang === 'de' ? 'Allgemein' : 'General', S.lang === 'de' ? 'Mitteilungen' : 'Notifications', sic('general'))}
+      ${item('personal', S.lang === 'de' ? 'Persönliche Daten' : 'Personal data', S.lang === 'de' ? 'Körpergewicht, Alter, Account, Daten' : 'Body weight, age, account, data', sic('personal'))}
       ${item('display', t('spDisplay'), t('spDisplayHint'), sic('display'))}
       ${item('logic', t('spLogic'), t('spLogicHint'), sic('logic'))}
-      ${item('data', t('spData'), t('spDataHint'), sic('data'))}
       ${item('share', t('share'), t('shareHint'), sic('share'))}
       ${item('help', S.lang === 'de' ? 'Hilfe' : 'Help', S.lang === 'de' ? 'Einführung, häufige Fragen' : 'Intro, FAQ', sic('help'))}
-      ${item('imprint', t('spImprint'), t('spImprintHint'), sic('imprint'))}
+      ${item('imprint', S.lang === 'de' ? 'Impressum & Datenschutz' : 'Imprint & privacy', S.lang === 'de' ? 'Anbieter, Datenschutzerklärung' : 'Provider, privacy policy', sic('imprint'))}
       ${ENV === 'dev' ? `<button class="setrow sprow devrow" data-sp="dev">${sic('dev')}<div style="flex:1;text-align:left"><b>${t('devTools')}</b><p>${S.lang === 'de' ? 'Nur in der Dev-Version' : 'Dev version only'}</p></div>${CHEV}</button>` : ''}</div>
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
   } else if (setPage === 'profile') {
-    const de = S.lang === 'de';
-    const vtog = (k, l, ic) => `<div class="setrow"><div class="vrow">${ic ? `<span class="hic">${ic}</span>` : ''}<b>${l}</b></div>${tog('vis-' + k, S.vis[k] !== false)}</div>`;
-    h = head(de ? 'Profil bearbeiten' : 'Edit profile') + `<div class="profile"><span class="avatar dec">${esc(initials)}</span><div style="flex:1;min-width:0"><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(S.name)}"><p class="hint" style="margin-top:6px">${de ? 'Anzeigename für Freunde' : 'Display name for friends'}</p></div></div>
-      <div class="setrow"><div><b>${de ? 'Benutzername' : 'Username'}</b><p>${de ? 'Damit dich Freunde finden' : 'So friends can find you'}</p></div><span class="userfix num">@${esc(userName())}</span></div>
-      <div style="margin-top:8px"><b>Personal Bests</b><p class="hint" style="margin-top:4px">${S.fav.length ? (de ? 'Bis zu 3 deiner Lieblingsübungen (★) zeigen ihre Bestleistung im Profil.' : 'Up to 3 of your favourite exercises (★) show their best on your profile.') : (de ? 'Markiere Übungen mit ★ als Lieblingsübung, dann kannst du sie hier wählen.' : 'Mark exercises with ★ as favourites to pick them here.')}</p></div>
-      ${S.fav.length ? `<div class="pbpick">${S.fav.map(k => `<button class="${pbKeys().includes(k) ? 'on' : ''}" data-pbex="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
-      <div style="margin-top:8px"><b>${de ? 'Im Profil zeigen' : 'Show on profile'}</b><p class="hint" style="margin-top:4px">${de ? 'Was Freunde sehen können' : 'What friends can see'}</p></div>
-      <div>${vtog('level', 'Level & Points', '')}${vtog('week', t('thisWeek'), SIC.cal)}${vtog('month', t('last30'), SIC.cal)}${vtog('pbs', 'Personal Bests', SIC.pb)}${vtog('last', de ? 'Letztes Training' : 'Last session', SIC.hist)}${vtog('fav', de ? 'Lieblings-Workout' : 'Favourite workout', SIC.ex)}</div>`;
+    const de = S.lang === 'de'; if (!PD) PD = { name: S.name, vis: visNorm(S.vis), pbEx: pbKeys().slice() };
+    const on = k => PD.vis[k] !== false, blk = (k, ic, title, body) => `<div class="pe-blk ${on(k) ? '' : 'off'}"><div class="pe-h"><span class="hic">${ic}</span><b>${title}</b>${tog('vis-' + k, on(k))}</div>${body ? `<div class="pe-b">${body}</div>` : ''}</div>`;
+    h = head(de ? 'Profil bearbeiten' : 'Edit profile') + `<div class="pe-top"><button class="pe-av" id="pe-photo">${avatarHTML(PD.name || '?', 88, S.photo)}<span class="pf-plus">+</span></button>
+        <div class="pe-names"><input class="namein" id="pname" enterkeyhint="done" placeholder="${t('profName')}" value="${esc(PD.name)}"><span class="pe-user num">@${esc(userName())}</span><p class="hint">${de ? 'Anzeigename für Freunde. Dein @Benutzername ist fest.' : 'Display name for friends. Your @username is fixed.'}</p></div></div>
+      <div class="pe-list">
+      ${blk('level', levelIcon(levelOf(totalPts())), 'Level & Points', '')}
+      ${blk('week', SIC.cal, t('thisWeek'), '')}
+      ${blk('month', SIC.hist, t('last30'), '')}
+      ${blk('pbs', SIC.pb, 'Personal Bests', S.fav.length ? `<p class="hint">${de ? 'Bis zu 3 deiner ★-Lieblingsübungen' : 'Up to 3 of your ★ favourites'}</p><div class="pbpick">${S.fav.map(k => `<button class="${PD.pbEx.includes(k) ? 'on' : ''}" data-pbex="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : `<p class="hint">${de ? 'Markiere Übungen mit ★, dann kannst du sie hier wählen.' : 'Star exercises to pick them here.'}</p>`)}
+      ${blk('last', SIC.hist, de ? 'Letztes Training' : 'Last session', '')}
+      ${blk('fav', SIC.ex, de ? 'Meist trainiert' : 'Most trained', '')}
+      </div>${pdDirty() ? `<button class="mainbtn savebar" id="pe-save">${de ? 'Änderungen speichern' : 'Save changes'}</button>` : ''}`;
   } else if (setPage === 'help') {
     const de = S.lang === 'de';
     h = head(de ? 'Hilfe' : 'Help') + `<button class="mainbtn" id="help-onb">${de ? 'Einführung ansehen' : 'Watch the intro'}</button>
-      <div><b>${de ? 'Häufige Fragen' : 'FAQ'}</b></div><div>${FAQ[S.lang].map(([q], j) => `<button class="setrow sprow" data-faq="${j}"><div style="flex:1;text-align:left"><b>${esc(q)}</b></div>${CHEV}</button>`).join('')}</div>`;
+      <div><b>${de ? 'Häufige Fragen' : 'FAQ'}</b></div><div>${FAQ[S.lang].map(([q, a], j) => `<div class="faq ${faqOpen === j ? 'open' : ''}"><button class="faq-q" data-faq="${j}"><b>${esc(q)}</b>${CHEV}</button>${faqOpen === j ? `<div class="faq-a"><p>${a}</p>${j === 4 ? `<div class="faq-vis">${onbVisual('train')}</div>` : ''}</div>` : ''}</div>`).join('')}</div>`;
   } else if (setPage === 'dev') {
     h = head(t('devTools')) + devHTML();
+  } else if (setPage === 'general') {
+    h = head(S.lang === 'de' ? 'Allgemein' : 'General') + `<div>
+        <div class="setrow"><div><b>${S.lang === 'de' ? 'Mitteilungen' : 'Notifications'}</b><p>${S.lang === 'de' ? 'Motivation, wenn du länger nicht trainiert hast' : 'Motivation when you have not trained for a while'}</p></div>${tog('pushtog', !!S.push)}</div></div>`;
   } else if (setPage === 'personal') {
     h = head(S.lang === 'de' ? 'Persönliche Daten' : 'Personal data') + `<div>
         <div class="setrow"><div><b>${t('bodyweight')}</b><p>${t('bwHint')}</p></div><label class="kgin"><input id="bw" inputmode="decimal" enterkeyhint="done" class="num" placeholder="—" value="${S.bodyweight ? fmtW(S.bodyweight) : ''}"><span>kg</span></label></div>
         <div class="setrow"><div><b>${t('age')}</b><p>${t('ageHint')}</p></div><label class="kgin"><input id="age" inputmode="numeric" enterkeyhint="done" class="num" placeholder="—" value="${S.age || ''}"><span>${S.lang === 'de' ? 'J.' : 'y'}</span></label></div>
         <div class="setrow"><div><b>${t('bwPoints')}</b><button class="info" id="bwi" aria-label="Info">i</button><p>${S.bodyweight ? t('bwPointsHint') : t('bwPointsOff')}</p></div>${tog('bwp', S.bwPoints, !S.bodyweight)}</div>
-        <div class="setrow"><div><b>${S.lang === 'de' ? 'Mitteilungen' : 'Notifications'}</b><p>${S.lang === 'de' ? 'Motivation, wenn du ein paar Tage nicht trainiert hast' : 'Motivation when you have not trained for a few days'}</p></div>${tog('pushtog', !!S.push)}</div>
         <div class="setrow" style="opacity:.45"><div><b>${t('account')}</b><p>${t('accountHint')}</p></div>${CHEV}</div>
-      </div>`;
+      </div>
+      <div style="margin-top:8px"><b>${t('spData')}</b><p class="hint" style="margin-top:4px">${t('localHint')}</p></div>
+      <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>`;
   } else if (setPage === 'display') {
     h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
       <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div></div>
       <div style="margin-top:8px"><b>${t('trendColor')}</b><p class="hint" style="margin-top:4px">${t('trendColorHint')}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.trendColor ? 'on' : ''}" data-trc="${v}">${trendPreview(!!v)}<span>${t(v ? 'trcColor' : 'trcBW')}</span></button>`).join('')}</div>
+      <div style="margin-top:8px"><b>${S.lang === 'de' ? 'Schalter' : 'Switches'}</b><p class="hint" style="margin-top:4px">${S.lang === 'de' ? 'Farbe eines eingeschalteten Schalters' : 'Colour of a switch that is on'}</p></div>
+      <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === !!S.togGreen ? 'on' : ''}" data-tgc="${v}"><span class="togprev ${v ? 'green' : ''}"><span class="toggle" aria-checked="true"><i></i></span></span><span>${v ? (S.lang === 'de' ? 'Grün' : 'Green') : (S.lang === 'de' ? 'Schwarz-Weiß' : 'Black & white')}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('accentTitle')}</b><p class="hint" style="margin-top:4px">${t('accentHint')}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.accent ? 'on' : ''} ${v ? 'accent' : ''}" data-acc="${v}"><span class="accprev num"><em class="dl up">▲ 12 %</em><em class="dl down">▼ 4 %</em></span><span>${t(v ? 'accColor' : 'accNeutral')}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('introTitle')}</b><p class="hint" style="margin-top:4px">${t('introHint')}</p></div>
@@ -1795,7 +1897,7 @@ function renderSettings() {
       <div class="setrow setcol"><div><b>${t('fcTitle')}</b><button class="info" id="fci" aria-label="Info">i</button><p>${t('fcHint')}</p></div>${seg('fch', [[0, t('fcOff')], [4, '4 ' + wk], [6, '6 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk]], S.fcHor)}</div>
       <div class="setrow setcol" ${S.fcHor ? '' : 'style="opacity:.4;pointer-events:none"'}><div><b>${t('lookTitle')}</b><p>${t('lookHint')}</p></div>${seg('fcl', [[4, '4 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk], [0, t('all')]], S.fcLook)}</div></div>`;
   } else if (setPage === 'logic') {
-    h = head(t('spLogic')) + `<div>${t('logic').map(([a, b]) => `<div class="logic"><b>${a}</b><p>${b}</p></div>`).join('')}</div>`;
+    h = head(t('spLogic')) + `<div class="logic2">${t('logic').map(([a, b]) => `<div class="logic"><h3>${a}</h3>${b.startsWith('<p>') ? b : `<p>${b.replace(/^<b>[^<]*<\/b><br>/, '')}</p>`}</div>`).join('')}</div>`;
   } else if (setPage === 'share') {
     h = head(t('share')) + `<p class="hint" style="font-size:14px">${t('shareText')}</p>
       <div class="qrbox" id="qrbox" aria-label="QR-Code"></div>
@@ -1803,7 +1905,8 @@ function renderSettings() {
       <button class="mainbtn" id="copylink">${t('copyLink')}</button>
       ${navigator.share ? `<button class="ghostbtn" id="nativeshare">${t('shareNative')}</button>` : ''}`;
   } else if (setPage === 'imprint') {
-    h = head(t('spImprint')) + `<div class="logic" style="border-top:1px solid var(--line)">${t('imprint')}</div>`;
+    h = head(S.lang === 'de' ? 'Impressum & Datenschutz' : 'Imprint & privacy') + `<div class="logic" style="border-top:1px solid var(--line)">${t('imprint')}</div>
+      <button class="setrow sprow" data-sp="privacy"><div style="flex:1;text-align:left"><b>${t('privacy')}</b><p>${t('privacyHint')}</p></div>${CHEV}</button>`;
   } else if (setPage === 'data') {
     h = head(t('spData')) + `<p class="hint">${t('localHint')}</p>
       <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>
@@ -1818,7 +1921,7 @@ function renderSettings() {
   document.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { setPage = b.dataset.sp; renderSettings(); $('v-settings').scrollTop = 0; });
   on('help-onb', () => showOnboarding(true));
   on('pushtog', () => setPush(!S.push));
-  document.querySelectorAll('[data-faq]').forEach(b => b.onclick = () => { const [q, a] = FAQ[S.lang][+b.dataset.faq]; showInfo(`<b>${esc(q)}</b><p>${a}</p>`); });
+  document.querySelectorAll('[data-faq]').forEach(b => b.onclick = () => { const j = +b.dataset.faq; faqOpen = faqOpen === j ? null : j; const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; });
   if (setPage === 'dev') bindDev();
   document.querySelectorAll('[data-intro]').forEach(b => b.onclick = () => { S.intro = b.dataset.intro; save(); if (S.intro !== 'off') previewIntro(); else renderSettings(); });
   on('copylink', copyLink); on('nativeshare', () => navigator.share({ title: 'TRAIN', url: SHARE_URL }).catch(() => {}));
@@ -1826,14 +1929,18 @@ function renderSettings() {
   document.querySelectorAll('[data-celeb]').forEach(b => b.onclick = () => { S.celeb = b.dataset.celeb; renderSettings(); celebrate(); });
   on('spback', () => { setPage = null; renderSettings(); $('v-settings').scrollTop = 0; });
   on('resetall', () => dialog(t('resetAllTitle'), t('resetAllText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => dialog(t('resetAllTitle'), '', [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); }]])]]));
-  $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
+  setPage !== 'profile' && $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
   on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));
   on('inv', () => { S.inverted = !S.inverted; applyClasses(); renderSettings(); });
+  document.querySelectorAll('[data-tgc]').forEach(b => b.onclick = () => { S.togGreen = b.dataset.tgc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { S.accent = b.dataset.acc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-trc]').forEach(b => b.onclick = () => { S.trendColor = b.dataset.trc === '1'; renderSettings(); });
   on('bwi', () => showInfo(t('bwInfo')));
-  ['level', 'week', 'month', 'pbs', 'last', 'fav'].forEach(k => on('vis-' + k, () => { S.vis = Object.assign({}, S.vis, { [k]: S.vis[k] === false }); renderSettings(); }));
-  document.querySelectorAll('[data-pbex]').forEach(b => b.onclick = () => { const k = b.dataset.pbex, cur = pbKeys(); if (cur.includes(k)) S.pbEx = cur.filter(x => x !== k); else if (cur.length < 3) S.pbEx = cur.concat(k); else toast(S.lang === 'de' ? 'Es werden 3 Personal Bests gezeigt. Erst eine abwählen.' : '3 personal bests are shown. Deselect one first.'); renderSettings(); });
+  if (setPage === 'profile' && PD) { const keepY = () => { const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; };
+    ['level', 'week', 'month', 'pbs', 'last', 'fav'].forEach(k => on('vis-' + k, () => { PD.vis[k] = PD.vis[k] === false; keepY(); }));
+    $('pname').oninput = e => { const was = pdDirty(); PD.name = e.target.value; if (was !== pdDirty()) { const pos = e.target.selectionStart; keepY(); const n = $('pname'); n.focus(); n.setSelectionRange(pos, pos); } };
+    on('pe-photo', photoView); on('pe-save', pdSave); on('spback', () => leaveProfileEdit()); }
+  document.querySelectorAll('[data-pbex]').forEach(b => b.onclick = () => { const k = b.dataset.pbex, cur = PD.pbEx; if (cur.includes(k)) PD.pbEx = cur.filter(x => x !== k); else if (cur.length < 3) PD.pbEx = cur.concat(k); else { toast(S.lang === 'de' ? 'Es werden 3 Personal Bests gezeigt. Erst eine abwählen.' : '3 personal bests are shown. Deselect one first.'); return; } const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; });
   on('sprof', () => openProfile(myProfile(), 'settings'));
   on('fci', () => showInfo(t('infoFc', S.fcLook, S.fcHor || 6)));
   $('age') && ($('age').onchange = e => { const v = parseNum(e.target.value); S.age = v && v > 0 ? Math.round(v) : null; renderSettings(); });

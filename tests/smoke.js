@@ -106,7 +106,10 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     if (p === 'profile' && await page.$('#sprof')) { await click('#sprof'); await page.waitForTimeout(450); await click('#pf-edit'); await page.waitForTimeout(200); return; } // v0.9: profile view first, then "edit"
     if (p === 'progress' && !(await page.$('[data-sp="progress"]'))) p = 'display'; // v0.9: forecast settings live in Darstellung
     if (await page.$(`[data-sp="${p}"]`)) await click(`[data-sp="${p}"]`); };
-  const back = async () => { if (await page.$('#spback')) await click('#spback'); };
+  const back = async () => { if (await page.$('#spback')) await click('#spback');
+    // v0.11: leaving "edit profile" with changes asks save/discard and returns to the profile
+    if (await page.$('#overlay:not([hidden])')) { await click('#overlay .mainbtn'); await page.waitForTimeout(450); }
+    if (await page.evaluate(() => !document.getElementById('osheet').classList.contains('down'))) { await page.evaluate(() => closeO()); await page.waitForTimeout(400); } };
   await click('[data-tab=settings]');
   await sp('profile');
   await page.fill('#pname', 'Ben Test'); await page.press('#pname', 'Enter'); await page.waitForTimeout(100);
@@ -281,10 +284,10 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await sp('display');
     check('Intro-Auswahl (4 Intros + Aus)', await ev(() => document.querySelectorAll('[data-intro]').length === 5));
     check('Akzentfarben + Celebration unter Darstellung', await ev(() => document.querySelectorAll('[data-acc]').length === 2 && document.querySelectorAll('[data-celeb]').length === 12));
-    await back(); await sp('data');
-    check('Datenschutzerklärung unter Daten', !!(await page.$('[data-sp="privacy"]')));
+    await back(); await sp('imprint');
+    check('Datenschutzerklärung unter Impressum & Datenschutz', !!(await page.$('[data-sp="privacy"]')));
     await back(); await sp('logic');
-    check('Points v2 erklärt', await ev(() => /v2/.test(document.getElementById('v-settings').textContent)));
+    check('Points erklärt (kurz)', await ev(() => /Points/.test(document.getElementById('v-settings').textContent) && /Bestwert/.test(document.getElementById('v-settings').textContent)));
     await back();
     console.log('Neu in v0.6');
     check('Schriften lokal (kein Google)', await ev(() => ![...document.querySelectorAll('link')].some(l => /googleapis/.test(l.href))));
@@ -319,7 +322,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Heute markiert in der Tagesleiste', await ev(() => /Heute|Today/.test(document.querySelector('[data-day="0"] small').textContent)));
     await click('[data-ptab="friends"]');
     check('Freunde-Vorschlag im Fortschritt', await ev(() => document.querySelectorAll('.fr-row').length === 3 && !!document.getElementById('fr-find')));
-    check('Fortschritt-Kopf passt in die Breite (REGRESSION)', await ev(() => { const v = document.getElementById('v-progress'); return v.scrollWidth <= v.clientWidth + 1 && document.querySelector('#v-progress .pseg').getBoundingClientRect().left >= 0; }));
+    check('Fortschritt-Kopf passt in die Breite (REGRESSION)', await ev(() => { const v = document.getElementById('v-progress'); return v.scrollWidth <= v.clientWidth + 1 && document.querySelector('#v-progress .ptabs').getBoundingClientRect().left >= 0; }));
     await click('[data-ptab="me"]');
     await click('[data-tab=settings]'); await sp('display');
     check('Trend-Farben direkt unter der Überschrift', await ev(() => { const h = [...document.querySelectorAll('#v-settings b')].find(b => /Trend/.test(b.textContent)); const nx = h.parentElement.nextElementSibling; return nx && !!nx.querySelector('[data-trc]'); }));
@@ -334,7 +337,14 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     console.log('Intro & Onboarding');
     const fresh = await browser.newContext({ viewport: { width: 390, height: 844 } }); const fp = await fresh.newPage(); fp.on('pageerror', e => errors.push('[intro] ' + e.message));
     await fp.goto(URL + 'dev/?noseed'); await fp.waitForTimeout(400);
-    check('Onboarding beim ersten Start', await fp.evaluate(() => !!document.getElementById('onb')));
+    check('Erster Start: zuerst Account anlegen / Anmelden / Gast', await fp.evaluate(() => !!document.getElementById('auth') && document.querySelectorAll('#auth [data-am]').length === 3 && !document.getElementById('onb')));
+    await fp.evaluate(() => document.querySelector('#auth [data-am="signup"]').click());
+    await fp.evaluate(() => document.getElementById('au-go').click()); await fp.waitForTimeout(100);
+    check('Registrierung verlangt AGB + Datenschutz', await fp.evaluate(() => !!document.getElementById('au-agb') && !!document.getElementById('au-dse') && document.getElementById('overlay').hidden));
+    await fp.evaluate(() => { document.getElementById('au-x').click(); document.querySelector('#auth [data-am="guest"]').click(); });
+    check('Gast: Hinweis, was fehlt', await fp.evaluate(() => document.querySelectorAll('.au-miss li').length >= 3));
+    await fp.evaluate(() => document.getElementById('au-guest').click()); await fp.waitForTimeout(100);
+    check('Onboarding beim ersten Start (nach Gast)', await fp.evaluate(() => !!document.getElementById('onb')));
     check('Onboarding zeigt App-Animationen statt Zehnecke', await fp.evaluate(async () => { const kinds = []; for (let i = 0; i < 7; i++) { kinds.push(!!document.querySelector('#onb .om-phone')); document.getElementById('onb-next').click(); await new Promise(r => setTimeout(r, 30)); if (!document.getElementById('onb')) break; } return kinds.every(Boolean); }));
     if (await fp.$('#onb-skip')) await fp.click('#onb-skip'); await fp.reload(); await fp.waitForTimeout(700);
     check('Intro-Animation beim Öffnen', await fp.evaluate(() => !!document.getElementById('intro')));
@@ -352,13 +362,13 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     const vis = id => ev(new Function(`return !document.getElementById('${id}').hidden`));
     if (await page.$('#overlay:not([hidden])')) await click('[data-db="0"]');
     await click('[data-tab=settings]');
-    check('Einstellungen: Überschrift, darunter Profil-Kachel', await ev(() => !!document.querySelector('#v-settings h1.seth1 + .sprof')));
-    check('„Testdaten neu erzeugen“ nicht unter Daten', await (async () => { await click('[data-sp="data"]'); const r = await ev(() => !document.getElementById('reseed')); await click('#spback'); return r; })());
+    check('Einstellungen: keine Überschrift, Profil-Kachel ganz oben, „Allgemein“ als erster Punkt', await ev(() => !document.querySelector('#v-settings h1') && document.querySelector('#v-settings .inner').firstElementChild.id === 'sprof' && document.querySelector('[data-sp]').dataset.sp === 'general'));
+    check('Persönliche Daten: „Alle Daten löschen“ da, „Testdaten“ nicht', await (async () => { await click('[data-sp="personal"]'); const r = await ev(() => !document.getElementById('reseed') && !!document.getElementById('resetall')); await click('#spback'); return r; })());
     await click('[data-sp="display"]'); await page.click('[data-tab=progress]', { force: true }); await page.waitForTimeout(150); await page.click('[data-tab=settings]', { force: true }); await page.waitForTimeout(150);
     check('Tab-Wechsel behält Unterseite (Einstellungen › Darstellung)', await ev(() => !!document.querySelector('[data-intro]')));
     await page.click('[data-tab=settings]', { force: true }); await page.waitForTimeout(150);
     check('Gleichen Tab nochmal = Startseite des Tabs', await ev(() => !!document.querySelector('#v-settings .sprof')));
-    check('Fortschritt: Überschrift, darunter „Ich | Freunde“ volle Breite', await (async () => { await click('[data-tab=progress]'); return ev(() => { const g = document.querySelector('#v-progress .pseg'), v = document.querySelector('#v-progress .inner'); return !!document.querySelector('#v-progress h1.progh1') && g.getBoundingClientRect().width > v.getBoundingClientRect().width - 40; }); })());
+    check('Fortschritt: „Ich | Freunde“ als Kopf, Analyse + Rückblick', await (async () => { await click('[data-tab=progress]'); return ev(() => { const g = document.querySelector('#v-progress .ptabs'), v = document.querySelector('#v-progress .inner'); return !document.querySelector('#v-progress h1') && g.getBoundingClientRect().width > v.getBoundingClientRect().width - 40 && /Analyse/.test(v.textContent) && /Rückblick/.test(v.textContent); }); })());
     await click('[data-tab=settings]'); await click('[data-sp="display"]'); await page.evaluate(() => document.querySelector('[data-intro="spin"]').click()); await page.waitForTimeout(4500);
     check('Intro-Vorschau kehrt zu Einstellungen › Darstellung zurück', await ev(() => !document.getElementById('v-settings').hidden && !!document.querySelector('[data-intro]')));
     await click('#spback'); await click('[data-sp="dev"]');
@@ -371,7 +381,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('#o-back'); await settle();
     check('Startseite: „Diese Woche“ einzeilig, „vs. Vorwoche“ einzeilig (REGRESSION)', await ev(() => { const h = document.querySelector('.weekhead span'), s = document.querySelector('.weekhead small'), lh = e => parseFloat(getComputedStyle(e).fontSize) * 1.6; return h.getBoundingClientRect().height < lh(h) && s.getBoundingClientRect().height < lh(s); }));
     await click('[data-tab=progress]'); await click('[data-ptab="friends"]'); await click('[data-fr="0"]'); await settle();
-    check('Freundes-Profil: Level, Woche als Zehnecke, Personal Bests, Folgen', await ev(() => document.querySelectorAll('#obody .pdec').length === 6 && document.querySelectorAll('#obody .pf-pb').length === 3 && !!document.getElementById('pf-follow')));
+    check('Freundes-Profil: Level, Woche als Zehnecke, Personal Bests, Folgen', await ev(() => document.querySelectorAll('#obody .pdec').length === 3 && !!document.querySelector('#obody .pf-line') && document.querySelectorAll('#obody .pf-pb').length === 3 && !!document.getElementById('pf-follow')));
     await click('#o-back'); await settle(); await click('#fr-find'); await settle();
     await page.fill('#f-q', 'len'); await page.waitForTimeout(200);
     check('Freunde finden: Suche per Benutzername', await ev(() => document.querySelectorAll('#f-hits [data-fh]').length === 1));
@@ -379,11 +389,16 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=settings]'); await click('#sprof'); await settle();
     check('Einstellungen: Profil-Kachel öffnet dasselbe Profil wie bei Freunde', await ev(() => !!document.querySelector('#obody .pf-head') && !!document.getElementById('pf-edit')));
     await click('#pf-edit'); await settle();
-    check('Profil bearbeiten: Benutzername nur angezeigt (@test), nicht änderbar', await ev(() => !document.getElementById('uname') && /@test/.test(document.querySelector('.userfix').textContent)));
+    check('Profil bearbeiten: Benutzername nur angezeigt (@test), nicht änderbar', await ev(() => !document.getElementById('uname') && /@test/.test(document.querySelector('.pe-user').textContent)));
     check('Profil bearbeiten: Personal Bests aus den ★-Favoriten', await ev(() => document.querySelectorAll('[data-pbex]').length === S.fav.length));
     await click('#vis-pbs');
-    check('Sichtbarkeit: Personal Bests ausblendbar', await (async () => { await click('#spback'); await click('#sprof'); await settle(); const r = await ev(() => !document.querySelector('#obody .pf-pb') && document.querySelectorAll('#obody .pdec').length >= 3); await click('#pf-edit'); await settle(); await click('#vis-pbs'); return r; })());
-    await click('#spback'); await click('[data-tab=start]');
+    check('Profil bearbeiten: Änderung zeigt „Änderungen speichern“', await ev(() => !!document.getElementById('pe-save')));
+    await click('#spback');
+    check('Zurück mit ungespeicherten Änderungen fragt Speichern/Verwerfen', await ev(() => /speichern/i.test(document.getElementById('overlay').textContent)));
+    await click('#overlay .mainbtn'); await settle();
+    check('Gespeichert: zurück im Profil, Personal Bests ausgeblendet', await ev(() => O.mode === 'profile' && !document.querySelector('#obody .pf-pb') && S.vis.pbs === false));
+    await click('#pf-edit'); await settle(); await click('#vis-pbs'); await click('#pe-save'); await settle(); await click('#o-back'); await settle();
+    await click('[data-tab=start]');
     check('Startseite: dreistellige Prozente überlappen nichts, „±0“ statt „=“', await (async () => { const r = await ev(() => { const o = weekStats; weekStats = () => ({ n: 5, n0: 5, vol: 98765, vol0: 1200, min: 999, min0: 40, pct: 0, pts: 0 }); renderStart(); weekStats = o;
       const cells = [...document.querySelectorAll('.weekstats > div')], ok = cells.every((c, i) => { const r = c.getBoundingClientRect(); return [...c.querySelectorAll('*')].every(e => { const q = e.getBoundingClientRect(); return q.left >= r.left - 1 && q.right <= r.right + 1; }); });
       return ok && /±0/.test(document.querySelector('.weekstats').textContent) && !/=/.test(document.querySelector('.weekstats').textContent); }); await ev(() => renderStart()); return r; })());
@@ -442,16 +457,16 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Onboarding geschlossen', await ev(() => !document.getElementById('onb')));
     await click('[data-tab=settings]'); await click('[data-sp="help"]');
     check('Hilfe: Einführung + häufige Fragen', await ev(() => !!document.getElementById('help-onb') && document.querySelectorAll('[data-faq]').length >= 5));
-    await click('[data-faq="0"]'); check('FAQ öffnet mittiges Info-Fenster', await ev(() => !document.getElementById('popover').hidden)); await click('#popover .x');
+    await click('[data-faq="4"]'); check('FAQ klappt auf, Löschen-Frage mit Animation', await ev(() => !!document.querySelector('.faq.open .faq-a') && !!document.querySelector('.faq.open .om-phone')));
     await click('#spback'); await click('[data-sp="dev"]');
     await click('[data-spv="xmas"]'); await page.waitForTimeout(300);
     check('Season Weihnachten: Schnee + Mütze auf dem Zehneck', await (async () => { await click('[data-tab=start]'); return ev(() => document.querySelectorAll('#season .flake').length > 10 && !!document.querySelector('.hero .ss-hat')); })());
     await click('[data-tab=settings]'); await click('[data-sp="dev"]'); await click('[data-spv="easter"]'); await page.waitForTimeout(300);
-    check('Season Ostern: Eier + Hasenohren', await (async () => { await click('[data-tab=start]'); return ev(() => document.querySelectorAll('#season .egg').length > 5 && !!document.querySelector('.hero .ss-ears')); })());
+    check('Season Ostern: Hase + Ohren, keine fliegenden Eier mehr', await (async () => { await click('[data-tab=start]'); return ev(() => !document.querySelector('#season .egg') && !!document.querySelector('#season .bunny') && !!document.querySelector('.hero .ss-wrap.pulse .ss-ears')); })());
     await click('[data-tab=settings]'); await click('[data-sp="dev"]'); await click('[data-spv="live"]'); await page.waitForTimeout(400);
     check('Season wie live (keine) = normales Design', await ev(() => !document.getElementById('season')));
-    check('Versionsliste geladen (0.1.1 bis aktuell)', await (async () => { await page.waitForTimeout(600); return ev(() => [...document.querySelectorAll('#dev-ver option')].map(o => o.value).includes('0.1.1') && [...document.querySelectorAll('#dev-ver option')].map(o => o.value).includes(APP_VERSION)); })());
-    await click('#dev-verlive'); await page.waitForTimeout(200); await click('#overlay .ghostbtn'); await page.waitForTimeout(300);
+    check('Versionsliste geladen (0.1.1 bis aktuell)', await (async () => { await page.waitForTimeout(600); await click('#dev-verall'); return ev(() => { const v = [...document.querySelectorAll('[data-ver]')].map(o => o.dataset.ver); return v.includes('0.1.1') && v.includes(APP_VERSION); }); })());
+    await click('[data-ver="0.1.1"]'); await page.waitForTimeout(200); await click('#overlay .ghostbtn'); await page.waitForTimeout(300);
     check('Live schalten ohne Schlüssel: Hinweis statt Fehler', await ev(() => /Schlüssel/.test(document.getElementById('overlay').textContent))); await click('#overlay .mainbtn');
     await click('#dev-inst'); await page.waitForTimeout(200);
     check('Browser-Ansicht: Willkommen + iPhone/Android', await ev(() => !!document.getElementById('inst') && document.querySelectorAll('[data-os]').length === 2));
