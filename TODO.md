@@ -1,6 +1,19 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Feedback zu v0.11.0 (2026-11-05, → v0.12)**
+  - [ ] Fortschritt: „Ich | Freunde“ – Freunde-Icon ragt in den Strich von Ich (zu breit); „Verlauf“-Überschrift weg; Tag-Details: „Details“ größer/präsenter
+  - [ ] Rückblick-Tabelle: Trennlinien links/rechts nicht bündig; weniger Grau, schönere Darstellung
+  - [ ] Level-Seite: beim Hochscrollen klappt der Kopf zu früh wieder auf (weniger Level sichtbar)
+  - [ ] Account-Entwurf: AGB/Datenschutz-Links öffnen nicht sauber (Fenster erst nach Schließen sichtbar); „Kennwort vergessen“: Code per E-Mail (6-stellig) + neues Kennwort; Gast-Text „Dir entgeht“ grammatisch + Aufzählung schöner (Zehnecke, weniger Abstand)
+  - [ ] Installations-Anleitung: „TRAIN“ im App-Icon zu groß
+  - [ ] Dev: Live-Version gelb markieren (auch wenn live = letzte Freigabe); Versionsliste: 4 Reihen + angedeutete 5., dann scrollbar
+  - [ ] Dev: „Im Browser öffnen“ öffnet ein Overlay ohne Ausweg → echt in Safari öffnen (mit Rückfrage)
+  - [ ] Push: Rekord-Mitteilung in der App als weißer Balken oben; Test-Knöpfe „in der App“ + „als Mitteilung“
+  - [ ] Darstellung › Schalter: Vorschau Schwarz-Weiß wird grün umrandet, wenn Grün gewählt
+  - [ ] „Berechnungslogik“ zu lang für die Überschrift → kürzer
+  - [ ] Seasons: Schlitten/Hase spawnen viel zu oft neu (müssen einmal ganz durch); Hasenohren auf Start kürzer (Level-Zeile im Ruhezustand frei)
+  - [ ] **Neue Season Silvester/Neujahr**: Feuerwerk im Hintergrund, „Happy New Year“ rund ums Zehneck
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
