@@ -1,26 +1,13 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **🔝 Feedback zu v0.11.0 (2026-11-05, → v0.12)**
-  - [ ] Fortschritt: „Ich | Freunde“ – Freunde-Icon ragt in den Strich von Ich (zu breit); „Verlauf“-Überschrift weg; Tag-Details: „Details“ größer/präsenter
-  - [ ] Rückblick-Tabelle: Trennlinien links/rechts nicht bündig; weniger Grau, schönere Darstellung
-  - [ ] Level-Seite: beim Hochscrollen klappt der Kopf zu früh wieder auf (weniger Level sichtbar)
-  - [ ] Account-Entwurf: AGB/Datenschutz-Links öffnen nicht sauber (Fenster erst nach Schließen sichtbar); „Kennwort vergessen“: Code per E-Mail (6-stellig) + neues Kennwort; Gast-Text „Dir entgeht“ grammatisch + Aufzählung schöner (Zehnecke, weniger Abstand)
-  - [ ] Installations-Anleitung: „TRAIN“ im App-Icon zu groß
-  - [ ] Dev: Live-Version gelb markieren (auch wenn live = letzte Freigabe); Versionsliste: 4 Reihen + angedeutete 5., dann scrollbar
-  - [ ] Dev: „Im Browser öffnen“ öffnet ein Overlay ohne Ausweg → echt in Safari öffnen (mit Rückfrage)
-  - [ ] Push: Rekord-Mitteilung in der App als weißer Balken oben; Test-Knöpfe „in der App“ + „als Mitteilung“
-  - [ ] Darstellung › Schalter: Vorschau Schwarz-Weiß wird grün umrandet, wenn Grün gewählt
-  - [ ] „Berechnungslogik“ zu lang für die Überschrift → kürzer
-  - [ ] Seasons: Schlitten/Hase spawnen viel zu oft neu (müssen einmal ganz durch); Hasenohren auf Start kürzer (Level-Zeile im Ruhezustand frei)
-  - [ ] **Neue Season Silvester/Neujahr**: Feuerwerk im Hintergrund, „Happy New Year“ rund ums Zehneck
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
 - [ ] Live-Versionswahl greift ab der nächsten Freigabe (release.py baut den Lader in die Live-App ein)
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.11.0 ansehen (Profil, Fortschritt, Seasons, Dev-Werkzeuge, Account-Entwurf) → Feedback → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.12.0 ansehen → Feedback → „freigeben“ für Live
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
   - [ ] Account: Registrierung mit Benutzername (einmalig, ersetzt @test) + E-Mail + Kennwort; **Anmelden mit E-Mail ODER Benutzername + Kennwort**; Kennwort zurücksetzen per E-Mail (Entscheidung Ben 2026-11-05); Übernahme der lokalen Daten
@@ -95,6 +82,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.12.0** (2026-11-05): Fortschritt-Kopf ohne Überlappung, ohne „Verlauf“, „Details ansehen“, Rückblick-Tabelle bündig, Level-Kopf bleibt beim Hochscrollen zu, Kennwort-vergessen-Ablauf, AGB/Datenschutz-Fenster vorne, Gast-Text, Install-Icon, Live-Version gelb + scrollbare Liste, „In Safari öffnen“ (x-safari), In-App-Balken + Test App/Push, Schalter-Vorschau-Fix, „Berechnung“, Schlitten/Hase-Respawn-Fix, kürzere Ohren, neue Season Silvester
 - [x] **Dev v0.11.0** (2026-11-05): Onboarding GO/Löschen, FAQ aufklappbar mit Animation, Einstellungen neu (Allgemein, Persönliche Daten + Löschen, Impressum & Datenschutz, keine Überschriften), Schalter-Farbe Grün, Berechnungslogik kurz, Trainingsminuten ohne Pausen, Profil neu (schrumpfender Kopf, Profilbild, kompakt) + Bearbeiten mit Schaltern/Speichern, Fortschritt neu (Analyse, PBs aufklappbar, Rückblick 7/30), Dev-Werkzeuge im App-Stil + Push-Kategorien, Safari-Link, Seasons neu (Flocken, Rentier-Schlitten, Mütze/Ohren pulsieren, Hase, Sprüche), Account-Entwurf (nur Dev) mit AGB/Datenschutz + Gast
 - [x] **Dev v0.10.2** (2026-11-05): 6-stellige Master-PIN (Schlüssel verschlüsselt, PIN vor jedem Live schalten, 5 Fehlversuche = 10 min Sperre); „Ohne Installation weiter“ entfernt. Intro-Sprung beim Start laut Ben behoben
 - [x] **Dev v0.10.1** (2026-11-05): Freigabe-Schlüssel mit Laufzeit (7/30/60/90 Tage), roter Banner + Mitteilung 2 Tage vor Ablauf, Test: Schlüssel nie in App-Daten

@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.11.0';
+const APP_VERSION = '0.12.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -126,7 +126,7 @@ const T = {
 };
 Object.assign(T.de, { anims:{ breath:'Puls', fill:'Füllen', shards:'Splitter', mosaic:'Mosaik', rings:'Ringe', segments:'Segmente', spin:'Rotation', stack:'Stapel', orbit:'Orbit', radar:'Radar', eq:'Equalizer', draw:'Zeichnen' },
   pulses:{ breathe:'Atmen', beat:'Herzschlag', wobble:'Wippen', bounce:'Hüpfen', tilt:'Kippen', squash:'Federn', twist:'Drehen', off:'Aus' },
-  spProfile:'Profil', spDisplay:'Darstellung', spTrain:'Train', spProgress:'Fortschritt', spLogic:'Berechnungslogik', spData:'Daten', spBack:'Einstellungen',
+  spProfile:'Profil', spDisplay:'Darstellung', spTrain:'Train', spProgress:'Fortschritt', spLogic:'Berechnung', spData:'Daten', spBack:'Einstellungen',
   spDisplayHint:'Sprache, Farbumkehr', spTrainHint:'Puls- und Lade-Animationen', spProgressHint:'Trend-Farben, Prognose, Zeiträume', spLogicHint:'Points, Trends und Prognosen', spDataHint:'Speicher, Zurücksetzen, Version',
   fcTitle:'Prognose', fcHint:'Wie weit die gestrichelte Linie in die Zukunft reicht', fcOff:'Aus', weeksShort:'Wo.', lookTitle:'Rückblick', lookHint:'Wie viele Wochen in die Prognose einfließen', all:'Alle',
   infoFc:(l,h)=>`Trend aus ${l ? 'den letzten ' + l + ' Wochen' : 'allen Daten'}, ${h} Wochen fortgeschrieben, wie Excels logarithmische Trendlinie. Sie flacht ab, weil Fortschritt mit der Zeit langsamer wird. Grau = Unsicherheit. Zeiträume änderst du in Einstellungen → Fortschritt.`,
@@ -153,7 +153,7 @@ Object.assign(T.de, { anims:{ breath:'Puls', fill:'Füllen', shards:'Splitter', 
     night:['Nachteule im Gym. Respekt!','Die Hanteln schlafen nie.','Spät dran, aber am Start.','Leeres Gym, freie Bahn.','Mitternachtsgains.'] } });
 Object.assign(T.en, { anims:{ breath:'Pulse', fill:'Fill', shards:'Shards', mosaic:'Mosaic', rings:'Rings', segments:'Segments', spin:'Spin', stack:'Stack', orbit:'Orbit', radar:'Radar', eq:'Equalizer', draw:'Draw' },
   pulses:{ breathe:'Breathe', beat:'Heartbeat', wobble:'Wobble', bounce:'Bounce', tilt:'Tilt', squash:'Squash', twist:'Twist', off:'Off' },
-  spProfile:'Profile', spDisplay:'Display', spTrain:'Train', spProgress:'Progress', spLogic:'Calculation logic', spData:'Data', spBack:'Settings',
+  spProfile:'Profile', spDisplay:'Display', spTrain:'Train', spProgress:'Progress', spLogic:'Calculation', spData:'Data', spBack:'Settings',
   spDisplayHint:'Language, invert colours', spTrainHint:'Pulse and loading animations', spProgressHint:'Trend colours, forecast, time ranges', spLogicHint:'Points, trends and forecasts', spDataHint:'Storage, reset, version',
   fcTitle:'Forecast', fcHint:'How far the dashed line reaches into the future', fcOff:'Off', weeksShort:'wk', lookTitle:'Look-back', lookHint:'How many weeks feed into the forecast', all:'All',
   infoFc:(l,h)=>`Trend of ${l ? 'the last ' + l + ' weeks' : 'all data'}, extended by ${h} weeks, like Excel’s logarithmic trendline. It flattens because progress slows over time. Grey = uncertainty. Change the ranges in Settings → Progress.`,
@@ -392,6 +392,7 @@ function animSVG(kind, cool, paused) {
   // seasons: candy-cane stripes rising inside the decagon (Christmas), bouncing coloured eggs (Easter)
   if (kind === 'xmas') { s = `<defs><clipPath id="${id}"><polygon points="${P(o)}"/></clipPath><pattern id="${id}p" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="28" height="28" fill="#f3f3ef"/><rect width="14" height="28" fill="#d6262e"/></pattern></defs><polygon points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="4"/><g clip-path="url(#${id})"><rect class="an a-fill" x="0" y="0" width="200" height="200" fill="url(#${id}p)"/></g>`; }
   if (kind === 'easter') { s = `<polygon points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="4"/>`; ['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0'].forEach((c, i) => { s += `<ellipse class="an a-egg" style="animation-delay:${(i * .22).toFixed(2)}s" cx="${44 + i * 28}" cy="120" rx="12" ry="16" fill="${c}"/>`; }); }
+  if (kind === 'newyear') { s = `<polygon points="${P(o)}" fill="none" stroke="#ffd400" stroke-width="4"/>`; [[70, 80, '#ffd400'], [130, 75, '#f3f3ef'], [100, 130, '#ff5a5f']].forEach(([x, y, c], i) => { for (let j = 0; j < 10; j++) { const a = j * 36 * Math.PI / 180; s += `<line class="an a-burst" style="animation-delay:${(i * .55).toFixed(2)}s;transform-origin:${x}px ${y}px" x1="${x}" y1="${y}" x2="${(x + Math.cos(a) * 26).toFixed(1)}" y2="${(y + Math.sin(a) * 26).toFixed(1)}" stroke="${c}" stroke-width="4" stroke-linecap="round"/>`; } }); }
   if (kind === 'breath') s = `<polygon class="an a-ring" points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="3"/><polygon class="an a-breath" points="${P(o)}" fill="var(--fg)"/>`;
   if (kind === 'fill') s = `<defs><clipPath id="${id}"><polygon points="${P(o)}"/></clipPath></defs><polygon points="${P(o)}" fill="none" stroke="var(--fg)" stroke-width="4"/><g clip-path="url(#${id})"><rect class="an a-fill" x="0" y="0" width="200" height="200" fill="var(--fg)"/></g>`;
   if (kind === 'shards') o.forEach((p, i) => { const q = o[(i+1)%10], mx = (p[0]+q[0])/2 - 100, my = (p[1]+q[1])/2 - 100; s += `<polygon class="an a-shard" style="--dx:${(mx*.55).toFixed(0)}px;--dy:${(my*.55).toFixed(0)}px;animation-delay:${(i*.07).toFixed(2)}s" points="100,100 ${P([p,q])}" fill="var(--fg)" stroke="var(--bg)" stroke-width="2"/>`; });
@@ -1089,7 +1090,6 @@ function renderProgress() {
   $('v-progress').innerHTML = `<div class="inner">
     ${progSwitch()}
     <div class="sect sect-hist" style="border-top:0;padding-top:0">
-      <h2 class="hic">${SIC.cal}${t('history')}</h2>
       ${calOpen ? calHTML() : `<div class="strip-wrap"><div class="strip" id="strip">${Array.from({length:90}, (_, i) => dayTile(89 - i)).join('')}</div><button class="today-btn" id="todaybtn" hidden>${t('today')}</button></div>`}
       <button class="calbtn" id="calbtn">${calOpen ? t('lessCal') : t('fullCal')}</button>
       <div id="daycard">${dayCard()}</div>
@@ -1101,11 +1101,8 @@ function renderProgress() {
     </div>
     <div class="sect"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div>${pbCount() > 5 ? `<button class="calbtn" id="pball">${pbAll ? (de ? 'Weniger ▴' : 'Less ▴') : (de ? `Alle ${pbCount()} anzeigen ▾` : `Show all ${pbCount()} ▾`)}</button>` : ''}</div>
     <div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Rückblick' : 'Recap'}</h2>
-      <div class="recap num"><span></span><span>${de ? '7 Tage' : '7 days'}</span><span>${de ? '30 Tage' : '30 days'}</span>
-        <span>${t('wCount')}</span><b>${last7.length}</b><b>${last30.length}</b>
-        <span>${t('movedW')}</span><b>${volTxt(vol7)}</b><b>${volTxt(vol30)}</b>
-        <span>${t('trainTime')}</span><b>${hm(min7)}</b><b>${hm(min30)}</b>
-        <span>${t('prs')}</span><b>${prCount(7)}</b><b>${prCount(30)}</b></div></div>
+      <div class="recap2 num"><div class="rc-h"><span></span><b>${de ? '7 Tage' : '7 days'}</b><b>${de ? '30 Tage' : '30 days'}</b></div>
+        ${[[t('wCount'), last7.length, last30.length], [t('movedW'), volTxt(vol7), volTxt(vol30)], [t('trainTime'), hm(min7), hm(min30)], [t('prs'), prCount(7), prCount(30)]].map(([l, a, b]) => `<div class="rc-r"><span>${l}</span><b>${a}</b><b>${b}</b></div>`).join('')}</div></div>
   </div>`;
   $('pball') && ($('pball').onclick = () => { pbAll = !pbAll; renderProgress(); });
   bindProgSwitch();
@@ -1207,7 +1204,7 @@ function dayCard() {
   return hs.map((h, n) => { const nsets = h.ex.reduce((a, e) => a + e.sets.length, 0);
     return `<div class="daycard" ${n ? 'style="margin-top:18px"' : ''}><div><div class="eyebrow">${esc(ds)}</div><b style="font-family:var(--display);font-stretch:110%;font-weight:900;font-size:22px;text-transform:uppercase">${esc(h.wname || (wById(h.wid) || {}).name || '')}</b></div>
     <div class="trio num"><div class="dec"><span>${t('moved')}</span><b>${volTxt(sessVol(h))}</b></div><div class="dec"><span>${t('duration')}</span><b>${t('min', h.dur)}</b></div><div class="dec"><span>${t('setsWord')}</span><b>${nsets}</b></div></div>
-    <button class="morebtn" data-dayrv="${esc(h.id)}"><span class="mdec dec">+</span>${t('details')}</button></div>`; }).join('');
+    <button class="ghostbtn daydet" data-dayrv="${esc(h.id)}">${S.lang === 'de' ? 'Details ansehen' : 'View details'}${CHEV}</button></div>`; }).join('');
 }
 function calHTML() {
   const today = dayDate(0); const m = new Date(today.getFullYear(), today.getMonth() + calMonth, 1);
@@ -1432,7 +1429,8 @@ function bindLadder() {
   const rows = [...lad.querySelectorAll('.lvl-row')], ci = rows.indexOf(c), init = ci >= 2 ? rows[ci - 2].offsetTop : 0, span = 160;
   lay(0); lad.scrollTop = init;
   const need = init + span + lad.clientHeight + (bigH - small) - lad.scrollHeight; if (need > 0) lad.style.paddingBottom = need + 'px'; lad.scrollTop = init;
-  let raf = 0; lad.onscroll = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; lay(Math.max(0, Math.min(1, (lad.scrollTop - init) / span))); }); };
+  let raf = 0, closed = false; lad.onscroll = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; const st = lad.scrollTop;
+    let k = closed ? st / span : (st - init) / span; k = Math.max(0, Math.min(1, k)); if (k >= 1) closed = true; if (closed && st <= 0) closed = false; lay(k); }); };
 }
 function levelsHTML() {
   const pts = totalPts(), li = levelOf(pts), cur = LEVELS[li], nxt = LEVELS[li + 1];
@@ -1491,6 +1489,7 @@ function celebrate(kind = S.celeb) {
   if (kind === 'glitter') for (let i = 0; i < 130; i++) add({ x: R(0, Wd), y: R(0, Ht * .6), vx: R(-.3, .3), vy: R(-.2, .6), g: .01, shape: 'circle', size: R(1.5, 3.5), col: FG, tw: R(0, 6.28), decay: R(.006, .012) });
   if (kind === 'xmas') { const pal = ['#f3f3ef', '#f3f3ef', '#d6262e', '#2e9e4f', '#ffd400']; for (let i = 0; i < 120; i++) add({ x: R(0, Wd), y: R(-300, -10), vx: R(-.8, .8), vy: R(1.5, 3.5), g: .03, shape: i % 3 ? 'circle' : 'star', size: R(4, 10), col: pal[i % 5], decay: R(.003, .006) }); }
   if (kind === 'easter') { const pal = ['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0']; for (let i = 0; i < 46; i++) { const a = R(0, 6.28), sp = R(4, 10); add({ x: Wd / 2, y: Ht * .35, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 4, g: .22, shape: 'egg', size: R(12, 20), col: pal[i % 5], decay: R(.005, .009) }); } }
+  if (kind === 'newyear') { const pal = ['#ffd400', '#f3f3ef', '#ff5a5f', '#4aa3ff', '#b58cff']; [[.22, .26], [.75, .2], [.5, .4], [.3, .55], [.72, .5]].forEach(([fx, fy], k) => { for (let i = 0; i < 48; i++) { const a = i / 48 * 6.28, sp = R(2.5, 6.5); add({ x: Wd * fx, y: Ht * fy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .05, drag: .97, shape: 'circle', size: R(2.5, 4.5), col: pal[(k + i) % 5], delay: k * 14, decay: R(.011, .018) }); } }); }
   if (kind === 'plates') for (let i = 0; i < 34; i++) add({ x: R(0, Wd), y: R(-500, -20), vx: R(-.6, .6), vy: R(1, 3), g: .16, shape: 'plate', size: R(16, 30), col: mono[i % 4], vr: R(-.08, .08), decay: R(.003, .005) });
   if (kind === 'shock') for (let i = 0; i < 7; i++) add({ x: Wd / 2, y: Ht * .4, g: 0, vr: .01, shape: 'ring', size: 20, grow: R(7, 9), col: FG, delay: i * 9, decay: .011, drag: 1 });
   if (kind === 'fountain') for (let i = 0; i < 160; i++) add({ x: Wd / 2 + R(-8, 8), y: Ht + 5, vx: R(-3.2, 3.2), vy: R(-19, -12), g: .32, col: mono[i % 4], shape: i % 3 ? 'rect' : 'dec', size: R(5, 9), delay: Math.floor(i / 4), decay: R(.006, .01) });
@@ -1523,7 +1522,7 @@ function leaveProfileEdit() { const de = S.lang === 'de', back = () => { PD = nu
   dialog(de ? 'Änderungen speichern?' : 'Save changes?', de ? 'Du hast dein Profil geändert.' : 'You changed your profile.', [[de ? 'Speichern' : 'Save', 'mainbtn', pdSave], [de ? 'Verwerfen' : 'Discard', 'ghostbtn', back], [de ? 'Weiter bearbeiten' : 'Keep editing', 'textbtn', () => {}]]); }
 // ================= Seasons (Weihnachten, Ostern) =================
 // live: docs/season.json decides for every user; dev: a local preview can override it
-const SEASONS = { xmas: { de:'Weihnachten', en:'Christmas' }, easter: { de:'Ostern', en:'Easter' } };
+const SEASONS = { xmas: { de:'Weihnachten', en:'Christmas' }, easter: { de:'Ostern', en:'Easter' }, newyear: { de:'Silvester', en:'New Year' } };
 let REMOTE_SEASON = '', REMOTE_LIVE = null;
 const ROOT = ENV === 'dev' ? '../' : '';
 const seasonNow = () => (ENV === 'dev' && S.seasonPreview != null ? S.seasonPreview : REMOTE_SEASON) || '';
@@ -1543,22 +1542,28 @@ const SLEIGH = `<svg viewBox="0 0 300 80" aria-hidden="true"><path d="M86 52 C12
   <path d="M10 40 h74 c6 0 8 6 6 12 l-4 8 h-70 c-6 0 -8 -4 -8 -8z" fill="#d6262e"/><path d="M18 44 h58" stroke="#ffd400" stroke-width="2"/><path d="M4 66 h84 c6 0 8 -6 4 -8" stroke="#c9a227" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M20 60 v6 M74 60 v6" stroke="#c9a227" stroke-width="3"/></svg>`;
 // brown bunny with pink inner ears, side view, faces right
 const BUNNY = '<svg viewBox="0 0 90 70" aria-hidden="true"><ellipse cx="36" cy="46" rx="22" ry="15" fill="#9a6b3f"/><circle cx="22" cy="48" r="12" fill="#9a6b3f"/><ellipse cx="40" cy="52" rx="12" ry="7" fill="#c49a6c"/><circle cx="12" cy="44" r="6" fill="#fff"/><circle cx="60" cy="34" r="12" fill="#9a6b3f"/><path d="M56 26 C48 10 50 0 56 2 C62 4 62 16 61 25 Z" fill="#9a6b3f"/><path d="M57 22 C53 12 54 6 56 6 C59 8 59 15 59 22 Z" fill="#f4a7c0"/><path d="M63 25 C62 9 68 1 72 4 C76 8 70 18 66 26 Z" fill="#8a5d35"/><circle cx="65" cy="32" r="2" fill="#111"/><circle cx="71" cy="37" r="2" fill="#f4a7c0"/><path d="M50 58 l4 8 M28 58 l-4 8" stroke="#7a5230" stroke-width="5" stroke-linecap="round"/></svg>';
+// New Year: text ring around the decagon (turns slowly)
+const NY_RING = '<svg class="ss-ring" viewBox="-60 -60 120 120" aria-hidden="true"><defs><path id="nyc" d="M0,-55 a55,55 0 1,1 -0.01,0"/></defs><text textLength="342" lengthAdjust="spacing"><textPath href="#nyc" textLength="342" lengthAdjust="spacing">HAPPY NEW YEAR ✦ FROHES NEUES JAHR ✦ HAPPY NEW YEAR ✦ FROHES NEUES JAHR ✦</textPath></text></svg>';
 const FLAKE = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10"/><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M5.2 8.1l-.6-2.8M5.2 8.1l-2.7.8M18.8 15.9l.6 2.8M18.8 15.9l2.7-.8M5.2 15.9l-2.7-.8M5.2 15.9l-.6 2.8M18.8 8.1l2.7.8M18.8 8.1l.6-2.8"/></svg>');
 function applySeason() {
-  const sz = seasonNow(), app = $('app'); app.classList.toggle('season-xmas', sz === 'xmas'); app.classList.toggle('season-easter', sz === 'easter');
+  const sz = seasonNow(), app = $('app'); app.classList.toggle('season-xmas', sz === 'xmas'); app.classList.toggle('season-easter', sz === 'easter'); app.classList.toggle('season-newyear', sz === 'newyear');
   let layer = $('season'); if (!sz) { if (layer) layer.remove(); if (tab === 'start' && !W) renderStart(); return; }
   if (!layer || layer.dataset.s !== sz) { if (layer) layer.remove(); greetText = greeting(); layer = document.createElement('div'); layer.id = 'season'; layer.dataset.s = sz; layer.setAttribute('aria-hidden', 'true');
     const R = (a, b) => (a + Math.random() * (b - a)).toFixed(2);
     if (sz === 'xmas') layer.innerHTML = Array.from({ length: 30 }, () => { const z = R(7, 15); return `<i class="flake" style="left:${R(0, 100)}%;width:${z}px;height:${z}px;background-image:url('${FLAKE}');animation-duration:${R(10, 20)}s,${R(3, 6)}s;animation-delay:-${R(0, 20)}s,-${R(0, 6)}s;opacity:${R(.45, .9)}"></i>`; }).join('') + `<div class="sleigh"><div class="sl-in">${SLEIGH}</div></div>`;
+    else if (sz === 'newyear') layer.innerHTML = Array.from({ length: 6 }, (_, i) => `<div class="fw" style="left:${R(8, 92)}%;top:${Math.random() < .6 ? R(2, 16) : R(64, 72)}%;--c:${['#ffd400', '#f3f3ef', '#ff5a5f', '#4aa3ff', '#ffd400', '#b58cff'][i]};animation-delay:-${R(0, 6)}s;animation-duration:${R(4.5, 7)}s">${Array.from({ length: 12 }, (_, j) => `<i style="transform:rotate(${j * 30}deg)"></i>`).join('')}</div>`).join('');
     else layer.innerHTML = `<div class="bunny"><div class="bn-in">${BUNNY}</div></div>`;
     // every pass a new route: other height, other direction
+    // fireworks: each burst moves to a new spot after it faded out
+    layer.querySelectorAll('.fw').forEach(f => f.addEventListener('animationiteration', e => { if (e.target === f) { f.style.left = R(8, 92) + '%'; f.style.top = (Math.random() < .6 ? R(2, 16) : R(64, 72)) + '%'; } }));
     const flyer = layer.querySelector('.sleigh, .bunny'), reroute = () => { const rtl = Math.random() < .5; flyer.style.setProperty('--y', sz === 'xmas' ? (Math.random() < .5 ? R(1, 7) : R(58, 64)) + 'vh' : R(0, 24) + 'px'); flyer.classList.toggle('rtl', rtl); };
-    reroute(); flyer.addEventListener('animationiteration', reroute);
+    if (flyer) { reroute(); flyer.addEventListener('animationiteration', e => { if (e.target === flyer) reroute(); }); }
     $('app').appendChild(layer); }
   if (tab === 'start' && !W) renderStart();
 }
-const seasonDeco = () => seasonNow() === 'xmas' ? HAT : seasonNow() === 'easter' ? EARS : '';
+const seasonDeco = () => seasonNow() === 'xmas' ? HAT : seasonNow() === 'easter' ? EARS : seasonNow() === 'newyear' ? NY_RING : '';
 const SEASON_GREET = { xmas: { de: ['Ho ho ho, Zeit für Gains.', 'Plätzchen verbrennen sich nicht von allein.', 'Fit unterm Tannenbaum.', 'Jingle Bells, schwere Hanteln.', 'Erst Training, dann Glühwein.'], en: ['Ho ho ho, gains time.', 'Cookies do not burn themselves.', 'Fit under the tree.', 'Jingle bells, heavy weights.', 'Training first, mulled wine later.'] },
+  newyear: { de: ['Neues Jahr, neue Personal Bests.', 'Vorsatz Nr. 1: dranbleiben.', 'Das Jahr startet mit einem Satz mehr.', 'Prost auf neue Gains.', '365 Chancen, stärker zu werden.'], en: ['New year, new personal bests.', 'Resolution no. 1: keep going.', 'The year starts with one more set.', 'Cheers to new gains.', '365 chances to get stronger.'] },
   easter: { de: ['Hopp hopp, ab ins Gym.', 'Schokohasen trainieren nicht.', 'Eier suchen? Lieber Gains finden.', 'Frohe Ostern, starke Beine.', 'Der Osterhase macht Kniebeugen.'], en: ['Hop hop, off to the gym.', 'Chocolate bunnies do not train.', 'Hunting eggs? Find gains instead.', 'Happy Easter, strong legs.', 'The Easter bunny does squats.'] } };
 
 
@@ -1569,7 +1574,7 @@ function showAuth(preview) {
   const done = () => { el.remove(); S.authSeen = true; save(); if (!preview && !S.onboarded) showOnboarding(); };
   const legal = k => showInfo(k === 'agb' ? `<b>${de ? 'Allgemeine Geschäftsbedingungen' : 'Terms of use'}</b>${AGB_HTML}` : `<b>${t('privacy')}</b>${t('privacyHtml')}`);
   const field = (id, label, type = 'text', ac = 'off') => `<label class="afield"><span>${label}</span><input id="${id}" type="${type}" autocomplete="${ac}" autocapitalize="none" autocorrect="off" spellcheck="false"></label>`;
-  const benefits = de ? ['Deine Trainings sind sicher gespeichert, auch bei Handywechsel', 'Freunden folgen und Level vergleichen', 'Live sehen, wenn Freunde neue Rekorde aufstellen', 'Auf mehreren Geräten trainieren'] : ['Your sessions are stored safely, even if you change phones', 'Follow friends and compare levels', 'See live when friends set new records', 'Train on several devices'];
+  const benefits = de ? ['Sichere Speicherung deiner Trainings, auch beim Handywechsel', 'Freunden folgen und Level vergleichen', 'Live mitbekommen, wenn Freunde Rekorde aufstellen', 'Training auf mehreren Geräten'] : ['Your sessions are stored safely, even if you change phones', 'Follow friends and compare levels', 'See live when friends set new records', 'Train on several devices'];
   const draw = () => {
     const top = `<div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview || mode !== 'home' ? `<button class="iconbtn" id="au-x" aria-label="${mode === 'home' ? 'Schließen' : 'Zurück'}">${mode === 'home' ? '✕' : '←'}</button>` : '<span></span>'}</div>`;
     if (mode === 'home') el.innerHTML = `<div class="onb-in">${top}<div class="inst-hero"><div class="octa dec inst-dec"><span class="cta">TRAIN</span></div></div>
@@ -1583,14 +1588,23 @@ function showAuth(preview) {
     if (mode === 'login') el.innerHTML = `<div class="onb-in">${top}<div><h1>${de ? 'Anmelden' : 'Log in'}</h1></div>
       <div class="au-form">${field('au-id', de ? 'E-Mail oder Benutzername' : 'Email or username', 'text', 'username')}${field('au-pw', de ? 'Kennwort' : 'Password', 'password', 'current-password')}<button class="textbtn" id="au-forgot" style="align-self:flex-start">${de ? 'Kennwort vergessen?' : 'Forgot password?'}</button></div>
       <button class="mainbtn" id="au-go">${de ? 'Anmelden' : 'Log in'}</button></div>`;
-    if (mode === 'guest') el.innerHTML = `<div class="onb-in">${top}<div><h1>${de ? 'Wirklich ohne Account?' : 'Really without an account?'}</h1><p class="onb-txt">${de ? 'Als Gast liegen deine Daten nur auf diesem Handy. Dir entgeht:' : 'As a guest your data stays on this phone only. You miss out on:'}</p></div>
-      <ul class="au-miss">${benefits.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+    if (mode === 'forgot') el.innerHTML = `<div class="onb-in au-tight">${top}<div><h1>${de ? 'Kennwort vergessen' : 'Forgot password'}</h1><p class="onb-txt">${de ? 'Wir schicken dir einen 6-stelligen Code per E-Mail.' : 'We will email you a 6-digit code.'}</p></div>
+      <div class="au-form">${field('au-id', de ? 'E-Mail oder Benutzername' : 'Email or username', 'text', 'username')}</div><button class="mainbtn" id="au-send">${de ? 'Code senden' : 'Send code'}</button></div>`;
+    if (mode === 'reset') el.innerHTML = `<div class="onb-in au-tight">${top}<div><h1>${de ? 'Neues Kennwort' : 'New password'}</h1><p class="onb-txt">${de ? 'Gib den Code aus der E-Mail ein und wähle ein neues Kennwort.' : 'Enter the code from the email and choose a new password.'}</p></div>
+      <div class="au-form"><label class="afield"><span>Code</span><input id="au-code" class="pinin num" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label>${field('au-pw', de ? 'Neues Kennwort (mind. 8 Zeichen)' : 'New password (min. 8 characters)', 'password', 'new-password')}${field('au-pw2', de ? 'Kennwort wiederholen' : 'Repeat password', 'password', 'new-password')}</div>
+      <button class="mainbtn" id="au-set">${de ? 'Kennwort speichern' : 'Save password'}</button></div>`;
+    if (mode === 'guest') el.innerHTML = `<div class="onb-in au-tight">${top}<div><h1>${de ? 'Wirklich ohne Account?' : 'Really without an account?'}</h1><p class="onb-txt">${de ? 'Als Gast liegen deine Daten nur auf diesem Handy. Dir entgeht:' : 'As a guest your data stays on this phone only. You miss out on:'}</p></div>
+      <ul class="au-miss">${benefits.map(b => `<li><i class="dec"></i>${esc(b)}</li>`).join('')}</ul>
       <div class="au-btns"><button class="mainbtn" data-am="signup">${de ? 'Doch Account anlegen' : 'Create account after all'}</button><button class="textbtn" id="au-guest">${de ? 'Als Gast fortfahren' : 'Continue as guest'}</button></div></div>`;
     el.querySelectorAll('[data-am]').forEach(b => b.onclick = () => { mode = b.dataset.am; draw(); });
     el.querySelectorAll('[data-legal]').forEach(a => a.onclick = e => { e.preventDefault(); legal(a.dataset.legal); });
-    $('au-x') && ($('au-x').onclick = () => { if (mode === 'home') el.remove(); else { mode = 'home'; draw(); } });
+    $('au-x') && ($('au-x').onclick = () => { if (mode === 'home') el.remove(); else { mode = mode === 'forgot' || mode === 'reset' ? 'login' : 'home'; draw(); } });
     $('au-guest') && ($('au-guest').onclick = () => { S.guest = true; done(); });
-    $('au-forgot') && ($('au-forgot').onclick = () => toast(de ? 'Kennwort zurücksetzen kommt mit dem Cloud-Modus' : 'Password reset comes with cloud sync'));
+    $('au-forgot') && ($('au-forgot').onclick = () => { mode = 'forgot'; draw(); });
+    $('au-send') && ($('au-send').onclick = () => { if (!$('au-id').value.trim()) return toast(de ? 'Bitte E-Mail oder Benutzername eingeben' : 'Please enter email or username'); toast(de ? 'Vorschau: Mit dem Cloud-Modus kommt hier die E-Mail' : 'Preview: the email arrives with cloud sync'); mode = 'reset'; draw(); });
+    $('au-set') && ($('au-set').onclick = () => { const c = $('au-code').value, p1 = $('au-pw').value, p2 = $('au-pw2').value;
+      if (!/^\d{6}$/.test(c)) return toast(de ? 'Bitte den 6-stelligen Code eingeben' : 'Please enter the 6-digit code'); if (p1.length < 8) return toast(de ? 'Kennwort zu kurz' : 'Password too short'); if (p1 !== p2) return toast(de ? 'Kennwörter stimmen nicht überein' : 'Passwords do not match');
+      toast(de ? 'Vorschau: Kennwort würde jetzt gespeichert' : 'Preview: password would be saved now'); mode = 'login'; draw(); });
     $('au-go') && ($('au-go').onclick = () => {
       if (mode === 'signup') { const u = $('au-user').value.trim().toLowerCase().replace(/^@/, ''), m = $('au-mail').value.trim(), pw = $('au-pw').value;
         const err = !/^[a-z0-9._]{3,20}$/.test(u) ? (de ? 'Benutzername: 3 bis 20 Zeichen, a-z, 0-9, Punkt, Unterstrich' : 'Username: 3 to 20 characters, a-z, 0-9, dot, underscore') : !/^\S+@\S+\.\S+$/.test(m) ? (de ? 'Bitte gültige E-Mail' : 'Please enter a valid email') : pw.length < 8 ? (de ? 'Kennwort zu kurz' : 'Password too short') : !$('au-agb').checked || !$('au-dse').checked ? (de ? 'Bitte AGB und Datenschutz bestätigen' : 'Please accept terms and privacy policy') : '';
@@ -1692,34 +1706,37 @@ function confirmLive(title, text, fn) {
       localStorage.setItem('fitter.ghfail', '0');
       try { await fn(k); toast('Live geschaltet. Nutzer sehen es beim nächsten Öffnen.'); } catch (e) { dialog('Hat nicht geklappt', esc(e.message), [['OK', 'mainbtn', () => {}]]); } }); }]]);
 }
-let VERSIONS = null;
-function loadVersions(cb) { Promise.all([fetch(ROOT + 'versions/index.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []), fetch(ROOT + 'live.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]).then(([v, l]) => { VERSIONS = v; REMOTE_LIVE = l.version || null; cb(); }); }
+let VERSIONS = null, LIVE_RELEASE = null;
+function loadVersions(cb) { fetch(ROOT + 'app.js', { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(js => { const m = js.match(/APP_VERSION = '([^']+)'/); LIVE_RELEASE = m ? m[1] : null; }).catch(() => {}).finally(() => Promise.all([fetch(ROOT + 'versions/index.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []), fetch(ROOT + 'live.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]).then(([v, l]) => { VERSIONS = v; REMOTE_LIVE = l.version || null; cb(); })); }
+const liveNow = () => REMOTE_LIVE || LIVE_RELEASE;
 const PUSH_CATS = {
   inactive: { de: ['Deine Hanteln vermissen dich.', 'Eine Woche Pause ist genug. Zeit fürs Comeback!', 'Dein Level wartet auf Points.'], en: ['Your dumbbells miss you.', 'A week off is enough. Comeback time!', 'Your level is waiting for points.'] },
   record: { de: ['Starkes Training heute! Gönn dir eine Pause.', 'Neuer Rekord. Jetzt Protein und Schlaf.', 'Das war stark. Erholung gehört dazu.'], en: ['Strong session today! Take a break.', 'New record. Now protein and sleep.', 'That was strong. Recovery is part of it.'] } };
 const pushCfg = () => { const c = S.pushCfg || {}; return { inactive: Object.assign({ on: true, days: 7, msgs: S.pushMsgs || PUSH_CATS.inactive[S.lang] }, c.inactive), record: Object.assign({ on: true, msgs: PUSH_CATS.record[S.lang] }, c.record) }; };
 const DEV_LINK = 'https://pdbp-hub.github.io/Fitter/dev/?install';
+const copyText = u => (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast('Link kopiert. In Safari einfügen.'), () => toast(u));
+// in-app message banner (when the app is open, instead of a push notification)
+function banner(msg) { const b = document.createElement('div'); b.className = 'inbanner'; b.innerHTML = `<b>TRAIN</b><span>${esc(msg)}</span>`; $('app').appendChild(b); b.onclick = () => b.remove(); setTimeout(() => b.classList.add('out'), 4200); setTimeout(() => b.remove(), 4700); }
 function devHTML() {
   const de = S.lang === 'de', sz = S.seasonPreview == null ? 'live' : S.seasonPreview || 'off', pc = pushCfg();
   const tool = (id, title, hint) => `<button class="setrow sprow" id="${id}"><div style="flex:1;text-align:left"><b>${title}</b>${hint ? `<p>${hint}</p>` : ''}</div>${CHEV}</button>`;
   const seg = (attr, opts, cur) => `<div class="seg dseg">${opts.map(([v, l]) => `<button data-${attr}="${v}" class="${cur === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
-  const list = cat => `<div class="dlist">${pc[cat].msgs.map((m, j) => `<div class="drow"><input data-pmsg="${cat}:${j}" value="${esc(m)}"><button class="textbtn" data-ptest="${cat}:${j}">Test</button><button class="sx" data-pdel="${cat}:${j}" aria-label="Löschen">✕</button></div>`).join('')}<button class="addset" data-padd="${cat}">+ Spruch</button></div>`;
-  const vers = VERSIONS || [], showV = devVerAll ? vers : vers.slice(0, 4);
+  const list = cat => `<div class="dlist">${pc[cat].msgs.map((m, j) => `<div class="drow"><input data-pmsg="${cat}:${j}" value="${esc(m)}"><button class="textbtn" data-pin="${cat}:${j}">App</button><button class="textbtn" data-ptest="${cat}:${j}">Push</button><button class="sx" data-pdel="${cat}:${j}" aria-label="Löschen">✕</button></div>`).join('')}<button class="addset" data-padd="${cat}">+ Spruch</button></div>`;
+  const vers = VERSIONS || [];
   return `<div class="dev2">
     <div class="sect"><h2>Ansehen & testen</h2><div>
       ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-auth', 'Anmeldung / Account anlegen', 'Entwurf, erscheint vor dem Onboarding')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('reseed', t('reseed'))}</div>
-      <a class="ghostbtn dlink" href="${DEV_LINK}" target="_blank" rel="noopener">Im Browser (Safari) öffnen</a></div>
+      <button class="ghostbtn" id="dev-safari">In Safari öffnen</button></div>
 
     <div class="sect"><h2>Seasons</h2>
-      <div class="dlabel">Vorschau, nur hier in Dev</div>${seg('spv', [['live', 'Wie live'], ['off', 'Aus'], ['xmas', 'Weihnachten'], ['easter', 'Ostern']], sz)}
+      <div class="dlabel">Vorschau, nur hier in Dev</div>${seg('spv', [['live', 'Wie live'], ['off', 'Aus'], ['xmas', 'Weihn.'], ['easter', 'Ostern'], ['newyear', 'Silvester']], sz)}
       <div class="dlabel">Live für alle Nutzer</div>
-      <div class="dopts">${[['', 'Keine'], ['xmas', 'Weihnachten'], ['easter', 'Ostern']].map(([v, l]) => `<button class="${REMOTE_SEASON === v ? 'on' : ''}" data-golive="${v}">${l}${REMOTE_SEASON === v ? '<small>LIVE</small>' : ''}</button>`).join('')}</div>
+      <div class="dopts">${[['', 'Keine'], ['xmas', 'Weihnachten'], ['easter', 'Ostern'], ['newyear', 'Silvester']].map(([v, l]) => `<button class="${REMOTE_SEASON === v ? 'on' : ''}" data-golive="${v}">${l}${REMOTE_SEASON === v ? '<small>LIVE</small>' : ''}</button>`).join('')}</div>
       <p class="hint">Antippen = live schalten (mit Rückfrage und PIN).</p></div>
 
     <div class="sect"><h2>Live-Version</h2>
-      <div class="dopts dvers">${showV.map(v => `<button class="${v.v === REMOTE_LIVE ? 'on' : ''}" data-ver="${esc(v.v)}"><span class="num">${esc(v.v)}</span><small>${v.v === REMOTE_LIVE ? 'LIVE' : esc(v.date || '')}</small></button>`).join('') || '<p class="hint">Liste wird geladen …</p>'}</div>
-      ${vers.length > 4 ? `<button class="calbtn" id="dev-verall">${devVerAll ? 'Weniger ▴' : `Alle ${vers.length} Versionen ▾`}</button>` : ''}
-      <p class="hint">${REMOTE_LIVE ? '' : 'Live läuft die letzte Freigabe. '}Antippen = diese Version live schalten.</p></div>
+      <div class="dvwrap"><div class="dopts dvers" id="dvers">${vers.map(v => `<button class="${v.v === liveNow() ? 'on' : ''}" data-ver="${esc(v.v)}"><span class="num">${esc(v.v)}</span><small>${v.v === liveNow() ? 'LIVE' : esc(v.date || '')}</small></button>`).join('') || '<p class="hint">Liste wird geladen …</p>'}</div></div>
+      <p class="hint">Live läuft gerade <b>${liveNow() ? esc(liveNow()) : '…'}</b>${REMOTE_LIVE ? '' : ' (letzte Freigabe)'}. Antippen = diese Version live schalten.</p></div>
 
     <div class="sect"><h2>Push-Mitteilungen</h2>
       <div class="pe-h"><b>Nach Inaktivität</b>${`<button class="toggle" id="pc-inactive" role="switch" aria-checked="${pc.inactive.on}"><i></i></button>`}</div>
@@ -1730,7 +1747,7 @@ function devHTML() {
       ${list('record')}
       <div class="dlabel" style="margin-top:14px">Eigene Nachricht an alle</div>
       <div class="drow"><input id="dev-pnow" placeholder="z. B. Aktion"><button class="textbtn" id="dev-psend">Senden</button></div>
-      <p class="hint">Automatik und Senden an alle laufen mit dem Cloud-Modus. „Test“ schickt dir die Mitteilung schon jetzt.</p></div>
+      <p class="hint">Ist die App gerade offen, kommt statt der Mitteilung ein Balken oben in der App. „App“ zeigt den Balken, „Push“ schickt dir die Mitteilung. Automatik und Senden an alle laufen mit dem Cloud-Modus.</p></div>
 
     <div class="sect"><h2>Freigabe-Schlüssel</h2>
       <div class="dstat"><span>Status</span><b class="${ghKey() && (ghDaysLeft() ?? 99) <= 2 ? 'ghred' : ''}">${ghKey() ? (ghExpText() || 'hinterlegt') : 'fehlt'}</b></div>
@@ -1744,12 +1761,15 @@ function bindDev() {
   if (!VERSIONS) loadVersions(() => { if (setPage === 'dev') rr(); });
   on('dev-onb', () => showOnboarding(true)); on('dev-intro', () => previewIntro()); on('dev-celeb', () => celebrate(seasonNow() || S.celeb));
   on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
-  on('dev-inst', () => showInstall(true)); on('dev-auth', () => showAuth(true)); on('dev-verall', () => { devVerAll = !devVerAll; rr(); });
+  on('dev-inst', () => showInstall(true)); on('dev-auth', () => showAuth(true));
+  // iPhone: x-safari-https:// opens the real Safari (iOS 17+); otherwise the link is copied
+  on('dev-safari', () => dialog('In Safari öffnen?', 'Die App öffnet sich im Browser so, wie neue Nutzer sie zuerst sehen (mit Installations-Anleitung).', [['Öffnen', 'mainbtn', () => {
+    if (/iPhone|iPad/.test(navigator.userAgent)) { location.href = DEV_LINK.replace('https://', 'x-safari-https://'); setTimeout(() => copyText(DEV_LINK), 1500); } else window.open(DEV_LINK, '_blank'); }], ['Link kopieren', 'ghostbtn', () => copyText(DEV_LINK)], ['Abbrechen', 'textbtn', () => {}]])); on('dev-verall', () => { devVerAll = !devVerAll; rr(); });
   on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
   document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); rr(); });
   document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive; if (v === REMOTE_SEASON) return;
-    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das ${SEASONS[v].de}s-Design.` : 'Alle Nutzer sehen wieder das normale Design.', async k => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`, k); REMOTE_SEASON = v; rr(); }); });
-  document.querySelectorAll('[data-ver]').forEach(b => b.onclick = () => { const v = b.dataset.ver; if (v === REMOTE_LIVE) return;
+    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das Design „${SEASONS[v].de}“.` : 'Alle Nutzer sehen wieder das normale Design.', async k => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`, k); REMOTE_SEASON = v; rr(); }); });
+  document.querySelectorAll('[data-ver]').forEach(b => b.onclick = () => { const v = b.dataset.ver; if (v === liveNow()) return;
     confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async k => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`, k); REMOTE_LIVE = v; rr(); }); });
   const cfg = () => { const c = pushCfg(); return c; }, put = c => { S.pushCfg = c; save(); rr(); };
   on('pc-inactive', () => { const c = cfg(); c.inactive.on = !c.inactive.on; put(c); }); on('pc-record', () => { const c = cfg(); c.record.on = !c.record.on; put(c); });
@@ -1758,6 +1778,7 @@ function bindDev() {
   document.querySelectorAll('[data-pmsg]').forEach(inp => inp.onchange = () => { const c = cfg(), [cat, j] = ref(inp.dataset.pmsg); c[cat].msgs = c[cat].msgs.slice(); c[cat].msgs[j] = inp.value.trim(); c[cat].msgs = c[cat].msgs.filter(Boolean); put(c); });
   document.querySelectorAll('[data-pdel]').forEach(b => b.onclick = () => { const c = cfg(), [cat, j] = ref(b.dataset.pdel); dialog('Spruch löschen?', esc(c[cat].msgs[j]), [['Behalten', 'mainbtn', () => {}], ['Löschen', 'ghostbtn', () => { c[cat].msgs = c[cat].msgs.filter((_, i) => i !== j); put(c); }]]); });
   document.querySelectorAll('[data-ptest]').forEach(b => b.onclick = () => { const [cat, j] = ref(b.dataset.ptest); testPush(cfg()[cat].msgs[j]); });
+  document.querySelectorAll('[data-pin]').forEach(b => b.onclick = () => { const [cat, j] = ref(b.dataset.pin); banner(cfg()[cat].msgs[j]); });
   document.querySelectorAll('[data-padd]').forEach(b => b.onclick = () => { const c = cfg(), cat = b.dataset.padd; c[cat].msgs = c[cat].msgs.concat('Neuer Spruch'); put(c); });
   on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return; dialog('An alle senden?', esc(v) + '<br><br>Senden an alle läuft mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
   on('dev-ghsave', () => { const v = $('dev-ghkey').value.trim(); if (!v) return;

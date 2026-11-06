@@ -184,7 +184,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=progress]'); await click('[data-day="0"]'); await click('[data-dayrv]'); await settle();
     check('Kalender-Details öffnen Review-Seite mit allen Sätzen', await ev(() => !document.getElementById('osheet').classList.contains('down') && !!document.querySelector('#obody .slogan') && !!document.querySelector('#obody .cells')));
     await click('#o-back'); await settle();
-    check('Überschriften im Fortschritt mit Icons', await ev(() => document.querySelectorAll('#v-progress h2.hic svg').length === 4));
+    check('Überschriften im Fortschritt mit Icons', await ev(() => document.querySelectorAll('#v-progress h2.hic svg').length === 3));
     await click('[data-tab=settings]'); await sp('logic');
     check('Berechnungslogik: kein seitliches Scrollen (REGRESSION)', await ev(() => { const v = document.getElementById('v-settings'); return v.scrollWidth <= v.clientWidth + 1; }));
     await back(); await sp('display');
@@ -440,6 +440,19 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   }
 
   if (TARGET) {
+    console.log('Neu in v0.12');
+    await click('[data-tab=progress]');
+    check('Fortschritt: „Ich | Freunde“ überlappt nicht, keine „Verlauf“-Überschrift', await ev(() => { const [a, b] = [...document.querySelectorAll('.ptabs button')]; return [...a.children, ...b.children].length >= 0 && a.scrollWidth <= a.clientWidth + 1 && b.scrollWidth <= b.clientWidth + 1 && !/Verlauf|History/.test(document.querySelector('#v-progress .sect').textContent.slice(0, 40)); }));
+    check('Rückblick: Zeilen bündig (Beschriftung und Werte in einer Zeile)', await ev(() => [...document.querySelectorAll('.rc-r')].every(r => { const [l, a, b] = r.children; return Math.abs(l.getBoundingClientRect().bottom - r.getBoundingClientRect().bottom) < 20 && a.parentNode === r && b.parentNode === r; }) && document.querySelectorAll('.rc-r').length === 4));
+    await click('[data-tab=settings]'); await click('[data-sp="display"]'); await click('[data-tgc="1"]');
+    check('Schalter-Vorschau Schwarz-Weiß bleibt schwarz-weiß, wenn Grün gewählt (REGRESSION)', await ev(() => { const t = document.querySelector('.togprev:not(.green) .toggle'); const c = getComputedStyle(t).borderColor; return !/46, 197, 94|2ec55e/.test(c); }));
+    await click('[data-tgc="0"]'); await click('#spback');
+    check('Titel „Berechnung“ (kurz)', await ev(() => /Berechnung|Calculation/.test(document.querySelector('[data-sp="logic"] b').textContent) && !/logik/i.test(document.querySelector('[data-sp="logic"] b').textContent)));
+    await ev(() => { S.seasonPreview = 'xmas'; applySeason(); }); await page.waitForTimeout(1600);
+    check('Schlitten: wird nicht durch Bein-/Arm-Animationen neu gestartet (REGRESSION)', await ev(() => { const a = document.querySelector('#season .sleigh').getAnimations()[0]; return a && a.currentTime > 1200; }));
+    await ev(() => { S.seasonPreview = 'newyear'; applySeason(); renderStart(); }); await page.waitForTimeout(200);
+    check('Season Silvester: Feuerwerk + Schriftzug ums Zehneck', await ev(() => document.querySelectorAll('#season .fw').length >= 4 && !!document.querySelector('.hero .ss-ring')));
+    await ev(() => { S.seasonPreview = null; applySeason(); save(); });
     console.log('Neu in v0.10');
     const cdp2 = await ctx.newCDPSession(page), touch = (type, x, y) => cdp2.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
     if (await page.$('#overlay:not([hidden])')) await click('[data-db="0"]');
@@ -465,8 +478,9 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Season Ostern: Hase + Ohren, keine fliegenden Eier mehr', await (async () => { await click('[data-tab=start]'); return ev(() => !document.querySelector('#season .egg') && !!document.querySelector('#season .bunny') && !!document.querySelector('.hero .ss-wrap.pulse .ss-ears')); })());
     await click('[data-tab=settings]'); await click('[data-sp="dev"]'); await click('[data-spv="live"]'); await page.waitForTimeout(400);
     check('Season wie live (keine) = normales Design', await ev(() => !document.getElementById('season')));
-    check('Versionsliste geladen (0.1.1 bis aktuell)', await (async () => { await page.waitForTimeout(600); await click('#dev-verall'); return ev(() => { const v = [...document.querySelectorAll('[data-ver]')].map(o => o.dataset.ver); return v.includes('0.1.1') && v.includes(APP_VERSION); }); })());
-    await click('[data-ver="0.1.1"]'); await page.waitForTimeout(200); await click('#overlay .ghostbtn'); await page.waitForTimeout(300);
+    check('Versionsliste geladen (0.1.1 bis aktuell)', await (async () => { await page.waitForTimeout(600); return ev(() => { const v = [...document.querySelectorAll('[data-ver]')].map(o => o.dataset.ver); return v.includes('0.1.1') && v.includes(APP_VERSION); }); })());
+    check('Aktuelle Live-Version ist gelb markiert', await ev(() => { const on = document.querySelector('[data-ver].on'); return !!on && on.dataset.ver === liveNow(); }));
+    await click('[data-ver="0.2.0"]'); await page.waitForTimeout(200); await click('#overlay .ghostbtn'); await page.waitForTimeout(300);
     check('Live schalten ohne Schlüssel: Hinweis statt Fehler', await ev(() => /Schlüssel/.test(document.getElementById('overlay').textContent))); await click('#overlay .mainbtn');
     await click('#dev-inst'); await page.waitForTimeout(200);
     check('Browser-Ansicht: Willkommen + iPhone/Android', await ev(() => !!document.getElementById('inst') && document.querySelectorAll('[data-os]').length === 2));
