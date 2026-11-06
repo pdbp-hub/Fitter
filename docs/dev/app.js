@@ -27,7 +27,7 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.12.0';
+const APP_VERSION = '0.12.1';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
 const DEFAULT_WORKOUTS = [
@@ -1537,21 +1537,45 @@ const EARS = '<svg class="ss-ears" viewBox="0 0 100 90" aria-hidden="true"><g tr
 // Santa in a red sleigh, pulled by brown reindeer, Rudolph in front with a red nose (faces right = flies right)
 const REIN = (x, nose) => `<g transform="translate(${x} 0)"><g class="leg-a"><path d="M10 52 l-6 16 M16 52 l-2 17" stroke="#6b4423" stroke-width="3" stroke-linecap="round"/></g><g class="leg-b"><path d="M34 52 l8 15 M40 51 l4 16" stroke="#6b4423" stroke-width="3" stroke-linecap="round"/></g><ellipse cx="26" cy="46" rx="20" ry="9" fill="#8b5a2b"/><path d="M6 44 q-6 -2 -6 -6" stroke="#8b5a2b" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M42 44 q6 -10 8 -18" stroke="#8b5a2b" stroke-width="8" stroke-linecap="round" fill="none"/><ellipse cx="55" cy="24" rx="8" ry="6" fill="#8b5a2b"/><path d="M50 18 l-4 -12 m2 6 l-6 -2 M56 18 l2 -13 m-1 6 l5 -3" stroke="#5a3a1c" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="56" cy="22" r="1.4" fill="#111"/><circle cx="63" cy="26" r="${nose ? 3.6 : 2.4}" fill="${nose ? '#ff2a2a' : '#3a2412'}" ${nose ? 'class="rudolph"' : ''}/></g>`;
 const SLEIGH = `<svg viewBox="0 0 300 80" aria-hidden="true"><path d="M86 52 C120 50 140 46 164 44 M86 52 C120 52 150 50 228 44" stroke="#c9a227" stroke-width="1.5" fill="none"/>${REIN(150, false)}${REIN(222, true)}
-  <g class="santa"><circle cx="40" cy="26" r="9" fill="#f2c9a0"/><path d="M31 27 q9 16 18 0 q-2 8 -9 9 q-7 -1 -9 -9z" fill="#fff"/><path d="M31 22 q9 -16 20 -4 l6 -6" stroke="#d6262e" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="58" cy="12" r="3.5" fill="#fff"/><rect x="30" y="20" width="21" height="4" rx="2" fill="#fff"/><path d="M28 36 h24 v14 h-24z" fill="#d6262e"/>
-  <g class="wave"><path d="M50 38 l12 -12" stroke="#d6262e" stroke-width="5" stroke-linecap="round"/><circle cx="63" cy="25" r="3.5" fill="#f3f3ef"/></g></g>
+  <g class="santa"><path d="M26 36 h28 v14 h-28z" fill="#d6262e"/><path d="M26 41 h28" stroke="#fff" stroke-width="2"/>
+  <g class="wave"><path d="M50 38 l12 -12" stroke="#d6262e" stroke-width="5" stroke-linecap="round"/><circle cx="63" cy="25" r="3.5" fill="#f3f3ef"/></g>
+  <circle cx="40" cy="24" r="9" fill="#f2c9a0"/><circle cx="36.5" cy="22" r="1.3" fill="#1a1a1a"/><circle cx="43.5" cy="22" r="1.3" fill="#1a1a1a"/>
+  <path d="M29 25 q2 17 11 19 q9 -2 11 -19 q-5 5 -11 5 q-6 0 -11 -5z" fill="#fff"/><path d="M34 28.5 q3 -2.5 6 0 q3 -2.5 6 0 q-3 2.5 -6 0.8 q-3 1.7 -6 -0.8z" fill="#f3f3ef" stroke="#ddd" stroke-width=".4"/><circle cx="40" cy="26" r="2" fill="#e8907a"/>
+  <path d="M30 18 q9 -15 21 -4 l7 -6" stroke="#d6262e" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="59" cy="7" r="3.5" fill="#fff"/><rect x="29" y="15" width="22" height="4.5" rx="2.2" fill="#fff"/></g>
   <path d="M10 40 h74 c6 0 8 6 6 12 l-4 8 h-70 c-6 0 -8 -4 -8 -8z" fill="#d6262e"/><path d="M18 44 h58" stroke="#ffd400" stroke-width="2"/><path d="M4 66 h84 c6 0 8 -6 4 -8" stroke="#c9a227" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M20 60 v6 M74 60 v6" stroke="#c9a227" stroke-width="3"/></svg>`;
 // brown bunny with pink inner ears, side view, faces right
 const BUNNY = '<svg viewBox="0 0 90 70" aria-hidden="true"><ellipse cx="36" cy="46" rx="22" ry="15" fill="#9a6b3f"/><circle cx="22" cy="48" r="12" fill="#9a6b3f"/><ellipse cx="40" cy="52" rx="12" ry="7" fill="#c49a6c"/><circle cx="12" cy="44" r="6" fill="#fff"/><circle cx="60" cy="34" r="12" fill="#9a6b3f"/><path d="M56 26 C48 10 50 0 56 2 C62 4 62 16 61 25 Z" fill="#9a6b3f"/><path d="M57 22 C53 12 54 6 56 6 C59 8 59 15 59 22 Z" fill="#f4a7c0"/><path d="M63 25 C62 9 68 1 72 4 C76 8 70 18 66 26 Z" fill="#8a5d35"/><circle cx="65" cy="32" r="2" fill="#111"/><circle cx="71" cy="37" r="2" fill="#f4a7c0"/><path d="M50 58 l4 8 M28 58 l-4 8" stroke="#7a5230" stroke-width="5" stroke-linecap="round"/></svg>';
 // New Year: text ring around the decagon (turns slowly)
 const NY_RING = '<svg class="ss-ring" viewBox="-60 -60 120 120" aria-hidden="true"><defs><path id="nyc" d="M0,-55 a55,55 0 1,1 -0.01,0"/></defs><text textLength="342" lengthAdjust="spacing"><textPath href="#nyc" textLength="342" lengthAdjust="spacing">HAPPY NEW YEAR ✦ FROHES NEUES JAHR ✦ HAPPY NEW YEAR ✦ FROHES NEUES JAHR ✦</textPath></text></svg>';
 const FLAKE = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10"/><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M5.2 8.1l-.6-2.8M5.2 8.1l-2.7.8M18.8 15.9l.6 2.8M18.8 15.9l2.7-.8M5.2 15.9l-2.7-.8M5.2 15.9l-.6 2.8M18.8 8.1l2.7.8M18.8 8.1l.6-2.8"/></svg>');
+// New Year fireworks: one rocket every few seconds, bursts above and beside the decagon, dezent and glittering
+function fireworks(cv) {
+  const ctx = cv.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), P = [], pal = ['#ffd400', '#fff3b0', '#ff5a5f', '#7cc4ff', '#f3f3ef', '#c39bff'];
+  const size = () => { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }; size(); addEventListener('resize', size);
+  const Rn = (a, b) => a + Math.random() * (b - a); let next = 600, last = performance.now();
+  const rocket = () => { const W = innerWidth, H = innerHeight, side = Math.random(), x = side < .5 ? Rn(.08, .92) * W : (side < .75 ? Rn(.04, .2) : Rn(.8, .96)) * W;
+    const ty = side < .5 ? Rn(.05, .2) * H : Rn(.3, .55) * H; P.push({ k: 'r', x, y: H + 10, vx: Rn(-.3, .3), vy: -Math.sqrt(2 * .09 * (H + 10 - ty)), c: pal[Math.floor(Math.random() * pal.length)] }); };
+  const burst = r => { const n = 46, c2 = pal[Math.floor(Math.random() * pal.length)]; for (let i = 0; i < n; i++) { const a = i / n * 6.283 + Rn(-.05, .05), sp = Rn(1.6, 3.6);
+    P.push({ k: 'p', x: r.x, y: r.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1, d: Rn(.010, .016), c: i % 3 ? r.c : c2, tw: Math.random() * 6 }); } };
+  const step = now => { if (!cv.isConnected) return; const dt = Math.min(50, now - last); last = now;
+    if (document.visibilityState === 'visible') { next -= dt; if (next <= 0) { rocket(); next = Rn(1800, 3600); }
+      ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(0, 0, innerWidth, innerHeight); ctx.globalCompositeOperation = 'lighter';
+      for (let i = P.length - 1; i >= 0; i--) { const p = P[i];
+        if (p.k === 'r') { p.x += p.vx; p.y += p.vy; p.vy += .09; ctx.fillStyle = '#fff3b0'; ctx.globalAlpha = .9; ctx.beginPath(); ctx.arc(p.x, p.y, 1.6, 0, 6.29); ctx.fill(); if (p.vy >= -.4) { burst(p); P.splice(i, 1); } continue; }
+        p.vx *= .985; p.vy = p.vy * .985 + .035; p.x += p.vx; p.y += p.vy; p.life -= p.d; if (p.life <= 0) { P.splice(i, 1); continue; }
+        ctx.globalAlpha = Math.max(0, p.life) * (p.life < .45 ? .4 + .6 * Math.abs(Math.sin(now / 60 + p.tw)) : 1); ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.life > .6 ? 1.7 : 1.2, 0, 6.29); ctx.fill(); }
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
+    requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
 function applySeason() {
   const sz = seasonNow(), app = $('app'); app.classList.toggle('season-xmas', sz === 'xmas'); app.classList.toggle('season-easter', sz === 'easter'); app.classList.toggle('season-newyear', sz === 'newyear');
   let layer = $('season'); if (!sz) { if (layer) layer.remove(); if (tab === 'start' && !W) renderStart(); return; }
   if (!layer || layer.dataset.s !== sz) { if (layer) layer.remove(); greetText = greeting(); layer = document.createElement('div'); layer.id = 'season'; layer.dataset.s = sz; layer.setAttribute('aria-hidden', 'true');
     const R = (a, b) => (a + Math.random() * (b - a)).toFixed(2);
     if (sz === 'xmas') layer.innerHTML = Array.from({ length: 30 }, () => { const z = R(7, 15); return `<i class="flake" style="left:${R(0, 100)}%;width:${z}px;height:${z}px;background-image:url('${FLAKE}');animation-duration:${R(10, 20)}s,${R(3, 6)}s;animation-delay:-${R(0, 20)}s,-${R(0, 6)}s;opacity:${R(.45, .9)}"></i>`; }).join('') + `<div class="sleigh"><div class="sl-in">${SLEIGH}</div></div>`;
-    else if (sz === 'newyear') layer.innerHTML = Array.from({ length: 6 }, (_, i) => `<div class="fw" style="left:${R(8, 92)}%;top:${Math.random() < .6 ? R(2, 16) : R(64, 72)}%;--c:${['#ffd400', '#f3f3ef', '#ff5a5f', '#4aa3ff', '#ffd400', '#b58cff'][i]};animation-delay:-${R(0, 6)}s;animation-duration:${R(4.5, 7)}s">${Array.from({ length: 12 }, (_, j) => `<i style="transform:rotate(${j * 30}deg)"></i>`).join('')}</div>`).join('');
+    else if (sz === 'newyear') { layer.innerHTML = '<canvas class="fwc"></canvas>'; fireworks(layer.firstChild); }
+    else if (false) layer.innerHTML = Array.from({ length: 6 }, (_, i) => `<div class="fw" style="left:${R(8, 92)}%;top:${Math.random() < .6 ? R(2, 16) : R(64, 72)}%;--c:${['#ffd400', '#f3f3ef', '#ff5a5f', '#4aa3ff', '#ffd400', '#b58cff'][i]};animation-delay:-${R(0, 6)}s;animation-duration:${R(4.5, 7)}s">${Array.from({ length: 12 }, (_, j) => `<i style="transform:rotate(${j * 30}deg)"></i>`).join('')}</div>`).join('');
     else layer.innerHTML = `<div class="bunny"><div class="bn-in">${BUNNY}</div></div>`;
     // every pass a new route: other height, other direction
     // fireworks: each burst moves to a new spot after it faded out

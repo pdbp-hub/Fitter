@@ -451,7 +451,9 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await ev(() => { S.seasonPreview = 'xmas'; applySeason(); }); await page.waitForTimeout(1600);
     check('Schlitten: wird nicht durch Bein-/Arm-Animationen neu gestartet (REGRESSION)', await ev(() => { const a = document.querySelector('#season .sleigh').getAnimations()[0]; return a && a.currentTime > 1200; }));
     await ev(() => { S.seasonPreview = 'newyear'; applySeason(); renderStart(); }); await page.waitForTimeout(200);
-    check('Season Silvester: Feuerwerk + Schriftzug ums Zehneck', await ev(() => document.querySelectorAll('#season .fw').length >= 4 && !!document.querySelector('.hero .ss-ring')));
+    check('Season Silvester: Feuerwerk + Schriftzug ums Zehneck', await ev(() => !!document.querySelector('#season canvas.fwc') && !!document.querySelector('.hero .ss-ring')));
+    await ev(() => { S.seasonPreview = 'easter'; show('start'); applySeason(); }); await page.waitForTimeout(100);
+    check('Hasenohren: Unterkante liegt auf der Oberkante des Zehnecks (REGRESSION)', await ev(() => { const w = document.querySelector('.hero .ss-wrap'), e = w.querySelector('.ss-deco'); const a = w.style.animation; w.style.animation = 'none'; const r = w.getBoundingClientRect(), d = e.getBoundingClientRect(); w.style.animation = a; return Math.abs(d.bottom - (r.top + r.height * .0245)) < r.height * .03; }));
     await ev(() => { S.seasonPreview = null; applySeason(); save(); });
     console.log('Neu in v0.10');
     const cdp2 = await ctx.newCDPSession(page), touch = (type, x, y) => cdp2.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });

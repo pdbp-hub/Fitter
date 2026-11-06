@@ -1036,3 +1036,8 @@ body:has(#auth) .popover, body:has(#onb) .popover, body:has(#inst) .popover { z-
 .season-newyear .ss-mini { display: none; }
 .season-newyear .ss-wrap .ss-deco { left: -7%; top: -7%; width: 114%; }
 .ss-ring text { font-size: 5.6px; letter-spacing: 0; }
+/* v0.12.1 ears sit on the top edge (top edge of the decagon is at 2.45 % of its height) and only move with the decagon */
+.season-easter .ss-wrap .ss-deco { top: 2.45%; width: 28%; transform: translate(-50%, -97%); }
+.season-easter .ss-wrap .ss-deco svg { animation: none; }
+.season-easter .ss-mini { top: 2.45%; transform: translate(-50%, -97%); }
+#season .fwc { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .9; }
