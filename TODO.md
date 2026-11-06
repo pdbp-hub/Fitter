@@ -1,6 +1,17 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Feedback 2026-11-06 (→ v0.13, alles VOR der Cloud)**
+  - [ ] Push-Test: zwei Zeilen („Fitter Dev“ + „TRAIN“) → nur App-Name + Nachricht
+  - [ ] Profil: Zehnecke gequetscht → kleiner, aber echte Zehnecke; „+“ am Profilbild schöner; Hochwischen wie Level-Seite (Kopf verschmilzt), keine eingeblendete Leiste; „Meist trainiert“/„Letztes Training“ weniger klobig
+  - [ ] Weihnachten: Rentiere realistischer; schwarzer Punkt vorne an Santas Mütze weg
+  - [ ] Ostern: Grasbüschel unten links/rechts mit Ostereiern; Hase hoppelt über (nicht hinter) der Mini-Leiste
+  - [ ] Silvester: auf Englisch nur „Happy New Year“
+  - [ ] Celebrations alle hochwertiger (Feuerwerk wie Silvester, Hantelscheiben, Kanonen …), farbige Varianten mit farbigem Symbol in Einstellungen
+  - [ ] Dev: echter Browser-Test der Erstbesucher-Ansicht (Safari, nicht In-App), wiederholbar mit Test-Profil ohne echte Daten
+  - [ ] Fortschritt: „Analyse“-Überschrift + Trennlinie zum Kalender weg; Tag antippen (Streifen oder ganzer Kalender) öffnet eigene Seite mit Zurück (1 Training = direkt Details, mehrere = Liste)
+  - [ ] Mini-Leiste: Workout am Kopf/Zehneck zuverlässig runterwischen; Leiste antippen = Workout fährt wieder hoch (umgekehrte Animation); Leiste hochwischen öffnet auch
+  - [ ] Einstellungen: Abstand über „Allgemein“ zu groß
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
