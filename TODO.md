@@ -1,24 +1,13 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **🔝 Feedback 2026-11-06 (→ v0.13, alles VOR der Cloud)**
-  - [ ] Push-Test: zwei Zeilen („Fitter Dev“ + „TRAIN“) → nur App-Name + Nachricht
-  - [ ] Profil: Zehnecke gequetscht → kleiner, aber echte Zehnecke; „+“ am Profilbild schöner; Hochwischen wie Level-Seite (Kopf verschmilzt), keine eingeblendete Leiste; „Meist trainiert“/„Letztes Training“ weniger klobig
-  - [ ] Weihnachten: Rentiere realistischer; schwarzer Punkt vorne an Santas Mütze weg
-  - [ ] Ostern: Grasbüschel unten links/rechts mit Ostereiern; Hase hoppelt über (nicht hinter) der Mini-Leiste
-  - [ ] Silvester: auf Englisch nur „Happy New Year“
-  - [ ] Celebrations alle hochwertiger (Feuerwerk wie Silvester, Hantelscheiben, Kanonen …), farbige Varianten mit farbigem Symbol in Einstellungen
-  - [ ] Dev: echter Browser-Test der Erstbesucher-Ansicht (Safari, nicht In-App), wiederholbar mit Test-Profil ohne echte Daten
-  - [ ] Fortschritt: „Analyse“-Überschrift + Trennlinie zum Kalender weg; Tag antippen (Streifen oder ganzer Kalender) öffnet eigene Seite mit Zurück (1 Training = direkt Details, mehrere = Liste)
-  - [ ] Mini-Leiste: Workout am Kopf/Zehneck zuverlässig runterwischen; Leiste antippen = Workout fährt wieder hoch (umgekehrte Animation); Leiste hochwischen öffnet auch
-  - [ ] Einstellungen: Abstand über „Allgemein“ zu groß
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
 - [ ] Live-Versionswahl greift ab der nächsten Freigabe (release.py baut den Lader in die Live-App ein)
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.12.1 ansehen → Feedback → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.13.0 ansehen (v. a. Wischen der Mini-Leiste am iPhone, Erstbesuch-Test in Safari) → Feedback → „freigeben“ für Live
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
   - [ ] Account: Registrierung mit Benutzername (einmalig, ersetzt @test) + E-Mail + Kennwort; **Anmelden mit E-Mail ODER Benutzername + Kennwort**; Kennwort zurücksetzen per E-Mail (Entscheidung Ben 2026-11-05); Übernahme der lokalen Daten
@@ -93,6 +82,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.13.0** (2026-11-06): Push einzeilig, Profil mit verschmelzendem Kopf + echte Zehnecke + neues „+“ + ruhigere Fakten-Zeile, realistischere Rentiere, Santa ohne Punkt, Ostern mit Grasbüscheln + Hase über der Mini-Leiste, Silvester EN nur „Happy New Year“, Celebrations hochwertiger (3D-Konfetti, farbiges Raketen-Feuerwerk, Hantelscheiben mit Details, Kanonen mit Luftschlangen), Erstbesuch-Test mit Test-Profil (`?install&fresh`), Fortschritt ohne „Analyse“, Tag = eigene Seite mit Zurück, Workout am Kopf runterwischen + Leiste hochwischen/antippen fährt hoch, Abstand über „Allgemein“
 - [x] **Dev v0.12.1** (2026-11-06): Hasenohren sitzen auf der Zehneck-Kante und bewegen sich nur mit ihm, Santa mit Bart/Augen/Nase, Silvester-Feuerwerk echt (Rakete, Explosion, Glitzer, Schweif)
 - [x] **Dev v0.12.0** (2026-11-05): Fortschritt-Kopf ohne Überlappung, ohne „Verlauf“, „Details ansehen“, Rückblick-Tabelle bündig, Level-Kopf bleibt beim Hochscrollen zu, Kennwort-vergessen-Ablauf, AGB/Datenschutz-Fenster vorne, Gast-Text, Install-Icon, Live-Version gelb + scrollbare Liste, „In Safari öffnen“ (x-safari), In-App-Balken + Test App/Push, Schalter-Vorschau-Fix, „Berechnung“, Schlitten/Hase-Respawn-Fix, kürzere Ohren, neue Season Silvester
 - [x] **Dev v0.11.0** (2026-11-05): Onboarding GO/Löschen, FAQ aufklappbar mit Animation, Einstellungen neu (Allgemein, Persönliche Daten + Löschen, Impressum & Datenschutz, keine Überschriften), Schalter-Farbe Grün, Berechnungslogik kurz, Trainingsminuten ohne Pausen, Profil neu (schrumpfender Kopf, Profilbild, kompakt) + Bearbeiten mit Schaltern/Speichern, Fortschritt neu (Analyse, PBs aufklappbar, Rückblick 7/30), Dev-Werkzeuge im App-Stil + Push-Kategorien, Safari-Link, Seasons neu (Flocken, Rentier-Schlitten, Mütze/Ohren pulsieren, Hase, Sprüche), Account-Entwurf (nur Dev) mit AGB/Datenschutz + Gast

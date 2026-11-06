@@ -27,9 +27,12 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.12.1';
+const APP_VERSION = '0.13.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
-const STORE_KEY = ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
+// ?fresh = throwaway test profile (first visit every time, real data untouched)
+const FRESH = location.search.includes('fresh');
+const STORE_KEY = FRESH ? 'fitter.fresh' : ENV === 'dev' ? 'fitter.dev.v1' : 'fitter.v1';
+if (FRESH) try { localStorage.removeItem('fitter.fresh'); } catch (e) { /* storage blocked */ }
 const DEFAULT_WORKOUTS = [
   { id:'push', name:'Push Day', ex:[['bench',4],['incline',4],['ohp',4],['pushdown',4],['dips',3]] },
   { id:'pull', name:'Pull Day', ex:[['latpull',4],['row',4],['pullup',3],['curl',4],['hammer',3]] },
@@ -567,6 +570,12 @@ function openW() {
   if (morphing) return;
   if (!m.hidden && s.classList.contains('down')) {
     morphing = true; const { tf, br } = morphTarget();
+    // reverse of minimize: the bar grows back into the full workout (Web Animations, reliable on iPhone)
+    if (s.animate) { s.style.transformOrigin = '0 0'; s.classList.add('morphing'); s.classList.remove('down'); m.style.opacity = '0';
+      const a = s.animate([{ transform: tf, borderRadius: br, backgroundColor: 'var(--fg)' }, { transform: 'translate(0px, 0px) scale(1, 1)', borderRadius: '0px', backgroundColor: 'var(--bg)', offset: .55 }, { transform: 'translate(0px, 0px) scale(1, 1)', borderRadius: '0px', backgroundColor: 'var(--bg)' }], { duration: 460, easing: MORPH_EASE });
+      setTimeout(() => s.classList.remove('morphing'), 230);
+      a.finished.then(() => { m.hidden = true; m.style.opacity = ''; s.style.transformOrigin = ''; morphing = false; }, () => { m.hidden = true; morphing = false; });
+      return; }
     s.style.transition = 'none'; s.style.transformOrigin = '0 0'; s.style.transform = tf; s.style.borderRadius = br; s.style.backgroundColor = 'var(--fg)';
     s.classList.add('morphing'); s.classList.remove('down'); s.getBoundingClientRect();
     m.style.transition = 'none'; m.style.opacity = '0';
@@ -901,6 +910,10 @@ function tick() {
 }
 setInterval(tick, 250);
 $('mini').onclick = openW;
+(() => { const m = $('mini'); let y0 = null; // swipe the bar up = open the workout (like a music app)
+  m.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; }, { passive: true });
+  m.addEventListener('touchmove', e => { if (y0 !== null && y0 - e.touches[0].clientY > 24) { y0 = null; openW(); } }, { passive: true });
+  m.addEventListener('touchend', () => { y0 = null; }, { passive: true }); })();
 (() => { // swipe down to minimise: handle (mouse + touch) and anywhere when scrolled to top (touch)
   const s = $('wsheet'), body = $('wbody');
   const drag = dy => { s.style.transition = 'none'; s.style.transform = `translateY(${Math.max(0, dy)}px)`; };
@@ -911,8 +924,9 @@ $('mini').onclick = openW;
   const end = () => { if (y0 === null) return; y0 = null; release(dy); };
   h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
   let ty = null, tdy = 0, active = false;
-  s.addEventListener('touchstart', e => { if (e.target.closest('[data-grip], input, .handle')) { ty = null; return; } ty = e.touches[0].clientY; tdy = 0; active = false; }, { passive:true });
-  s.addEventListener('touchmove', e => { if (ty === null) return; const d = e.touches[0].clientY - ty; if (!active && d > 8 && body.scrollTop <= 0) active = true; if (active) { e.preventDefault(); tdy = d; drag(d); } }, { passive:false });
+  let inHead = false;
+  s.addEventListener('touchstart', e => { if (e.target.closest('[data-grip], input, .handle, button')) { ty = null; return; } ty = e.touches[0].clientY; tdy = 0; active = false; inHead = !!e.target.closest('#whead'); }, { passive:true });
+  s.addEventListener('touchmove', e => { if (ty === null) return; const d = e.touches[0].clientY - ty; if (!active && d > 8 && (inHead || body.scrollTop <= 0)) active = true; if (active) { e.preventDefault(); tdy = d; drag(d); } }, { passive:false });
   s.addEventListener('touchend', () => { if (active) release(tdy); ty = null; active = false; });
 })();
 
@@ -962,12 +976,11 @@ const exMatches = (k, q) => !q || (exName(k) + ' ' + (EX[k].en || '') + ' ' + t(
 function toggleFav(k) { const i = S.fav.indexOf(k); if (i >= 0) S.fav.splice(i, 1); else S.fav.push(k); return true; }
 function renderO() {
   const b = $('obody');
-  b.classList.toggle('lvlmode', O.mode === 'levels');
+  b.classList.toggle('lvlmode', O.mode === 'levels' || O.mode === 'profile');
   if (O.mode === 'levels') { b.innerHTML = levelsHTML(); setOBar(''); $('o-back').onclick = closeO; return; }
   if (O.mode === 'profile') { b.innerHTML = profileHTML(O.p); setOBar(''); bindProfileScroll(); $('pfphoto') && ($('pfphoto').parentNode.onclick = photoView); $('o-back').onclick = () => O.from === 'find' ? (O = { mode:'find', q:O.q }, renderO()) : closeO();
     $('pf-follow') && ($('pf-follow').onclick = () => { const f = O.follow || {}; f[O.p.user] = !f[O.p.user]; const p = O.p, fr = O.from, q = O.q; O = { mode:'profile', p, from:fr, q, follow:f }; renderO(); toast(S.lang === 'de' ? 'Vorschau: Folgen kommt mit dem Cloud-Modus' : 'Preview: following comes with cloud sync'); });
     $('pf-edit') && ($('pf-edit').onclick = () => { closeO(); PD = null; setPage = 'profile'; show('settings'); $('v-settings').scrollTop = 0; }); return; }
-  if (O.mode !== 'profile') b.onscroll = null;
   if (O.mode === 'find') { b.innerHTML = findHTML(); setOBar(''); $('o-back').onclick = closeO;
     loadQR(() => { const box = $('qrbox'); if (!box || !window.qrcode) return; const q = qrcode(0, 'M'); q.addData(SHARE_URL + '?u=' + encodeURIComponent(userName())); q.make(); box.innerHTML = q.createSvgTag(6, 2); });
     const qi = $('f-q'); qi.oninput = () => { O.q = qi.value; const pos = qi.selectionStart; renderO(); const n = $('f-q'); n.focus(); n.setSelectionRange(pos, pos); };
@@ -981,13 +994,18 @@ function renderO() {
     $('o-back').onclick = closeO; $('o-q').oninput = e => { O.q = e.target.value; renderPickList(); };
     return;
   }
+  if (O.mode === 'day') { const hs = HISTORY.filter(x => x.ago === O.ago).sort((a, b) => a.date - b.date), d = dayDate(O.ago).toLocaleDateString(loc(), { weekday:'long', day:'2-digit', month:'2-digit' });
+    b.innerHTML = `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${esc(d)}</span><span style="width:44px"></span></div>
+      ${hs.map(h => { const n = h.ex.reduce((a, e) => a + e.sets.length, 0); return `<button class="dayitem" data-dayh="${esc(h.id)}"><b>${esc(h.wname || (wById(h.wid) || {}).name || '')}</b><span class="num">${volTxt(sessVol(h))} · ${t('min', trainMin(h))} · ${n} ${t('setsWord')}</span>${CHEV}</button>`; }).join('')}</div>`;
+    setOBar(''); $('o-back').onclick = closeO;
+    b.querySelectorAll('[data-dayh]').forEach(x => x.onclick = () => { const ago = O.ago; O = { mode:'review', h: HISTORY.find(y => y.id === x.dataset.dayh), open:false, back: ago }; renderO(); $('obody').scrollTop = 0; }); return; }
   if (O.mode === 'review') {
     const h = O.h, ds = new Date(h.date).toLocaleDateString(loc(), { weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' });
     b.innerHTML = `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${esc(ds)}</span><span style="width:44px"></span></div>
       ${reviewCore({ name: h.wname || '', slogan: h.wname || '', ex: h.ex.filter(e => EX[e.k]), dur: h.dur, before: h.date, key: 'd', open: O.open, pts: h.pts })}
       <div class="sect"><h2>${t('allSets')}</h2><div>${h.ex.filter(e => EX[e.k]).map(e => `<div class="rvblock"><h3>${ico(e.k)}${esc(exName(e.k))}</h3><div class="cells num">${e.sets.map(s => `<span>${esc(wLabel(e.k, s.w))} × ${s.r}</span>`).join('')}</div></div>`).join('')}</div></div></div>`;
     setOBar('');
-    $('o-back').onclick = closeO;
+    $('o-back').onclick = () => { if (O.back != null) { O = { mode:'day', ago: O.back }; renderO(); } else closeO(); };
     b.querySelectorAll('[data-rvtog]').forEach(x => x.onclick = () => { O.open = !O.open; renderO(); });
     bindRvCharts(b);
     return;
@@ -1094,7 +1112,7 @@ function renderProgress() {
       <button class="calbtn" id="calbtn">${calOpen ? t('lessCal') : t('fullCal')}</button>
       <div id="daycard">${dayCard()}</div>
     </div>
-    <div class="sect"><h2 class="hic">${SIC.ex}${de ? 'Analyse' : 'Analysis'}</h2>
+    <div class="sect sect-ana">
       <button class="exsel" id="exsel"><b>${esc(exName(S.chartKey))}</b><span class="drop">▼</span></button>
       ${S.fav.length ? `<div class="favs">${S.fav.map(k => `<button class="fav ${k===S.chartKey?'on':''}" data-ck="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
       <div id="charts"></div>
@@ -1161,24 +1179,30 @@ function openProfile(p, from) { O = { mode:'profile', p, from }; renderO(); open
 // a profile as others see it (own profile respects the visibility settings)
 function profileHTML(p) {
   const de = S.lang === 'de', v0 = p.vis || {}, v = k => v0[k] !== false, hm = m => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
-  const dec = (val, lbl) => `<div class="pdec dec"><b class="num">${val}</b><span>${lbl}</span></div>`;
+  const dec = (val, lbl) => `<div class="pdec2"><div class="dec"><b class="num">${val}</b></div><span>${lbl}</span></div>`;
+  const facts = [v('last') && p.last ? [de ? 'Letztes Training' : 'Last session', p.last[0], t('ago', p.last[1])] : null, v('fav') && p.fav ? [de ? 'Meist trainiert' : 'Most trained', p.fav[0], de ? `${p.fav[1]}× in 30 Tagen` : `${p.fav[1]}× in 30 days`] : null].filter(Boolean);
   return `<div class="inner pf"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${p.me ? (de ? 'Dein Profil' : 'Your profile') : (de ? 'Profil' : 'Profile')}</span><span style="width:44px"></span></div>
-    <div class="pf-mini" id="pfmini">${avatarHTML(p.name, 36, p.photo)}<div><b>${esc(p.name)}</b><small>${v('level') ? `Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])}` : (p.user ? '@' + esc(p.user) : '')}</small></div></div>
-    <div class="pf-head" id="pfhead"><span class="pf-av">${avatarHTML(p.name, 112, p.photo, p.me ? 'pfphoto' : '')}${p.me ? '<span class="pf-plus">+</span>' : ''}</span><h1>${esc(p.name)}</h1>${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}
-      ${v('level') ? `<div class="pf-lvl">${levelIcon(p.lv)}<span>Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])} · <span class="num">${fmt(p.pts)}</span> Points</span></div>` : ''}
-      ${p.me ? `<button class="ghostbtn pf-follow" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div>
-    ${v('week') ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('thisWeek')}</h2><div class="pdecs">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2] + ' min', de ? 'Training' : 'Training')}</div></div>` : ''}
-    ${v('month') && p.month ? `<div class="sect"><h2 class="hic">${SIC.hist}${t('last30')}</h2><div class="pf-line num"><div><b>${p.month[0]}</b><span>${t('workouts')}</span></div><div><b>${hm(p.month[1])}</b><span>${de ? 'Training' : 'Training'}</span></div><div><b>${p.month[2]}</b><span>${de ? 'Rekorde' : 'Records'}</span></div></div></div>` : ''}
+    <div class="lvl-hero pf-hero" id="pfhero"><div class="pf-av lvl-dec">${avatarHTML(p.name, 112, p.photo, p.me ? 'pfphoto' : '')}${p.me ? '<span class="pf-plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg></span>' : ''}</div>
+      <div class="lvl-ht"><h1>${esc(p.name)}</h1>${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}${v('level') ? `<div class="pf-lvl">${levelIcon(p.lv)}<span>Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])} · <span class="num">${fmt(p.pts)}</span> Points</span></div>` : ''}</div>
+      <div class="lvl-more">${p.me ? `<button class="ghostbtn pf-follow" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div></div>
+    <div class="pf-scroll" id="pfscroll">
+    ${v('week') ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('thisWeek')}</h2><div class="pdecs2">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2] + ' min', 'Training')}</div></div>` : ''}
+    ${v('month') && p.month ? `<div class="sect"><h2 class="hic">${SIC.hist}${t('last30')}</h2><div class="pf-line num"><div><b>${p.month[0]}</b><span>${t('workouts')}</span></div><div><b>${hm(p.month[1])}</b><span>Training</span></div><div><b>${p.month[2]}</b><span>${de ? 'Rekorde' : 'Records'}</span></div></div></div>` : ''}
     ${v('pbs') && p.pbs.length ? `<div class="sect"><h2 class="hic">${SIC.pb}Personal Bests</h2><div>${p.pbs.map(([k, w, r]) => `<div class="pf-pb"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><span class="num">${esc(wLabel(k, w))} × ${r}</span></div>`).join('')}</div></div>` : ''}
-    ${v('last') && p.last ? `<div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Letztes Training' : 'Last session'}</h2><div class="pf-last"><b>${esc(p.last[0])}</b><span>${t('ago', p.last[1])}</span></div></div>` : ''}
-    ${v('fav') && p.fav ? `<div class="sect"><h2 class="hic">${SIC.ex}${de ? 'Meist trainiert' : 'Most trained'}</h2><div class="pf-last"><b>${esc(p.fav[0])}</b><span>${de ? `${p.fav[1]}× in den letzten 30 Tagen` : `${p.fav[1]}× in the last 30 days`}</span></div></div>` : ''}
-    ${p.me ? '' : `<p class="hint">${de ? 'Beispieldaten. Folgen funktioniert mit dem Cloud-Modus.' : 'Sample data. Following works with cloud sync.'}</p>`}</div>`;
+    ${facts.length ? `<div class="sect"><div class="pf-facts">${facts.map(([l, a, b]) => `<div><span>${l}</span><b>${esc(a)}</b><small>${esc(b)}</small></div>`).join('')}</div></div>` : ''}
+    ${p.me ? '' : `<p class="hint">${de ? 'Beispieldaten. Folgen funktioniert mit dem Cloud-Modus.' : 'Sample data. Following works with cloud sync.'}</p>`}</div></div>`;
 }
-// profile: the big head scrolls away, a small bar with photo + name slides in (continuously, like the level page)
-function bindProfileScroll() { const ob = $('obody'), head = $('pfhead'), mini = $('pfmini'); if (!head || !mini) return; const H = head.offsetHeight, av = head.querySelector('.pf-av');
-  let raf = 0; const lay = () => { raf = 0; const y = ob.scrollTop, k = Math.max(0, Math.min(1, y / (H * .8))), m = Math.max(0, Math.min(1, (y - H * .45) / (H * .35)));
-    av.style.transform = `scale(${1 - .45 * k})`; av.style.opacity = 1 - k * .8; mini.style.opacity = m; mini.style.transform = `translateY(${(1 - m) * -10}px)`; mini.style.pointerEvents = m > .5 ? 'auto' : 'none'; };
-  ob.onscroll = () => { if (!raf) raf = requestAnimationFrame(lay); }; lay(); }
+// profile head melts into a small bar while the content scrolls (same feel as the level page)
+function bindProfileScroll() { const hero = $('pfhero'), sc = $('pfscroll'); if (!hero || !sc) return;
+  const dec = hero.querySelector('.lvl-dec'), ht = hero.querySelector('.lvl-ht'), more = hero.querySelector('.lvl-more');
+  hero.classList.add('fluid'); const Wd = hero.clientWidth, htW = Math.min(Wd, ht.offsetWidth), htH = ht.offsetHeight, mH = more.offsetHeight;
+  const big = 112, small = 48, sc2 = .6, top = big + 12, bigH = top + htH + 12 + mH, L = (a, b, k) => a + (b - a) * k;
+  const lay = k => { dec.style.transform = `translate(${L((Wd - big) / 2, 0, k)}px, 0) scale(${L(big, small, k) / big})`;
+    ht.style.transform = `translate(${L((Wd - htW) / 2, small + 12, k)}px, ${L(top, (small - htH * sc2) / 2, k)}px) scale(${L(1, sc2, k)})`;
+    more.style.transform = `translateY(${top + htH + 12}px)`; more.style.opacity = Math.max(0, 1 - k * 2.5); more.style.pointerEvents = k > .3 ? 'none' : '';
+    hero.style.height = L(bigH, small, k) + 'px'; };
+  lay(0); let raf = 0; sc.onscroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; lay(Math.max(0, Math.min(1, sc.scrollTop / 160))); }); };
+  const need = 160 + sc.clientHeight + (bigH - small) - sc.scrollHeight; if (need > 0) sc.style.paddingBottom = need + 'px'; }
 
 function findHTML() {
   const de = S.lang === 'de', q = (O.q || '').toLowerCase().replace(/^@/, ''), hits = q ? DEMO_FRIENDS.filter(f => f.user.includes(q) || f.name.toLowerCase().includes(q)) : [];
@@ -1191,7 +1215,12 @@ function findHTML() {
       <button class="ghostbtn" id="f-scan">${de ? 'Code eines Freundes scannen' : 'Scan a friend’s code'}</button></div></div>`;
 }
 
+// a day = its own page with back: 1 workout → straight to its details, several → list first
+function openDay(ago) { const hs = HISTORY.filter(x => x.ago === ago).sort((a, b) => a.date - b.date);
+  if (!hs.length) { toast(S.lang === 'de' ? 'An diesem Tag kein Training' : 'No session on this day'); return; }
+  O = hs.length === 1 ? { mode:'review', h: hs[0], open:false } : { mode:'day', ago }; renderO(); openO(); $('obody').scrollTop = 0; }
 function bindDays() {
+  document.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { openDay(+b.dataset.day); }); return;
   document.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { const d = +b.dataset.day; selDay = selDay === d ? null : d; dayOpen = false; document.querySelectorAll('[data-day]').forEach(x => x.classList.toggle('sel', +x.dataset.day === selDay)); $('daycard').innerHTML = dayCard(); bindDayCard(); });
   bindDayCard();
 }
@@ -1478,11 +1507,12 @@ function celebrate(kind = S.celeb) {
   const cs = getComputedStyle($('app')), FG = cs.getPropertyValue('--fg').trim() || '#f3f3ef', MU = cs.getPropertyValue('--muted').trim() || '#8d8d86';
   const mono = [FG, FG, MU, '#bdbdb6'], bright = ['#ffd400', '#35c46a', '#f0524a', '#4aa3ff', '#f3f3ef', '#ff7ad9'];
   const R = (a, b) => a + Math.random() * (b - a), P = [];
-  const add = o => P.push(Object.assign({ x: 0, y: 0, vx: 0, vy: 0, g: .25, rot: R(0, 6.28), vr: R(-.2, .2), size: R(5, 9), shape: 'rect', col: FG, life: 1, decay: R(.006, .012), drag: .995, delay: 0 }, o));
-  if (kind === 'confetti' || kind === 'colorconf') for (let i = 0; i < 150; i++) { const side = i % 3, pal = kind === 'colorconf' ? bright : mono;
+  const add = o => P.push(Object.assign({ x: 0, y: 0, vx: 0, vy: 0, g: .25, rot: R(0, 6.28), vr: R(-.2, .2), size: R(5, 9), shape: 'rect', col: FG, life: 1, decay: R(.006, .012), drag: .995, delay: 0, flip3d: true, flip: R(0, 6.28), fs: R(.08, .22) }, o));
+  if (kind === 'confetti' || kind === 'colorconf') for (let i = 0; i < 190; i++) { const side = i % 3, pal = kind === 'colorconf' ? bright : mono;
     add({ x: side === 0 ? R(-10, Wd * .12) : side === 1 ? R(Wd * .88, Wd + 10) : R(0, Wd), y: side === 2 ? R(-60, -10) : R(-30, Ht * .2), vx: side === 0 ? R(1.5, 5) : side === 1 ? R(-5, -1.5) : R(-1.5, 1.5), vy: R(1, 4), g: .12, col: pal[i % pal.length], shape: i % 4 ? 'rect' : 'circle', size: R(5, 10), decay: R(.004, .008) }); }
-  if (kind === 'cannons') for (let i = 0; i < 130; i++) { const L = i % 2 === 0; add({ x: L ? -5 : Wd + 5, y: Ht * .8, vx: (L ? 1 : -1) * R(3, 10), vy: R(-17, -9), g: .35, col: mono[i % 4], size: R(5, 9), decay: R(.005, .009) }); }
-  if (kind === 'fireworks') [[.28, .28], [.72, .22], [.5, .42]].forEach(([fx, fy], k) => { for (let i = 0; i < 55; i++) { const a = i / 55 * 6.28, sp = R(2.5, 6); add({ x: Wd * fx, y: Ht * fy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .05, drag: .97, shape: 'circle', size: R(2.5, 4), col: mono[i % 2], delay: k * 16, decay: R(.012, .02) }); } });
+  if (kind === 'cannons') for (let i = 0; i < 160; i++) { const L = i % 2 === 0; add({ shape: i % 5 ? 'rect' : 'streamer', sway: i % 5 ? 0 : .6, tw: Math.random() * 6, x: L ? -5 : Wd + 5, y: Ht * .8, vx: (L ? 1 : -1) * R(3, 10), vy: R(-17, -9), g: .35, col: mono[i % 4], size: R(5, 9), decay: R(.005, .009) }); }
+  if (kind === 'fireworks') { const pal = ['#ffd400', '#ff5a5f', '#7cc4ff', '#7dff9b', '#c39bff', '#fff3b0']; [[.25, .26], [.72, .2], [.5, .38], [.3, .5], [.75, .45]].forEach(([fx, fy], k) => { const y0 = Ht + 10, ty = Ht * fy;
+    add({ x: Wd * fx + R(-20, 20), y: y0, vx: R(-.4, .4), vy: -Math.sqrt(2 * .16 * (y0 - ty)), g: .16, drag: 1, shape: 'circle', size: 3, col: '#fff3b0', glow: true, rocket: true, pal, decay: 0, delay: k * 22, flip3d: false }); }); }
   if (kind === 'decagons') for (let i = 0; i < 44; i++) { const a = R(0, 6.28), sp = R(4, 10); add({ x: Wd / 2, y: Ht * .3, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 3, g: .2, shape: 'dec', size: R(8, 16), col: mono[i % 4], decay: R(.006, .01) }); }
   if (kind === 'stars') for (let i = 0; i < 60; i++) add({ x: R(0, Wd), y: R(-220, -10), vx: R(-.5, .5), vy: R(2, 4), g: .05, shape: 'star', size: R(6, 12), col: mono[i % 4], decay: R(.004, .007) });
   if (kind === 'streamers') for (let i = 0; i < 44; i++) add({ x: R(0, Wd), y: R(-160, -10), vx: R(-1, 1), vy: R(2, 5), g: .08, shape: 'streamer', size: R(14, 26), col: mono[i % 4], vr: R(-.3, .3), decay: R(.004, .007) });
@@ -1490,11 +1520,14 @@ function celebrate(kind = S.celeb) {
   if (kind === 'xmas') { const pal = ['#f3f3ef', '#f3f3ef', '#d6262e', '#2e9e4f', '#ffd400']; for (let i = 0; i < 120; i++) add({ x: R(0, Wd), y: R(-300, -10), vx: R(-.8, .8), vy: R(1.5, 3.5), g: .03, shape: i % 3 ? 'circle' : 'star', size: R(4, 10), col: pal[i % 5], decay: R(.003, .006) }); }
   if (kind === 'easter') { const pal = ['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0']; for (let i = 0; i < 46; i++) { const a = R(0, 6.28), sp = R(4, 10); add({ x: Wd / 2, y: Ht * .35, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 4, g: .22, shape: 'egg', size: R(12, 20), col: pal[i % 5], decay: R(.005, .009) }); } }
   if (kind === 'newyear') { const pal = ['#ffd400', '#f3f3ef', '#ff5a5f', '#4aa3ff', '#b58cff']; [[.22, .26], [.75, .2], [.5, .4], [.3, .55], [.72, .5]].forEach(([fx, fy], k) => { for (let i = 0; i < 48; i++) { const a = i / 48 * 6.28, sp = R(2.5, 6.5); add({ x: Wd * fx, y: Ht * fy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .05, drag: .97, shape: 'circle', size: R(2.5, 4.5), col: pal[(k + i) % 5], delay: k * 14, decay: R(.011, .018) }); } }); }
-  if (kind === 'plates') for (let i = 0; i < 34; i++) add({ x: R(0, Wd), y: R(-500, -20), vx: R(-.6, .6), vy: R(1, 3), g: .16, shape: 'plate', size: R(16, 30), col: mono[i % 4], vr: R(-.08, .08), decay: R(.003, .005) });
+  if (kind === 'plates') for (let i = 0; i < 30; i++) add({ fancy: true, fs: R(.03, .08), x: R(0, Wd), y: R(-500, -20), vx: R(-.6, .6), vy: R(1, 3), g: .16, shape: 'plate', size: R(16, 30), col: mono[i % 4], vr: R(-.08, .08), decay: R(.003, .005) });
   if (kind === 'shock') for (let i = 0; i < 7; i++) add({ x: Wd / 2, y: Ht * .4, g: 0, vr: .01, shape: 'ring', size: 20, grow: R(7, 9), col: FG, delay: i * 9, decay: .011, drag: 1 });
   if (kind === 'fountain') for (let i = 0; i < 160; i++) add({ x: Wd / 2 + R(-8, 8), y: Ht + 5, vx: R(-3.2, 3.2), vy: R(-19, -12), g: .32, col: mono[i % 4], shape: i % 3 ? 'rect' : 'dec', size: R(5, 9), delay: Math.floor(i / 4), decay: R(.006, .01) });
   const shape = p => { const z = p.size; ctx.beginPath();
     if (p.shape === 'egg') { ctx.ellipse(0, 0, z * .36, z / 2, 0, 0, 6.29); ctx.fill(); return; }
+    if (p.shape === 'plate' && p.fancy) { const g = ctx.createRadialGradient(-z * .15, -z * .15, z * .05, 0, 0, z / 2); g.addColorStop(0, '#5a5a55'); g.addColorStop(1, '#1d1d1b'); ctx.fillStyle = g; ctx.arc(0, 0, z / 2, 0, 6.29); ctx.fill();
+      ctx.strokeStyle = 'rgba(243,243,239,.75)'; ctx.lineWidth = Math.max(1, z * .05); ctx.beginPath(); ctx.arc(0, 0, z * .42, 0, 6.29); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, z * .22, 0, 6.29); ctx.stroke();
+      ctx.fillStyle = '#c9c9c2'; ctx.beginPath(); ctx.arc(0, 0, z * .12, 0, 6.29); ctx.fill(); ctx.fillStyle = '#0b0b0a'; ctx.beginPath(); ctx.arc(0, 0, z * .07, 0, 6.29); ctx.fill(); return; }
     if (p.shape === 'plate') { ctx.arc(0, 0, z / 2, 0, 6.29); ctx.arc(0, 0, z / 6, 0, 6.29, true); ctx.fill('evenodd'); return; }
     if (p.shape === 'ring') { for (let i = 0; i < 10; i++) { const a = i * .628; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * z / 2, Math.sin(a) * z / 2); } ctx.closePath(); ctx.strokeStyle = p.col; ctx.lineWidth = 3; ctx.stroke(); return; }
     if (p.shape === 'rect') ctx.rect(-z / 2, -z / 4, z, z / 2); else if (p.shape === 'streamer') ctx.rect(-z / 2, -1.5, z, 3);
@@ -1503,12 +1536,20 @@ function celebrate(kind = S.celeb) {
     else for (let i = 0; i < 10; i++) { const a = i * .628 - 1.57, rr = i % 2 ? z / 4 : z / 2; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * rr, Math.sin(a) * rr); }
     ctx.closePath(); ctx.fill(); };
   const t0 = performance.now();
+  const TRAILS = ['fireworks', 'fountain', 'glitter', 'shock', 'xmas', 'newyear'].includes(kind), DUR = kind === 'fireworks' || kind === 'newyear' ? 4200 : 3400;
+  const boom = r => { const n = 54, c2 = r.pal[Math.floor(Math.random() * r.pal.length)]; for (let i = 0; i < n; i++) { const a = i / n * 6.283 + R(-.04, .04), sp = R(1.8, 4.6);
+    add({ x: r.x, y: r.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .045, drag: .975, shape: 'circle', size: R(2.4, 3.6), col: i % 3 ? r.col : c2, glow: true, tw: Math.random() * 6, decay: R(.011, .017), flip3d: false }); } };
   const step = now => {
-    ctx.clearRect(0, 0, Wd, Ht); let alive = 0;
-    P.forEach(p => { if (p.delay > 0) { p.delay--; alive++; return; } if (p.life <= 0) return; alive++;
+    if (TRAILS) { ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'rgba(0,0,0,.24)'; ctx.fillRect(0, 0, Wd, Ht); ctx.globalCompositeOperation = 'source-over'; } else ctx.clearRect(0, 0, Wd, Ht);
+    let alive = 0;
+    for (let i = 0; i < P.length; i++) { const p = P[i]; if (p.delay > 0) { p.delay--; alive++; continue; } if (p.life <= 0) continue; alive++;
       p.vx *= p.drag; p.vy = p.vy * p.drag + p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay; if (p.grow) p.size += p.grow;
-      ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.4)) * (p.tw !== undefined ? .5 + .5 * Math.sin(now / 90 + p.tw) : 1); ctx.fillStyle = p.col; ctx.translate(p.x, p.y); ctx.rotate(p.rot); shape(p); ctx.restore(); });
-    if (alive && now - t0 < 3200) requestAnimationFrame(step); else cv.remove();
+      if (p.rocket && p.vy >= -.6) { p.life = 0; boom(p); continue; }
+      if (p.sway) p.x += Math.sin(now / 260 + p.tw) * p.sway;
+      ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.4)) * (p.tw !== undefined && p.life < .5 ? .45 + .55 * Math.abs(Math.sin(now / 70 + p.tw)) : 1);
+      if (p.glow) { ctx.shadowColor = p.col; ctx.shadowBlur = 10; }
+      ctx.fillStyle = p.col; ctx.translate(p.x, p.y); ctx.rotate(p.rot); if (p.flip3d && p.shape !== 'circle' && p.shape !== 'ring') { p.flip += p.fs; ctx.scale(Math.cos(p.flip), 1); if (Math.cos(p.flip) < 0) ctx.globalAlpha *= .75; } shape(p); ctx.restore(); }
+    if (alive && now - t0 < DUR) requestAnimationFrame(step); else cv.remove();
   };
   requestAnimationFrame(step);
 }
@@ -1535,17 +1576,20 @@ const HAT = '<svg class="ss-hat" viewBox="0 0 100 92" aria-hidden="true"><path d
 // bunny ears: brown outside, pink inside (same colours as the hopping bunny)
 const EARS = '<svg class="ss-ears" viewBox="0 0 100 90" aria-hidden="true"><g transform="rotate(-10 32 86)"><path d="M24 88 C14 58 14 16 30 6 C44 -2 50 44 42 88 Z" fill="#9a6b3f"/><path d="M28 80 C22 56 23 24 31 14 C38 24 40 54 37 80 Z" fill="#f4a7c0"/></g><g transform="rotate(10 68 86)"><path d="M58 88 C52 44 58 -2 72 6 C88 16 86 58 76 88 Z" fill="#9a6b3f"/><path d="M63 80 C62 54 64 24 71 14 C79 24 78 56 72 80 Z" fill="#f4a7c0"/></g></svg>';
 // Santa in a red sleigh, pulled by brown reindeer, Rudolph in front with a red nose (faces right = flies right)
-const REIN = (x, nose) => `<g transform="translate(${x} 0)"><g class="leg-a"><path d="M10 52 l-6 16 M16 52 l-2 17" stroke="#6b4423" stroke-width="3" stroke-linecap="round"/></g><g class="leg-b"><path d="M34 52 l8 15 M40 51 l4 16" stroke="#6b4423" stroke-width="3" stroke-linecap="round"/></g><ellipse cx="26" cy="46" rx="20" ry="9" fill="#8b5a2b"/><path d="M6 44 q-6 -2 -6 -6" stroke="#8b5a2b" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M42 44 q6 -10 8 -18" stroke="#8b5a2b" stroke-width="8" stroke-linecap="round" fill="none"/><ellipse cx="55" cy="24" rx="8" ry="6" fill="#8b5a2b"/><path d="M50 18 l-4 -12 m2 6 l-6 -2 M56 18 l2 -13 m-1 6 l5 -3" stroke="#5a3a1c" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="56" cy="22" r="1.4" fill="#111"/><circle cx="63" cy="26" r="${nose ? 3.6 : 2.4}" fill="${nose ? '#ff2a2a' : '#3a2412'}" ${nose ? 'class="rudolph"' : ''}/></g>`;
-const SLEIGH = `<svg viewBox="0 0 300 80" aria-hidden="true"><path d="M86 52 C120 50 140 46 164 44 M86 52 C120 52 150 50 228 44" stroke="#c9a227" stroke-width="1.5" fill="none"/>${REIN(150, false)}${REIN(222, true)}
+const REIN = (x, nose) => `<g transform="translate(${x} 0)"><g class="leg-b"><path d="M14 50 l-3 9 l-5 8 M20 51 l1 9 l-2 8" stroke="#6b4423" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g><g class="leg-a"><path d="M36 50 l5 8 l6 7 M41 49 l3 9 l1 9" stroke="#6b4423" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
+  <path d="M8 44 C8 36 18 33 30 34 C38 34 44 33 47 29 L52 20 C54 16 58 15 61 17 L67 21 C69 23 68 26 65 26 L60 26 C58 30 55 36 50 41 C46 48 38 52 26 52 C16 52 8 50 8 44 Z" fill="#8b5a2b"/><path d="M18 50 C24 46 36 46 44 48" stroke="#c49a6c" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M8 40 l-5 -3 l3 6 z" fill="#f3f3ef"/><path d="M56 17 l-3 -5 l4 2 z" fill="#6b4423"/>
+  <path d="M57 16 C55 9 50 6 46 3 M53 10 l-5 1 M51 7 l1 -5 M60 15 C61 8 66 5 70 2 M64 9 l5 1 M66 6 l0 -5" stroke="#5a3a1c" stroke-width="1.8" stroke-linecap="round" fill="none"/><circle cx="60.5" cy="20" r="1.2" fill="#111"/><circle cx="67.5" cy="23.5" r="${nose ? 3.4 : 1.6}" fill="${nose ? '#ff2a2a' : '#2a1a0c'}" ${nose ? 'class="rudolph"' : ''}/></g>`;
+const SLEIGH = `<svg viewBox="0 0 300 80" aria-hidden="true"><path d="M86 50 C120 46 146 40 196 36 M86 50 C130 46 180 40 268 36" stroke="#c9a227" stroke-width="1.5" fill="none"/>${REIN(150, false)}${REIN(222, true)}
   <g class="santa"><path d="M26 36 h28 v14 h-28z" fill="#d6262e"/><path d="M26 41 h28" stroke="#fff" stroke-width="2"/>
   <g class="wave"><path d="M50 38 l12 -12" stroke="#d6262e" stroke-width="5" stroke-linecap="round"/><circle cx="63" cy="25" r="3.5" fill="#f3f3ef"/></g>
-  <circle cx="40" cy="24" r="9" fill="#f2c9a0"/><circle cx="36.5" cy="22" r="1.3" fill="#1a1a1a"/><circle cx="43.5" cy="22" r="1.3" fill="#1a1a1a"/>
+  <circle cx="40" cy="24" r="9" fill="#f2c9a0"/><circle cx="36.5" cy="23.6" r="1.1" fill="#1a1a1a"/><circle cx="43.5" cy="23.6" r="1.1" fill="#1a1a1a"/>
   <path d="M29 25 q2 17 11 19 q9 -2 11 -19 q-5 5 -11 5 q-6 0 -11 -5z" fill="#fff"/><path d="M34 28.5 q3 -2.5 6 0 q3 -2.5 6 0 q-3 2.5 -6 0.8 q-3 1.7 -6 -0.8z" fill="#f3f3ef" stroke="#ddd" stroke-width=".4"/><circle cx="40" cy="26" r="2" fill="#e8907a"/>
   <path d="M30 18 q9 -15 21 -4 l7 -6" stroke="#d6262e" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="59" cy="7" r="3.5" fill="#fff"/><rect x="29" y="15" width="22" height="4.5" rx="2.2" fill="#fff"/></g>
   <path d="M10 40 h74 c6 0 8 6 6 12 l-4 8 h-70 c-6 0 -8 -4 -8 -8z" fill="#d6262e"/><path d="M18 44 h58" stroke="#ffd400" stroke-width="2"/><path d="M4 66 h84 c6 0 8 -6 4 -8" stroke="#c9a227" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M20 60 v6 M74 60 v6" stroke="#c9a227" stroke-width="3"/></svg>`;
 // brown bunny with pink inner ears, side view, faces right
 const BUNNY = '<svg viewBox="0 0 90 70" aria-hidden="true"><ellipse cx="36" cy="46" rx="22" ry="15" fill="#9a6b3f"/><circle cx="22" cy="48" r="12" fill="#9a6b3f"/><ellipse cx="40" cy="52" rx="12" ry="7" fill="#c49a6c"/><circle cx="12" cy="44" r="6" fill="#fff"/><circle cx="60" cy="34" r="12" fill="#9a6b3f"/><path d="M56 26 C48 10 50 0 56 2 C62 4 62 16 61 25 Z" fill="#9a6b3f"/><path d="M57 22 C53 12 54 6 56 6 C59 8 59 15 59 22 Z" fill="#f4a7c0"/><path d="M63 25 C62 9 68 1 72 4 C76 8 70 18 66 26 Z" fill="#8a5d35"/><circle cx="65" cy="32" r="2" fill="#111"/><circle cx="71" cy="37" r="2" fill="#f4a7c0"/><path d="M50 58 l4 8 M28 58 l-4 8" stroke="#7a5230" stroke-width="5" stroke-linecap="round"/></svg>';
 // New Year: text ring around the decagon (turns slowly)
+const NY_RING_EN = '<svg class="ss-ring" viewBox="-60 -60 120 120" aria-hidden="true"><defs><path id="nyc" d="M0,-55 a55,55 0 1,1 -0.01,0"/></defs><text textLength="342" lengthAdjust="spacing"><textPath href="#nyc" textLength="342" lengthAdjust="spacing">HAPPY NEW YEAR ✦ HAPPY NEW YEAR ✦ HAPPY NEW YEAR ✦ HAPPY NEW YEAR ✦</textPath></text></svg>';
 const NY_RING = '<svg class="ss-ring" viewBox="-60 -60 120 120" aria-hidden="true"><defs><path id="nyc" d="M0,-55 a55,55 0 1,1 -0.01,0"/></defs><text textLength="342" lengthAdjust="spacing"><textPath href="#nyc" textLength="342" lengthAdjust="spacing">HAPPY NEW YEAR ✦ FROHES NEUES JAHR ✦ HAPPY NEW YEAR ✦ FROHES NEUES JAHR ✦</textPath></text></svg>';
 const FLAKE = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17l17.4-10"/><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M5.2 8.1l-.6-2.8M5.2 8.1l-2.7.8M18.8 15.9l.6 2.8M18.8 15.9l2.7-.8M5.2 15.9l-2.7-.8M5.2 15.9l-.6 2.8M18.8 8.1l2.7.8M18.8 8.1l.6-2.8"/></svg>');
 // New Year fireworks: one rocket every few seconds, bursts above and beside the decagon, dezent and glittering
@@ -1568,6 +1612,8 @@ function fireworks(cv) {
     requestAnimationFrame(step); };
   requestAnimationFrame(step);
 }
+// Easter: grass tuft with eggs hiding in it
+const grass = (cls, eggs) => `<div class="grass ${cls}"><svg viewBox="0 0 120 54" aria-hidden="true">${eggs.map((c, i) => `<ellipse cx="${30 + i * 28}" cy="40" rx="9" ry="12" fill="${c}"/><path d="M${23 + i * 28} 38 h14" stroke="#fff" stroke-width="2" opacity=".7"/>`).join('')}<path d="M0 54 C6 34 8 22 10 10 C14 26 16 38 18 54 M14 54 C22 30 26 20 32 6 C32 26 30 40 30 54 M40 54 C44 34 48 24 52 14 C54 30 52 42 50 54 M60 54 C64 30 70 18 78 8 C76 28 72 42 70 54 M82 54 C86 36 92 26 100 18 C98 32 94 44 92 54 M102 54 C106 38 110 30 118 24 C116 36 112 46 112 54" fill="#3f8f3a" stroke="#2f7a2b" stroke-width="1.5"/></svg></div>`;
 function applySeason() {
   const sz = seasonNow(), app = $('app'); app.classList.toggle('season-xmas', sz === 'xmas'); app.classList.toggle('season-easter', sz === 'easter'); app.classList.toggle('season-newyear', sz === 'newyear');
   let layer = $('season'); if (!sz) { if (layer) layer.remove(); if (tab === 'start' && !W) renderStart(); return; }
@@ -1576,7 +1622,7 @@ function applySeason() {
     if (sz === 'xmas') layer.innerHTML = Array.from({ length: 30 }, () => { const z = R(7, 15); return `<i class="flake" style="left:${R(0, 100)}%;width:${z}px;height:${z}px;background-image:url('${FLAKE}');animation-duration:${R(10, 20)}s,${R(3, 6)}s;animation-delay:-${R(0, 20)}s,-${R(0, 6)}s;opacity:${R(.45, .9)}"></i>`; }).join('') + `<div class="sleigh"><div class="sl-in">${SLEIGH}</div></div>`;
     else if (sz === 'newyear') { layer.innerHTML = '<canvas class="fwc"></canvas>'; fireworks(layer.firstChild); }
     else if (false) layer.innerHTML = Array.from({ length: 6 }, (_, i) => `<div class="fw" style="left:${R(8, 92)}%;top:${Math.random() < .6 ? R(2, 16) : R(64, 72)}%;--c:${['#ffd400', '#f3f3ef', '#ff5a5f', '#4aa3ff', '#ffd400', '#b58cff'][i]};animation-delay:-${R(0, 6)}s;animation-duration:${R(4.5, 7)}s">${Array.from({ length: 12 }, (_, j) => `<i style="transform:rotate(${j * 30}deg)"></i>`).join('')}</div>`).join('');
-    else layer.innerHTML = `<div class="bunny"><div class="bn-in">${BUNNY}</div></div>`;
+    else layer.innerHTML = `<div class="bunny"><div class="bn-in">${BUNNY}</div></div>${grass('gl', ['#f4a7c0', '#f4e07a'])}${grass('gr', ['#a7d8f4', '#b6e3a1', '#d1b3f0'])}`;
     // every pass a new route: other height, other direction
     // fireworks: each burst moves to a new spot after it faded out
     layer.querySelectorAll('.fw').forEach(f => f.addEventListener('animationiteration', e => { if (e.target === f) { f.style.left = R(8, 92) + '%'; f.style.top = (Math.random() < .6 ? R(2, 16) : R(64, 72)) + '%'; } }));
@@ -1585,7 +1631,7 @@ function applySeason() {
     $('app').appendChild(layer); }
   if (tab === 'start' && !W) renderStart();
 }
-const seasonDeco = () => seasonNow() === 'xmas' ? HAT : seasonNow() === 'easter' ? EARS : seasonNow() === 'newyear' ? NY_RING : '';
+const seasonDeco = () => seasonNow() === 'xmas' ? HAT : seasonNow() === 'easter' ? EARS : seasonNow() === 'newyear' ? (S.lang === 'de' ? NY_RING : NY_RING_EN) : '';
 const SEASON_GREET = { xmas: { de: ['Ho ho ho, Zeit für Gains.', 'Plätzchen verbrennen sich nicht von allein.', 'Fit unterm Tannenbaum.', 'Jingle Bells, schwere Hanteln.', 'Erst Training, dann Glühwein.'], en: ['Ho ho ho, gains time.', 'Cookies do not burn themselves.', 'Fit under the tree.', 'Jingle bells, heavy weights.', 'Training first, mulled wine later.'] },
   newyear: { de: ['Neues Jahr, neue Personal Bests.', 'Vorsatz Nr. 1: dranbleiben.', 'Das Jahr startet mit einem Satz mehr.', 'Prost auf neue Gains.', '365 Chancen, stärker zu werden.'], en: ['New year, new personal bests.', 'Resolution no. 1: keep going.', 'The year starts with one more set.', 'Cheers to new gains.', '365 chances to get stronger.'] },
   easter: { de: ['Hopp hopp, ab ins Gym.', 'Schokohasen trainieren nicht.', 'Eier suchen? Lieber Gains finden.', 'Frohe Ostern, starke Beine.', 'Der Osterhase macht Kniebeugen.'], en: ['Hop hop, off to the gym.', 'Chocolate bunnies do not train.', 'Hunting eggs? Find gains instead.', 'Happy Easter, strong legs.', 'The Easter bunny does squats.'] } };
@@ -1658,7 +1704,7 @@ function showInstall(preview) {
     if (!os) { el.innerHTML = `<div class="onb-in inst-home"><div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview ? '<button class="iconbtn" id="inst-x" aria-label="Schließen">✕</button>' : '<span></span>'}</div>
         <div class="inst-hero"><div class="octa dec pulse inst-dec"><span class="cta">TRAIN</span></div></div>
         <div><h1>${de ? 'Willkommen bei TRAIN' : 'Welcome to TRAIN'}</h1><p class="onb-txt">${de ? 'Dein Gym-Tracker. Installiere ihn auf deinem Homescreen, dann läuft er wie eine echte App.' : 'Your gym tracker. Add it to your home screen and it runs like a real app.'}</p></div>
-        <div class="inst-pick"><b>${de ? 'App installieren: Anleitung für' : 'Install the app: guide for'}</b><div class="inst-os"><button class="mainbtn" data-os="ios">iPhone</button><button class="mainbtn" data-os="android">Android</button></div></div></div>`;
+        <div class="inst-pick"><b>${de ? 'App installieren: Anleitung für' : 'Install the app: guide for'}</b><div class="inst-os"><button class="mainbtn" data-os="ios">iPhone</button><button class="mainbtn" data-os="android">Android</button></div>${FRESH ? '<button class="textbtn" id="inst-test" style="align-self:center">Test: ohne Installation weiter</button>' : ''}</div></div>`;
       el.querySelectorAll('[data-os]').forEach(b => b.onclick = () => { os = b.dataset.os; i = 0; draw(); });
     } else { const L = STEPS[os], [h, tx, k] = L[i], last = i === L.length - 1;
       el.innerHTML = `<div class="onb-in"><div class="row"><button class="iconbtn" id="inst-back" aria-label="${de ? 'Zurück' : 'Back'}">←</button><span class="eyebrow num">${os === 'ios' ? 'iPhone' : 'Android'} · ${i + 1} / ${L.length}</span><span style="width:44px"></span></div>
@@ -1668,6 +1714,7 @@ function showInstall(preview) {
       $('inst-back').onclick = () => { if (i) i--; else os = null; draw(); };
       $('inst-next').onclick = () => { if (last) { os = null; draw(); } else { i++; draw(); } }; }
     $('inst-x') && ($('inst-x').onclick = () => el.remove());
+    $('inst-test') && ($('inst-test').onclick = () => { el.remove(); if (ENV === 'dev' && !S.authSeen) showAuth(false); else if (!S.onboarded) showOnboarding(); });
   };
   let x0 = null; el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
   el.addEventListener('touchend', e => { if (x0 === null || !os) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (dx < -50 && i < STEPS[os].length - 1) { i++; draw(); } else if (dx > 50) { if (i) i--; else os = null; draw(); } }, { passive: true });
@@ -1686,7 +1733,7 @@ async function setPush(on) {
 }
 async function testPush(text) {
   try { if (Notification.permission !== 'granted' && (await Notification.requestPermission()) !== 'granted') return toast('Keine Erlaubnis');
-    const reg = await navigator.serviceWorker.ready; reg.showNotification('TRAIN', { body: text, icon: 'icons/icon-192.png' }); } catch (e) { toast('Test nicht möglich: ' + e.message); }
+    const reg = await navigator.serviceWorker.ready; reg.showNotification(text, { icon: 'icons/icon-192.png' }); } catch (e) { toast('Test nicht möglich: ' + e.message); }
 }
 
 // ================= GitHub key (dev only): lets Ben switch the live version / season himself =================
@@ -1737,7 +1784,7 @@ const PUSH_CATS = {
   inactive: { de: ['Deine Hanteln vermissen dich.', 'Eine Woche Pause ist genug. Zeit fürs Comeback!', 'Dein Level wartet auf Points.'], en: ['Your dumbbells miss you.', 'A week off is enough. Comeback time!', 'Your level is waiting for points.'] },
   record: { de: ['Starkes Training heute! Gönn dir eine Pause.', 'Neuer Rekord. Jetzt Protein und Schlaf.', 'Das war stark. Erholung gehört dazu.'], en: ['Strong session today! Take a break.', 'New record. Now protein and sleep.', 'That was strong. Recovery is part of it.'] } };
 const pushCfg = () => { const c = S.pushCfg || {}; return { inactive: Object.assign({ on: true, days: 7, msgs: S.pushMsgs || PUSH_CATS.inactive[S.lang] }, c.inactive), record: Object.assign({ on: true, msgs: PUSH_CATS.record[S.lang] }, c.record) }; };
-const DEV_LINK = 'https://pdbp-hub.github.io/Fitter/dev/?install';
+const DEV_LINK = 'https://pdbp-hub.github.io/Fitter/dev/?install&fresh';
 const copyText = u => (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast('Link kopiert. In Safari einfügen.'), () => toast(u));
 // in-app message banner (when the app is open, instead of a push notification)
 function banner(msg) { const b = document.createElement('div'); b.className = 'inbanner'; b.innerHTML = `<b>TRAIN</b><span>${esc(msg)}</span>`; $('app').appendChild(b); b.onclick = () => b.remove(); setTimeout(() => b.classList.add('out'), 4200); setTimeout(() => b.remove(), 4700); }
@@ -1750,7 +1797,7 @@ function devHTML() {
   return `<div class="dev2">
     <div class="sect"><h2>Ansehen & testen</h2><div>
       ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-auth', 'Anmeldung / Account anlegen', 'Entwurf, erscheint vor dem Onboarding')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('reseed', t('reseed'))}</div>
-      <button class="ghostbtn" id="dev-safari">In Safari öffnen</button></div>
+      <button class="ghostbtn" id="dev-safari">Erstbesuch im Browser testen</button></div>
 
     <div class="sect"><h2>Seasons</h2>
       <div class="dlabel">Vorschau, nur hier in Dev</div>${seg('spv', [['live', 'Wie live'], ['off', 'Aus'], ['xmas', 'Weihn.'], ['easter', 'Ostern'], ['newyear', 'Silvester']], sz)}
@@ -1787,8 +1834,7 @@ function bindDev() {
   on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
   on('dev-inst', () => showInstall(true)); on('dev-auth', () => showAuth(true));
   // iPhone: x-safari-https:// opens the real Safari (iOS 17+); otherwise the link is copied
-  on('dev-safari', () => dialog('In Safari öffnen?', 'Die App öffnet sich im Browser so, wie neue Nutzer sie zuerst sehen (mit Installations-Anleitung).', [['Öffnen', 'mainbtn', () => {
-    if (/iPhone|iPad/.test(navigator.userAgent)) { location.href = DEV_LINK.replace('https://', 'x-safari-https://'); setTimeout(() => copyText(DEV_LINK), 1500); } else window.open(DEV_LINK, '_blank'); }], ['Link kopieren', 'ghostbtn', () => copyText(DEV_LINK)], ['Abbrechen', 'textbtn', () => {}]])); on('dev-verall', () => { devVerAll = !devVerAll; rr(); });
+  on('dev-safari', () => dialog('Erstbesuch im Browser testen', 'Eine Homescreen-App darf Safari nicht selbst öffnen. Darum: Link kopieren, Safari öffnen, in die Adresszeile einfügen.<br><br>Der Link startet mit einem <b>Test-Profil</b>: wie ein ganz neuer Nutzer (Installations-Anleitung, Anmeldung, Onboarding), deine Daten bleiben unberührt. Jedes Öffnen beginnt wieder von vorn.', [['Link kopieren', 'mainbtn', () => copyText(DEV_LINK)], ['Abbrechen', 'ghostbtn', () => {}]])); on('dev-verall', () => { devVerAll = !devVerAll; rr(); });
   on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
   document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); rr(); });
   document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive; if (v === REMOTE_SEASON) return;
@@ -1869,7 +1915,7 @@ const CELEB_IC = {
   confetti: gl('<rect x="9" y="10" width="7" height="4" transform="rotate(-20 12 12)" fill="currentColor"/><rect x="28" y="7" width="7" height="4" transform="rotate(25 31 9)" fill="currentColor"/><rect x="19" y="24" width="7" height="4" transform="rotate(10 22 26)" fill="currentColor"/><rect x="33" y="27" width="6" height="4" transform="rotate(-35 36 29)" fill="currentColor"/><circle cx="12" cy="33" r="2.5" fill="currentColor"/><circle cx="24" cy="14" r="2" fill="currentColor"/>'),
   colorconf: gl('<rect x="9" y="10" width="7" height="4" transform="rotate(-20 12 12)" fill="#ffd400" stroke="none"/><rect x="28" y="7" width="7" height="4" transform="rotate(25 31 9)" fill="#35c46a" stroke="none"/><rect x="19" y="24" width="7" height="4" transform="rotate(10 22 26)" fill="#f0524a" stroke="none"/><rect x="33" y="27" width="6" height="4" transform="rotate(-35 36 29)" fill="#4aa3ff" stroke="none"/><circle cx="12" cy="33" r="2.5" fill="#ff7ad9" stroke="none"/>'),
   cannons: gl('<path d="M6 40l8-8M42 40l-8-8"/><circle cx="18" cy="26" r="2" fill="currentColor"/><circle cx="22" cy="18" r="2" fill="currentColor"/><circle cx="30" cy="26" r="2" fill="currentColor"/><circle cx="26" cy="17" r="2" fill="currentColor"/><circle cx="24" cy="10" r="2" fill="currentColor"/>'),
-  fireworks: gl('<path d="M24 8v8M24 32v8M8 24h8M32 24h8M13 13l5 5M30 30l5 5M35 13l-5 5M18 30l-5 5"/>'),
+  fireworks: gl('<path d="M24 8v8M24 32v8" stroke="#ffd400"/><path d="M8 24h8M32 24h8" stroke="#ff5a5f"/><path d="M13 13l5 5M30 30l5 5" stroke="#7cc4ff"/><path d="M35 13l-5 5M18 30l-5 5" stroke="#c39bff"/>'),
   decagons: gl('<polygon points="' + P(decPts(16, 16, 7)) + '" fill="currentColor"/><polygon points="' + P(decPts(33, 22, 5)) + '"/><polygon points="' + P(decPts(20, 34, 5)) + '"/>'),
   stars: gl('<path d="M16 8l2.4 5 5.4.6-4 3.7 1.1 5.3L16 20l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z" fill="currentColor"/><path d="M33 22l1.8 3.7 4 .5-3 2.8.8 4L33 31l-3.6 2 .8-4-3-2.8 4-.5z"/>'),
   streamers: gl('<path d="M8 10c6 0 6 8 12 8s6-8 12-8 6 8 8 8"/><path d="M8 26c6 0 6 8 12 8s6-8 12-8 6 8 8 8"/>'),
@@ -2064,7 +2110,7 @@ function seedMock() {
   refreshAgo();
   Object.keys(EX).forEach(k => { const s = sessionsFor(k)[0]; if (s) LAST[k] = [s.top.w, s.top.r]; else delete LAST[k]; });
 }
-if (ENV === 'dev' && !STORED && !location.search.includes('noseed')) { seedMock(); save(); }
+if (ENV === 'dev' && !STORED && !location.search.includes('noseed') && !FRESH) { seedMock(); save(); }
 if (STORED && STORED.lastFinished) { const h = HISTORY.find(x => x.id === STORED.lastFinished.histId); if (h) lastFinished = { W: deserW(STORED.lastFinished.w), hist: h, at: STORED.lastFinished.at }; }
 show('start');
 const TESTRUN = location.search.includes('test');
