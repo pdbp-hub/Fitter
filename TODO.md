@@ -1,6 +1,18 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Feedback 2026-11-08 (→ v0.14, vor der Cloud)**
+  - [ ] A App-Start: kurz weißer Bildschirm, dann schwarz, dann Intro → direkt schwarz
+  - [ ] B Maximalkraft: Berechnung erklären (aus welchem Satz?) und wissenschaftlich sauber; Charts-Abstand Legende↔Linie überall wie bei Arbeitsgewicht
+  - [ ] C Fortschritt: „Ganzer Kalender“ und „Alle X anzeigen“ als schlichter Text statt Kasten; „Weniger“ bei Personal Bests springt in die Charts (Bug)
+  - [ ] D Seasons: Ostergras nur auf der Train-Startseite, größer, unten in den Ecken über der Menüleiste; Santa-Mütze vorne durchsichtig (Bug); Hasenohren hüpfen falsch (mit dem Ausdehnen hüpfen, wie die Mütze)
+  - [ ] E Profil: „+“ am Profilbild kollidiert mit Level-Zeile; Kopf ruckelt/springt nach links/rechts; ausgeblendetes „Profil bearbeiten“ scheint durch; **Bearbeiten direkt im Profil** (Blöcke per Griff verschieben, per Wischen entfernen, „Element hinzufügen“ als Overlay mit mehr Elementen, Speichern oben); Gast hat kein Profil → „Account anlegen, Daten sichern“
+  - [ ] F Review: Prozent (z. B. 25 %) ragt über die Trennlinie; Metrik „Gewicht pro Satz“; „weitere Übungen“ besser als klickbar erkennbar; Points/Fortschritt sollen schwerere Gewichte mit weniger Wdh. nicht bestrafen (Vorschlag)
+  - [ ] G Übungs-Icons: fast alle überarbeiten (Person statt Gerät), Trizepsdrücken Stange vs. Seil unterscheiden, Latzug eng, Wadenheben auf Scheibe; mehr Übungen; mehrere Muskelgruppen je Übung; Gruppen feiner (unterer Rücken, Waden, Beinbeuger …); „Abduktoren (Maschine)“
+  - [ ] H Eigene Übung: mehrere Muskelgruppen wählbar; „Doch nicht“ fragt nach; Übung im Workout-Bearbeiten per Wischen löschen; eigene Übungen ganz löschen (aus allen Workouts, mit Rückfrage), Kennzeichnung „Eigene“ + Filter Standard/Eigene
+  - [ ] I Celebrations Kanonen, Zehnecke, Luftschlangen (echte Bänder) schöner
+  - [ ] J Datenschutzerklärung ausführlicher (inkl. Cloud) als Entwurf
+  - [ ] K Browser: schmaler Balken „Zum Homescreen hinzufügen“ oben auf Train/Fortschritt/Einstellungen (nicht im Training), öffnet Anleitung
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar

@@ -8,7 +8,7 @@ Diese Datei wird zu Beginn jeder Sitzung automatisch gelesen. Sie ist das Gedäc
 - **Erst fragen, dann bauen.** Bei Unklarheiten immer *vorher* nachfragen, bevor Tokens in die Umsetzung fließen. Vor größeren Aufgaben kurz den Plan nennen und fragen: „Passt das so?“
 - Wenn Ben ausdrücklich um einen Vorschlag bittet → Vorschlag machen.
 - **Sparsam mit Tokens**: kurze, klare Antworten, keine unnötigen Umwege.
-- **Antwort nach einer Umsetzung** (ab 2026-11-05): NICHT auflisten, was umgesetzt wurde (Ben sieht es in der App). Stattdessen immer: (1) ob alles geklappt hat (Tests grün? was ließ sich nicht prüfen?), (2) **offene Fragen** und wo Ben **Feedback/Entscheidungen** geben muss, (3) die offenen To-dos aus `TODO.md`.
+- **Antwort nach einer Umsetzung** (ab 2026-11-08, KURZ): NICHT auflisten, was umgesetzt wurde. Nur: (1) was **nicht** geklappt hat und warum, (2) was Ben sich **besonders ansehen** soll (nicht prüfbar / unsicher, ob es seiner Vorstellung entspricht), (3) echte **Rückfragen**, (4) höchstens 1–2 mögliche nächste Schritte in einem Satz. Ausführlich nur bei echten Entscheidungen (z. B. Cloud).
 - **Sicherheit**: Der GitHub-Freigabe-Schlüssel liegt nur im Gerätespeicher (`fitter.ghkey`), nie in den App-Daten (`fitter.*.v1`), nie in der Cloud, nie im Chat oder Repo.
 - **Sprache**: Mit Ben immer auf Deutsch kommunizieren.
 - **Kenntnisstand Ben**: Kann Code (Python, etwas Excel VBA) lesen, aber nicht selbst schreiben. Keine Erfahrung mit Web-Apps. Fachbegriffe kurz erklären.
