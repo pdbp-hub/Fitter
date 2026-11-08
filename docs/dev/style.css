@@ -1071,3 +1071,41 @@ body:has(#auth) .popover, body:has(#onb) .popover, body:has(#inst) .popover { z-
 body:has(#mini:not([hidden])) #season .bunny, body:has(#mini:not([hidden])) #season .grass { margin-bottom: 74px; }
 #season { z-index: 21; }
 .pf-hero .pf-plus svg { width: 16px !important; height: 16px !important; }
+/* v0.14 */
+html, body { background: #0b0b0a; }
+#introcover { position: fixed; inset: 0; z-index: 94; background: var(--bg); pointer-events: none; }
+.linkbtn { align-self: center; font-family: var(--display); font-stretch: 110%; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--fg); padding: 6px 4px; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.sect-hist { gap: 8px; margin-bottom: -16px; }
+#season .grass { display: none; }
+#app[data-view="start"] #season .grass { display: block; bottom: calc(66px + env(safe-area-inset-bottom, 0px)); width: 128px; }
+.chartbox { padding-bottom: 14px; }
+/* season hats/ears: extra hop exactly when the decagon expands (per pulse style), otherwise they just ride along */
+.ss-wrap .ss-deco svg { animation: none; }
+.pm-breathe .ss-wrap .ss-deco svg { animation: hopB 2.6s ease-in-out infinite; }
+.pm-beat .ss-wrap .ss-deco svg { animation: hopBeat 1.6s ease-in-out infinite; }
+.pm-bounce .ss-wrap .ss-deco svg { animation: hopBounce 1.8s ease-in-out infinite; }
+@keyframes hopB { 0%, 30%, 70%, 100% { transform: translateY(0); } 50% { transform: translateY(-7%); } }
+@keyframes hopBeat { 0%, 22%, 100% { transform: translateY(0); } 10% { transform: translateY(-8%); } }
+@keyframes hopBounce { 0%, 40%, 100% { transform: translateY(0); } 20% { transform: translateY(-9%); } }
+/* v0.14 profile edit in place */
+.pf-hero { overflow: hidden; }
+.pf-hero .lvl-dec { width: 104px; height: 104px; } .pf-hero .lvl-dec .avatar { width: 104px !important; height: 104px !important; }
+.pf-plus { right: -4px; top: -2px; bottom: auto; width: 28px; height: 28px; }
+.pf-scroll { overscroll-behavior: none; }
+.pf-bh { display: flex; align-items: center; gap: 10px; } .pf-bh h2 { flex: 1; } .pf-bh .grip { flex: none; }
+.pf-editing .pf-blk { background: var(--bg); padding: 14px 0; border-top: 1px dashed var(--line); }
+.pf-editing .pf-blk .sx { flex: none; }
+.pf-blocks { display: flex; flex-direction: column; gap: 22px; position: relative; }
+.pf-fact { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; }
+.pf-fact b { font-size: 18px; font-weight: 800; } .pf-fact small { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.pf-fact .pf-ic + b { grid-column: 2; } .pf-fact .pf-ic ~ small { grid-column: 2; }
+.pf-fact b:first-child { grid-column: 1 / -1; }
+.pf-lvl .sx { margin-left: 6px; padding: 2px 6px; }
+.pf-namein { text-align: center; font-size: 26px; width: min(80vw, 300px); }
+.savebtn { background: var(--fg); color: var(--bg); padding: 10px 14px; font-family: var(--display); font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+.pf-add { align-self: center; display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: var(--display); font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; padding: 8px 0 20px; }
+.pf-add .dec, .pfadd-row .dec { width: 56px; height: 56px; background: var(--fg); color: var(--bg); display: grid; place-items: center; font-size: 28px; font-weight: 900; }
+.pf-edhint { text-align: center; }
+.pfaddbox { gap: 4px; } .pfaddbox .row { margin-bottom: 8px; }
+.pfadd-row { display: flex; align-items: center; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--line); text-align: left; }
+.pfadd-row .dec { width: 34px; height: 34px; font-size: 18px; } .pfadd-row b { font-size: 15px; }

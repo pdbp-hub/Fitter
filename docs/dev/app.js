@@ -182,13 +182,13 @@ Object.assign(T.en, { anims:{ breath:'Pulse', fill:'Fill', shards:'Shards', mosa
     evening:['Work is over. Training begins.','Finish the day strong.','Good evening, powerhouse.','Others chill. You train.','Tonight we pump.'],
     night:['Night owl in the gym. Respect!','The weights never sleep.','Late, but here.','Empty gym, open floor.','Midnight gains.'] } });
 Object.assign(T.de, { trcBW:'Original (Schwarz-Weiß)', trcColor:'Rot-Grün', spProgressHint:'Prognose & Rückblick', spDisplayHint:'Sprache, Farbumkehr, Trend-Farben, Animationen', trendColorHint:'Wie Linien in den Fortschritt-Charts eingefärbt werden', chStrength:'Maximalkraft (geschätzt)', strengthShort:'Maximalkraft (geschätzt)', setEnd:'Satz beenden', nextExArrow:'Nächste Übung', resetLbl:'Reset', volTotal:'Volumen gesamt',
-  metrics:{ vol:'Volumen pro Satz', reps:'Wiederholungen pro Satz', orm:'Maximalkraft (geschätzt) pro Satz' }, allSets:'Alle Übungen & Sätze', setN:n=>`Satz ${n}`, lastShort2:'letztes Mal',
+  metrics:{ vol:'Volumen pro Satz', wt:'Gewicht pro Satz', reps:'Wiederholungen pro Satz', orm:'Maximalkraft (geschätzt) pro Satz' }, allSets:'Alle Übungen & Sätze', setN:n=>`Satz ${n}`, lastShort2:'letztes Mal',
   spProfileHint:'Persönliche Infos & Account', spDisplayHint:'Sprache, Farbumkehr, Animationen', age:'Alter', ageHint:'Optional, später z. B. für Altersvergleiche', spImprint:'Impressum', spImprintHint:'Anbieterkennzeichnung',
   editW:'Workout bearbeiten', addEx:'+ Übung hinzufügen', removeEx:'Übung entfernen', setsLbl:'Sätze', minutes:'Minuten', vsLastShort:'vs. Vorwoche',
   readyHint:'Tippe auf eine Übung, um Sätze und Gewicht anzupassen. Reihenfolge per Ziehen am Griff.',
   imprint:'<p><b>Angaben gemäß § 5 DDG</b><br>[Vorname Nachname]<br>[Straße Hausnummer]<br>[PLZ Ort]</p><p><b>Kontakt</b><br>E-Mail: [E-Mail-Adresse]</p><p><b>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</b><br>[Vorname Nachname], Anschrift wie oben</p><p><b>Haftung für Inhalte</b><br>Die Inhalte dieser App wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte, insbesondere berechneter Werte wie Maximalkraft oder Prognosen, wird keine Gewähr übernommen. Die App ersetzt keine fachliche Trainings- oder medizinische Beratung.</p>' });
 Object.assign(T.en, { trcBW:'Original (black & white)', trcColor:'Red-green', spProgressHint:'Forecast & look-back', spDisplayHint:'Language, invert colours, trend colours, animations', trendColorHint:'How lines in the progress charts are coloured', chStrength:'Max strength (estimated)', strengthShort:'Max strength (estimated)', setEnd:'End set', nextExArrow:'Next exercise', resetLbl:'Reset', volTotal:'Total volume',
-  metrics:{ vol:'Volume per set', reps:'Reps per set', orm:'Max strength (estimated) per set' }, allSets:'All exercises & sets', setN:n=>`Set ${n}`, lastShort2:'last time',
+  metrics:{ vol:'Volume per set', wt:'Weight per set', reps:'Reps per set', orm:'Max strength (estimated) per set' }, allSets:'All exercises & sets', setN:n=>`Set ${n}`, lastShort2:'last time',
   spProfileHint:'Personal info & account', spDisplayHint:'Language, invert colours, animations', age:'Age', ageHint:'Optional, later e.g. for age comparisons', spImprint:'Imprint', spImprintHint:'Legal notice',
   editW:'Edit workout', addEx:'+ Add exercise', removeEx:'Remove exercise', setsLbl:'Sets', minutes:'Minutes', vsLastShort:'vs. last week',
   readyHint:'Tap an exercise to adjust sets and weight. Drag the handle to reorder.',
@@ -271,6 +271,10 @@ Object.assign(T.en, { logic: [
   ['New records', '<p>Your estimated 1RM of an exercise is higher than ever before.</p>'],
   ['Body weight', '<p>For dips, pull-ups & co. only the added weight counts. Optionally with body weight.</p>'],
   ['Compared to last week', '<p>This week (from Monday) against the whole previous week.</p>'] ] });
+Object.assign(T.de, { info1rm: '<b>Maximalkraft (1RM)</b><br>Das Gewicht, das du genau einmal schaffen würdest. Geschätzt mit der Epley-Formel aus deinem <b>stärksten Satz</b> des Trainings (der Satz mit dem höchsten Schätzwert, kein Durchschnitt):<br><code>1RM = Gewicht × (1 + Wdh. / 30)</code><br>1 Wiederholung = das Gewicht selbst. Über 12 Wiederholungen zählen wie 12, weil die Formel dort ungenau wird.<br>Beispiel: 60 kg × 10 Wdh. ergibt 80 kg.' });
+Object.assign(T.en, { info1rm: '<b>Max strength (1RM)</b><br>The weight you could lift exactly once. Estimated with the Epley formula from your <b>strongest set</b> of the session (the set with the highest estimate, not an average):<br><code>1RM = weight × (1 + reps / 30)</code><br>1 rep = the weight itself. More than 12 reps count as 12, because the formula gets inaccurate there.<br>Example: 60 kg × 10 reps gives 80 kg.' });
+T.de.logic[0][1] = T.de.logic[0][1].replace('Erstes Mal 5</p>', 'Erstes Mal 5</p><p><b>Schwerer als je zuvor</b> (8 Wochen) zählt auch mit weniger Wdh. als Fortschritt: +10.</p>');
+T.en.logic[0][1] = T.en.logic[0][1].replace('First time 5</p>', 'First time 5</p><p><b>Heavier than ever</b> (8 weeks) counts as progress even with fewer reps: +10.</p>');
 const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === 'function' ? v(...a) : v; };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -282,14 +286,14 @@ const exName = k => EX[k].custom ? EX[k].de : EX[k][S.lang];
 const isBW = k => EX[k].eq === 'bw';
 const wLabel = (k, w) => isBW(k) ? t('bwLabel', fmtW(w)) : fmtW(w) + ' kg';
 const mmss = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return (h ? h + ':' + String(m).padStart(2,'0') : String(m).padStart(2,'0')) + ':' + String(x).padStart(2,'0'); };
-const e1rm = (w, r) => w * (1 + r / 30);
+const e1rm = (w, r) => r <= 1 ? w : w * (1 + Math.min(r, 12) / 30); // Epley; 1 Wdh. = Gewicht selbst, ab 12 Wdh. gedeckelt
 const effW = (k, w) => isBW(k) ? (S.bwPoints && S.bodyweight ? S.bodyweight + w : w) : w;
 const dayDate = ago => { const d = new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate() - ago); return d; };
 const dShort = d => d.toLocaleDateString(loc(), { day:'2-digit', month:'2-digit' });
 const wById = id => workouts.find(w => w.id === id);
 const ptsOf = vol => Math.max(5, Math.round(vol / 250)); // old placeholder, no longer used for points
 // ---- Points v2 (proposal, to be discussed): progress in max strength + consistency, hard to game ----
-const PTS = { lookbackDays: 56, repCap: 12, minSets: 2, exCap: 6, first: 5, newBest: 10, perPct: 3, maxEx: 40, hold: 6, holdBand: .03, base: 2, workout: 10, weekDays: 5, secondDay: 15 };
+const PTS = { heavier: 10, lookbackDays: 56, repCap: 12, minSets: 2, exCap: 6, first: 5, newBest: 10, perPct: 3, maxEx: 40, hold: 6, holdBand: .03, base: 2, workout: 10, weekDays: 5, secondDay: 15 };
 const bestOf = e => Math.max(0, ...e.sets.map(s => e1rm(Math.max(0, effW(e.k, s.w)), Math.min(s.r, PTS.repCap))));
 const monday = ts => { const d = new Date(dayStart(ts)); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return d.getTime(); };
 function sessionPoints(ex, date) {
@@ -299,7 +303,8 @@ function sessionPoints(ex, date) {
     if (!EX[e.k] || e.sets.length < PTS.minSets) return; const b = bestOf(e); if (b <= 0) return;
     const ref = Math.max(0, ...prior.filter(h => h.date >= date - PTS.lookbackDays * 864e5).flatMap(h => h.ex.filter(x => x.k === e.k).map(bestOf)));
     if (!ref) { scores.push(PTS.first); return; }
-    const p = b / ref - 1;
+    const p = b / ref - 1, heavy = Math.max(0, ...e.sets.map(s => effW(e.k, s.w))), refHeavy = Math.max(0, ...prior.filter(h => h.date >= date - PTS.lookbackDays * 864e5).flatMap(h => h.ex.filter(x => x.k === e.k).flatMap(x => x.sets.map(s => effW(e.k, s.w)))));
+    if (p <= 0 && heavy > refHeavy) { scores.push(PTS.heavier); return; } // more weight, fewer reps = progress too
     scores.push(p > 0 ? Math.min(PTS.maxEx, PTS.newBest + Math.round(p * 100 * PTS.perPct)) : p >= -PTS.holdBand ? PTS.hold : PTS.base);
   });
   const exPts = scores.sort((a, b) => b - a).slice(0, PTS.exCap).reduce((a, b) => a + b, 0);
@@ -456,7 +461,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 /* ---------- Tabs ---------- */
 let tab = 'start';
 function show(view) {
-  refreshAgo(); tab = view; if ($('popover')) $('popover').hidden = true;
+  refreshAgo(); tab = view; $('app').dataset.view = view; if ($('popover')) $('popover').hidden = true;
   ['start','select','progress','settings'].forEach(v => $('v-'+v).hidden = v !== view);
   document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('on', b.dataset.tab === view));
   document.querySelector('.navoct').classList.toggle('off', !(view === 'start' || view === 'select'));
@@ -802,7 +807,7 @@ function exStatsOf(e, before) {
   return { e, per, prevSets: prev ? prev.sets : [], top, best: Math.max(...per), v: e.sets.reduce((a, s) => a + ew(s) * s.r, 0), pBest: prev ? prev.best : 0, pVol: prev ? prev.vol : 0 };
 }
 let rvMetric = 'vol'; const RV = {};
-const metricOf = (k, s, m) => { const w = Math.max(0, effW(k, s.w)); return m === 'reps' ? s.r : m === 'orm' ? e1rm(w, s.r) : w * s.r; };
+const metricOf = (k, s, m) => { const w = Math.max(0, effW(k, s.w)); return m === 'reps' ? s.r : m === 'orm' ? e1rm(w, s.r) : m === 'wt' ? w : w * s.r; };
 function setChart(x, id) {
   RV[id] = x;
   return `<div class="msel" data-metric="${id}"><button class="mbtn" aria-haspopup="listbox"><span>${t('metrics')[rvMetric]}</span><i>▾</i></button><div class="mlist" role="listbox" hidden>${Object.entries(t('metrics')).map(([k, l]) => `<button data-m="${k}" class="${rvMetric === k ? 'on' : ''}">${l}</button>`).join('')}</div></div>
@@ -829,7 +834,7 @@ function drawSetChart(id) {
   const sc = svg.querySelector('.scrub'), val = $('rvv-' + id), unit = m === 'reps' ? '' : ' kg';
   const show = i => {
     if (i === null) { sc.innerHTML = ''; val.innerHTML = ''; return; }
-    const a = cur[i], b = prev[i]; let txt = `${t('setN', i + 1)}: ${a !== undefined ? fmt(Math.round(a)) + unit : '—'}`;
+    const a = cur[i], b = prev[i], cs = x.e.sets[i]; let txt = `${t('setN', i + 1)}: ${a === undefined ? '—' : m === 'wt' ? `${wLabel(k, cs.w)} × ${cs.r}` : fmt(Math.round(a)) + unit}`;
     let dHtml = ''; if (a !== undefined && b) dHtml = ' ' + pctTag(Math.round((a / b - 1) * 100));
     val.innerHTML = esc(txt) + dHtml; sc.innerHTML = `<line x1="${X(i)}" x2="${X(i)}" y1="${Tp}" y2="${H0-B}" stroke="var(--fg)" stroke-dasharray="3 3"/>`;
   };
@@ -980,7 +985,17 @@ function renderO() {
   if (O.mode === 'levels') { b.innerHTML = levelsHTML(); setOBar(''); $('o-back').onclick = closeO; return; }
   if (O.mode === 'profile') { b.innerHTML = profileHTML(O.p); setOBar(''); bindProfileScroll(); $('pfphoto') && ($('pfphoto').parentNode.onclick = photoView); $('o-back').onclick = () => O.from === 'find' ? (O = { mode:'find', q:O.q }, renderO()) : closeO();
     $('pf-follow') && ($('pf-follow').onclick = () => { const f = O.follow || {}; f[O.p.user] = !f[O.p.user]; const p = O.p, fr = O.from, q = O.q; O = { mode:'profile', p, from:fr, q, follow:f }; renderO(); toast(S.lang === 'de' ? 'Vorschau: Folgen kommt mit dem Cloud-Modus' : 'Preview: following comes with cloud sync'); });
-    $('pf-edit') && ($('pf-edit').onclick = () => { closeO(); PD = null; setPage = 'profile'; show('settings'); $('v-settings').scrollTop = 0; }); return; }
+    $('pf-edit') && ($('pf-edit').onclick = () => { O.edit = true; O.draft = { name: S.name, order: pfOrder(), vis: Object.assign({}, visNorm(S.vis)), pbEx: pbKeys().slice() }; renderO(); });
+    if (O.edit) { const D = O.draft, rr = () => { const y = $('pfscroll').scrollTop; renderO(); $('pfscroll').scrollTop = y; };
+      $('o-back').onclick = () => { if (!pfDirty()) { O.edit = false; O.draft = null; renderO(); return; } const de = S.lang === 'de';
+        dialog(de ? 'Änderungen speichern?' : 'Save changes?', '', [[de ? 'Speichern' : 'Save', 'mainbtn', pfSave], [de ? 'Verwerfen' : 'Discard', 'ghostbtn', () => { O.edit = false; O.draft = null; renderO(); }], [de ? 'Weiter bearbeiten' : 'Keep editing', 'textbtn', () => {}]]); };
+      $('pf-save').onclick = pfSave; $('pf-name').oninput = e => { D.name = e.target.value; };
+      document.querySelectorAll('[data-pfdel]').forEach(x => x.onclick = () => { const k = x.dataset.pfdel; if (k === 'level') D.vis.level = false; else D.order = D.order.filter(y => y !== k); rr(); });
+      document.querySelectorAll('#obody [data-pbex]').forEach(x => x.onclick = () => { const k = x.dataset.pbex; if (D.pbEx.includes(k)) D.pbEx = D.pbEx.filter(y => y !== k); else if (D.pbEx.length < 3) D.pbEx = D.pbEx.concat(k); else return toast(S.lang === 'de' ? 'Es werden 3 Personal Bests gezeigt. Erst eine abwählen.' : '3 personal bests are shown. Deselect one first.'); rr(); });
+      $('pf-add') && ($('pf-add').onclick = pfAddSheet);
+      sortable($('pfblocks'), '.pf-blk', (f, to) => { moveItem(D.order, f, to); rr(); });
+      swipeRows($('pfblocks'), '.pf-blk', i => { D.order.splice(i, 1); rr(); }); }
+    return; }
   if (O.mode === 'find') { b.innerHTML = findHTML(); setOBar(''); $('o-back').onclick = closeO;
     loadQR(() => { const box = $('qrbox'); if (!box || !window.qrcode) return; const q = qrcode(0, 'M'); q.addData(SHARE_URL + '?u=' + encodeURIComponent(userName())); q.make(); box.innerHTML = q.createSvgTag(6, 2); });
     const qi = $('f-q'); qi.oninput = () => { O.q = qi.value; const pos = qi.selectionStart; renderO(); const n = $('f-q'); n.focus(); n.setSelectionRange(pos, pos); };
@@ -1109,7 +1124,7 @@ function renderProgress() {
     ${progSwitch()}
     <div class="sect sect-hist" style="border-top:0;padding-top:0">
       ${calOpen ? calHTML() : `<div class="strip-wrap"><div class="strip" id="strip">${Array.from({length:90}, (_, i) => dayTile(89 - i)).join('')}</div><button class="today-btn" id="todaybtn" hidden>${t('today')}</button></div>`}
-      <button class="calbtn" id="calbtn">${calOpen ? t('lessCal') : t('fullCal')}</button>
+      <button class="linkbtn" id="calbtn">${calOpen ? t('lessCal') : t('fullCal')}</button>
       <div id="daycard">${dayCard()}</div>
     </div>
     <div class="sect sect-ana">
@@ -1117,12 +1132,12 @@ function renderProgress() {
       ${S.fav.length ? `<div class="favs">${S.fav.map(k => `<button class="fav ${k===S.chartKey?'on':''}" data-ck="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
       <div id="charts"></div>
     </div>
-    <div class="sect"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div>${pbCount() > 5 ? `<button class="calbtn" id="pball">${pbAll ? (de ? 'Weniger ▴' : 'Less ▴') : (de ? `Alle ${pbCount()} anzeigen ▾` : `Show all ${pbCount()} ▾`)}</button>` : ''}</div>
+    <div class="sect" id="pbsect"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div>${pbCount() > 5 ? `<button class="linkbtn" id="pball">${pbAll ? (de ? 'Weniger ▴' : 'Less ▴') : (de ? `Alle ${pbCount()} anzeigen ▾` : `Show all ${pbCount()} ▾`)}</button>` : ''}</div>
     <div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Rückblick' : 'Recap'}</h2>
       <div class="recap2 num"><div class="rc-h"><span></span><b>${de ? '7 Tage' : '7 days'}</b><b>${de ? '30 Tage' : '30 days'}</b></div>
         ${[[t('wCount'), last7.length, last30.length], [t('movedW'), volTxt(vol7), volTxt(vol30)], [t('trainTime'), hm(min7), hm(min30)], [t('prs'), prCount(7), prCount(30)]].map(([l, a, b]) => `<div class="rc-r"><span>${l}</span><b>${a}</b><b>${b}</b></div>`).join('')}</div></div>
   </div>`;
-  $('pball') && ($('pball').onclick = () => { pbAll = !pbAll; renderProgress(); });
+  $('pball') && ($('pball').onclick = () => { const wasAll = pbAll; pbAll = !pbAll; renderProgress(); if (wasAll) { const v = $('v-progress'), h = $('pbsect'); if (h) v.scrollTop = Math.max(0, h.offsetTop - 12); } });
   bindProgSwitch();
   $('calbtn').onclick = () => { calOpen = !calOpen; renderProgress(); };
   $('exsel').onclick = openPicker;
@@ -1144,12 +1159,20 @@ const DEMO_FRIENDS = [
   { name:'Lena', user:'lena_squats', lv:6, pts:3600, last:['Leg Day', 2], week:[2, 7100, 110], month:[9, 510, 3], fav:['Leg Day', 4], pbs:[['squat', 95, 5], ['deadlift', 110, 4], ['ohp', 42.5, 6]] },
   { name:'Tom', user:'tom.t', lv:4, pts:1500, last:['Pull Day', 4], week:[1, 3200, 55], month:[5, 240, 1], fav:['Pull Day', 3], pbs:[['deadlift', 140, 2], ['bench', 80, 5], ['squat', 100, 6]] } ];
 function myPB(k) { const ss = sessionsFor(k).filter(x => x.best > 0); if (!ss.length) return null; const b = ss.reduce((x, y) => y.best > x.best ? y : x); const st = b.sets.reduce((x, y) => e1rm(effW(k, y.w), y.r) > e1rm(effW(k, x.w), x.r) ? y : x); return [k, st.w, st.r]; }
+const isGuest = () => ENV === 'dev' && !!S.guest; // accounts exist only in the dev draft for now
 const userName = () => S.username || 'test'; // placeholder until accounts (username + password) come with the cloud
 const pbKeys = () => { const k = (S.pbEx || []).filter(x => S.fav.includes(x)); return (k.length ? k : S.fav).slice(0, 3); };
 function myProfile() { const pts = totalPts(), wk = weekStats(), h = [...HISTORY].sort((a, b) => a.ago - b.ago || b.date - a.date)[0], m = HISTORY.filter(x => x.ago < 30);
   const cnt = {}; m.forEach(x => { const n = x.wname || (wById(x.wid) || {}).name; if (n) cnt[n] = (cnt[n] || 0) + 1; }); const fav = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
   return { me: true, photo: S.photo, name: S.name || (S.lang === 'de' ? 'Du' : 'You'), user: userName(), lv: levelOf(pts), pts, last: h ? [h.wname || (wById(h.wid) || {}).name || '', h.ago] : null, week: [wk.n, wk.vol, wk.min],
-    month: [m.length, m.reduce((a, x) => a + trainMin(x), 0), prCount(30)], fav: fav ? [fav, cnt[fav]] : null, pbs: pbKeys().map(myPB).filter(Boolean), vis: S.vis }; }
+    month: [m.length, m.reduce((a, x) => a + trainMin(x), 0), prCount(30)], fav: fav ? [fav, cnt[fav]] : null, pbs: pbKeys().map(myPB).filter(Boolean), vis: S.vis, order: pfOrder(),
+    total: [HISTORY.length, HISTORY.reduce((a, x) => a + sessVol(x), 0), HISTORY.length ? Math.min(...HISTORY.map(x => x.date)) : null], streak: weekStreak(), favex: favExercise() }; }
+// profile blocks: order + which are shown (level sits in the head)
+const PF_ALL = ['week', 'month', 'pbs', 'last', 'fav', 'total', 'streak', 'favex'];
+const pfOrder = () => { const v = S.vis || {}; let o = (S.pfOrder || ['week', 'month', 'pbs', 'last', 'fav']).filter(k => PF_ALL.includes(k) && v[k] !== false); return o; };
+function weekStreak() { let n = 0; for (let w = 0; w < 104; w++) { const from = monday(Date.now()) - w * 7 * 864e5, to = from + 7 * 864e5; if (HISTORY.some(h => h.date >= from && h.date < to)) n++; else if (w > 0) break; } return n; }
+function favExercise() { const c = {}; HISTORY.forEach(h => h.ex.forEach(e => { if (EX[e.k]) c[e.k] = (c[e.k] || 0) + e.sets.length; })); const k = Object.keys(c).sort((a, b) => c[b] - c[a])[0]; return k ? [k, c[k]] : null; }
+const PF_NAME = k => ({ de: { week: 'Diese Woche', month: 'Letzte 30 Tage', pbs: 'Personal Bests', last: 'Letztes Training', fav: 'Meist trainiertes Workout', total: 'Insgesamt', streak: 'Serie', favex: 'Lieblingsübung', level: 'Level & Points' }, en: { week: 'This week', month: 'Last 30 days', pbs: 'Personal bests', last: 'Last session', fav: 'Most trained workout', total: 'All time', streak: 'Streak', favex: 'Favourite exercise', level: 'Level & points' } })[S.lang][k];
 const avatarHTML = (name, size, photo, id) => `<span class="avatar dec ${photo ? 'hasph' : ''}" ${id ? `id="${id}"` : ''} style="width:${size}px;height:${size}px;font-size:${Math.round(size * .34)}px${photo ? `;background-image:url(${photo})` : ''}">${photo ? '' : esc(initialsOf(name))}</span>`;
 // own profile photo: tap = big view with blurred background, change / delete (stored small, ~20 KB)
 function photoView() {
@@ -1172,36 +1195,54 @@ function renderFriends() {
       <div>${DEMO_FRIENDS.map((f, i) => `<button class="fr-row" data-fr="${i}">${avatarHTML(f.name, 44)}<div><b>${esc(f.name)}</b><small>${levelIcon(f.lv)} Level ${f.lv + 1} · ${esc(LEVELS[f.lv][S.lang])}</small></div><div class="fr-kpi"><b>${esc(f.last[0])}</b><small>${t('ago', f.last[1])}</small></div></button>`).join('')}</div></div></div>`;
   bindProgSwitch();
   $('fr-find').onclick = () => { O = { mode:'find', q:'' }; renderO(); openO(); };
-  $('fr-me').onclick = () => openProfile(myProfile());
+  $('fr-me').onclick = () => isGuest() ? showAuth(false, 'signup') : openProfile(myProfile());
   document.querySelectorAll('[data-fr]').forEach(b => b.onclick = () => openProfile(DEMO_FRIENDS[+b.dataset.fr]));
 }
 function openProfile(p, from) { O = { mode:'profile', p, from }; renderO(); openO(); $('obody').scrollTop = 0; }
 // a profile as others see it (own profile respects the visibility settings)
 function profileHTML(p) {
-  const de = S.lang === 'de', v0 = p.vis || {}, v = k => v0[k] !== false, hm = m => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
+  const de = S.lang === 'de', ed = p.me && O.edit, D = O.draft, v0 = (ed ? D.vis : p.vis) || {}, v = k => v0[k] !== false, hm = m => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
+  const order = ed ? D.order : (p.order || ['week', 'month', 'pbs', 'last', 'fav'].filter(v));
   const dec = (val, lbl) => `<div class="pdec2"><div class="dec"><b class="num">${val}</b></div><span>${lbl}</span></div>`;
-  const facts = [v('last') && p.last ? [de ? 'Letztes Training' : 'Last session', p.last[0], t('ago', p.last[1])] : null, v('fav') && p.fav ? [de ? 'Meist trainiert' : 'Most trained', p.fav[0], de ? `${p.fav[1]}× in 30 Tagen` : `${p.fav[1]}× in 30 days`] : null].filter(Boolean);
-  return `<div class="inner pf"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${p.me ? (de ? 'Dein Profil' : 'Your profile') : (de ? 'Profil' : 'Profile')}</span><span style="width:44px"></span></div>
-    <div class="lvl-hero pf-hero" id="pfhero"><div class="pf-av lvl-dec">${avatarHTML(p.name, 112, p.photo, p.me ? 'pfphoto' : '')}${p.me ? '<span class="pf-plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg></span>' : ''}</div>
-      <div class="lvl-ht"><h1>${esc(p.name)}</h1>${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}${v('level') ? `<div class="pf-lvl">${levelIcon(p.lv)}<span>Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])} · <span class="num">${fmt(p.pts)}</span> Points</span></div>` : ''}</div>
-      <div class="lvl-more">${p.me ? `<button class="ghostbtn pf-follow" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div></div>
-    <div class="pf-scroll" id="pfscroll">
-    ${v('week') ? `<div class="sect"><h2 class="hic">${SIC.cal}${t('thisWeek')}</h2><div class="pdecs2">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2] + ' min', 'Training')}</div></div>` : ''}
-    ${v('month') && p.month ? `<div class="sect"><h2 class="hic">${SIC.hist}${t('last30')}</h2><div class="pf-line num"><div><b>${p.month[0]}</b><span>${t('workouts')}</span></div><div><b>${hm(p.month[1])}</b><span>Training</span></div><div><b>${p.month[2]}</b><span>${de ? 'Rekorde' : 'Records'}</span></div></div></div>` : ''}
-    ${v('pbs') && p.pbs.length ? `<div class="sect"><h2 class="hic">${SIC.pb}Personal Bests</h2><div>${p.pbs.map(([k, w, r]) => `<div class="pf-pb"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><span class="num">${esc(wLabel(k, w))} × ${r}</span></div>`).join('')}</div></div>` : ''}
-    ${facts.length ? `<div class="sect"><div class="pf-facts">${facts.map(([l, a, b]) => `<div><span>${l}</span><b>${esc(a)}</b><small>${esc(b)}</small></div>`).join('')}</div></div>` : ''}
+  const ic = { week: SIC.cal, month: SIC.hist, pbs: SIC.pb, last: SIC.hist, fav: SIC.ex, total: SIC.cal, streak: SIC.pb, favex: SIC.ex };
+  const line = items => `<div class="pf-line num">${items.map(([b, l]) => `<div><b>${b}</b><span>${l}</span></div>`).join('')}</div>`;
+  const pbs = ed ? D.pbEx.map(myPB).filter(Boolean) : p.pbs;
+  const body = k => k === 'week' ? `<div class="pdecs2">${dec(p.week[0], t('workouts'))}${dec(volTxt(p.week[1]), t('moved'))}${dec(p.week[2] + ' min', 'Training')}</div>`
+    : k === 'month' && p.month ? line([[p.month[0], t('workouts')], [hm(p.month[1]), 'Training'], [p.month[2], de ? 'Rekorde' : 'Records']])
+    : k === 'pbs' ? (pbs.length ? pbs.map(([kk, w, r]) => `<div class="pf-pb"><span class="pf-ic">${ico(kk)}</span><b>${esc(exName(kk))}</b><span class="num">${esc(wLabel(kk, w))} × ${r}</span></div>`).join('') : `<p class="hint">${de ? 'Noch keine Personal Bests' : 'No personal bests yet'}</p>`) + (ed && S.fav.length ? `<div class="pbpick">${S.fav.map(kk => `<button class="${D.pbEx.includes(kk) ? 'on' : ''}" data-pbex="${kk}">★ ${esc(exName(kk))}</button>`).join('')}</div>` : '')
+    : k === 'last' && p.last ? `<div class="pf-fact"><b>${esc(p.last[0])}</b><small>${t('ago', p.last[1])}</small></div>`
+    : k === 'fav' && p.fav ? `<div class="pf-fact"><b>${esc(p.fav[0])}</b><small>${de ? `${p.fav[1]}× in den letzten 30 Tagen` : `${p.fav[1]}× in the last 30 days`}</small></div>`
+    : k === 'total' && p.total ? line([[p.total[0], t('workouts')], [volTxt(p.total[1]), t('moved')], [p.total[2] ? new Date(p.total[2]).toLocaleDateString(loc(), { month: 'short', year: 'numeric' }) : '—', de ? 'dabei seit' : 'since']])
+    : k === 'streak' && p.streak != null ? `<div class="pf-fact"><b>${p.streak} ${de ? (p.streak === 1 ? 'Woche' : 'Wochen') : (p.streak === 1 ? 'week' : 'weeks')}</b><small>${de ? 'in Folge mit Training' : 'in a row with training'}</small></div>`
+    : k === 'favex' && p.favex ? `<div class="pf-fact"><span class="pf-ic">${ico(p.favex[0])}</span><b>${esc(exName(p.favex[0]))}</b><small>${p.favex[1]} ${de ? 'Sätze insgesamt' : 'sets in total'}</small></div>` : `<p class="hint">${de ? 'Noch keine Daten' : 'No data yet'}</p>`;
+  const blk = k => `<div class="sect pf-blk" data-pk="${k}"><div class="pf-bh">${ed ? `<span class="grip" data-grip aria-label="ziehen">${GRIP}</span>` : ''}<h2 class="hic">${ic[k]}${PF_NAME(k)}</h2>${ed ? `<button class="sx" data-pfdel="${k}" aria-label="${de ? 'Entfernen' : 'Remove'}">✕</button>` : ''}</div>${body(k)}</div>`;
+  const hidden = PF_ALL.filter(k => !order.includes(k)).concat(ed && !v('level') ? ['level'] : []);
+  return `<div class="inner pf ${ed ? 'pf-editing' : ''}"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${ed ? (de ? 'Profil bearbeiten' : 'Edit profile') : p.me ? (de ? 'Dein Profil' : 'Your profile') : (de ? 'Profil' : 'Profile')}</span>${ed ? `<button class="savebtn" id="pf-save">${de ? 'Speichern' : 'Save'}</button>` : '<span style="width:44px"></span>'}</div>
+    <div class="lvl-hero pf-hero" id="pfhero"><div class="pf-av lvl-dec">${avatarHTML(ed ? D.name || '?' : p.name, 104, p.photo, p.me ? 'pfphoto' : '')}${p.me ? '<span class="pf-plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg></span>' : ''}</div>
+      <div class="lvl-ht">${ed ? `<input class="namein pf-namein" id="pf-name" value="${esc(D.name)}" placeholder="${t('profName')}" enterkeyhint="done">` : `<h1>${esc(p.name)}</h1>`}${p.user ? `<span class="pf-user">@${esc(p.user)}</span>` : ''}${v('level') ? `<div class="pf-lvl">${levelIcon(p.lv)}<span>Level ${p.lv + 1} · ${esc(LEVELS[p.lv][S.lang])} · <span class="num">${fmt(p.pts)}</span> Points</span>${ed ? '<button class="sx" data-pfdel="level" aria-label="Entfernen">✕</button>' : ''}</div>` : ''}</div>
+      <div class="lvl-more">${ed ? '' : p.me ? `<button class="ghostbtn pf-follow" id="pf-edit">${de ? 'Profil bearbeiten' : 'Edit profile'}</button>` : `<button class="${O.follow && O.follow[p.user] ? 'ghostbtn' : 'mainbtn'} pf-follow" id="pf-follow">${O.follow && O.follow[p.user] ? (de ? 'Folge ich ✓' : 'Following ✓') : (de ? 'Folgen' : 'Follow')}</button>`}</div></div>
+    <div class="pf-scroll" id="pfscroll"><div class="pf-blocks" id="pfblocks">${order.map(blk).join('')}</div>
+    ${ed ? `<p class="hint pf-edhint">${de ? 'Am Griff ziehen = verschieben · nach links wischen oder ✕ = entfernen' : 'Drag the handle to move · swipe left or ✕ to remove'}</p>${hidden.length ? `<button class="pf-add" id="pf-add"><span class="dec">+</span>${de ? 'Element hinzufügen' : 'Add element'}</button>` : ''}` : ''}
     ${p.me ? '' : `<p class="hint">${de ? 'Beispieldaten. Folgen funktioniert mit dem Cloud-Modus.' : 'Sample data. Following works with cloud sync.'}</p>`}</div></div>`;
 }
+function pfAddSheet() { const de = S.lang === 'de', D = O.draft, hidden = PF_ALL.filter(k => !D.order.includes(k)).concat(D.vis.level === false ? ['level'] : []);
+  const el = document.createElement('div'); el.className = 'overlay'; el.id = 'pfaddov';
+  el.innerHTML = `<div class="dialog pfaddbox"><div class="row"><h2>${de ? 'Element hinzufügen' : 'Add element'}</h2><button class="iconbtn" id="pfadd-x" aria-label="Schließen">✕</button></div>${hidden.map(k => `<button class="pfadd-row" data-pfadd="${k}"><span class="dec">+</span><b>${PF_NAME(k)}</b></button>`).join('')}</div>`;
+  $('app').appendChild(el); el.onclick = e => { if (e.target === el) el.remove(); }; $('pfadd-x').onclick = () => el.remove();
+  el.querySelectorAll('[data-pfadd]').forEach(b => b.onclick = () => { const k = b.dataset.pfadd; if (k === 'level') D.vis.level = true; else { D.order.push(k); D.vis[k] = true; } el.remove(); renderO(); const sc = $('pfscroll'); if (sc) sc.scrollTop = sc.scrollHeight; }); }
+const pfDirty = () => { const D = O && O.draft; if (!D) return false; return D.name !== S.name || JSON.stringify(D.order) !== JSON.stringify(pfOrder()) || (D.vis.level !== false) !== ((S.vis || {}).level !== false) || JSON.stringify(D.pbEx) !== JSON.stringify(pbKeys()); };
+function pfSave() { const D = O.draft, vis = Object.assign({}, S.vis); PF_ALL.forEach(k => { vis[k] = D.order.includes(k); }); vis.level = D.vis.level !== false;
+  S.name = D.name.trim(); S.vis = vis; S.pfOrder = D.order.slice(); S.pbEx = D.pbEx; save(); toast(S.lang === 'de' ? 'Gespeichert' : 'Saved'); O = { mode: 'profile', p: myProfile(), from: O.from }; renderO(); }
 // profile head melts into a small bar while the content scrolls (same feel as the level page)
 function bindProfileScroll() { const hero = $('pfhero'), sc = $('pfscroll'); if (!hero || !sc) return;
   const dec = hero.querySelector('.lvl-dec'), ht = hero.querySelector('.lvl-ht'), more = hero.querySelector('.lvl-more');
   hero.classList.add('fluid'); const Wd = hero.clientWidth, htW = Math.min(Wd, ht.offsetWidth), htH = ht.offsetHeight, mH = more.offsetHeight;
-  const big = 112, small = 48, sc2 = .6, top = big + 12, bigH = top + htH + 12 + mH, L = (a, b, k) => a + (b - a) * k;
+  const big = 104, small = 48, sc2 = .6, top = big + 18, bigH = top + htH + 12 + mH, L = (a, b, k) => a + (b - a) * k;
   const lay = k => { dec.style.transform = `translate(${L((Wd - big) / 2, 0, k)}px, 0) scale(${L(big, small, k) / big})`;
     ht.style.transform = `translate(${L((Wd - htW) / 2, small + 12, k)}px, ${L(top, (small - htH * sc2) / 2, k)}px) scale(${L(1, sc2, k)})`;
     more.style.transform = `translateY(${top + htH + 12}px)`; more.style.opacity = Math.max(0, 1 - k * 2.5); more.style.pointerEvents = k > .3 ? 'none' : '';
     hero.style.height = L(bigH, small, k) + 'px'; };
-  lay(0); let raf = 0; sc.onscroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; lay(Math.max(0, Math.min(1, sc.scrollTop / 160))); }); };
+  lay(O && O.edit ? 0 : 0); let raf = 0, lastK = -1; sc.onscroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; const k = Math.round(Math.max(0, Math.min(1, sc.scrollTop / 160)) * 100) / 100; if (k !== lastK) { lastK = k; lay(k); } }); };
   const need = 160 + sc.clientHeight + (bigH - small) - sc.scrollHeight; if (need > 0) sc.style.paddingBottom = need + 'px'; }
 
 function findHTML() {
@@ -1584,7 +1625,7 @@ const SLEIGH = `<svg viewBox="0 0 300 80" aria-hidden="true"><path d="M86 50 C12
   <g class="wave"><path d="M50 38 l12 -12" stroke="#d6262e" stroke-width="5" stroke-linecap="round"/><circle cx="63" cy="25" r="3.5" fill="#f3f3ef"/></g>
   <circle cx="40" cy="24" r="9" fill="#f2c9a0"/><circle cx="36.5" cy="23.6" r="1.1" fill="#1a1a1a"/><circle cx="43.5" cy="23.6" r="1.1" fill="#1a1a1a"/>
   <path d="M29 25 q2 17 11 19 q9 -2 11 -19 q-5 5 -11 5 q-6 0 -11 -5z" fill="#fff"/><path d="M34 28.5 q3 -2.5 6 0 q3 -2.5 6 0 q-3 2.5 -6 0.8 q-3 1.7 -6 -0.8z" fill="#f3f3ef" stroke="#ddd" stroke-width=".4"/><circle cx="40" cy="26" r="2" fill="#e8907a"/>
-  <path d="M30 18 q9 -15 21 -4 l7 -6" stroke="#d6262e" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="59" cy="7" r="3.5" fill="#fff"/><rect x="29" y="15" width="22" height="4.5" rx="2.2" fill="#fff"/></g>
+  <path d="M29 18 C30 9 38 4 46 6 C51 7 55 9 59 7 C58 12 55 15 51 16 C46 18 37 19 29 18 Z" fill="#d6262e"/><circle cx="59" cy="7" r="3.5" fill="#fff"/><rect x="29" y="15" width="22" height="4.5" rx="2.2" fill="#fff"/></g>
   <path d="M10 40 h74 c6 0 8 6 6 12 l-4 8 h-70 c-6 0 -8 -4 -8 -8z" fill="#d6262e"/><path d="M18 44 h58" stroke="#ffd400" stroke-width="2"/><path d="M4 66 h84 c6 0 8 -6 4 -8" stroke="#c9a227" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M20 60 v6 M74 60 v6" stroke="#c9a227" stroke-width="3"/></svg>`;
 // brown bunny with pink inner ears, side view, faces right
 const BUNNY = '<svg viewBox="0 0 90 70" aria-hidden="true"><ellipse cx="36" cy="46" rx="22" ry="15" fill="#9a6b3f"/><circle cx="22" cy="48" r="12" fill="#9a6b3f"/><ellipse cx="40" cy="52" rx="12" ry="7" fill="#c49a6c"/><circle cx="12" cy="44" r="6" fill="#fff"/><circle cx="60" cy="34" r="12" fill="#9a6b3f"/><path d="M56 26 C48 10 50 0 56 2 C62 4 62 16 61 25 Z" fill="#9a6b3f"/><path d="M57 22 C53 12 54 6 56 6 C59 8 59 15 59 22 Z" fill="#f4a7c0"/><path d="M63 25 C62 9 68 1 72 4 C76 8 70 18 66 26 Z" fill="#8a5d35"/><circle cx="65" cy="32" r="2" fill="#111"/><circle cx="71" cy="37" r="2" fill="#f4a7c0"/><path d="M50 58 l4 8 M28 58 l-4 8" stroke="#7a5230" stroke-width="5" stroke-linecap="round"/></svg>';
@@ -1639,14 +1680,14 @@ const SEASON_GREET = { xmas: { de: ['Ho ho ho, Zeit für Gains.', 'Plätzchen ve
 
 // ================= Account (draft until the cloud exists; shown first, before the onboarding) =================
 const AGB_HTML = '<p><b>ENTWURF, noch nicht rechtlich geprüft.</b></p><p><b>1. Geltungsbereich</b><br>Diese Bedingungen gelten für die Nutzung der App TRAIN (Anbieter siehe Impressum).</p><p><b>2. Leistung</b><br>TRAIN hilft dir, Trainings zu planen und Fortschritte zu verfolgen. Die Nutzung ist kostenlos. Es besteht kein Anspruch auf ständige Verfügbarkeit.</p><p><b>3. Account</b><br>Du brauchst ein Mindestalter von 16 Jahren. Deine Zugangsdaten hältst du geheim. Der Benutzername darf keine Rechte Dritter verletzen und nicht beleidigend sein.</p><p><b>4. Gesundheit</b><br>TRAIN ersetzt keine ärztliche oder trainerische Beratung. Du trainierst auf eigene Verantwortung. Points, Prognosen und Schätzungen (z. B. Maximalkraft) sind Richtwerte.</p><p><b>5. Inhalte und Freunde</b><br>Was du für Freunde sichtbar machst, entscheidest du in deinem Profil. Missbrauch kann zur Sperrung führen.</p><p><b>6. Haftung</b><br>Der Anbieter haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper und Gesundheit, sonst nur bei Verletzung wesentlicher Pflichten und begrenzt auf den typischen Schaden.</p><p><b>7. Kündigung und Löschung</b><br>Du kannst deinen Account jederzeit in den Einstellungen löschen. Deine Daten werden dann gelöscht.</p><p><b>8. Änderungen</b><br>Änderungen dieser Bedingungen werden in der App angekündigt.</p><p><b>9. Schluss</b><br>Es gilt deutsches Recht.</p>';
-function showAuth(preview) {
-  const de = S.lang === 'de', el = document.createElement('div'); el.id = 'auth'; el.className = 'onb auth'; $('app').appendChild(el); let mode = 'home';
+function showAuth(preview, start) {
+  const de = S.lang === 'de', el = document.createElement('div'); el.id = 'auth'; el.className = 'onb auth'; $('app').appendChild(el); let mode = start || 'home';
   const done = () => { el.remove(); S.authSeen = true; save(); if (!preview && !S.onboarded) showOnboarding(); };
   const legal = k => showInfo(k === 'agb' ? `<b>${de ? 'Allgemeine Geschäftsbedingungen' : 'Terms of use'}</b>${AGB_HTML}` : `<b>${t('privacy')}</b>${t('privacyHtml')}`);
   const field = (id, label, type = 'text', ac = 'off') => `<label class="afield"><span>${label}</span><input id="${id}" type="${type}" autocomplete="${ac}" autocapitalize="none" autocorrect="off" spellcheck="false"></label>`;
   const benefits = de ? ['Sichere Speicherung deiner Trainings, auch beim Handywechsel', 'Freunden folgen und Level vergleichen', 'Live mitbekommen, wenn Freunde Rekorde aufstellen', 'Training auf mehreren Geräten'] : ['Your sessions are stored safely, even if you change phones', 'Follow friends and compare levels', 'See live when friends set new records', 'Train on several devices'];
   const draw = () => {
-    const top = `<div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview || mode !== 'home' ? `<button class="iconbtn" id="au-x" aria-label="${mode === 'home' ? 'Schließen' : 'Zurück'}">${mode === 'home' ? '✕' : '←'}</button>` : '<span></span>'}</div>`;
+    const top = `<div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview || start || mode !== 'home' ? `<button class="iconbtn" id="au-x" aria-label="${mode === 'home' ? 'Schließen' : 'Zurück'}">${mode === 'home' ? '✕' : '←'}</button>` : '<span></span>'}</div>`;
     if (mode === 'home') el.innerHTML = `<div class="onb-in">${top}<div class="inst-hero"><div class="octa dec inst-dec"><span class="cta">TRAIN</span></div></div>
       <div><h1>${de ? 'Willkommen bei TRAIN' : 'Welcome to TRAIN'}</h1><p class="onb-txt">${de ? 'Mit Account sind deine Trainings sicher gespeichert und du kannst Freunden folgen.' : 'With an account your sessions are stored safely and you can follow friends.'}</p></div>
       <div class="au-btns"><button class="mainbtn" data-am="signup">${de ? 'Account anlegen' : 'Create account'}</button><button class="ghostbtn" data-am="login">${de ? 'Anmelden' : 'Log in'}</button><button class="textbtn" data-am="guest">${de ? 'Als Gast fortfahren' : 'Continue as guest'}</button></div></div>`;
@@ -1668,7 +1709,7 @@ function showAuth(preview) {
       <div class="au-btns"><button class="mainbtn" data-am="signup">${de ? 'Doch Account anlegen' : 'Create account after all'}</button><button class="textbtn" id="au-guest">${de ? 'Als Gast fortfahren' : 'Continue as guest'}</button></div></div>`;
     el.querySelectorAll('[data-am]').forEach(b => b.onclick = () => { mode = b.dataset.am; draw(); });
     el.querySelectorAll('[data-legal]').forEach(a => a.onclick = e => { e.preventDefault(); legal(a.dataset.legal); });
-    $('au-x') && ($('au-x').onclick = () => { if (mode === 'home') el.remove(); else { mode = mode === 'forgot' || mode === 'reset' ? 'login' : 'home'; draw(); } });
+    $('au-x') && ($('au-x').onclick = () => { if (mode === 'home' || (start && mode === start)) el.remove(); else { mode = mode === 'forgot' || mode === 'reset' ? 'login' : 'home'; draw(); } });
     $('au-guest') && ($('au-guest').onclick = () => { S.guest = true; done(); });
     $('au-forgot') && ($('au-forgot').onclick = () => { mode = 'forgot'; draw(); });
     $('au-send') && ($('au-send').onclick = () => { if (!$('au-id').value.trim()) return toast(de ? 'Bitte E-Mail oder Benutzername eingeben' : 'Please enter email or username'); toast(de ? 'Vorschau: Mit dem Cloud-Modus kommt hier die E-Mail' : 'Preview: the email arrives with cloud sync'); mode = 'reset'; draw(); });
@@ -1958,7 +1999,7 @@ function renderSettings() {
   let h = '';
   if (!setPage) {
     const item = (p, title, hint, lead) => `<button class="setrow sprow" data-sp="${p}">${lead || ''}<div style="flex:1;text-align:left"><b>${title}</b><p>${hint}</p></div>${CHEV}</button>`;
-    h = `<button class="sprof sprof-top" id="sprof">${avatarHTML(S.name || '?', 84, S.photo)}<div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>@${esc(userName())} · Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button><div>
+    h = `${isGuest() ? `<button class="sprof sprof-top" id="sguest"><span class="avatar dec" style="width:84px;height:84px;font-size:34px">+</span><div style="flex:1;text-align:left;min-width:0"><b>${S.lang === 'de' ? 'Account anlegen' : 'Create account'}</b><p>${S.lang === 'de' ? 'Daten sichern, Freunden folgen' : 'Back up your data, follow friends'}</p></div>${CHEV}</button>` : `<button class="sprof sprof-top" id="sprof">${avatarHTML(S.name || '?', 84, S.photo)}<div style="flex:1;text-align:left;min-width:0"><b>${esc(S.name || t('spProfile'))}</b><p>@${esc(userName())} · Level ${levelOf(totalPts()) + 1} · ${esc(LEVELS[levelOf(totalPts())][S.lang])}</p></div>${CHEV}</button>`}<div>
       ${item('general', S.lang === 'de' ? 'Allgemein' : 'General', S.lang === 'de' ? 'Mitteilungen' : 'Notifications', sic('general'))}
       ${item('personal', S.lang === 'de' ? 'Persönliche Daten' : 'Personal data', S.lang === 'de' ? 'Körpergewicht, Alter, Account, Daten' : 'Body weight, age, account, data', sic('personal'))}
       ${item('display', t('spDisplay'), t('spDisplayHint'), sic('display'))}
@@ -2071,7 +2112,7 @@ function renderSettings() {
     $('pname').oninput = e => { const was = pdDirty(); PD.name = e.target.value; if (was !== pdDirty()) { const pos = e.target.selectionStart; keepY(); const n = $('pname'); n.focus(); n.setSelectionRange(pos, pos); } };
     on('pe-photo', photoView); on('pe-save', pdSave); on('spback', () => leaveProfileEdit()); }
   document.querySelectorAll('[data-pbex]').forEach(b => b.onclick = () => { const k = b.dataset.pbex, cur = PD.pbEx; if (cur.includes(k)) PD.pbEx = cur.filter(x => x !== k); else if (cur.length < 3) PD.pbEx = cur.concat(k); else { toast(S.lang === 'de' ? 'Es werden 3 Personal Bests gezeigt. Erst eine abwählen.' : '3 personal bests are shown. Deselect one first.'); return; } const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; });
-  on('sprof', () => openProfile(myProfile(), 'settings'));
+  on('sprof', () => openProfile(myProfile(), 'settings')); on('sguest', () => showAuth(false, 'signup'));
   on('fci', () => showInfo(t('infoFc', S.fcLook, S.fcHor || 6)));
   $('age') && ($('age').onchange = e => { const v = parseNum(e.target.value); S.age = v && v > 0 ? Math.round(v) : null; renderSettings(); });
   $('bw') && ($('bw').onchange = e => { const v = parseNum(e.target.value); S.bodyweight = v && v > 0 ? v : null; if (!S.bodyweight) S.bwPoints = false; renderSettings(); });
@@ -2117,11 +2158,11 @@ const TESTRUN = location.search.includes('test');
 // app start: wait until the fonts are in, otherwise the start screen shifts after the intro measured it (decagon jumps down)
 // the decagon's position without its pulse (the pulse scales it, so a measurement mid-pulse would be off by a few px)
 function goRect(go) { const a = go.style.animation; go.style.animation = 'none'; const r = go.getBoundingClientRect(); go.style.animation = a; return r; }
-function startIntro() { const go = $('go'); if (go && S.intro !== 'off') go.style.visibility = 'hidden';
+function startIntro() { const go = $('go'); if (go && S.intro !== 'off') { go.style.visibility = 'hidden'; const cv = document.createElement('div'); cv.id = 'introcover'; $('app').appendChild(cv); setTimeout(() => cv.remove(), 1500); }
   // iPhone home screen: the layout can still move for a moment after launch (status bar, fonts) – wait until it is still
   const stable = done => { let last = null, same = 0, n = 0; const f = () => { const g = $('go'); if (!g) return done(); const r = goRect(g), k = Math.round(r.top) + ',' + Math.round(r.left) + ',' + Math.round(r.width);
       same = k === last ? same + 1 : 0; last = k; if (same >= 4 || ++n > 60) done(); else requestAnimationFrame(f); }; requestAnimationFrame(f); };
-  const run = () => { fitGreet(); stable(() => { if ($('go')) $('go').style.visibility = ''; playIntroSel(); }); };
+  const run = () => { fitGreet(); stable(() => { if ($('go')) $('go').style.visibility = ''; playIntroSel(); requestAnimationFrame(() => { const c = $('introcover'); if (c) c.remove(); }); }); };
   Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise(r => setTimeout(r, 800))]).then(run, run); }
 fetchRemote(); applySeason(); ghNotify();
 const wantInstall = location.search.includes('install') || (!TESTRUN && !isStandalone() && !sessionStorage.getItem('fitter.web') && /iPhone|iPad|Android/i.test(navigator.userAgent));
