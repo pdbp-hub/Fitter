@@ -27,7 +27,19 @@ const MORE_EX = {
   crunch:['Crunches','Crunches','core','bw'], legraise:['Beinheben hängend','Hanging Leg Raise','core','bw'], cablecrunch:['Kabel-Crunches','Cable Crunch','core','cable'],
   abwheel:['Ab Roller','Ab Wheel Rollout','core','bw'], russian:['Russian Twists','Russian Twist','core','db'] };
 Object.entries(MORE_EX).forEach(([k, [de, en, g, eq]]) => { EX[k] = { de, en, g, eq }; });
-const APP_VERSION = '0.13.0';
+// v0.14: more exercises + all trained muscle groups per exercise (first = main group)
+Object.assign(EX, { dbfly:{de:'Kurzhantel-Flys',en:'Dumbbell Fly',g:'chest',eq:'db'}, pullover:{de:'Kurzhantel-Pullover',en:'Dumbbell Pullover',g:'chest',eq:'db'}, stepup:{de:'Step-ups',en:'Step-ups',g:'legs',eq:'db'},
+  smithsquat:{de:'Kniebeuge Multipresse',en:'Smith Machine Squat',g:'legs',eq:'machine'}, revcurl:{de:'Reverse Curls',en:'Reverse Curls',g:'biceps',eq:'bb'}, glutekick:{de:'Glute Kickbacks am Kabel',en:'Cable Glute Kickback',g:'glutes',eq:'cable'}, pecdeckrear:{de:'Reverse Butterfly',en:'Rear Delt Fly',g:'shoulders',eq:'machine'} });
+const GS = { bench:['chest','triceps','shoulders'], incline:['chest','shoulders','triceps'], fly:['chest'], ohp:['shoulders','triceps'], lateral:['shoulders'], facepull:['shoulders','back'], pushdown:['triceps'], dips:['triceps','chest'], latpull:['back','biceps'], row:['back','biceps'], pullup:['back','biceps'],
+  deadlift:['back','lowback','hams','glutes'], squat:['legs','glutes'], legpress:['legs','glutes'], rdl:['hams','glutes','lowback'], legcurl:['hams'], legext:['legs'], calf:['calves'], dbbench:['chest','triceps'], inclinebb:['chest','shoulders','triceps'], decline:['chest','triceps'], chestpress:['chest','triceps'], pushup:['chest','triceps','core'],
+  dbpress:['shoulders','triceps'], shoulderpress:['shoulders','triceps'], reversefly:['shoulders','back'], uprightrow:['shoulders','back'], shrug:['back','shoulders'], cgbench:['triceps','chest'], bbrow:['back','biceps','lowback'], dbrow:['back','biceps'], tbar:['back','biceps'], chinup:['back','biceps'], hyperext:['lowback','glutes','hams'],
+  closelat:['back','biceps'], sumodl:['legs','glutes','hams','lowback'], frontsquat:['legs','core'], split:['legs','glutes'], lunge:['legs','glutes'], hipthrust:['glutes','hams'], goblet:['legs','glutes'], hack:['legs','glutes'], adductor:['legs'], abductor:['glutes'], seatedcalf:['calves'],
+  crunch:['core'], legraise:['core'], cablecrunch:['core'], abwheel:['core','lowback'], russian:['core'], dbfly:['chest'], pullover:['chest','back'], stepup:['legs','glutes'], smithsquat:['legs','glutes'], revcurl:['biceps'], glutekick:['glutes','hams'], pecdeckrear:['shoulders','back'] };
+Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = gs[0]; } });
+Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
+const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
+const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
+const APP_VERSION = '0.14.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -275,6 +287,10 @@ Object.assign(T.de, { info1rm: '<b>Maximalkraft (1RM)</b><br>Das Gewicht, das du
 Object.assign(T.en, { info1rm: '<b>Max strength (1RM)</b><br>The weight you could lift exactly once. Estimated with the Epley formula from your <b>strongest set</b> of the session (the set with the highest estimate, not an average):<br><code>1RM = weight × (1 + reps / 30)</code><br>1 rep = the weight itself. More than 12 reps count as 12, because the formula gets inaccurate there.<br>Example: 60 kg × 10 reps gives 80 kg.' });
 T.de.logic[0][1] = T.de.logic[0][1].replace('Erstes Mal 5</p>', 'Erstes Mal 5</p><p><b>Schwerer als je zuvor</b> (8 Wochen) zählt auch mit weniger Wdh. als Fortschritt: +10.</p>');
 T.en.logic[0][1] = T.en.logic[0][1].replace('First time 5</p>', 'First time 5</p><p><b>Heavier than ever</b> (8 weeks) counts as progress even with fewer reps: +10.</p>');
+Object.assign(T.de, { privacyHtml: '<p><b>ENTWURF, noch nicht rechtlich geprüft.</b> Stand: November 2026.</p><p><b>1. Verantwortlicher</b><br>Siehe Impressum.</p><p><b>2. Grundsatz</b><br>TRAIN speichert nur, was für die App nötig ist. Es gibt keine Werbung, keine Tracker, keine Analyse-Dienste und keine Weitergabe an Dritte zu Werbezwecken.</p><p><b>3. Nutzung ohne Account (Gast)</b><br>Alle Daten (Workouts, Trainings, Einstellungen, Körpergewicht, Alter, Profilbild) liegen ausschließlich im Speicher deines Geräts. Wir haben keinen Zugriff darauf. Löschst du die App oder die Browserdaten, sind sie weg.</p><p><b>4. Nutzung mit Account (Cloud)</b><br>Mit Account speichern wir: E-Mail-Adresse, Benutzername, Anzeigename, Kennwort (nur verschlüsselt als Hash, nie im Klartext), deine Trainingsdaten, Einstellungen, Profilbild, Körpergewicht und Alter (falls angegeben) sowie wem du folgst. Zweck: Sicherung, Nutzung auf mehreren Geräten und Freunde-Funktionen (Art. 6 Abs. 1 lit. b DSGVO).</p><p><b>5. Gesundheitsbezogene Angaben</b><br>Körpergewicht und Trainingsdaten können Rückschlüsse auf deine Gesundheit zulassen. Wir verarbeiten sie nur mit deiner ausdrücklichen Einwilligung (Art. 9 Abs. 2 lit. a DSGVO), die du bei der Registrierung gibst und jederzeit widerrufen kannst.</p><p><b>6. Freunde und Sichtbarkeit</b><br>Andere sehen nur deinen Benutzernamen, Anzeigenamen, Profilbild und die Profil-Elemente, die du in deinem Profil sichtbar machst. E-Mail-Adresse und Körpergewicht sieht niemand.</p><p><b>7. Dienstleister</b><br>Hosting der App: GitHub Pages (GitHub Inc., USA). Beim Aufruf entstehen technische Protokolle (z. B. IP-Adresse, Zeitpunkt), die GitHub zur Sicherheit verarbeitet. Datenbank und Anmeldung: Supabase, Server in der EU (Frankfurt), mit Vertrag zur Auftragsverarbeitung (Art. 28 DSGVO). Mitteilungen: der Push-Dienst deines Geräteherstellers (Apple oder Google) erhält ein Geräte-Kennzeichen, aber keine Trainingsdaten.</p><p><b>8. Mitteilungen</b><br>Nur wenn du sie in den Einstellungen einschaltest. Ausschalten jederzeit dort oder in den Systemeinstellungen.</p><p><b>9. Speicherdauer und Löschung</b><br>Daten bleiben gespeichert, solange dein Account besteht. Löschst du den Account (Einstellungen), werden alle Daten innerhalb von 30 Tagen gelöscht, Sicherungskopien spätestens nach 90 Tagen.</p><p><b>10. Deine Rechte</b><br>Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit (Export), Widerspruch und Widerruf von Einwilligungen. Kontakt: siehe Impressum. Du kannst dich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren.</p><p><b>11. Cookies</b><br>Keine Cookies. Die App nutzt den lokalen Speicher deines Geräts nur für ihre eigene Funktion.</p>' });
+Object.assign(T.en, { privacyHtml: '<p><b>DRAFT, not yet legally reviewed.</b> November 2026.</p><p><b>1. Controller</b><br>See imprint.</p><p><b>2. Principle</b><br>TRAIN only stores what the app needs. No ads, no trackers, no analytics, no sharing for advertising.</p><p><b>3. Without account (guest)</b><br>All data stays on your device only. We have no access. Deleting the app or browser data deletes it.</p><p><b>4. With account (cloud)</b><br>Email, username, display name, password (hashed only), training data, settings, profile photo, body weight and age (if given) and whom you follow. Purpose: backup, several devices, friends (Art. 6(1)(b) GDPR).</p><p><b>5. Health-related data</b><br>Body weight and training data are processed only with your explicit consent (Art. 9(2)(a) GDPR), which you can withdraw at any time.</p><p><b>6. Friends and visibility</b><br>Others only see your username, display name, photo and the profile elements you make visible. Nobody sees your email or body weight.</p><p><b>7. Service providers</b><br>Hosting: GitHub Pages (USA), technical logs. Database and login: Supabase, servers in the EU (Frankfurt), with a data processing agreement. Notifications: Apple or Google push service (device token only).</p><p><b>8. Deletion</b><br>Deleting your account removes all data within 30 days, backups within 90 days.</p><p><b>9. Your rights</b><br>Access, rectification, erasure, restriction, portability, objection, withdrawal of consent, complaint to a supervisory authority.</p><p><b>10. Cookies</b><br>None. Local device storage is used only for the app itself.</p>' });
+Object.assign(T.de, { groups: { chest:'Brust', shoulders:'Schultern', triceps:'Trizeps', back:'Rücken', lowback:'Unterer Rücken', biceps:'Bizeps', legs:'Oberschenkel vorne', hams:'Oberschenkel hinten', glutes:'Po', calves:'Waden', core:'Bauch' } });
+Object.assign(T.en, { groups: { chest:'Chest', shoulders:'Shoulders', triceps:'Triceps', back:'Back', lowback:'Lower back', biceps:'Biceps', legs:'Quads', hams:'Hamstrings', glutes:'Glutes', calves:'Calves', core:'Core' } });
 const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === 'function' ? v(...a) : v; };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -374,6 +390,61 @@ const ICON_EX = {
 
   dips:'<path d="M2 11h6M16 11h6M4.5 11v11M19.5 11v11"/><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v7.5"/><path d="M12 8.5l-4.5 2.5M12 8.5l4.5 2.5"/><path d="M12 14l-1.5 3.5 1.5 3.5M12 14l1.5 3.5"/>',
   pullup:'<path d="M2.5 3h19"/><path d="M7 3l3.5 6.5M17 3l-3.5 6.5"/><circle cx="12" cy="9.2" r="2"/><path d="M12 11.2v5.8M12 17l-2.2 4.5M12 17l2.2 4.5"/>' };
+// v0.14: person pictograms for the exercises (24×24, same stroke as the other icons)
+(() => { const H = (x, y, r = 1.7) => `<circle cx="${x}" cy="${y}" r="${r}"/>`, L = (...p) => `<path d="M${p.join(' L')}"/>`, F = d => `<path d="${d}" fill="currentColor" stroke="none"/>`;
+  const plate = (x, y, r = 2.3) => `<circle cx="${x}" cy="${y}" r="${r}"/><circle cx="${x}" cy="${y}" r=".5" fill="currentColor"/>`;
+  const dbV = (x, y) => `<path d="M${x} ${y - 2.2}v4.4"/><path d="M${x - 1.1} ${y - 2.4}h2.2M${x - 1.1} ${y + 2.4}h2.2" stroke-width="2"/>`;  // dumbbell, vertical
+  const dbH = (x, y) => `<path d="M${x - 2.2} ${y}h4.4"/><path d="M${x - 2.4} ${y - 1.1}v2.2M${x + 2.4} ${y - 1.1}v2.2" stroke-width="2"/>`; // dumbbell, horizontal
+  const bar = (x1, x2, y) => `<path d="M${x1} ${y}H${x2}"/><path d="M${x1 + 1} ${y - 1.8}v3.6M${x2 - 1} ${y - 1.8}v3.6" stroke-width="2.2"/>`;
+  const bench = `<path d="M3 15.2h13.5M5 15.2v6.3M14.5 15.2v6.3"/>`, floor = `<path d="M1.5 21.6h21"/>`;
+  const lying = `${H(19.6, 12.6)}${L('8 13.4', '17.6 13.4')}${L('8 13.4', '4.6 14.4', '3.8 21')}`; // person on a flat bench, head right
+  const standF = `${H(12, 3.6)}${L('12 5.4', '12 13.2')}${L('12 13.2', '9.6 21.6')}${L('12 13.2', '14.4 21.6')}`; // front view
+  const standS = `${H(11, 3.6)}${L('11 5.4', '11 13.2')}${L('11 13.2', '10 21.6')}${L('11 13.2', '12.6 21.6')}`; // side view, facing right
+  const sq = `${H(9.6, 4.6)}${L('10.6 6.4', '13 12.4')}${L('13 12.4', '8.4 14.6', '9.6 21.4')}`; // squat, side view
+  Object.assign(ICON_EX, {
+    bench: bench + lying + L('16 13.4', '16 6.4') + bar(10, 22, 5.8),
+    dbbench: bench + lying + L('16 13.4', '16 6.6') + dbH(16, 5.4),
+    cgbench: bench + lying + L('16 13.4', '16 6.4') + bar(10, 22, 5.8) + `<path d="M14.6 4.2v3.2M17.4 4.2v3.2" stroke-width="1"/>`,
+    skull: bench + lying + L('16.4 13.4', '16.4 7.6', '20.4 9.4') + plate(21, 9.4, 1.5),
+    pullover: bench + lying + L('17 13.4', '22.2 11.4') + dbV(22.4, 10.6),
+    dbfly: bench + lying + `<path d="M16 13.4 Q11.5 9 15 5.2"/><path d="M16 13.4 Q20.5 9 17 5.2" opacity=".45"/>` + dbH(15, 4.4),
+    ohp: standF + L('12 7', '7 7', '7 2.6') + L('12 7', '17 7', '17 2.6') + bar(3.5, 20.5, 2.2),
+    dbpress: standF + L('12 7', '7 7', '7 3.2') + L('12 7', '17 7', '17 3.2') + dbH(7, 2.4) + dbH(17, 2.4),
+    lateral: standF + L('12 7', '4.4 8.6') + L('12 7', '19.6 8.6') + dbV(3.6, 8.8) + dbV(20.4, 8.8),
+    cablelateral: standF + L('12 7', '4.6 9.4') + `<path d="M4.6 9.4 L20.6 20.2" stroke-dasharray="1.4 1.2"/>` + H(21.2, 20.6, 1.1) + `<path d="M22.6 2v20"/>`,
+    frontraise: standS + L('11 7', '19 7') + dbV(19.8, 7),
+    uprightrow: standF + L('12 7', '7.2 5.8', '10.4 9.6') + L('12 7', '16.8 5.8', '13.6 9.6') + bar(6.5, 17.5, 9.8),
+    shrug: standF + L('12 6.6', '8 13.6') + L('12 6.6', '16 13.6') + dbV(7.6, 15) + dbV(16.4, 15) + `<path d="M7.4 2.6l1.2-1.4 1.2 1.4M14.2 2.6l1.2-1.4 1.2 1.4" stroke-width="1.2"/>`,
+    curl: standF + L('12 7', '9 12.4', '7.6 8.8') + L('12 7', '15 12.4', '15.6 16.2') + dbV(7.4, 8.2) + dbV(15.8, 17.4),
+    hammer: standF + L('12 7', '8.8 12.4', '8.8 8.6') + L('12 7', '15.2 12.4', '15.2 8.6') + dbV(8.8, 7.6) + dbV(15.2, 7.6),
+    bbcurl: standF + L('12 7', '8.6 12.6', '8.2 9.2') + L('12 7', '15.4 12.6', '15.8 9.2') + bar(4.5, 19.5, 9.2),
+    revcurl: standF + L('12 7', '8.6 12.6', '8.2 9.2') + L('12 7', '15.4 12.6', '15.8 9.2') + bar(4.5, 19.5, 9.2),
+    ezcurl: standF + L('12 7', '8.6 12.6', '8.2 9.2') + L('12 7', '15.4 12.6', '15.8 9.2') + `<path d="M4.6 9.2 l2 .9 l2 -.9 l2.4 .9 l2 0 l2.4 -.9 l2 .9 l2 -.9"/><path d="M5.6 7.4v3.6M18.4 7.4v3.6" stroke-width="2.2"/>`,
+    concentration: `<path d="M3 21.6h8M5 15.6h7v6"/>` + H(8.2, 4.4) + L('9 6', '11 12') + L('11 12', '17 12.6', '17.6 21.6') + L('10 7.6', '15.2 11.6', '14 6.6') + dbV(14, 5.6),
+    inclinecurl: `<path d="M3 6.4 L9.6 16.6 h7 M12 16.6 v5 M7 21.6h10"/>` + H(3.6, 4.4) + L('5 6.4', '10.2 14.2') + L('10.2 14.2', '15.6 14.6', '16.4 21.4') + L('6.4 8.4', '6.4 15.6') + dbV(6.4, 16.8),
+    squat: sq + bar(3.6, 16.4, 6.2) + floor,
+    frontsquat: sq + L('10.8 7.2', '7.6 7.4') + plate(6.4, 7.2, 1.9) + floor,
+    goblet: sq + L('10.8 7.6', '7.6 8.8') + dbV(6.8, 9) + floor,
+    smithsquat: sq + bar(3.6, 16.4, 6.2) + `<path d="M2 1.6v20M18.6 1.6v20"/>`,
+    deadlift: floor + H(6.8, 7) + L('8.6 8', '15 11.8') + L('15 11.8', '13 16.2', '14.6 21.4') + L('9 8.6', '9.2 16.8') + plate(9.2, 18.8, 2.6),
+    rdl: floor + H(5.6, 9.4) + L('7.4 10.2', '14.6 11') + L('14.6 11', '14.2 21.4') + L('8.4 10.6', '8.6 15.8') + plate(8.6, 17.2, 2.2),
+    sumodl: standF.replace('L12 13.2 L9.6 21.6', '').replace('L12 13.2 L14.4 21.6', '') + L('12 13.2', '6.8 16', '5.2 21.6') + L('12 13.2', '17.2 16', '18.8 21.6') + L('12 7', '9.6 17.6') + L('12 7', '14.4 17.6') + bar(3.2, 20.8, 17.8),
+    bbrow: H(6.6, 8.6) + L('8.4 9.6', '15 12.6') + L('15 12.6', '13.4 16.6', '15 21.4') + L('9.4 10', '13 10.6', '11.2 13.6') + plate(11.2, 14.6, 2.2) + floor,
+    dbrow: `<path d="M3 13.6h9.4M4.4 13.6v8M11 13.6v8"/>` + H(4.8, 9.2) + L('6.6 10.2', '15.8 11') + L('7.4 10.4', '7.4 13.6') + L('15.8 11', '10.6 13.6') + L('15.8 11', '17.6 21.6') + L('13.6 11', '15.2 14.2', '13.4 9') + dbV(13.4, 8.2),
+    tbar: H(6.6, 8.6) + L('8.4 9.6', '15 12.6') + L('15 12.6', '13.4 16.6', '15 21.4') + L('9.4 10', '11.4 14.6') + `<path d="M1.8 21.4 L12.6 14.4"/>` + plate(12.8, 14.2, 2) + floor,
+    closelat: `<path d="M4 2h16"/><path d="M12 2v4.8"/><path d="M10.4 9.4 L12 6.8 L13.6 9.4 Z"/>` + H(12, 11.6, 1.6) + L('10.8 13.4', '11 9.4') + L('13.2 13.4', '13 9.4') + `<path d="M12 13.2v5"/><path d="M8.5 18.2h7"/><path d="M10 18.2l-1 4M14 18.2l1 4"/>`,
+    lunge: H(11, 3.6) + L('11 5.4', '11 13') + L('11 13', '15.6 15.2', '15.6 21.4') + L('11 13', '8.4 17.6', '3.8 20.6') + L('11 7', '11.8 13') + dbV(11.8, 14.4) + floor,
+    split: `<path d="M1.6 15.4h6.2M3 15.4v6.2"/>` + H(12.6, 3.6) + L('12.6 5.4', '12.6 13') + L('12.6 13', '17 15.2', '17 21.4') + L('12.6 13', '9.8 17.8', '6.2 15.4') + L('12.6 7', '13.4 13') + dbV(13.4, 14.4) + floor,
+    stepup: `<path d="M13.4 16h8v5.6"/>` + standS.replace('L11 13.2 L12.6 21.6', '') + L('11 13.2', '15.4 13.8', '15.6 16') + floor,
+    hipthrust: `<path d="M2 12.4h6.4M3.4 12.4v9.2"/>` + H(4.8, 10.4) + L('6.6 11', '13.2 9.4') + L('13.2 9.4', '17.4 12', '17.6 21.4') + plate(12.6, 7.2, 2.1) + floor,
+    glutekick: H(14.4, 5) + L('13.8 6.6', '11 12.4') + L('11 12.4', '11 21.6') + L('11 12.4', '4.8 13.6') + L('13.4 8', '16.6 11') + `<path d="M4.8 13.6 L2.2 20.4" stroke-dasharray="1.4 1.2"/><path d="M1.2 2v20"/>`,
+    crunch: `<path d="M1.5 21.4h21"/>` + L('12 20', '15.6 15', '19.2 20.4') + L('12 20', '7.2 16.4') + H(5.6, 15) + L('7.2 16.4', '5.6 12.6'),
+    kickback: H(6, 8.8) + L('7.8 9.6', '15.8 11.6') + L('15.8 11.6', '14.8 21.6') + L('15.8 11.6', '17.6 21.6') + L('9 10.2', '12.8 11.6', '18 10.2') + dbV(18.8, 10.2) + floor,
+    ohext: standS + L('11 6.8', '12.6 1.8', '8.8 4.4') + dbV(8.4, 5.2),
+    pushdown: `<path d="M21 2v20M18.5 22h5M15.8 2h5.2"/><circle cx="16.6" cy="4.3" r="1.3"/><path d="M16.6 5.6v8.4"/><path d="M13 14h7.2" stroke-width="2.4"/><circle cx="7.5" cy="4.4" r="1.8"/><path d="M7.5 6.2v8.8M7.5 15l-1.8 6.5M7.5 15l1.8 6.5"/><path d="M7.5 8.4l1.2 4 4.6 1.6"/>`,
+    calf: standS + `<path d="M8.2 21.6 h6.6 v-1.8 h-6.6 z"/><path d="M17.6 13.4v-4.6M16.2 10.2l1.4-1.6 1.4 1.6" stroke-width="1.3"/>` + L('11 7', '13.4 13') + dbV(13.6, 14.4),
+    pecdeckrear: ICON_EX.reversefly });
+})();
 const ico = k => `<span class="ico" title="${esc(t('eqs')[EX[k].eq])}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">${EX[k].custom ? ICON.custom : (ICON_EX[k] || ICON[EX[k].eq])}</svg></span>`;
 const SIC = {
   cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 2.5v5M16 2.5v5"/></svg>',
@@ -461,7 +532,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 /* ---------- Tabs ---------- */
 let tab = 'start';
 function show(view) {
-  refreshAgo(); tab = view; $('app').dataset.view = view; if ($('popover')) $('popover').hidden = true;
+  refreshAgo(); tab = view; $('app').dataset.view = view; a2hs(); if ($('popover')) $('popover').hidden = true;
   ['start','select','progress','settings'].forEach(v => $('v-'+v).hidden = v !== view);
   document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('on', b.dataset.tab === view));
   document.querySelector('.navoct').classList.toggle('off', !(view === 'start' || view === 'select'));
@@ -882,7 +953,7 @@ function reviewCore(o) {
   const hi = xs.filter(x => x.best > 0).sort((a, b) => (b.best / (b.pBest || b.best)) - (a.best / (a.pBest || a.best)))[0];
   if (hi) h += `<div class="sect"><div class="row"><h2>${t('highlightEx')}</h2>${hi.best > hi.pBest && hi.pBest ? `<span class="pill" style="padding:2px 8px;font-size:10px">${t('newPR')}</span>` : ''}</div>${exBlock(hi, true, o.key + 'h')}</div>`;
   const rest = xs.filter(x => x !== hi);
-  if (rest.length) { h += `<button class="morebtn" data-rvtog="1"><span class="mdec dec">${o.open ? '−' : '+'}</span>${t('moreEx')} (${rest.length})</button>`; if (o.open) h += `<div>${rest.map((x, i) => exBlock(x, false, o.key + i)).join('')}</div>`; }
+  if (rest.length) { h += `<button class="morebtn morerow" data-rvtog="1"><span>${t('moreEx')} <b class="num">${rest.length}</b></span><span class="mdec dec">${o.open ? '−' : '+'}</span></button>`; if (o.open) h += `<div>${rest.map((x, i) => exBlock(x, false, o.key + i)).join('')}</div>`; }
   return h;
 }
 function reviewHTML() {
@@ -942,12 +1013,12 @@ function closeO() { $('osheet').classList.add('down'); O = null; }
 function setOBar(html) { $('obar').firstElementChild.innerHTML = html; $('obar').hidden = !html; }
 function openCreate(w) { O = { fG:new Set(), fE:new Set(), sort:'az', mode:'create', editId: w ? w.id : null, name: w ? w.name : '', q:'', picked: w ? w.ex.filter(([k]) => EX[k]).map(e => [...e]) : [], custom:null }; renderO(); openO(); $('obody').scrollTop = 0; }
 function openPicker() { O = { mode:'picker', q:'', filter:false, onlyFav:false, groups:new Set(Object.keys(T.de.groups)) }; renderO(); openO(); $('obody').scrollTop = 0; }
-const fsCount = () => (O.fG ? O.fG.size : 0) + (O.fE ? O.fE.size : 0);
+const fsCount = () => (O.fG ? O.fG.size : 0) + (O.fE ? O.fE.size : 0) + (O.fO ? 1 : 0);
 const filterRowHTML = () => (O.sort in t('sorts') || (O.sort = 'az')) && `<div class="fsrow"><button class="fsbtn" id="o-filter">${FILTER_IC}${t('filter')}${fsCount() ? ` (${fsCount()})` : ''}</button>
   <div class="msel" id="o-sortbox"><button class="mbtn" id="o-sort"><span>${t('sortBy')}: ${t('sorts')[O.sort]}</span><i>▾</i></button><div class="mlist" id="o-sortlist" hidden>${Object.entries(t('sorts')).map(([k, l]) => `<button data-sort="${k}" class="${O.sort === k ? 'on' : ''}">${l}</button>`).join('')}</div></div></div>`;
 const FILTER_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>';
 function listKeys(extra) {
-  let ks = Object.keys(EX).filter(k => exMatches(k, O.q) && (!O.fG.size || O.fG.has(EX[k].g)) && (!O.fE.size || O.fE.has(EX[k].eq)) && (!extra || extra(k)));
+  let ks = Object.keys(EX).filter(k => exMatches(k, O.q) && (!O.fG.size || exGroups(k).some(g => O.fG.has(g))) && (!O.fE.size || O.fE.has(EX[k].eq)) && (!O.fO || (O.fO === 'own') === !!EX[k].custom) && (!extra || extra(k)));
   const byName = (a, b) => exName(a).localeCompare(exName(b), loc());
   if (O.sort === 'fav') ks.sort((a, b) => (S.fav.includes(b) - S.fav.includes(a)) || byName(a, b));
   else if (O.sort === 'recent') ks.sort((a, b) => ((lastAgoEx(a) ?? 1e9) - (lastAgoEx(b) ?? 1e9)) || byName(a, b));
@@ -966,18 +1037,20 @@ function openFilterSheet() {
   const draw = () => {
     const n = listKeys(O.mode === 'add' ? k => !W.ex.some(e => e.k === k) : null).length;
     ov.innerHTML = `<div class="fsheet" role="dialog"><div class="row"><h2>${t('filter')}</h2><button class="iconbtn" id="fs-x" aria-label="Schließen">✕</button></div>
+      <div><div class="eyebrow" style="margin-bottom:8px">${S.lang === 'de' ? 'Übungen' : 'Exercises'}</div><div class="opts"><button class="${O.fO === 'std' ? 'on' : ''}" data-fo="std">${S.lang === 'de' ? 'Standard' : 'Standard'}</button><button class="${O.fO === 'own' ? 'on' : ''}" data-fo="own">${S.lang === 'de' ? 'Eigene' : 'Own'}</button></div></div>
       <div><div class="eyebrow" style="margin-bottom:8px">${t('muscle')}</div><div class="opts">${Object.entries(t('groups')).map(([g, l]) => `<button class="${O.fG.has(g) ? 'on' : ''}" data-fg="${g}">${l}</button>`).join('')}</div></div>
       <div><div class="eyebrow" style="margin-bottom:8px">${t('equipment')}</div><div class="opts">${Object.entries(t('eqs')).map(([g, l]) => `<button class="${O.fE.has(g) ? 'on' : ''}" data-fe="${g}">${l}</button>`).join('')}</div></div>
       <div class="row"><button class="textbtn" id="fs-reset">${t('fReset')}</button><button class="mainbtn" id="fs-apply" style="width:auto;padding:14px 18px;font-size:14px">${t('fApply', n)}</button></div></div>`;
     ov.querySelectorAll('[data-fg]').forEach(b => b.onclick = () => { const g = b.dataset.fg; O.fG.has(g) ? O.fG.delete(g) : O.fG.add(g); draw(); });
     ov.querySelectorAll('[data-fe]').forEach(b => b.onclick = () => { const g = b.dataset.fe; O.fE.has(g) ? O.fE.delete(g) : O.fE.add(g); draw(); });
     const close = () => { ov.classList.remove('in'); setTimeout(() => ov.remove(), 250); renderO(); };
-    ov.querySelector('#fs-x').onclick = close; ov.querySelector('#fs-apply').onclick = close; ov.querySelector('#fs-reset').onclick = () => { O.fG.clear(); O.fE.clear(); draw(); };
+    ov.querySelector('#fs-x').onclick = close; ov.querySelector('#fs-apply').onclick = close; ov.querySelector('#fs-reset').onclick = () => { O.fG.clear(); O.fE.clear(); O.fO = ''; draw(); };
+    ov.querySelectorAll('[data-fo]').forEach(b => b.onclick = () => { O.fO = O.fO === b.dataset.fo ? '' : b.dataset.fo; draw(); });
     ov.onclick = e => { if (e.target === ov) close(); };
   };
   draw(); $('app').appendChild(ov); requestAnimationFrame(() => ov.classList.add('in'));
 }
-const exMatches = (k, q) => !q || (exName(k) + ' ' + (EX[k].en || '') + ' ' + t('groups')[EX[k].g] + ' ' + t('eqs')[EX[k].eq]).toLowerCase().includes(q.toLowerCase());
+const exMatches = (k, q) => !q || (exName(k) + ' ' + (EX[k].en || '') + ' ' + exGroups(k).map(g => t('groups')[g]).join(' ') + ' ' + t('eqs')[EX[k].eq]).toLowerCase().includes(q.toLowerCase());
 function toggleFav(k) { const i = S.fav.indexOf(k); if (i >= 0) S.fav.splice(i, 1); else S.fav.push(k); return true; }
 function renderO() {
   const b = $('obody');
@@ -1028,7 +1101,7 @@ function renderO() {
   if (O.mode === 'create') {
     const chosen = O.picked.map(([k, n], i) => `<div class="srow"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(k)}<div class="exname" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="min-width:0">${esc(exName(k))}</span><span class="mini-step"><button data-ps="${i}:-1" aria-label="minus">−</button><span class="num">${t('sets', n)}</span><button data-ps="${i}:1" aria-label="plus">+</button></span></div><span class="grip" data-grip aria-label="ziehen">${GRIP}</span></div>`).join('');
     const custom = O.custom ? `<div class="custom"><input id="c-name" name="fitter-exercise" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="${t('customName')}" value="${esc(O.custom.name)}">
-        <div><div class="eyebrow" style="margin-bottom:8px">${t('muscle')}</div><div class="opts">${Object.entries(t('groups')).map(([g, l]) => `<button class="${O.custom.g===g?'on':''}" data-cg="${g}">${l}</button>`).join('')}</div></div>
+        <div><div class="eyebrow" style="margin-bottom:8px">${t('muscle')}</div><div class="opts">${Object.entries(t('groups')).map(([g, l]) => `<button class="${O.custom.gs.includes(g)?'on':''}" data-cg="${g}">${l}</button>`).join('')}</div></div>
         <div><div class="eyebrow" style="margin-bottom:8px">${t('equipment')}</div><div class="opts">${Object.entries(t('eqs')).map(([g, l]) => `<button class="${O.custom.eq===g?'on':''}" data-ce="${g}">${l}</button>`).join('')}</div></div>
         <button class="ghostbtn" id="c-add" style="border-style:dashed">${t('addCustom')}</button><button class="textbtn" id="c-cancel" style="align-self:center">${t('never')}</button></div>` : '';
     b.innerHTML = `<div class="inner">
@@ -1045,14 +1118,16 @@ function renderO() {
     $('o-name').oninput = e => O.name = e.target.value;
     $('o-q').oninput = e => { O.q = e.target.value; renderPickList(); };
     $('chosen') && sortable($('chosen'), '.srow', (f, to) => { moveItem(O.picked, f, to); renderO(); });
+    $('chosen') && swipeRows($('chosen'), '.srow', (i, reset) => { const de = S.lang === 'de'; dialog(de ? 'Übung entfernen?' : 'Remove exercise?', esc(exName(O.picked[i][0])), [[t('delNo'), 'mainbtn', () => reset && reset()], [de ? 'Aus dem Workout entfernen' : 'Remove from workout', 'ghostbtn', () => { O.picked.splice(i, 1); renderO(); }]]); });
     b.querySelectorAll('[data-ps]').forEach(x => x.onclick = () => { const [i, d] = x.dataset.ps.split(':').map(Number); O.picked[i][1] = Math.max(1, O.picked[i][1] + d); renderO(); });
-    $('c-open') && ($('c-open').onclick = () => { O.custom = { name:'', g:'chest', eq:'bb' }; renderO(); $('c-name').focus(); });
+    $('c-open') && ($('c-open').onclick = () => { O.custom = { name:'', gs:['chest'], eq:'bb', dirty:false }; renderO(); $('c-name').focus(); });
     if (O.custom) {
-      $('c-name').oninput = e => O.custom.name = e.target.value;
-      b.querySelectorAll('[data-cg]').forEach(x => x.onclick = () => { O.custom.g = x.dataset.cg; renderO(); });
-      b.querySelectorAll('[data-ce]').forEach(x => x.onclick = () => { O.custom.eq = x.dataset.ce; renderO(); });
-      $('c-cancel').onclick = () => { O.custom = null; renderO(); };
-      $('c-add').onclick = () => { const n = O.custom.name.trim(); if (!n) { toast(t('needCustom')); return; } const k = 'c' + Date.now(); EX[k] = { de:n, en:n, g:O.custom.g, eq:O.custom.eq, custom:true }; O.picked.push([k, 4]); O.custom = null; save(); renderO(); };
+      $('c-name').oninput = e => { O.custom.name = e.target.value; O.custom.dirty = true; };
+      b.querySelectorAll('[data-cg]').forEach(x => x.onclick = () => { const g = x.dataset.cg, gs = O.custom.gs; O.custom.gs = gs.includes(g) ? (gs.length > 1 ? gs.filter(y => y !== g) : gs) : gs.concat(g); O.custom.dirty = true; renderO(); });
+      b.querySelectorAll('[data-ce]').forEach(x => x.onclick = () => { O.custom.eq = x.dataset.ce; O.custom.dirty = true; renderO(); });
+      $('c-cancel').onclick = () => { if (!O.custom.dirty && !O.custom.name.trim()) { O.custom = null; renderO(); return; } const de = S.lang === 'de';
+        dialog(de ? 'Eigene Übung verwerfen?' : 'Discard custom exercise?', de ? 'Deine Eingaben gehen verloren.' : 'Your input will be lost.', [[de ? 'Weiter bearbeiten' : 'Keep editing', 'mainbtn', () => {}], [de ? 'Verwerfen' : 'Discard', 'ghostbtn', () => { O.custom = null; renderO(); }]]); };
+      $('c-add').onclick = () => { const n = O.custom.name.trim(); if (!n) { toast(t('needCustom')); return; } const k = 'c' + Date.now(); EX[k] = { de:n, en:n, g:O.custom.gs[0], gs:O.custom.gs.slice(), eq:O.custom.eq, custom:true }; O.picked.push([k, 4]); O.custom = null; save(); renderO(); };
     }
     $('o-save') && ($('o-save').onclick = () => { const n = O.name.trim(); if (!n || !O.picked.length) { toast(t('needName')); return; } const ex = O.picked.map(p => [...p]); if (O.editId) { const w = wById(O.editId); w.name = n; w.ex = ex; } else workouts.unshift({ id:'w' + Date.now(), name:n, ex }); const wasEdit = !!O.editId, eid = O.editId; save(); closeO(); renderSelect(); toast(wasEdit ? '✓' : t('saved')); if (W && W.mode === 'ready' && W.src.id === eid) prepareWorkout(wById(eid)); });
   } else {
@@ -1075,7 +1150,7 @@ function renderPickList() {
     const ks = listKeys(k => !W.ex.some(e => e.k === k)); if (!ks.length) L.innerHTML = `<p class="hint" style="padding:14px 0">${t('noMatch')}</p>`;
     ks.forEach(k => {
       const x = document.createElement('div'); x.className = 'pick';
-      x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${t('groups')[EX[k].g]} · ${t('eqs')[EX[k].eq]}</small></button><span></span><button class="box" data-pk="1" aria-label="hinzufügen">+</button>`;
+      x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${esc(grpTxt(k))} · ${t('eqs')[EX[k].eq]}${EX[k].custom ? ` <em class="ownbadge">${t('own')}</em>` : ''}</small></button><span></span><button class="box" data-pk="1" aria-label="hinzufügen">+</button>`;
       x.querySelectorAll('[data-pk]').forEach(y => y.onclick = () => { W.ex.push({ k, target:4, sets:[], w: LAST[k] ? LAST[k][0] : (isBW(k) ? 0 : 20), r: LAST[k] ? LAST[k][1] : 10 }); tplAdd(k, 4); closeO(); renderW(); });
       L.appendChild(x);
     });
@@ -1085,12 +1160,16 @@ function renderPickList() {
     const ks = listKeys(); if (!ks.length) L.innerHTML = `<p class="hint" style="padding:14px 0">${t('noMatch')}</p>`;
     ks.forEach(k => {
       const on = O.picked.some(p => p[0] === k); const x = document.createElement('div'); x.className = 'pick' + (on ? ' on' : '');
-      x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${t('groups')[EX[k].g]} · ${t('eqs')[EX[k].eq]}${EX[k].custom ? ' · ' + t('own') : ''}</small></button>${starBtn(k)}<button class="box" data-pk="1" aria-label="auswählen">${on ? '✓' : ''}</button>`;
+      x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${esc(grpTxt(k))} · ${t('eqs')[EX[k].eq]}${EX[k].custom ? ` <em class="ownbadge">${t('own')}</em>` : ''}</small></button>${starBtn(k)}<button class="box" data-pk="1" aria-label="auswählen">${on ? '✓' : ''}</button>`;
       x.querySelectorAll('[data-pk]').forEach(y => y.onclick = () => { const i = O.picked.findIndex(p => p[0] === k); i >= 0 ? O.picked.splice(i, 1) : O.picked.push([k, 4]); renderO(); });
       L.appendChild(x);
     });
+    // own exercises: swipe left = delete for good (from every workout)
+    swipeRows(L, '.pick', (i, reset) => { const k = ks[i], de = S.lang === 'de'; if (!EX[k] || !EX[k].custom) { toast(de ? 'Nur eigene Übungen lassen sich löschen' : 'Only your own exercises can be deleted'); reset && reset(); return; }
+      dialog(de ? 'Eigene Übung ganz löschen?' : 'Delete own exercise for good?', de ? `„${esc(exName(k))}“ wird aus der Übungsliste und aus allen Workouts entfernt. Bisherige Trainings bleiben im Verlauf.` : `“${esc(exName(k))}” is removed from the list and from all workouts. Past sessions stay in your history.`,
+        [[t('delNo'), 'mainbtn', () => reset && reset()], [de ? 'Ganz löschen' : 'Delete for good', 'ghostbtn', () => { delete EX[k]; workouts.forEach(w => { w.ex = w.ex.filter(e => e[0] !== k); }); O.picked = O.picked.filter(p => p[0] !== k); S.fav = S.fav.filter(x => x !== k); save(); renderO(); }]]); });
   } else {
-    Object.keys(EX).filter(k => exMatches(k, O.q) && O.groups.has(EX[k].g) && (!O.onlyFav || S.fav.includes(k))).sort((a, b) => (lastAgoEx(a) ?? 1e9) - (lastAgoEx(b) ?? 1e9)).forEach(k => {
+    Object.keys(EX).filter(k => exMatches(k, O.q) && exGroups(k).some(g => O.groups.has(g)) && (!O.onlyFav || S.fav.includes(k))).sort((a, b) => (lastAgoEx(a) ?? 1e9) - (lastAgoEx(b) ?? 1e9)).forEach(k => {
       const a = lastAgoEx(k); const x = document.createElement('div'); x.className = 'pick';
       x.innerHTML = `${ico(k)}<button class="pmain" data-sel="1">${esc(exName(k))}<br><small>${a === null ? t('notTrained') : t('lastDone', t('ago', a))}</small></button>${starBtn(k)}<span></span>`;
       x.querySelector('[data-sel]').onclick = () => { S.chartKey = k; save(); closeO(); renderProgress(); };
@@ -1551,12 +1630,12 @@ function celebrate(kind = S.celeb) {
   const add = o => P.push(Object.assign({ x: 0, y: 0, vx: 0, vy: 0, g: .25, rot: R(0, 6.28), vr: R(-.2, .2), size: R(5, 9), shape: 'rect', col: FG, life: 1, decay: R(.006, .012), drag: .995, delay: 0, flip3d: true, flip: R(0, 6.28), fs: R(.08, .22) }, o));
   if (kind === 'confetti' || kind === 'colorconf') for (let i = 0; i < 190; i++) { const side = i % 3, pal = kind === 'colorconf' ? bright : mono;
     add({ x: side === 0 ? R(-10, Wd * .12) : side === 1 ? R(Wd * .88, Wd + 10) : R(0, Wd), y: side === 2 ? R(-60, -10) : R(-30, Ht * .2), vx: side === 0 ? R(1.5, 5) : side === 1 ? R(-5, -1.5) : R(-1.5, 1.5), vy: R(1, 4), g: .12, col: pal[i % pal.length], shape: i % 4 ? 'rect' : 'circle', size: R(5, 10), decay: R(.004, .008) }); }
-  if (kind === 'cannons') for (let i = 0; i < 160; i++) { const L = i % 2 === 0; add({ shape: i % 5 ? 'rect' : 'streamer', sway: i % 5 ? 0 : .6, tw: Math.random() * 6, x: L ? -5 : Wd + 5, y: Ht * .8, vx: (L ? 1 : -1) * R(3, 10), vy: R(-17, -9), g: .35, col: mono[i % 4], size: R(5, 9), decay: R(.005, .009) }); }
+  if (kind === 'cannons') for (let i = 0; i < 180; i++) { const L = i % 2 === 0; add({ shape: i % 6 === 0 ? 'ribbon' : i % 6 === 1 ? 'circle' : 'rect', flip3d: i % 6 > 1, delay: Math.floor(i / 60) * 14, sway: 0, tw: Math.random() * 6, x: L ? -5 : Wd + 5, y: Ht * .8, vx: (L ? 1 : -1) * R(3, 10), vy: R(-17, -9), g: .35, col: mono[i % 4], size: R(5, 9), decay: R(.005, .009) }); }
   if (kind === 'fireworks') { const pal = ['#ffd400', '#ff5a5f', '#7cc4ff', '#7dff9b', '#c39bff', '#fff3b0']; [[.25, .26], [.72, .2], [.5, .38], [.3, .5], [.75, .45]].forEach(([fx, fy], k) => { const y0 = Ht + 10, ty = Ht * fy;
     add({ x: Wd * fx + R(-20, 20), y: y0, vx: R(-.4, .4), vy: -Math.sqrt(2 * .16 * (y0 - ty)), g: .16, drag: 1, shape: 'circle', size: 3, col: '#fff3b0', glow: true, rocket: true, pal, decay: 0, delay: k * 22, flip3d: false }); }); }
-  if (kind === 'decagons') for (let i = 0; i < 44; i++) { const a = R(0, 6.28), sp = R(4, 10); add({ x: Wd / 2, y: Ht * .3, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 3, g: .2, shape: 'dec', size: R(8, 16), col: mono[i % 4], decay: R(.006, .01) }); }
+  if (kind === 'decagons') for (let i = 0; i < 56; i++) { const a = R(-2.6, -.5), sp = R(5, 12); add({ x: Wd / 2 + R(-30, 30), y: Ht * .55, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .22, shape: i % 3 ? 'dec' : 'decline', size: R(9, 22), col: mono[i % 4], vr: R(-.08, .08), fs: R(.05, .14), decay: R(.005, .009), delay: Math.floor(i / 8) * 3 }); }
   if (kind === 'stars') for (let i = 0; i < 60; i++) add({ x: R(0, Wd), y: R(-220, -10), vx: R(-.5, .5), vy: R(2, 4), g: .05, shape: 'star', size: R(6, 12), col: mono[i % 4], decay: R(.004, .007) });
-  if (kind === 'streamers') for (let i = 0; i < 44; i++) add({ x: R(0, Wd), y: R(-160, -10), vx: R(-1, 1), vy: R(2, 5), g: .08, shape: 'streamer', size: R(14, 26), col: mono[i % 4], vr: R(-.3, .3), decay: R(.004, .007) });
+  if (kind === 'streamers') for (let i = 0; i < 46; i++) add({ x: R(0, Wd), y: R(-260, -20), vx: R(-1, 1), vy: R(1.5, 3.5), g: .05, shape: 'ribbon', size: R(16, 28), col: [FG, FG, MU, '#ffd400', '#bdbdb6'][i % 5], vr: R(-.05, .05), sway: .8, tw: Math.random() * 6, decay: R(.0035, .006), flip3d: false });
   if (kind === 'glitter') for (let i = 0; i < 130; i++) add({ x: R(0, Wd), y: R(0, Ht * .6), vx: R(-.3, .3), vy: R(-.2, .6), g: .01, shape: 'circle', size: R(1.5, 3.5), col: FG, tw: R(0, 6.28), decay: R(.006, .012) });
   if (kind === 'xmas') { const pal = ['#f3f3ef', '#f3f3ef', '#d6262e', '#2e9e4f', '#ffd400']; for (let i = 0; i < 120; i++) add({ x: R(0, Wd), y: R(-300, -10), vx: R(-.8, .8), vy: R(1.5, 3.5), g: .03, shape: i % 3 ? 'circle' : 'star', size: R(4, 10), col: pal[i % 5], decay: R(.003, .006) }); }
   if (kind === 'easter') { const pal = ['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0']; for (let i = 0; i < 46; i++) { const a = R(0, 6.28), sp = R(4, 10); add({ x: Wd / 2, y: Ht * .35, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 4, g: .22, shape: 'egg', size: R(12, 20), col: pal[i % 5], decay: R(.005, .009) }); } }
@@ -1565,6 +1644,8 @@ function celebrate(kind = S.celeb) {
   if (kind === 'shock') for (let i = 0; i < 7; i++) add({ x: Wd / 2, y: Ht * .4, g: 0, vr: .01, shape: 'ring', size: 20, grow: R(7, 9), col: FG, delay: i * 9, decay: .011, drag: 1 });
   if (kind === 'fountain') for (let i = 0; i < 160; i++) add({ x: Wd / 2 + R(-8, 8), y: Ht + 5, vx: R(-3.2, 3.2), vy: R(-19, -12), g: .32, col: mono[i % 4], shape: i % 3 ? 'rect' : 'dec', size: R(5, 9), delay: Math.floor(i / 4), decay: R(.006, .01) });
   const shape = p => { const z = p.size; ctx.beginPath();
+    if (p.shape === 'ribbon') { ctx.beginPath(); for (let i = 0; i <= 12; i++) { const x = -z + i * z / 6, y = Math.sin(i * .9 + p.rot * 3) * z * .18; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.strokeStyle = p.col; ctx.lineWidth = 3.2; ctx.lineCap = 'round'; ctx.stroke(); return; }
+    if (p.shape === 'decline') { for (let i = 0; i < 10; i++) { const a = i * .628; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * z / 2, Math.sin(a) * z / 2); } ctx.closePath(); ctx.strokeStyle = p.col; ctx.lineWidth = 2.2; ctx.stroke(); return; }
     if (p.shape === 'egg') { ctx.ellipse(0, 0, z * .36, z / 2, 0, 0, 6.29); ctx.fill(); return; }
     if (p.shape === 'plate' && p.fancy) { const g = ctx.createRadialGradient(-z * .15, -z * .15, z * .05, 0, 0, z / 2); g.addColorStop(0, '#5a5a55'); g.addColorStop(1, '#1d1d1b'); ctx.fillStyle = g; ctx.arc(0, 0, z / 2, 0, 6.29); ctx.fill();
       ctx.strokeStyle = 'rgba(243,243,239,.75)'; ctx.lineWidth = Math.max(1, z * .05); ctx.beginPath(); ctx.arc(0, 0, z * .42, 0, 6.29); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, z * .22, 0, 6.29); ctx.stroke();
@@ -1726,6 +1807,9 @@ function showAuth(preview, start) {
 }
 
 // ================= Browser vs. home screen: install guide =================
+// browser only (not installed): slim bar on top of the main tabs, opens the install guide
+function a2hs() { if (isStandalone() || (location.search.includes('test') && !FRESH && !location.search.includes('a2hs'))) return; let b = $('a2hs');
+  if (!b) { b = document.createElement('button'); b.id = 'a2hs'; b.className = 'a2hs'; b.innerHTML = `<span>${S.lang === 'de' ? 'Zum Homescreen hinzufügen für das volle App-Erlebnis' : 'Add to home screen for the full app experience'}</span>${CHEV}`; b.onclick = () => showInstall(false); $('app').appendChild(b); document.body.classList.add('has-a2hs'); } }
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 function showInstall(preview) {
   const de = S.lang === 'de', el = document.createElement('div'); el.id = 'inst'; el.className = 'onb inst'; $('app').appendChild(el);

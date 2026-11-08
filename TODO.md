@@ -1,25 +1,13 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **🔝 Feedback 2026-11-08 (→ v0.14, vor der Cloud)**
-  - [ ] A App-Start: kurz weißer Bildschirm, dann schwarz, dann Intro → direkt schwarz
-  - [ ] B Maximalkraft: Berechnung erklären (aus welchem Satz?) und wissenschaftlich sauber; Charts-Abstand Legende↔Linie überall wie bei Arbeitsgewicht
-  - [ ] C Fortschritt: „Ganzer Kalender“ und „Alle X anzeigen“ als schlichter Text statt Kasten; „Weniger“ bei Personal Bests springt in die Charts (Bug)
-  - [ ] D Seasons: Ostergras nur auf der Train-Startseite, größer, unten in den Ecken über der Menüleiste; Santa-Mütze vorne durchsichtig (Bug); Hasenohren hüpfen falsch (mit dem Ausdehnen hüpfen, wie die Mütze)
-  - [ ] E Profil: „+“ am Profilbild kollidiert mit Level-Zeile; Kopf ruckelt/springt nach links/rechts; ausgeblendetes „Profil bearbeiten“ scheint durch; **Bearbeiten direkt im Profil** (Blöcke per Griff verschieben, per Wischen entfernen, „Element hinzufügen“ als Overlay mit mehr Elementen, Speichern oben); Gast hat kein Profil → „Account anlegen, Daten sichern“
-  - [ ] F Review: Prozent (z. B. 25 %) ragt über die Trennlinie; Metrik „Gewicht pro Satz“; „weitere Übungen“ besser als klickbar erkennbar; Points/Fortschritt sollen schwerere Gewichte mit weniger Wdh. nicht bestrafen (Vorschlag)
-  - [ ] G Übungs-Icons: fast alle überarbeiten (Person statt Gerät), Trizepsdrücken Stange vs. Seil unterscheiden, Latzug eng, Wadenheben auf Scheibe; mehr Übungen; mehrere Muskelgruppen je Übung; Gruppen feiner (unterer Rücken, Waden, Beinbeuger …); „Abduktoren (Maschine)“
-  - [ ] H Eigene Übung: mehrere Muskelgruppen wählbar; „Doch nicht“ fragt nach; Übung im Workout-Bearbeiten per Wischen löschen; eigene Übungen ganz löschen (aus allen Workouts, mit Rückfrage), Kennzeichnung „Eigene“ + Filter Standard/Eigene
-  - [ ] I Celebrations Kanonen, Zehnecke, Luftschlangen (echte Bänder) schöner
-  - [ ] J Datenschutzerklärung ausführlicher (inkl. Cloud) als Entwurf
-  - [ ] K Browser: schmaler Balken „Zum Homescreen hinzufügen“ oben auf Train/Fortschritt/Einstellungen (nicht im Training), öffnet Anleitung
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
 - [ ] Live-Versionswahl greift ab der nächsten Freigabe (release.py baut den Lader in die Live-App ein)
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.13.0 ansehen (v. a. Wischen der Mini-Leiste am iPhone, Erstbesuch-Test in Safari) → Feedback → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.14.0 ansehen → Feedback → „freigeben“ für Live
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
   - [ ] Account: Registrierung mit Benutzername (einmalig, ersetzt @test) + E-Mail + Kennwort; **Anmelden mit E-Mail ODER Benutzername + Kennwort**; Kennwort zurücksetzen per E-Mail (Entscheidung Ben 2026-11-05); Übernahme der lokalen Daten
@@ -94,6 +82,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.14.0** (2026-11-08): App-Start ohne Weiß, 1RM sauber (stärkster Satz, 1 Wdh. = Gewicht, Deckel 12) + erklärt, Points: schwerer = Fortschritt, Review „Gewicht pro Satz“, Prozent-Überlauf, „Weitere Übungen“ als Zeile, Fortschritt-Links schlicht + PB-„Weniger“-Sprung, Charts-Abstände, Ostergras nur Train-Start, Santa-Mütze, Ohren hüpfen synchron, Profil bearbeiten direkt im Profil (Griffe, Wischen/✕, Element hinzufügen, 3 neue Elemente, Speichern oben), Gast ohne Profil, Browser-Balken „Zum Homescreen“, Datenschutz-Entwurf ausführlich, Muskelgruppen mehrfach + neue Gruppen, 7 neue Übungen, ~40 neue Personen-Icons, eigene Übungen: mehrere Gruppen, Rückfrage, Wisch-Löschen (Workout + ganz), „Eigene“-Kennzeichnung + Filter, Celebrations Luftschlangen/Zehnecke/Kanonen
 - [x] **Dev v0.13.0** (2026-11-06): Push einzeilig, Profil mit verschmelzendem Kopf + echte Zehnecke + neues „+“ + ruhigere Fakten-Zeile, realistischere Rentiere, Santa ohne Punkt, Ostern mit Grasbüscheln + Hase über der Mini-Leiste, Silvester EN nur „Happy New Year“, Celebrations hochwertiger (3D-Konfetti, farbiges Raketen-Feuerwerk, Hantelscheiben mit Details, Kanonen mit Luftschlangen), Erstbesuch-Test mit Test-Profil (`?install&fresh`), Fortschritt ohne „Analyse“, Tag = eigene Seite mit Zurück, Workout am Kopf runterwischen + Leiste hochwischen/antippen fährt hoch, Abstand über „Allgemein“
 - [x] **Dev v0.12.1** (2026-11-06): Hasenohren sitzen auf der Zehneck-Kante und bewegen sich nur mit ihm, Santa mit Bart/Augen/Nase, Silvester-Feuerwerk echt (Rakete, Explosion, Glitzer, Schweif)
 - [x] **Dev v0.12.0** (2026-11-05): Fortschritt-Kopf ohne Überlappung, ohne „Verlauf“, „Details ansehen“, Rückblick-Tabelle bündig, Level-Kopf bleibt beim Hochscrollen zu, Kennwort-vergessen-Ablauf, AGB/Datenschutz-Fenster vorne, Gast-Text, Install-Icon, Live-Version gelb + scrollbare Liste, „In Safari öffnen“ (x-safari), In-App-Balken + Test App/Push, Schalter-Vorschau-Fix, „Berechnung“, Schlitten/Hase-Respawn-Fix, kürzere Ohren, neue Season Silvester

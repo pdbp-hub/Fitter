@@ -1109,3 +1109,10 @@ html, body { background: #0b0b0a; }
 .pfaddbox { gap: 4px; } .pfaddbox .row { margin-bottom: 8px; }
 .pfadd-row { display: flex; align-items: center; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--line); text-align: left; }
 .pfadd-row .dec { width: 34px; height: 34px; font-size: 18px; } .pfadd-row b { font-size: 15px; }
+.tiles3 > div { min-width: 0; overflow: hidden; } .tiles3 em { display: block; white-space: nowrap; font-size: 10px; }
+.morerow { width: 100%; align-self: stretch; justify-content: space-between; border: 1px solid var(--fg); padding: 12px 14px; font-family: var(--display); font-stretch: 105%; font-weight: 900; font-size: 15px; text-transform: uppercase; letter-spacing: .03em; }
+.morerow b { color: var(--muted); margin-left: 6px; }
+.a2hs { position: fixed; z-index: 25; top: 0; left: 0; right: 0; padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 6px; background: var(--fg); color: var(--bg); display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 800; text-align: left; }
+.a2hs .chev { color: var(--bg); width: 14px; height: 14px; }
+.has-a2hs .screen { padding-top: calc(52px + env(safe-area-inset-top, 0px)); }
+.ownbadge { font-style: normal; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #0b0b0a; background: #ffd400; padding: 1px 5px; margin-left: 4px; }

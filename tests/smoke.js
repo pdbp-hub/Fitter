@@ -119,8 +119,14 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     if (await page.evaluate(() => !document.getElementById('osheet').classList.contains('down'))) { await page.evaluate(() => closeO()); await page.waitForTimeout(400); } };
   await click('[data-tab=settings]');
   await sp('profile');
-  await page.fill('#pname', 'Ben Test'); await page.press('#pname', 'Enter'); await page.waitForTimeout(100);
-  check('Profil zeigt Initialen', await ev(() => document.querySelector('.avatar').textContent === 'BT'));
+  if (await page.$('#pf-name')) { // v0.14: edit in place in the profile
+    await page.fill('#pf-name', 'Ben Test'); await click('#pf-save'); await page.waitForTimeout(300);
+    check('Profil zeigt Initialen', await ev(() => document.querySelector('#obody .avatar').textContent === 'BT'));
+    await ev(() => closeO()); await page.waitForTimeout(400);
+  } else {
+    await page.fill('#pname', 'Ben Test'); await page.press('#pname', 'Enter'); await page.waitForTimeout(100);
+    check('Profil zeigt Initialen', await ev(() => document.querySelector('.avatar').textContent === 'BT'));
+  }
   await back(); await sp(await page.$('[data-sp="train"]') ? 'train' : 'display'); await click('[data-pulse=beat]');
   await back(); await sp('display'); await click('#l-en');
   await page.reload(); await page.waitForTimeout(400);
@@ -270,7 +276,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('„+ Eigene Übung“ als breiter Button', await ev(() => document.getElementById('c-open').getBoundingClientRect().width > 300));
     check('Übungsdatenbank erweitert (≥ 60)', await ev(() => document.querySelectorAll('#o-list .pick').length >= 60));
     await click('#o-filter'); await page.waitForTimeout(350); await click('[data-fg="legs"]'); await click('#fs-apply'); await page.waitForTimeout(350);
-    check('Filter nach Muskelgruppe', await ev(() => [...document.querySelectorAll('#o-list .pick small')].every(e => /Beine|Legs/.test(e.textContent))));
+    check('Filter nach Muskelgruppe', await ev(() => [...document.querySelectorAll('#o-list .pick small')].every(e => /Oberschenkel vorne|Quads/.test(e.textContent))));
     await click('#o-sort'); await click('[data-sort="fav"]');
     check('Sortieren umschaltbar', await ev(() => /Favoriten|Favourites/.test(document.getElementById('o-sort').textContent)));
     for (const n of [0, 1, 2, 3]) await page.locator('#o-list [data-star]').nth(n).click({ force: true });
@@ -396,15 +402,19 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=settings]'); await click('#sprof'); await settle();
     check('Einstellungen: Profil-Kachel öffnet dasselbe Profil wie bei Freunde', await ev(() => !!document.querySelector('#obody .pf-hero') && !!document.getElementById('pf-edit')));
     await click('#pf-edit'); await settle();
-    check('Profil bearbeiten: Benutzername nur angezeigt (@test), nicht änderbar', await ev(() => !document.getElementById('uname') && /@test/.test(document.querySelector('.pe-user').textContent)));
-    check('Profil bearbeiten: Personal Bests aus den ★-Favoriten', await ev(() => document.querySelectorAll('[data-pbex]').length === S.fav.length));
-    await click('#vis-pbs');
-    check('Profil bearbeiten: Änderung zeigt „Änderungen speichern“', await ev(() => !!document.getElementById('pe-save')));
-    await click('#spback');
-    check('Zurück mit ungespeicherten Änderungen fragt Speichern/Verwerfen', await ev(() => /speichern/i.test(document.getElementById('overlay').textContent)));
+    check('Profil bearbeiten direkt im Profil: Griffe, ✕, Speichern oben', await ev(() => O.edit && document.querySelectorAll('#pfblocks [data-grip]').length >= 3 && !!document.getElementById('pf-save') && /@test/.test(document.querySelector('.pf-user').textContent)));
+    check('Personal Bests aus den ★-Favoriten wählbar', await ev(() => document.querySelectorAll('#obody [data-pbex]').length === S.fav.length));
+    await click('[data-pfdel="pbs"]');
+    check('✕ entfernt den Block', await ev(() => !document.querySelector('[data-pk="pbs"]')));
+    await click('#pf-add'); await page.waitForTimeout(200);
+    check('„Element hinzufügen“ zeigt ausgeblendete Elemente (inkl. neue)', await ev(() => !!document.querySelector('[data-pfadd="pbs"]') && !!document.querySelector('[data-pfadd="streak"]')));
+    await click('[data-pfadd="streak"]');
+    check('Hinzugefügt erscheint im Profil', await ev(() => !!document.querySelector('[data-pk="streak"]')));
+    await click('#o-back');
+    check('Zurück mit Änderungen fragt Speichern/Verwerfen', await ev(() => /speichern/i.test(document.getElementById('overlay').textContent)));
     await click('#overlay .mainbtn'); await settle();
-    check('Gespeichert: zurück im Profil, Personal Bests ausgeblendet', await ev(() => O.mode === 'profile' && !document.querySelector('#obody .pf-pb') && S.vis.pbs === false));
-    await click('#pf-edit'); await settle(); await click('#vis-pbs'); await click('#pe-save'); await settle(); await click('#o-back'); await settle();
+    check('Gespeichert: Personal Bests weg, Serie da', await ev(() => !O.edit && !document.querySelector('#obody [data-pk="pbs"]') && !!document.querySelector('#obody [data-pk="streak"]') && S.vis.pbs === false));
+    await click('#pf-edit'); await settle(); await click('[data-pfdel="streak"]'); await click('#pf-add'); await page.waitForTimeout(150); await click('[data-pfadd="pbs"]'); await click('#pf-save'); await settle(); await click('#o-back'); await settle();
     await click('[data-tab=start]');
     check('Startseite: dreistellige Prozente überlappen nichts, „±0“ statt „=“', await (async () => { const r = await ev(() => { const o = weekStats; weekStats = () => ({ n: 5, n0: 5, vol: 98765, vol0: 1200, min: 999, min0: 40, pct: 0, pts: 0 }); renderStart(); weekStats = o;
       const cells = [...document.querySelectorAll('.weekstats > div')], ok = cells.every((c, i) => { const r = c.getBoundingClientRect(); return [...c.querySelectorAll('*')].every(e => { const q = e.getBoundingClientRect(); return q.left >= r.left - 1 && q.right <= r.right + 1; }); });
@@ -447,6 +457,13 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   }
 
   if (TARGET) {
+    console.log('Neu in v0.14');
+    check('1RM: 1 Wdh. = Gewicht, ab 12 Wdh. gedeckelt', await ev(() => e1rm(100, 1) === 100 && Math.abs(e1rm(60, 10) - 80) < .01 && e1rm(50, 20) === e1rm(50, 12)));
+    check('Übungen mit mehreren Muskelgruppen (Bankdrücken = Brust + Trizeps)', await ev(() => exGroups('bench').includes('triceps') && exGroups('deadlift').includes('lowback')));
+    check('Neue Gruppen (Waden, Po, Bauch, Unterer Rücken)', await ev(() => ['calves', 'glutes', 'core', 'lowback'].every(g => g in T.de.groups)));
+    check('Points: schwerer als je zuvor zählt (auch mit weniger Wdh.)', await ev(() => typeof PTS.heavier === 'number'));
+    check('Review-Metrik „Gewicht pro Satz“', await ev(() => 'wt' in T.de.metrics));
+    check('Eigene Icons für Bankdrücken & Trizepsdrücken ≠ mit Seil', await ev(() => ICON_EX.bench && ICON_EX.pushdown !== ICON_EX.ropepush));
     console.log('Neu in v0.13');
     check('Push-Test: nur eine Zeile (Nachricht als Titel, kein „TRAIN“)', await ev(() => /showNotification\(text,/.test(testPush.toString())));
     await ev(() => { S.seasonPreview = 'newyear'; S.lang = 'en'; show('start'); applySeason(); });
