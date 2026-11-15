@@ -104,7 +104,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-day="0"]');
     check('Tag nochmal antippen hebt Auswahl auf (REGRESSION)', await ev(() => document.getElementById('daycard').innerHTML === ''));
   }
-  await click('#exsel'); await settle(); await click('[data-sel]');
+  await click('#exsel'); await settle(); await ev(() => { const hs = document.querySelectorAll('#o-list .pickhead'), h = hs[hs.length - 1]; ((h ? h.nextElementSibling : document.querySelector('#o-list .pick')).querySelector('[data-sel]')).click(); }); await settle(); // first of "all exercises" = last trained
   check('Übung mit Daten zeigt 3 Charts', await ev(() => document.querySelectorAll('.chartbox').length === 3));
   await click('[data-info="info1rm"]');
   check('Info-i öffnet schwebendes Fenster', await ev(() => { const p = document.getElementById('popover'); return p && !p.hidden; }));
@@ -201,7 +201,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=progress]'); await click('[data-day="0"]'); await settle(); if (await page.$('[data-dayh]')) { await click('[data-dayh]'); await settle(); }
     check('Kalender-Details öffnen Review-Seite mit allen Sätzen', await ev(() => !document.getElementById('osheet').classList.contains('down') && !!document.querySelector('#obody .slogan') && !!document.querySelector('#obody .cells')));
     await click('#o-back'); await settle(); if (await ev(() => !document.getElementById('osheet').classList.contains('down'))) { await click('#o-back'); await settle(); }
-    check('Überschriften im Fortschritt mit Icons', await ev(() => document.querySelectorAll('#v-progress h2.hic svg').length === 2));
+    check('Überschriften im Fortschritt mit Icons', await ev(() => document.querySelectorAll('#v-progress h2.hic svg').length === 3));
     await click('[data-tab=settings]'); await sp('logic');
     check('Berechnungslogik: kein seitliches Scrollen (REGRESSION)', await ev(() => { const v = document.getElementById('v-settings'); return v.scrollWidth <= v.clientWidth + 1; }));
     await back(); await sp('display');
@@ -266,7 +266,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('#donebtn'); await settle();
     await click('[data-tab=progress]');
     check('„Ganzer Kalender“ mittig unter den Tagen', await ev(() => { const b = document.getElementById('calbtn'), s = document.getElementById('strip'); return b && s && b.getBoundingClientRect().top > s.getBoundingClientRect().bottom; }));
-    await click('#exsel'); await settle(); await click('[data-sel]');
+    await click('#exsel'); await settle(); await ev(() => { const hs = document.querySelectorAll('#o-list .pickhead'), h = hs[hs.length - 1]; ((h ? h.nextElementSibling : document.querySelector('#o-list .pick')).querySelector('[data-sel]')).click(); }); await settle();
     check('Kein Info-i mehr in der Legende', await ev(() => !document.querySelector('#charts .legend .info')));
     const hh = await ev(() => document.querySelector('.chartbox').getBoundingClientRect().height);
     const cb = await page.locator('#ch-str').boundingBox();
@@ -286,7 +286,16 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     for (const n of [0, 1, 2, 3]) await page.locator('#o-list [data-star]').nth(n).click({ force: true });
     await click('#o-back'); if (await page.$('#overlay:not([hidden])')) await click('[data-db="1"]'); await settle();
     await click('[data-tab=progress]');
-    check('Mehr als 3 Favoriten, horizontal scrollbar', await ev(() => { const f = document.querySelector('.favs'); return f && f.children.length > 3 && f.scrollWidth > f.clientWidth; }));
+    check('Fortschritt: nur noch Dropdown mit Icon, keine Favoriten-Leiste', await ev(() => !document.querySelector('.favs') && !!document.querySelector('#exsel .ico svg')));
+    check('Fortschritt: Trainingstage als abgesetzte Fläche', await ev(() => { const b = document.querySelector('.calband'); return b && getComputedStyle(b).backgroundColor !== getComputedStyle(document.getElementById('v-progress')).backgroundColor; }));
+    await click('#exsel'); await settle();
+    check('Übung wählen: Favoriten oben, Strich, „Alle Übungen“ (Favoriten auch dort)', await ev(() => { const hs = [...document.querySelectorAll('#o-list .pickhead')].map(h => h.textContent); const all = [...document.querySelectorAll('#o-list .pick')].length; return /Favoriten/.test(hs[0]) && /Alle Übungen/.test(hs[1]) && all === S.fav.length + Object.keys(EX).length; }));
+    await click('#o-back'); await settle();
+    await ev(() => { Object.defineProperty(Notification, 'permission', { get: () => 'denied', configurable: true }); S.push = false; });
+    await click('[data-tab=settings]'); await sp('general'); await ev(() => { const t = document.getElementById('pushtog'); if (t) t.click(); }); await page.waitForTimeout(250);
+    check('Mitteilungen einmal abgelehnt: Schalter geht trotzdem an + Erklärung (REGRESSION)', await ev(() => S.push === true && /Mitteilungen erlauben|Allow notifications/.test(document.getElementById('overlay').textContent)));
+    await click('#overlay .mainbtn'); await ev(() => { S.push = false; save(); }); await back();
+    await click('[data-tab=progress]');
     await click('[data-tab=settings]');
     check('Dev-Werkzeuge als eigener Menüpunkt', await ev(() => !document.getElementById('dev-onb') && !!document.querySelector('[data-sp="dev"]')));
     await click('[data-sp="dev"]');

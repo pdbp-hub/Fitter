@@ -1193,3 +1193,12 @@ body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-
 #season-grass .grass svg { width: 100%; display: block; }
 #season-grass .gl { left: 0; } #season-grass .gr { right: 0; transform: scaleX(-1); }
 .delacc { color: #e5484d !important; border-color: rgba(229,72,77,.5) !important; }
+/* v0.15.6: progress: training days set off as a band (both modes), exercise picker with icon, favourites on top */
+.calband { background: var(--surface); margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 14px max(16px, env(safe-area-inset-left, 0px)) 16px !important; border-bottom: 2px solid var(--fg); gap: 10px; }
+.calband-h h2 { margin: 0; font-size: 15px; }
+.exsel.exsel-ic { display: flex; align-items: center; gap: 12px; }
+.exsel.exsel-ic b { flex: 1; min-width: 0; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.exsel .pf-ic svg { width: 34px; height: 34px; }
+.pickhead { padding: 16px 0 6px; border-bottom: 2px solid var(--fg); }
+.pick.on .pmain { text-decoration: underline; text-underline-offset: 4px; }
+.pushwarn { align-self: flex-start; margin-top: 4px; padding: 2px 0; text-transform: none; letter-spacing: 0; font-size: 12px; }

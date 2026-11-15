@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.15.5';
+const APP_VERSION = '0.15.6';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -1311,8 +1311,13 @@ function renderPickList() {
       dialog(de ? 'Eigene Übung ganz löschen?' : 'Delete own exercise for good?', de ? `„${esc(exName(k))}“ wird aus der Übungsliste und aus allen Workouts entfernt. Bisherige Trainings bleiben im Verlauf.` : `“${esc(exName(k))}” is removed from the list and from all workouts. Past sessions stay in your history.`,
         [[t('delNo'), 'mainbtn', () => reset && reset()], [de ? 'Ganz löschen' : 'Delete for good', 'ghostbtn', () => { delete EX[k]; workouts.forEach(w => { w.ex = w.ex.filter(e => e[0] !== k); }); O.picked = O.picked.filter(p => p[0] !== k); S.fav = S.fav.filter(x => x !== k); save(); renderO(); }]]); });
   } else {
-    Object.keys(EX).filter(k => exMatches(k, O.q) && exGroups(k).some(g => O.groups.has(g)) && (!O.onlyFav || S.fav.includes(k))).sort((a, b) => (lastAgoEx(a) ?? 1e9) - (lastAgoEx(b) ?? 1e9)).forEach(k => {
-      const a = lastAgoEx(k); const x = document.createElement('div'); x.className = 'pick';
+    // favourites first (also again in "all"), then all exercises; searching shows one list
+    const all = Object.keys(EX).filter(k => exMatches(k, O.q) && exGroups(k).some(g => O.groups.has(g)) && (!O.onlyFav || S.fav.includes(k))).sort((a, b) => (lastAgoEx(a) ?? 1e9) - (lastAgoEx(b) ?? 1e9));
+    const favs = !O.q && !O.onlyFav ? S.fav.filter(k => EX[k]) : [], head = txt => { const h = document.createElement('div'); h.className = 'pickhead eyebrow'; h.textContent = txt; L.appendChild(h); };
+    if (favs.length) head(S.lang === 'de' ? '★ Favoriten' : '★ Favourites');
+    favs.concat(favs.length ? ['|'] : [], all).forEach(k => {
+      if (k === '|') { head(S.lang === 'de' ? 'Alle Übungen' : 'All exercises'); return; }
+      const a = lastAgoEx(k); const x = document.createElement('div'); x.className = 'pick' + (k === S.chartKey ? ' on' : '');
       x.innerHTML = `${ico(k)}<button class="pmain" data-sel="1">${esc(exName(k))}<br><small>${a === null ? t('notTrained') : t('lastDone', t('ago', a))}</small></button>${starBtn(k)}<span></span>`;
       x.querySelector('[data-sel]').onclick = () => { S.chartKey = k; save(); closeO(); renderProgress(); };
       L.appendChild(x);
@@ -1343,14 +1348,14 @@ function renderProgress() {
   const hm = m => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
   $('v-progress').innerHTML = `<div class="inner">
     ${progSwitch()}
-    <div class="sect sect-hist" style="border-top:0;padding-top:0">
+    <div class="sect sect-hist calband" style="border-top:0">
+      <div class="calband-h"><h2 class="hic">${SIC.cal}${de ? 'Trainingstage' : 'Training days'}</h2></div>
       ${calOpen ? calHTML() : `<div class="strip-wrap"><div class="strip" id="strip">${Array.from({length:90}, (_, i) => dayTile(89 - i)).join('')}</div><button class="today-btn" id="todaybtn" hidden>${t('today')}</button></div>`}
       <button class="linkbtn" id="calbtn">${calOpen ? t('lessCal') : t('fullCal')}</button>
       <div id="daycard">${dayCard()}</div>
     </div>
     <div class="sect sect-ana">
-      <button class="exsel" id="exsel"><b>${esc(exName(S.chartKey))}</b><span class="drop">▼</span></button>
-      ${S.fav.length ? `<div class="favs">${S.fav.map(k => `<button class="fav ${k===S.chartKey?'on':''}" data-ck="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
+      <button class="exsel exsel-ic" id="exsel"><span class="pf-ic">${ico(S.chartKey)}</span><b>${esc(exName(S.chartKey))}</b><span class="drop">▼</span></button>
       <div id="charts"></div>
     </div>
     <div class="sect" id="pbsect"><div class="charthead"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><button class="info" data-info="infoPB" aria-label="Info">i</button></div><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div>${pbCount() > 5 ? `<button class="linkbtn" id="pball">${pbAll ? (de ? 'Weniger ▴' : 'Less ▴') : (de ? `Alle ${pbCount()} anzeigen ▾` : `Show all ${pbCount()} ▾`)}</button>` : ''}</div>
@@ -2112,13 +2117,18 @@ function showInstall(preview) {
 
 // ================= Push notifications =================
 const PUSH_DEFAULT = { de: ['Deine Hanteln vermissen dich.', 'Zeit für ein neues Personal Best?', 'Ein Training heute, ein stärkeres Du morgen.', 'Dein Level wartet auf Points.'], en: ['Your dumbbells miss you.', 'Time for a new personal best?', 'One session today, a stronger you tomorrow.', 'Your level is waiting for points.'] };
+const pushAllowed = () => 'Notification' in window && Notification.permission === 'granted';
+function pushBlocked() { const de = S.lang === 'de', ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  dialog(de ? 'Mitteilungen erlauben' : 'Allow notifications', de ? (ios ? 'Dein iPhone fragt nicht mehr nach, weil Mitteilungen einmal abgelehnt wurden. So schaltest du sie ein:<br><b>Einstellungen › Mitteilungen › TRAIN › Mitteilungen erlauben</b>' : 'Mitteilungen wurden einmal abgelehnt. So schaltest du sie ein:<br><b>Chrome › ⋮ › Einstellungen › Website-Einstellungen › Benachrichtigungen › TRAIN › Zulassen</b>')
+    : (ios ? 'Your iPhone no longer asks because notifications were declined once. To turn them on:<br><b>Settings › Notifications › TRAIN › Allow Notifications</b>' : 'Notifications were declined once. To turn them on:<br><b>Chrome › ⋮ › Settings › Site settings › Notifications › TRAIN › Allow</b>'), [['OK', 'mainbtn', () => {}]]); }
 async function setPush(on) {
   const de = S.lang === 'de';
   if (!on) { S.push = false; save(); renderSettings(); return; }
   if (!('Notification' in window)) { dialog(de ? 'Mitteilungen' : 'Notifications', de ? 'Auf dem iPhone gehen Mitteilungen nur, wenn TRAIN vom Homescreen aus geöffnet wird (ab iOS 16.4).' : 'On iPhone, notifications only work when TRAIN is opened from the home screen (iOS 16.4+).', [['OK', 'mainbtn', () => {}]]); return; }
-  const p = await Notification.requestPermission();
-  if (p !== 'granted') { toast(de ? 'Mitteilungen wurden nicht erlaubt' : 'Notifications were not allowed'); return; }
+  // once declined, the phone never asks again: the switch still moves, and we explain where to allow it
+  const p = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
   S.push = true; save(); renderSettings();
+  if (p !== 'granted') pushBlocked();
 }
 async function testPush(text) {
   try { if (Notification.permission !== 'granted' && (await Notification.requestPermission()) !== 'granted') return toast('Keine Erlaubnis');
@@ -2421,7 +2431,7 @@ function renderSettings() {
     h = head(t('devTools')) + devHTML();
   } else if (setPage === 'general') {
     h = head(S.lang === 'de' ? 'Allgemein' : 'General') + `<div>
-        <div class="setrow"><div><b>${S.lang === 'de' ? 'Mitteilungen' : 'Notifications'}</b><p>${S.lang === 'de' ? 'Motivation, wenn du länger nicht trainiert hast' : 'Motivation when you have not trained for a while'}</p></div>${tog('pushtog', !!S.push)}</div></div>`;
+        <div class="setrow"><div><b>${S.lang === 'de' ? 'Mitteilungen' : 'Notifications'}</b><p>${S.lang === 'de' ? 'Motivation, wenn du länger nicht trainiert hast' : 'Motivation when you have not trained for a while'}</p>${S.push && 'Notification' in window && !pushAllowed() ? `<button class="linkbtn pushwarn" id="pushfix">${S.lang === 'de' ? 'Im Handy noch blockiert: so erlauben' : 'Still blocked on your phone: how to allow'}</button>` : ''}</div>${tog('pushtog', !!S.push)}</div></div>`;
   } else if (setPage === 'personal') {
     h = head(S.lang === 'de' ? 'Persönliche Daten' : 'Personal data') + `<div>
         <div class="setrow"><div><b>${t('bodyweight')}</b><p>${t('bwHint')}</p></div><label class="kgin"><input id="bw" inputmode="decimal" enterkeyhint="done" class="num" placeholder="—" value="${S.bodyweight ? fmtW(S.bodyweight) : ''}"><span>kg</span></label></div>
@@ -2484,7 +2494,7 @@ function renderSettings() {
   const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
   document.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { setPage = b.dataset.sp; renderSettings(); $('v-settings').scrollTop = 0; });
   on('help-onb', () => showOnboarding(true));
-  on('pushtog', () => setPush(!S.push));
+  on('pushtog', () => setPush(!S.push)); on('pushfix', pushBlocked);
   document.querySelectorAll('[data-faq]').forEach(b => b.onclick = () => { const j = +b.dataset.faq; faqOpen = faqOpen === j ? null : j; const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; });
   if (setPage === 'dev') bindDev();
   document.querySelectorAll('[data-intro]').forEach(b => b.onclick = () => { S.intro = b.dataset.intro; save(); if (S.intro !== 'off') previewIntro(); else renderSettings(); });

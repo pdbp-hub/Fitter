@@ -6,7 +6,7 @@
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.15.5 ansehen → Feedback → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.15.6 ansehen → Feedback → „freigeben“ für Live
 - [ ] **🔝🔝 Pflicht, bevor die Cloud live geht** (Claude segnet ab):
   - [ ] Backups der Nutzerdaten (täglich, EU), Wiederherstellung einmal testen
   - [ ] Datenstruktur schlank: Übungen/Gruppen als Kurzcodes, Sätze kompakt (z. B. [kg, Wdh., Sek.]), keine doppelten Daten; Speicher pro Nutzer messen
@@ -98,6 +98,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.15.6** (2026-11-15, Feedback Kumpel): Trainingstage als abgesetzte Fläche, Übungswahl nur noch Dropdown mit Icon (Favoriten oben, dann „Alle Übungen“), Mitteilungs-Schalter funktioniert auch nach Ablehnen (Erklärung, wo man es erlaubt)
 - [x] **Dev v0.15.5** (2026-11-15): Impressum + Datenschutz mit vollständiger Anschrift und Kontakt-E-Mail
 - [x] **Live-Schalter repariert** (2026-11-15, Dev v0.15.4): Live-Seite hat jetzt den Lader (lädt die in Dev gewählte Version), live.json/season.json am 10-Minuten-CDN-Cache vorbei, Dev-Werkzeug zeigt die gerade gewählte Version sofort an; Live-Schriften lokal statt Google
 - [x] **Dev v0.15.3** (2026-11-15): Ausführliche Datenschutzerklärung (18 Abschnitte, DSGVO), Impressum mit Bens Namen, freiwillige Einwilligung zur pseudonymisierten Auswertung beim Account anlegen
