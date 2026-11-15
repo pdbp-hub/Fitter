@@ -1,0 +1,4 @@
+/* Local fonts (SIL Open Font License) – no requests to Google servers */
+@font-face { font-family: 'Archivo'; font-style: normal; font-display: swap; font-weight: 100 900; font-stretch: 62% 125%; src: url(archivo-latin-wdth-normal.woff2) format('woff2-variations'), url(archivo-latin-wdth-normal.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-display: swap; font-weight: 500; src: url(jetbrains-mono-latin-500-normal.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-display: swap; font-weight: 700; src: url(jetbrains-mono-latin-700-normal.woff2) format('woff2'); }

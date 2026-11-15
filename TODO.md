@@ -4,10 +4,9 @@
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
-- [ ] Live-Versionswahl greift ab der nächsten Freigabe (release.py baut den Lader in die Live-App ein)
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.15.3 ansehen → Feedback → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.15.4 ansehen → Feedback → „freigeben“ für Live
 - [ ] **🔝🔝 Pflicht, bevor die Cloud live geht** (Claude segnet ab):
   - [ ] Backups der Nutzerdaten (täglich, EU), Wiederherstellung einmal testen
   - [ ] Datenstruktur schlank: Übungen/Gruppen als Kurzcodes, Sätze kompakt (z. B. [kg, Wdh., Sek.]), keine doppelten Daten; Speicher pro Nutzer messen
@@ -21,7 +20,6 @@
   - [ ] Sicherheit: `security-auditor` vor jeder Freigabe (RLS-Angriffe mit 2 Test-Accounts, XSS, Speicher, Anmeldung, Schlüssel); Schlüssel-Check läuft schon automatisch
   - [ ] Account löschen löscht wirklich alles (Auth, Tabellen per Cascade, Profilbilder, Freundschaften) + Test; Backup-Frist in Datenschutzerklärung
   - [ ] Passwort vergessen per E-Mail: eigener SMTP-Versand (Brevo, EU, AV-Vertrag) in Supabase Auth; Links laufen ab, kein Verraten existierender E-Mails
-  - [ ] Live-Index lädt noch Google Fonts von Google-Servern (Datenschutz!) → verschwindet mit der nächsten Freigabe (release.py stellt auf lokale Schriften um)
   - [ ] Datenschutzerklärung final (nicht Entwurf) + Einwilligung beim Account-Anlegen (Supabase, Entwickler-/KI-Zugriff auf pseudonymisierte Daten), vor dem ersten Tester; juristisch prüfen lassen
   - [ ] Homescreen-Name: iPhone übernimmt neuen Namen nur bei Neuinstallation → erst neu hinzufügen, wenn die Daten in der Cloud liegen (sonst Datenverlust)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
@@ -100,6 +98,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Live-Schalter repariert** (2026-11-15, Dev v0.15.4): Live-Seite hat jetzt den Lader (lädt die in Dev gewählte Version), live.json/season.json am 10-Minuten-CDN-Cache vorbei, Dev-Werkzeug zeigt die gerade gewählte Version sofort an; Live-Schriften lokal statt Google
 - [x] **Dev v0.15.3** (2026-11-15): Ausführliche Datenschutzerklärung (18 Abschnitte, DSGVO), Impressum mit Bens Namen, freiwillige Einwilligung zur pseudonymisierten Auswertung beim Account anlegen
 - [x] **Dev v0.15.2** (2026-11-15): „Account löschen“ (Einstellungen › Daten, Vorschau bis zur Cloud), Nutzungsbedingungen & Haftung (ausführlicher Entwurf, in Daten + Impressum + Anmeldung), Publish-Check + Schlüssel-Check + Sicherheits-Agent
 - [x] **Dev v0.15.1** (2026-11-15): Intro 1 zurück auf die alte Version (TRAIN, blendet aus); App heißt jetzt „TRAIN“ (Live) und „TRAIN Dev“ (Name auf dem Homescreen + im Browser-Tab, Live direkt auf Bens Wunsch)

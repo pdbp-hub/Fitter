@@ -35,6 +35,9 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 
   console.log('PWA');
   check('App-Name: „TRAIN“ (Live) / „TRAIN Dev“', (await (await page.request.get(URL + TARGET + 'manifest.webmanifest')).json()).name === (TARGET ? 'TRAIN Dev' : 'TRAIN') && await ev(() => document.title === (location.pathname.includes('/dev/') ? 'TRAIN Dev' : 'TRAIN')));
+  if (!TARGET) { const lj = await (await page.request.get(URL + 'live.json')).json();
+    check('Live lädt die per Dev-Werkzeug gewählte Version aus live.json (REGRESSION)', !lj.version || await page.waitForFunction(v => { try { return APP_VERSION === v; } catch (e) { return false; } }, lj.version, { timeout: 8000 }).then(() => true, () => false));
+    check('Live: live.json am CDN-Cache vorbei, Schriften lokal (REGRESSION)', await ev(() => /live\.json\?t=/.test(document.documentElement.innerHTML) && !document.querySelector('link[href*="googleapis"]'))); }
   check('Manifest ist verlinkt und erreichbar', (await (await page.request.get(URL + TARGET + 'manifest.webmanifest')).json()).display === 'standalone');
   check('Service Worker registriert', await ev(async () => !!(await navigator.serviceWorker.getRegistration())));
   check('Startet leer: 0 Points', await ev(() => document.querySelector('.ptsline b').textContent.trim() === '0'));

@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.15.3';
+const APP_VERSION = '0.15.4';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -1923,7 +1923,7 @@ const ROOT = ENV === 'dev' ? '../' : '';
 const seasonNow = () => (ENV === 'dev' && S.seasonPreview != null ? S.seasonPreview : REMOTE_SEASON) || '';
 const loadAnim = () => seasonNow() || S.anim;
 function fetchRemote() {
-  fetch(ROOT + 'season.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(j => { const n = SEASONS[j.season] ? j.season : ''; if (n !== REMOTE_SEASON) { REMOTE_SEASON = n; applySeason(); } }).catch(() => {});
+  fetch(ROOT + 'season.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(j => { let n = SEASONS[j.season] ? j.season : ''; if (ENV === 'dev') n = pendingOr('season', n); if (n !== REMOTE_SEASON) { REMOTE_SEASON = n; applySeason(); } }).catch(() => {});
 }
 // Santa hat: white brim, red cap leaning right, white pompom (fully inside the viewBox)
 const HAT = '<svg class="ss-hat" viewBox="0 0 100 92" aria-hidden="true"><path d="M14 70 C18 40 34 14 60 10 C76 8 86 16 88 30 C80 26 70 28 64 36 C58 46 58 58 60 70 Z" fill="#d6262e"/><path d="M60 10 C76 8 86 16 88 30 C80 26 70 28 64 36" fill="#b51c24"/><circle cx="86" cy="32" r="9" fill="#fff"/><rect x="8" y="64" width="62" height="18" rx="9" fill="#fff"/></svg>';
@@ -2167,7 +2167,10 @@ function confirmLive(title, text, fn) {
       try { await fn(k); toast('Live geschaltet. Nutzer sehen es beim nächsten Öffnen.'); } catch (e) { dialog('Hat nicht geklappt', esc(e.message), [['OK', 'mainbtn', () => {}]]); } }); }]]);
 }
 let VERSIONS = null, LIVE_RELEASE = null;
-function loadVersions(cb) { fetch(ROOT + 'app.js', { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(js => { const m = js.match(/APP_VERSION = '([^']+)'/); LIVE_RELEASE = m ? m[1] : null; }).catch(() => {}).finally(() => Promise.all([fetch(ROOT + 'versions/index.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []), fetch(ROOT + 'live.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]).then(([v, l]) => { VERSIONS = v; REMOTE_LIVE = l.version || null; cb(); })); }
+function loadVersions(cb) { fetch(ROOT + 'app.js', { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(js => { const m = js.match(/APP_VERSION = '([^']+)'/); LIVE_RELEASE = m ? m[1] : null; }).catch(() => {}).finally(() => Promise.all([fetch(ROOT + 'versions/index.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []), fetch(ROOT + 'live.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]).then(([v, l]) => { VERSIONS = v; REMOTE_LIVE = pendingOr('live', l.version || null); cb(); })); }
+// right after "live schalten" GitHub needs 1-2 min to publish: until the server shows it, the dev app shows what was just set
+function pendingOr(kind, remote) { try { const p = JSON.parse(localStorage.getItem('fitter.pend.' + kind) || 'null'); if (!p) return remote; if (p.v === remote || Date.now() - p.at > 15 * 6e4) { localStorage.removeItem('fitter.pend.' + kind); return remote; } return p.v; } catch (e) { return remote; } }
+function setPending(kind, v) { try { localStorage.setItem('fitter.pend.' + kind, JSON.stringify({ v, at: Date.now() })); } catch (e) { /* storage blocked */ } }
 const liveNow = () => REMOTE_LIVE || LIVE_RELEASE;
 const PUSH_CATS = {
   inactive: { de: ['Deine Hanteln vermissen dich.', 'Bereit für dein Comeback? Ein Training reicht für den Neustart.', 'Heute ist ein guter Tag für ein starkes Training.', 'Kurz rein, stark raus: 30 Minuten zählen.', 'Dein nächstes Personal Best wartet schon.', 'Kleine Schritte, große Wirkung. Los geht’s!', 'Dein Körper ist bereit. Du auch?'],
@@ -2238,9 +2241,9 @@ function bindDev() {
   on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
   document.querySelectorAll('[data-spv]').forEach(b => b.onclick = () => { const v = b.dataset.spv; S.seasonPreview = v === 'live' ? null : v === 'off' ? '' : v; save(); applySeason(); rr(); });
   document.querySelectorAll('[data-golive]').forEach(b => b.onclick = () => { const v = b.dataset.golive; if (v === REMOTE_SEASON) return;
-    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das Design „${SEASONS[v].de}“.` : 'Alle Nutzer sehen wieder das normale Design.', async k => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`, k); REMOTE_SEASON = v; rr(); }); });
+    confirmLive(v ? `${SEASONS[v].de} live schalten?` : 'Season ausschalten?', v ? `Jeder Nutzer sieht ab dem nächsten Öffnen das Design „${SEASONS[v].de}“.` : 'Alle Nutzer sehen wieder das normale Design.', async k => { await ghWrite('docs/season.json', { season: v }, `Season live: ${v || 'aus'}`, k); REMOTE_SEASON = v; setPending('season', v); rr(); toast('Gespeichert. In 1 bis 2 Minuten live für alle (beim nächsten Öffnen).'); }); });
   document.querySelectorAll('[data-ver]').forEach(b => b.onclick = () => { const v = b.dataset.ver; if (v === liveNow()) return;
-    confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async k => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`, k); REMOTE_LIVE = v; rr(); }); });
+    confirmLive(`Version ${v} live schalten?`, 'Alle Nutzer bekommen beim nächsten Öffnen diese Version. Achtung bei Rücksprüngen auf sehr alte Versionen: Daten, die nur neuere Versionen kennen, können dort fehlen.', async k => { await ghWrite('docs/live.json', { version: v }, `Live-Version: ${v}`, k); REMOTE_LIVE = v; setPending('live', v); rr(); toast('Gespeichert. In 1 bis 2 Minuten live für alle (beim nächsten Öffnen).'); }); });
   const cfg = () => { const c = pushCfg(); return c; }, put = c => { S.pushCfg = c; save(); rr(); };
   on('pc-inactive', () => { const c = cfg(); c.inactive.on = !c.inactive.on; put(c); }); on('pc-record', () => { const c = cfg(); c.record.on = !c.record.on; put(c); });
   document.querySelectorAll('[data-pdays]').forEach(b => b.onclick = () => { const c = cfg(); c.inactive.days = +b.dataset.pdays; put(c); });

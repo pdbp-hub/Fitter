@@ -20,7 +20,7 @@ if 'live.json' not in idx:
     idx = idx.replace('<script src="app.js"></script>', """<script>
 (function () { var css = document.getElementById('appcss');
   function load(v) { var b = v ? 'versions/' + v + '/' : ''; if (b) css.href = b + 'style.css'; var s = document.createElement('script'); s.src = b + 'app.js'; document.body.appendChild(s); }
-  fetch('live.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { load(j && j.version); }).catch(function () { load(null); }); })();
+  fetch('live.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { load(j && j.version); }).catch(function () { load(null); }); })();
 </script>""")
     (D / 'index.html').write_text(idx)
 import subprocess; subprocess.run(['python3', str(D.parent / 'tools' / 'archive_versions.py')])
