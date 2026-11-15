@@ -1157,3 +1157,38 @@ body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-
 /* v0.15: done set with a visible reset icon */
 .set.donerow { grid-template-columns: 26px 1fr auto auto 30px; cursor: pointer; }
 .set.donerow .rsx { width: 30px; height: 30px; font-size: 16px; color: var(--fg); }
+/* v0.15: trend preview = draw, hold, fade out, restart (the line never runs backwards) */
+.tp-line { animation: tp-draw2 4.4s ease-in-out infinite; }
+.tp-fc { animation: tp-fc2 4.4s ease-in-out infinite; }
+@keyframes tp-draw2 { 0% { stroke-dashoffset: 100; opacity: 1; } 35% { stroke-dashoffset: 0; opacity: 1; } 80% { stroke-dashoffset: 0; opacity: 1; } 90% { stroke-dashoffset: 0; opacity: 0; } 91%, 100% { stroke-dashoffset: 100; opacity: 0; } }
+@keyframes tp-fc2 { 0%, 38% { opacity: 0; } 50%, 80% { opacity: 1; } 90%, 100% { opacity: 0; } }
+/* v0.15: calculation page = mini headline, formula, one sentence */
+.logic2 .logic h3 { font-size: 13px; letter-spacing: .06em; }
+.logic2 .logic code { display: inline-block; margin: 2px 0 2px; padding: 4px 8px; border: 1px solid var(--line); font-size: 12.5px; }
+/* v0.15: share link with inline copy; FAQ groups */
+.linkrow.linkcopy { display: flex; align-items: center; gap: 12px; user-select: auto; -webkit-user-select: auto; }
+.linkrow.linkcopy span { flex: 1; min-width: 0; user-select: all; -webkit-user-select: all; }
+.linkrow.linkcopy .textbtn { flex: none; font-family: var(--sans, inherit); font-weight: 800; padding: 6px 0 6px 12px; border-left: 1px solid var(--line); }
+.faq-g { display: flex; flex-direction: column; } .faq-g .eyebrow { margin: 14px 0 2px; }
+/* v0.15: install banner bigger + shorter text; start page scrolls with the banner; prominent install button */
+.a2hs { font-size: 15px; padding-top: calc(10px + env(safe-area-inset-top, 0px)); padding-bottom: 10px; }
+.a2hs .chev { width: 18px; height: 18px; }
+.has-a2hs .screen { padding-top: calc(56px + env(safe-area-inset-top, 0px)); }
+.has-a2hs #v-start { overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+.has-a2hs #v-start .inner { flex: 1 0 auto; }
+.inst-now { font-size: 20px; padding: 20px 16px; margin-bottom: 8px; }
+.inst-pick .inst-os .ghostbtn { padding: 12px; }
+/* v0.15: push editor: App / Push as white buttons with room before ✕; send-to-all button; banner icons */
+.dlist .drow [data-pin], .dlist .drow [data-ptest] { color: var(--fg) !important; border: 1px solid var(--fg) !important; padding: 6px 10px !important; font-size: 12px; font-weight: 800; }
+.dlist .drow [data-ptest] { margin-right: 10px; }
+.psendall { margin-top: 10px; }
+.inbanner.hasic { flex-direction: row; align-items: center; gap: 12px; }
+.inbanner > div { display: flex; flex-direction: column; gap: 2px; }
+.inb-ic { flex: none; width: 34px; height: 34px; display: grid; place-items: center; background: #0b0b0a; color: #f3f3ef; }
+.inb-ic svg { width: 20px; height: 20px; }
+/* v0.15 easter: grass sits on the nav bar corners, below the mini bar (z 19) and never reaches "Diese Woche" (51 px gap) */
+#season-grass { position: fixed; left: 0; right: 0; bottom: calc(66px + env(safe-area-inset-bottom, 0px)); height: 0; z-index: 18; pointer-events: none; display: none; }
+#app[data-view="start"] #season-grass { display: block; }
+#season-grass .grass { position: absolute; bottom: 0; width: 110px; margin: 0; }
+#season-grass .grass svg { width: 100%; display: block; }
+#season-grass .gl { left: 0; } #season-grass .gr { right: 0; transform: scaleX(-1); }

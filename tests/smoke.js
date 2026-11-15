@@ -470,7 +470,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await ev(() => { S.seasonPreview = 'newyear'; S.lang = 'en'; show('start'); applySeason(); });
     check('Silvester auf Englisch: nur „Happy New Year“', await ev(() => { const t = document.querySelector('.hero .ss-ring').textContent; return /HAPPY NEW YEAR/.test(t) && !/FROHES/.test(t); }));
     await ev(() => { S.lang = 'de'; S.seasonPreview = 'easter'; applySeason(); });
-    check('Ostern: Grasbüschel mit Eiern links und rechts', await ev(() => document.querySelectorAll('#season .grass').length === 2));
+    check('Ostern: Grasbüschel mit Eiern links und rechts', await ev(() => document.querySelectorAll('#season-grass .grass').length === 2));
     check('Season-Ebene liegt über der Mini-Leiste (Hase hinter der Leiste, REGRESSION)', await ev(() => +getComputedStyle(document.getElementById('season')).zIndex > +getComputedStyle(document.getElementById('mini')).zIndex));
     await ev(() => { S.seasonPreview = null; applySeason(); save(); });
     await click('[data-tab=settings]'); await click('#sprof'); await settle();
@@ -510,6 +510,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Onboarding geschlossen', await ev(() => !document.getElementById('onb')));
     await click('[data-tab=settings]'); await click('[data-sp="help"]');
     check('Hilfe: Einführung + häufige Fragen', await ev(() => !!document.getElementById('help-onb') && document.querySelectorAll('[data-faq]').length >= 5));
+    check('Hilfe: „Schnellanleitung“, FAQ in Themen gruppiert', await ev(() => /Schnellanleitung|Quick guide/.test(document.getElementById('help-onb').textContent) && document.querySelectorAll('.faq-g').length >= 3));
     await click('[data-faq="4"]'); check('FAQ klappt auf, Löschen-Frage mit Animation', await ev(() => !!document.querySelector('.faq.open .faq-a') && !!document.querySelector('.faq.open .om-phone')));
     await click('#spback'); await click('[data-sp="dev"]');
     await click('[data-spv="xmas"]'); await page.waitForTimeout(300);
@@ -545,6 +546,84 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await ev(() => document.getElementById('dev-ghdel').click()); await page.waitForTimeout(150); await click('[data-tab=start]');
     check('Schlüssel entfernt: kein Banner', await ev(() => !document.getElementById('ghwarn') && !localStorage.getItem('fitter.ghkey')));
     await click('[data-tab=settings]');
+  }
+
+  if (TARGET) {
+    console.log('Neu in v0.15');
+    await ev(() => { document.querySelectorAll('.overlay, #popover').forEach(e => e.id === 'popover' || e.id === 'overlay' ? (e.hidden = true) : e.remove()); closeO(); S.seasonPreview = null; applySeason(); show('start'); });
+    check('Prozent ohne Leerzeichen (12% passt in die Kachel) (REGRESSION)', await ev(() => pctTag(12).includes('12%') && deltaTag(112, 100).includes('12%')));
+    check('Intro 1: kein „TRAIN“-Text mehr im Zehneck', await ev(() => !/intro-dec[^`]*TRAIN</.test(playIntroRaw.toString())));
+    check('Feiern: Teile prallen am Boden ab', await ev(() => /bounce/.test(celebrate.toString())));
+    check('Info-Texte: 1RM mit Rechenbeispiel, Volumen-Formel, Prognose passt sich an', await ev(() => /60 × \(1 \+ 10 ÷ 30\) = 80 kg/.test(T.de.info1rm) && /Volumen = Gewicht × Wdh/.test(T.de.infoVol) && (() => { const a = S.fcHor; S.fcHor = 12; const r = t('infoFc').includes('12 Wochen'); S.fcHor = a; return r; })()));
+    check('Berechnung: Mini-Überschrift + Formel + Satz, keine Entwickler-Begriffe', await ev(() => T.de.logic.length >= 10 && T.de.logic.every(([h, b]) => !/kleinste Quadrate|Epley|Vorschlag/.test(b)) && T.de.logic.some(([h]) => h === 'Prognose')));
+    // level page: highlights of the current level
+    await ev(() => openLevels()); await settle();
+    check('Level-Seite: 3 Highlights fürs aktuelle Level', await ev(() => document.querySelectorAll('.lvl-row.open .lvl-hl .dec, .lvl-hl .dec').length >= 3));
+    await ev(() => closeO()); await settle();
+    // review of a past day: set chips under each exercise, no "all sets" section
+    await ev(() => { const h = [...HISTORY].sort((a, b) => a.ago - b.ago)[0]; O = { mode:'review', h, open:false }; renderO(); openO(); }); await settle();
+    check('Tagesansicht: Sätze direkt unter der Übung, kein „Alle Übungen & Sätze“', await ev(() => !!document.querySelector('#obody .rvblock h3 + .cells') && !/Alle Übungen/.test(document.getElementById('obody').textContent)));
+    check('Bester Satz hat ein Info-i', await ev(() => !!document.querySelector('#obody [data-binfo]')));
+    await ev(() => closeO()); await settle();
+    // friends: head to head
+    await click('[data-tab=progress]'); await click('[data-ptab="friends"]');
+    await click('#fr-cmp'); await settle();
+    check('Kräftemessen: Chart mit einer Linie pro Person + Zusammenfassung', await ev(() => document.querySelectorAll('#cmp-ch polyline').length === 3 && document.getElementById('cmp-sum').textContent.length > 20));
+    await ev(() => { S.frLvl = 'better'; renderO(); });
+    check('Kräftemessen: alle besser = trotzdem motivierend', await ev(() => /fehlen dir nur|just .* behind/.test(document.getElementById('cmp-sum').textContent)));
+    await ev(() => { S.frLvl = 'worse'; renderO(); });
+    check('Kräftemessen: alle schlechter = „Du liegst vor“', await ev(() => /Stark! Du liegst vor/.test(document.getElementById('cmp-sum').textContent)));
+    await ev(() => { S.frLvl = 'mix'; renderO(); }); await click('#cmp-add');
+    check('Kräftemessen: + öffnet Freunde-Auswahl mittig', await ev(() => !!document.querySelector('#cmpfrov [data-cmpf]')));
+    await click('#cmpfrov [data-cmpf]'); check('Freund hinzugefügt: 4 Linien', await ev(() => document.querySelectorAll('#cmp-ch polyline').length === 4));
+    await click('[data-cmpdel="0"]'); check('Freund entfernt', await ev(() => document.querySelectorAll('#cmp-ch polyline').length === 3));
+    await ev(() => closeO()); await settle();
+    await ev(() => { S.guest = true; renderFriends(); });
+    check('Ohne Account: „Account anlegen“ statt eigenem Profil', await ev(() => /Account anlegen/.test(document.getElementById('fr-me').textContent) && !/@test/.test(document.getElementById('fr-me').textContent)));
+    await click('#fr-me'); await page.waitForTimeout(200);
+    check('Account anlegen: Button grau, bis alles ausgefüllt ist', await ev(() => document.getElementById('au-go').disabled));
+    await page.fill('#au-user', 'ben.test'); await page.fill('#au-mail', 'a@b.de'); await page.fill('#au-pw', '12345678'); await click('#au-agb'); await click('#au-dse');
+    check('… und aktiv mit allen Feldern + Häkchen', await ev(() => !document.getElementById('au-go').disabled));
+    await click('[data-legal="dse"]'); await page.waitForTimeout(200);
+    check('Datenschutz vom Account-Screen: liegt oben, scrollbar (REGRESSION)', await ev(() => { const w = document.getElementById('popover'), r = w.querySelector('.popover').getBoundingClientRect(); const top = document.elementFromPoint(r.x + r.width / 2, r.y + 40); return !w.hidden && w.contains(top) && getComputedStyle(w.querySelector('.popover')).overflowY === 'auto'; }));
+    await click('#popover .x'); check('… und lässt sich schließen', await ev(() => document.getElementById('popover').hidden));
+    await ev(() => { document.getElementById('auth').remove(); S.guest = false; S.authSeen = true; save(); }); await click('[data-ptab="me"]');
+    // create workout: per-field hints
+    await click('[data-tab=start]'); await ev(() => { show('select'); openCreate(); }); await settle();
+    check('Workout anlegen: „+“ statt leerer Kästchen', await ev(() => document.querySelector('#o-list .pick .box').textContent.trim() === '+'));
+    await click('#o-list .pick .box'); await click('#o-save'); await page.waitForTimeout(200);
+    check('Speichern ohne Namen: „Name fehlt“, Feld rot', await ev(() => /Name fehlt/.test([...document.querySelectorAll('.toast')].pop().textContent) && document.getElementById('o-name').classList.contains('err')));
+    await page.fill('#o-name', 'Test v15'); await ev(() => { O.picked = []; renderO(); }); await click('#o-save'); await page.waitForTimeout(200);
+    check('Speichern ohne Übung: „mindestens eine Übung“', await ev(() => /mindestens eine Übung/.test([...document.querySelectorAll('.toast')].pop().textContent)));
+    await ev(() => closeO()); await settle();
+    // ready screen: no mini bar before Start; ✕ fits inside the row
+    await ev(() => { show('start'); document.getElementById('go').click(); }); await settle(); await click('.witem'); await settle();
+    await click('[data-ropen="0"]');
+    check('Bereit-Screen: ✕ ragt nicht aus der Zeile (rote Löschfläche) (REGRESSION)', await ev(() => [...document.querySelectorAll('#readylist .srow.ropen .sx')].every(x => x.getBoundingClientRect().right <= x.closest('.srow').getBoundingClientRect().right + .5)));
+    await ev(() => minimize()); await page.waitForTimeout(600);
+    check('Bereit-Screen runterwischen: keine Mini-Leiste vor dem Start (REGRESSION)', await ev(() => document.getElementById('mini').hidden && !W));
+    // training: reset a done set of an earlier exercise, then continue where you were
+    await ev(() => { document.getElementById('go').click(); }); await settle(); await click('.witem'); await settle();
+    await click('#startbtn'); await click('#warmdone'); await settle();
+    for (let n = 0; n < 2; n++) { await click('#mainact'); await click('#mainact'); }
+    await ev(() => { W.cur = 1; W.open = {}; renderW(); });
+    check('Erledigter Satz: sichtbares ↺ in der Satzzeile (auch frühere Übung)', await ev(() => { W.open[0] = true; renderW(); return !!document.querySelector('[data-redoset="0:0"]'); }));
+    await ev(() => document.querySelector('[data-redoset="0:0"]').click()); await page.waitForTimeout(150); await click('#overlay .ghostbtn'); await page.waitForTimeout(200);
+    check('↺: Satz 1 ist wieder dran', await ev(() => W.cur === 0 && W.ex[0].sets.length === 1 && /Satz 1|Set 1/.test(document.querySelector('.block.cur .set.active .lbl').textContent)));
+    await click('#mainact'); await click('#mainact');
+    check('… danach weiter bei der Übung, wo man war', await ev(() => W.cur === 1 && W.ex[0].sets.length === 2));
+    await ev(() => { W = null; save(); closeW(); });
+    // icons, settings, push, easter
+    check('Icons: Arnold Press, Liegestütze, Beinheben eigene Zeichnung', await ev(() => ICON_EX.arnold && ICON_EX.pushup && ICON_EX.legraise && ICON_EX.pushup !== ICON_EX.pullup));
+    check('Push-Texte positiv (alte Sprüche ersetzt)', await ev(() => !PUSH_CATS.inactive.de.includes('Dein Level wartet auf Points.') && PUSH_CATS.inactive.de.length >= 6 && PUSH_CATS.record.de.length >= 6));
+    await ev(() => banner('Test', 'record')); check('In-App-Banner mit Icon', await ev(() => !!document.querySelector('.inbanner.hasic .inb-ic svg')));
+    await ev(() => document.querySelectorAll('.inbanner').forEach(b => b.remove()));
+    await ev(() => { S.seasonPreview = 'easter'; applySeason(); show('start'); }); await page.waitForTimeout(200);
+    check('Ostern: Gras an den Ecken der Menüleiste, nie über „Diese Woche“ (REGRESSION)', await ev(() => { const g = document.querySelector('#season-grass .gl').getBoundingClientRect(), st = [...document.querySelectorAll('#v-start .inner > *')].pop().getBoundingClientRect(), nav = document.querySelector('.nav').getBoundingClientRect(); return g.top >= st.bottom - 1 && Math.abs(g.bottom - nav.top) < 3 && +getComputedStyle(document.getElementById('season-grass')).zIndex < 19; }));
+    await ev(() => { S.seasonPreview = null; applySeason(); });
+    await click('[data-tab=settings]'); await sp('share');
+    check('Teilen: „Kopieren“ direkt in der Link-Zeile', await ev(() => !!document.querySelector('.linkrow #copylink')));
+    await back();
   }
 
   if (!TARGET) {

@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.14.0';
+const APP_VERSION = '0.15.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -309,6 +309,34 @@ Object.assign(T.en, {
   infoWeight: '<b>Working weight</b><br>The heaviest weight you moved in this exercise in that session, no matter how many reps. Next to it: how often you made it.<br>Shows whether you dare heavier weights, even if the reps go down.',
   infoPB: '<b>Personal bests</b><br>Per exercise your best set ever (highest estimated max strength). When you improve, the new record replaces the old one. Newest first.',
   infoFc: () => `<b>Forecast</b><br>The dashed line shows where you could be in <b>${S.fcHor || 6} weeks</b> if you keep training like this.<br>Based on ${S.fcLook ? `your sessions of the last <b>${S.fcLook} weeks</b>` : '<b>all</b> your sessions'}. It flattens because strength grows slower over time. Grey = uncertainty.<br>Change the periods in Settings › Display.` });
+// v0.15: calculation page for users: mini headline, formula, one sentence
+const LG = (h, f, txt) => [h, (f ? `<code>${f}</code>` : '') + `<p>${txt}</p>`];
+Object.assign(T.de, { logic: [
+  LG('Points für Fortschritt', 'Neuer Bestwert = 10 + 3 × Steigerung in %', 'Pro Übung vergleichen wir dein heutiges 1RM mit deinem Bestwert der letzten 8 Wochen. Gehalten gibt 6, schwächer 2, das erste Mal 5, schwerer als je zuvor +10. Höchstens 40 pro Übung, 6 Übungen pro Training.'),
+  LG('Points fürs Dranbleiben', '+10 pro Trainingstag', 'Bis zu 5 Tage pro Woche zählen, der 2. Trainingstag der Woche bringt +15 extra. Mehrere Trainings am selben Tag zählen einmal.'),
+  LG('Maximalkraft (1RM)', '1RM = Gewicht × (1 + Wdh. ÷ 30)', 'Das Gewicht, das du genau 1× schaffen würdest, geschätzt aus deinem stärksten Satz. Beispiel: 60 kg × 10 Wdh. = 80 kg. Ab 12 Wdh. wird wie mit 12 gerechnet.'),
+  LG('Bester Satz', '', 'Der Satz mit der höchsten geschätzten Maximalkraft in einem Training.'),
+  LG('Volumen', 'Volumen = Gewicht × Wdh.', 'Über alle Sätze zusammengezählt. Beispiel: 3 × 50 kg × 10 = 1.500 kg.'),
+  LG('Arbeitsgewicht', '', 'Das schwerste Gewicht, das du in einem Training bei einer Übung bewegt hast, egal mit wie vielen Wdh.'),
+  LG('Trainingszeit', 'Trainingszeit = Summe der Satzzeiten', 'Nur die Zeit in den Sätzen zählt, Pausen nicht.'),
+  LG('Prognose', 'Trend der letzten Wochen, in die Zukunft verlängert', 'Die gestrichelte Linie zeigt, wo du stehen könntest, wenn du so weitertrainierst. Sie flacht ab, weil Kraft mit der Zeit langsamer wächst. Der graue Bereich zeigt, wie stark deine Werte schwanken. Zeiträume: Einstellungen › Fortschritt.'),
+  LG('Neue Rekorde', 'Rekord = 1RM höher als je zuvor', 'Gezählt pro Übung und Training: Schlägt dein geschätztes 1RM alle früheren Werte dieser Übung, ist das ein Rekord. Das allererste Training einer Übung zählt noch nicht.'),
+  LG('Körpergewicht (Dips, Klimmzüge & Co.)', '1RM = (Körpergewicht + Zusatz) × (1 + Wdh. ÷ 30)', 'Standardmäßig zählt nur das Zusatzgewicht. Mit „Körpergewicht mitzählen“ kommt dein Körpergewicht dazu, Unterstützung (Minus-kg) wird abgezogen.'),
+  LG('Trend-Farben', '', 'Grün, wenn der letzte Wert im Chart mindestens so hoch ist wie der erste, sonst rot.'),
+  LG('Vergleich zur Vorwoche', 'Diese Woche ÷ Vorwoche', 'Bewegtes Gewicht seit Montag gegen die komplette Vorwoche.') ] });
+Object.assign(T.en, { logic: [
+  LG('Points for progress', 'New best = 10 + 3 × gain in %', 'Per exercise we compare today’s 1RM with your best of the last 8 weeks. Held gives 6, weaker 2, first time 5, heavier than ever +10. At most 40 per exercise, 6 exercises per session.'),
+  LG('Points for consistency', '+10 per training day', 'Up to 5 days per week count, the 2nd training day of the week gives +15 extra. Several sessions on one day count once.'),
+  LG('Max strength (1RM)', '1RM = weight × (1 + reps ÷ 30)', 'The weight you could lift exactly once, estimated from your strongest set. Example: 60 kg × 10 reps = 80 kg. From 12 reps on it is calculated with 12.'),
+  LG('Best set', '', 'The set with the highest estimated max strength in a session.'),
+  LG('Volume', 'Volume = weight × reps', 'Added up over all sets. Example: 3 × 50 kg × 10 = 1,500 kg.'),
+  LG('Working weight', '', 'The heaviest weight you moved in an exercise in a session, no matter how many reps.'),
+  LG('Training time', 'Training time = sum of set times', 'Only the time in your sets counts, rests do not.'),
+  LG('Forecast', 'Trend of the last weeks, extended into the future', 'The dashed line shows where you could be if you keep training like this. It flattens because strength grows slower over time. The grey band shows how much your values vary. Periods: Settings › Progress.'),
+  LG('New records', 'Record = 1RM higher than ever', 'Counted per exercise and session: if your estimated 1RM beats all earlier values of that exercise, it is a record. The very first session of an exercise does not count yet.'),
+  LG('Body weight (dips, pull-ups & co.)', '1RM = (body weight + extra) × (1 + reps ÷ 30)', 'By default only the extra weight counts. With “Count body weight” your body weight is added, assistance (minus kg) is subtracted.'),
+  LG('Trend colours', '', 'Green if the last value in the chart is at least as high as the first, otherwise red.'),
+  LG('Compared to last week', 'This week ÷ last week', 'Weight moved since Monday against the whole previous week.') ] });
 const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === 'function' ? v(...a) : v; };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1021,9 +1049,14 @@ function saveWorkout() {
     hist.pts = ptsOf(sessVol(hist));
     HISTORY.push(hist); W.ex.forEach(e => { if (e.sets.length) { const l = e.sets[e.sets.length-1]; LAST[e.k] = [l.w, l.r]; } });
     lastFinished = { W, hist, at:Date.now() };
+    closeW(); if (isGuest()) setTimeout(guestHint, 450); return;
   }
   closeW();
 }
+// without an account: after each finished workout a short reminder that the data lives only on this phone
+function guestHint() { const de = S.lang === 'de';
+  dialog(de ? 'Nur auf diesem Gerät gespeichert' : 'Saved on this device only', de ? 'Dein Training ist gesichert, aber nur hier. Mit einem Account geht nichts verloren, auch nicht beim Handywechsel.' : 'Your session is saved, but only here. With an account nothing gets lost, not even when you change phones.',
+    [[de ? 'Account anlegen' : 'Create account', 'mainbtn', () => showAuth(false, 'signup')], [de ? 'Später' : 'Later', 'ghostbtn', () => {}]]); }
 
 function tick() {
   if (!W) return;
@@ -1890,13 +1923,15 @@ function fireworks(cv) {
 const grass = (cls, eggs) => `<div class="grass ${cls}"><svg viewBox="0 0 120 54" aria-hidden="true">${eggs.map((c, i) => `<ellipse cx="${30 + i * 28}" cy="40" rx="9" ry="12" fill="${c}"/><path d="M${23 + i * 28} 38 h14" stroke="#fff" stroke-width="2" opacity=".7"/>`).join('')}<path d="M0 54 C6 34 8 22 10 10 C14 26 16 38 18 54 M14 54 C22 30 26 20 32 6 C32 26 30 40 30 54 M40 54 C44 34 48 24 52 14 C54 30 52 42 50 54 M60 54 C64 30 70 18 78 8 C76 28 72 42 70 54 M82 54 C86 36 92 26 100 18 C98 32 94 44 92 54 M102 54 C106 38 110 30 118 24 C116 36 112 46 112 54" fill="#3f8f3a" stroke="#2f7a2b" stroke-width="1.5"/></svg></div>`;
 function applySeason() {
   const sz = seasonNow(), app = $('app'); app.classList.toggle('season-xmas', sz === 'xmas'); app.classList.toggle('season-easter', sz === 'easter'); app.classList.toggle('season-newyear', sz === 'newyear');
+  const sgr = $('season-grass'); if (sz !== 'easter' && sgr) sgr.remove();
+  if (sz === 'easter' && !sgr) { const g = document.createElement('div'); g.id = 'season-grass'; g.setAttribute('aria-hidden', 'true'); g.innerHTML = grass('gl', ['#f4a7c0', '#f4e07a']) + grass('gr', ['#a7d8f4', '#b6e3a1', '#d1b3f0']); $('app').appendChild(g); } // grows out of the nav bar corners, behind the mini bar
   let layer = $('season'); if (!sz) { if (layer) layer.remove(); if (tab === 'start' && !W) renderStart(); return; }
   if (!layer || layer.dataset.s !== sz) { if (layer) layer.remove(); greetText = greeting(); layer = document.createElement('div'); layer.id = 'season'; layer.dataset.s = sz; layer.setAttribute('aria-hidden', 'true');
     const R = (a, b) => (a + Math.random() * (b - a)).toFixed(2);
     if (sz === 'xmas') layer.innerHTML = Array.from({ length: 30 }, () => { const z = R(7, 15); return `<i class="flake" style="left:${R(0, 100)}%;width:${z}px;height:${z}px;background-image:url('${FLAKE}');animation-duration:${R(10, 20)}s,${R(3, 6)}s;animation-delay:-${R(0, 20)}s,-${R(0, 6)}s;opacity:${R(.45, .9)}"></i>`; }).join('') + `<div class="sleigh"><div class="sl-in">${SLEIGH}</div></div>`;
     else if (sz === 'newyear') { layer.innerHTML = '<canvas class="fwc"></canvas>'; fireworks(layer.firstChild); }
     else if (false) layer.innerHTML = Array.from({ length: 6 }, (_, i) => `<div class="fw" style="left:${R(8, 92)}%;top:${Math.random() < .6 ? R(2, 16) : R(64, 72)}%;--c:${['#ffd400', '#f3f3ef', '#ff5a5f', '#4aa3ff', '#ffd400', '#b58cff'][i]};animation-delay:-${R(0, 6)}s;animation-duration:${R(4.5, 7)}s">${Array.from({ length: 12 }, (_, j) => `<i style="transform:rotate(${j * 30}deg)"></i>`).join('')}</div>`).join('');
-    else layer.innerHTML = `<div class="bunny"><div class="bn-in">${BUNNY}</div></div>${grass('gl', ['#f4a7c0', '#f4e07a'])}${grass('gr', ['#a7d8f4', '#b6e3a1', '#d1b3f0'])}`;
+    else layer.innerHTML = `<div class="bunny"><div class="bn-in">${BUNNY}</div></div>`;
     // every pass a new route: other height, other direction
     // fireworks: each burst moves to a new spot after it faded out
     layer.querySelectorAll('.fw').forEach(f => f.addEventListener('animationiteration', e => { if (e.target === f) { f.style.left = R(8, 92) + '%'; f.style.top = (Math.random() < .6 ? R(2, 16) : R(64, 72)) + '%'; } }));
@@ -1963,28 +1998,31 @@ function showAuth(preview, start) {
 // ================= Browser vs. home screen: install guide =================
 // browser only (not installed): slim bar on top of the main tabs, opens the install guide
 function a2hs() { if (isStandalone() || (location.search.includes('test') && !FRESH && !location.search.includes('a2hs'))) return; let b = $('a2hs');
-  if (!b) { b = document.createElement('button'); b.id = 'a2hs'; b.className = 'a2hs'; b.innerHTML = `<span>${S.lang === 'de' ? 'Zum Homescreen hinzufügen für das volle App-Erlebnis' : 'Add to home screen for the full app experience'}</span>${CHEV}`; b.onclick = () => showInstall(false); $('app').appendChild(b); document.body.classList.add('has-a2hs'); } }
+  if (!b) { b = document.createElement('button'); b.id = 'a2hs'; b.className = 'a2hs'; b.innerHTML = `<span>${S.lang === 'de' ? 'App installieren & Daten sichern' : 'Install app & keep your data'}</span>${CHEV}`; b.onclick = () => showInstall(false); $('app').appendChild(b); document.body.classList.add('has-a2hs'); } }
+let INSTALL_EVT = null; addEventListener('beforeinstallprompt', e => { e.preventDefault(); INSTALL_EVT = e; });
+const guessOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'ios' : /Android/.test(navigator.userAgent) ? 'android' : null;
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 function showInstall(preview) {
   const de = S.lang === 'de', el = document.createElement('div'); el.id = 'inst'; el.className = 'onb inst'; $('app').appendChild(el);
   const STEPS = {
     ios: de ? [['Safari öffnen', 'Öffne diese Seite in Safari (nicht in einer anderen App).', 'safari'], ['Teilen antippen', 'Tippe unten auf das Teilen-Symbol (Quadrat mit Pfeil nach oben).', 'share'], ['„Zum Home-Bildschirm“', 'Scrolle in der Liste nach unten und tippe auf „Zum Home-Bildschirm“.', 'add'], ['Hinzufügen', 'Tippe oben rechts auf „Hinzufügen“. TRAIN liegt jetzt auf deinem Homescreen.', 'done']]
       : [['Open Safari', 'Open this page in Safari (not inside another app).', 'safari'], ['Tap Share', 'Tap the share icon at the bottom (square with an arrow).', 'share'], ['“Add to Home Screen”', 'Scroll down the list and tap “Add to Home Screen”.', 'add'], ['Add', 'Tap “Add” at the top right. TRAIN is now on your home screen.', 'done']],
-    android: de ? [['Chrome öffnen', 'Öffne diese Seite in Chrome.', 'chrome'], ['Menü öffnen', 'Tippe oben rechts auf die drei Punkte (⋮).', 'menu'], ['„App installieren“', 'Tippe auf „App installieren“ oder „Zum Startbildschirm hinzufügen“.', 'add'], ['Installieren', 'Bestätige mit „Installieren“. TRAIN liegt jetzt auf deinem Startbildschirm.', 'done']]
-      : [['Open Chrome', 'Open this page in Chrome.', 'chrome'], ['Open the menu', 'Tap the three dots (⋮) at the top right.', 'menu'], ['“Install app”', 'Tap “Install app” or “Add to Home screen”.', 'add'], ['Install', 'Confirm with “Install”. TRAIN is now on your home screen.', 'done']] };
+    android: de ? [['Chrome öffnen', 'Öffne diese Seite in Chrome.', 'chrome'], ['Menü öffnen', 'Tippe oben rechts auf die drei Punkte (⋮).', 'menu'], ['„Zum Startbildschirm hinzufügen“', 'Tippe auf „Zum Startbildschirm hinzufügen“. Bei manchen Handys heißt es „App installieren“.', 'add'], ['Installieren', 'Wähle „Installieren“ und bestätige. TRAIN liegt jetzt auf deinem Startbildschirm. Zeigt Chrome unten von selbst „App installieren“, geht es auch damit.', 'done']]
+      : [['Open Chrome', 'Open this page in Chrome.', 'chrome'], ['Open the menu', 'Tap the three dots (⋮) at the top right.', 'menu'], ['“Add to Home screen”', 'Tap “Add to Home screen”. On some phones it is called “Install app”.', 'add'], ['Install', 'Choose “Install” and confirm. TRAIN is now on your home screen. If Chrome shows “Install app” at the bottom by itself, that works too.', 'done']] };
   let os = null, i = 0;
   const vis = (k, osn) => { const sh = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v10h14V11"/></svg>';
     if (k === 'share') return `<div class="om-phone ins"><div class="ins-page"></div><div class="ins-bar"><i></i><i></i><span class="ins-hl">${sh}<span class="om-finger ins-f"></span></span><i></i><i></i></div></div>`;
     if (k === 'menu') return `<div class="om-phone ins"><div class="ins-top"><span>pdbp-hub.github.io</span><span class="ins-hl">⋮<span class="om-finger ins-f"></span></span></div><div class="ins-page"></div></div>`;
-    if (k === 'add') return `<div class="om-phone ins"><div class="ins-sheet"><div class="ins-row"></div><div class="ins-row"></div><div class="ins-row ins-hl">${osn === 'ios' ? (de ? 'Zum Home-Bildschirm' : 'Add to Home Screen') : (de ? 'App installieren' : 'Install app')} ＋<span class="om-finger ins-f"></span></div><div class="ins-row"></div></div></div>`;
+    if (k === 'add') return `<div class="om-phone ins"><div class="ins-sheet"><div class="ins-row"></div><div class="ins-row"></div><div class="ins-row ins-hl">${osn === 'ios' ? (de ? 'Zum Home-Bildschirm' : 'Add to Home Screen') : (de ? 'Zum Startbildschirm hinzufügen' : 'Add to Home screen')} ＋<span class="om-finger ins-f"></span></div><div class="ins-row"></div></div></div>`;
     if (k === 'done') return `<div class="om-phone ins ins-home">${Array.from({ length: 7 }, () => '<i></i>').join('')}<b class="ins-app"><span class="dec">TRAIN</span></b></div>`;
     return `<div class="om-phone ins"><div class="ins-top"><span>pdbp-hub.github.io/Fitter</span></div><div class="ins-page"><div class="om-dec dec" style="width:70px;height:70px;font-size:11px">TRAIN</div></div></div>`; };
   const draw = () => {
     if (!os) { el.innerHTML = `<div class="onb-in inst-home"><div class="row"><span class="eyebrow">${preview ? 'Dev · Vorschau' : ''}</span>${preview ? '<button class="iconbtn" id="inst-x" aria-label="Schließen">✕</button>' : '<span></span>'}</div>
         <div class="inst-hero"><div class="octa dec pulse inst-dec"><span class="cta">TRAIN</span></div></div>
         <div><h1>${de ? 'Willkommen bei TRAIN' : 'Welcome to TRAIN'}</h1><p class="onb-txt">${de ? 'Dein Gym-Tracker. Installiere ihn auf deinem Homescreen, dann läuft er wie eine echte App.' : 'Your gym tracker. Add it to your home screen and it runs like a real app.'}</p></div>
-        <div class="inst-pick"><b>${de ? 'App installieren: Anleitung für' : 'Install the app: guide for'}</b><div class="inst-os"><button class="mainbtn" data-os="ios">iPhone</button><button class="mainbtn" data-os="android">Android</button></div>${FRESH ? '<button class="textbtn" id="inst-test" style="align-self:center">Test: ohne Installation weiter</button>' : ''}</div></div>`;
+        <div class="inst-pick"><button class="mainbtn inst-now" id="inst-now">${de ? 'Jetzt App installieren' : 'Install the app now'}</button><b>${de ? 'Anleitung für' : 'Guide for'}</b><div class="inst-os"><button class="ghostbtn" data-os="ios">iPhone</button><button class="ghostbtn" data-os="android">Android</button></div>${FRESH ? '<button class="textbtn" id="inst-test" style="align-self:center">Test: ohne Installation weiter</button>' : ''}</div></div>`;
       el.querySelectorAll('[data-os]').forEach(b => b.onclick = () => { os = b.dataset.os; i = 0; draw(); });
+      $('inst-now').onclick = () => { if (INSTALL_EVT) { INSTALL_EVT.prompt(); INSTALL_EVT.userChoice.then(r => { if (r.outcome === 'accepted') el.remove(); INSTALL_EVT = null; }, () => {}); return; } os = guessOS() || 'ios'; i = 0; draw(); };
     } else { const L = STEPS[os], [h, tx, k] = L[i], last = i === L.length - 1;
       el.innerHTML = `<div class="onb-in"><div class="row"><button class="iconbtn" id="inst-back" aria-label="${de ? 'Zurück' : 'Back'}">←</button><span class="eyebrow num">${os === 'ios' ? 'iPhone' : 'Android'} · ${i + 1} / ${L.length}</span><span style="width:44px"></span></div>
         <div class="onb-vis">${vis(k, os)}</div><div><h1>${esc(h)}</h1><p class="onb-txt">${esc(tx)}</p></div>
@@ -2060,13 +2098,18 @@ let VERSIONS = null, LIVE_RELEASE = null;
 function loadVersions(cb) { fetch(ROOT + 'app.js', { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(js => { const m = js.match(/APP_VERSION = '([^']+)'/); LIVE_RELEASE = m ? m[1] : null; }).catch(() => {}).finally(() => Promise.all([fetch(ROOT + 'versions/index.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []), fetch(ROOT + 'live.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]).then(([v, l]) => { VERSIONS = v; REMOTE_LIVE = l.version || null; cb(); })); }
 const liveNow = () => REMOTE_LIVE || LIVE_RELEASE;
 const PUSH_CATS = {
-  inactive: { de: ['Deine Hanteln vermissen dich.', 'Eine Woche Pause ist genug. Zeit fürs Comeback!', 'Dein Level wartet auf Points.'], en: ['Your dumbbells miss you.', 'A week off is enough. Comeback time!', 'Your level is waiting for points.'] },
-  record: { de: ['Starkes Training heute! Gönn dir eine Pause.', 'Neuer Rekord. Jetzt Protein und Schlaf.', 'Das war stark. Erholung gehört dazu.'], en: ['Strong session today! Take a break.', 'New record. Now protein and sleep.', 'That was strong. Recovery is part of it.'] } };
-const pushCfg = () => { const c = S.pushCfg || {}; return { inactive: Object.assign({ on: true, days: 7, msgs: S.pushMsgs || PUSH_CATS.inactive[S.lang] }, c.inactive), record: Object.assign({ on: true, msgs: PUSH_CATS.record[S.lang] }, c.record) }; };
+  inactive: { de: ['Deine Hanteln vermissen dich.', 'Bereit für dein Comeback? Ein Training reicht für den Neustart.', 'Heute ist ein guter Tag für ein starkes Training.', 'Kurz rein, stark raus: 30 Minuten zählen.', 'Dein nächstes Personal Best wartet schon.', 'Kleine Schritte, große Wirkung. Los geht’s!', 'Dein Körper ist bereit. Du auch?'],
+    en: ['Your dumbbells miss you.', 'Ready for your comeback? One session restarts everything.', 'Today is a good day for a strong session.', 'In quick, out strong: 30 minutes count.', 'Your next personal best is waiting.', 'Small steps, big effect. Let’s go!', 'Your body is ready. Are you?'] },
+  record: { de: ['Starkes Training heute! Gönn dir eine Pause.', 'Neuer Rekord! Genieß den Moment.', 'Das war stark. Erholung gehört dazu.', 'Rekord geknackt. Du wirst messbar stärker.', 'Bestleistung! Gut schlafen, morgen weiter wachsen.', 'Stärker als je zuvor. Weiter so!'],
+    en: ['Strong session today! Take a break.', 'New record! Enjoy the moment.', 'That was strong. Recovery is part of it.', 'Record broken. You are measurably stronger.', 'Personal best! Sleep well, keep growing tomorrow.', 'Stronger than ever. Keep it up!'] } };
+const PUSH_OLD = ['Dein Level wartet auf Points.', 'Eine Woche Pause ist genug. Zeit fürs Comeback!', 'Neuer Rekord. Jetzt Protein und Schlaf.', 'Your level is waiting for points.', 'A week off is enough. Comeback time!', 'New record. Now protein and sleep.'];
+const pushCfg = () => { const c = S.pushCfg || {}; ['inactive', 'record'].forEach(k => { if (c[k] && c[k].msgs && c[k].msgs.some(m => PUSH_OLD.includes(m))) delete c[k].msgs; }); if (S.pushMsgs && S.pushMsgs.some(m => PUSH_OLD.includes(m))) delete S.pushMsgs; return { inactive: Object.assign({ on: true, days: 7, msgs: S.pushMsgs || PUSH_CATS.inactive[S.lang] }, c.inactive), record: Object.assign({ on: true, msgs: PUSH_CATS.record[S.lang] }, c.record) }; };
 const DEV_LINK = 'https://pdbp-hub.github.io/Fitter/dev/?install&fresh';
 const copyText = u => (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast('Link kopiert. In Safari einfügen.'), () => toast(u));
 // in-app message banner (when the app is open, instead of a push notification)
-function banner(msg) { const b = document.createElement('div'); b.className = 'inbanner'; b.innerHTML = `<b>TRAIN</b><span>${esc(msg)}</span>`; $('app').appendChild(b); b.onclick = () => b.remove(); setTimeout(() => b.classList.add('out'), 4200); setTimeout(() => b.remove(), 4700); }
+const BAN_IC = { inactive: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 3.5v4h-4"/><path d="M12 7.5V12l3 2"/></svg>',
+  record: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 3.5h10v5a5 5 0 0 1-10 0z"/><path d="M7 5.5H3.5v1.5a3.5 3.5 0 0 0 3.7 3.5M17 5.5h3.5v1.5a3.5 3.5 0 0 1-3.7 3.5"/><path d="M12 13.5v4M8 21h8M9.5 17.5h5V21h-5z"/></svg>' };
+function banner(msg, kind) { const b = document.createElement('div'); b.className = 'inbanner' + (BAN_IC[kind] ? ' hasic' : ''); b.innerHTML = `${BAN_IC[kind] ? `<i class="inb-ic">${BAN_IC[kind]}</i>` : ''}<div><b>TRAIN</b><span>${esc(msg)}</span></div>`; $('app').appendChild(b); b.onclick = () => b.remove(); setTimeout(() => b.classList.add('out'), 4200); setTimeout(() => b.remove(), 4700); }
 function devHTML() {
   const de = S.lang === 'de', sz = S.seasonPreview == null ? 'live' : S.seasonPreview || 'off', pc = pushCfg();
   const tool = (id, title, hint) => `<button class="setrow sprow" id="${id}"><div style="flex:1;text-align:left"><b>${title}</b>${hint ? `<p>${hint}</p>` : ''}</div>${CHEV}</button>`;
@@ -2075,7 +2118,7 @@ function devHTML() {
   const vers = VERSIONS || [];
   return `<div class="dev2">
     <div class="sect"><h2>Ansehen & testen</h2><div>
-      ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-auth', 'Anmeldung / Account anlegen', 'Entwurf, erscheint vor dem Onboarding')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('reseed', t('reseed'))}</div>
+      ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-auth', 'Anmeldung / Account anlegen', 'Entwurf, erscheint vor dem Onboarding')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('dev-ghint', 'Hinweis nach dem Training (Gast)', 'Erscheint ohne Account nach jedem Workout')}${tool('reseed', t('reseed'))}</div>
       <button class="ghostbtn" id="dev-safari">Erstbesuch im Browser testen</button></div>
 
     <div class="sect"><h2>Account & Freunde</h2>
@@ -2100,7 +2143,7 @@ function devHTML() {
       <div class="dlabel">5 Minuten nach dem Speichern, wenn ein neuer Rekord dabei war</div>
       ${list('record')}
       <div class="dlabel" style="margin-top:14px">Eigene Nachricht an alle</div>
-      <div class="drow"><input id="dev-pnow" placeholder="z. B. Aktion"><button class="textbtn" id="dev-psend">Senden</button></div>
+      <div class="drow"><input id="dev-pnow" placeholder="z. B. Neues Feature: Kräftemessen"></div><button class="ghostbtn psendall" id="dev-psend">An alle senden</button>
       <p class="hint">Ist die App gerade offen, kommt statt der Mitteilung ein Balken oben in der App. „App“ zeigt den Balken, „Push“ schickt dir die Mitteilung. Automatik und Senden an alle laufen mit dem Cloud-Modus.</p></div>
 
     <div class="sect"><h2>Freigabe-Schlüssel</h2>
@@ -2115,7 +2158,7 @@ function bindDev() {
   if (!VERSIONS) loadVersions(() => { if (setPage === 'dev') rr(); });
   on('dev-onb', () => showOnboarding(true)); on('dev-intro', () => previewIntro()); on('dev-celeb', () => celebrate(seasonNow() || S.celeb));
   on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
-  on('dev-inst', () => showInstall(true)); on('dev-auth', () => showAuth(true));
+  on('dev-inst', () => showInstall(true)); on('dev-ghint', guestHint); on('dev-auth', () => showAuth(true));
   document.querySelectorAll('[data-dacc]').forEach(b => b.onclick = () => { S.guest = b.dataset.dacc === 'out'; S.authSeen = true; save(); rr(); });
   document.querySelectorAll('[data-dfl]').forEach(b => b.onclick = () => { S.frLvl = b.dataset.dfl; save(); rr(); });
   // iPhone: x-safari-https:// opens the real Safari (iOS 17+); otherwise the link is copied
@@ -2133,9 +2176,9 @@ function bindDev() {
   document.querySelectorAll('[data-pmsg]').forEach(inp => inp.onchange = () => { const c = cfg(), [cat, j] = ref(inp.dataset.pmsg); c[cat].msgs = c[cat].msgs.slice(); c[cat].msgs[j] = inp.value.trim(); c[cat].msgs = c[cat].msgs.filter(Boolean); put(c); });
   document.querySelectorAll('[data-pdel]').forEach(b => b.onclick = () => { const c = cfg(), [cat, j] = ref(b.dataset.pdel); dialog('Spruch löschen?', esc(c[cat].msgs[j]), [['Behalten', 'mainbtn', () => {}], ['Löschen', 'ghostbtn', () => { c[cat].msgs = c[cat].msgs.filter((_, i) => i !== j); put(c); }]]); });
   document.querySelectorAll('[data-ptest]').forEach(b => b.onclick = () => { const [cat, j] = ref(b.dataset.ptest); testPush(cfg()[cat].msgs[j]); });
-  document.querySelectorAll('[data-pin]').forEach(b => b.onclick = () => { const [cat, j] = ref(b.dataset.pin); banner(cfg()[cat].msgs[j]); });
+  document.querySelectorAll('[data-pin]').forEach(b => b.onclick = () => { const [cat, j] = ref(b.dataset.pin); banner(cfg()[cat].msgs[j], cat); });
   document.querySelectorAll('[data-padd]').forEach(b => b.onclick = () => { const c = cfg(), cat = b.dataset.padd; c[cat].msgs = c[cat].msgs.concat('Neuer Spruch'); put(c); });
-  on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return; dialog('An alle senden?', esc(v) + '<br><br>Senden an alle läuft mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
+  on('dev-psend', () => { const v = $('dev-pnow').value.trim(); if (!v) return toast('Erst eine Nachricht eingeben'); dialog('An alle senden?', esc(v) + '<br><br>Dafür braucht es einen Server, der alle Geräte kennt und die Mitteilung verschickt. Der kommt mit dem Cloud-Modus. Jetzt geht nur „Test an mich“.', [['Test an mich', 'mainbtn', () => testPush(v)], ['Abbrechen', 'ghostbtn', () => {}]]); });
   on('dev-ghsave', () => { const v = $('dev-ghkey').value.trim(); if (!v) return;
     const store = async (d, pin) => { try { localStorage.setItem('fitter.ghkey', await ghSeal(v, pin)); localStorage.setItem('fitter.ghexp', String(Date.now() + d * 864e5)); ['fitter.ghnote', 'fitter.ghfail', 'fitter.ghlock'].forEach(x => localStorage.removeItem(x)); } catch (e) { toast('Speichern fehlgeschlagen'); } renderSettings(); toast('Schlüssel mit PIN gespeichert'); };
     const keep = d => () => askPin('Master-PIN festlegen', 'Wähle eine 6-stellige PIN. Ohne sie kann niemand aus dieser App live schalten.', p1 => {
@@ -2145,19 +2188,47 @@ function bindDev() {
   on('dev-ghdel', () => { try { ['fitter.ghkey', 'fitter.ghexp', 'fitter.ghnote'].forEach(k => localStorage.removeItem(k)); } catch (e) {} renderSettings(); });
 }
 
-const FAQ = {
-  de: [['Wo werden meine Daten gespeichert?', 'Aktuell nur auf deinem Handy (im Browser-Speicher der App). Mit dem Cloud-Modus kommt ein Account, dann werden sie zusätzlich sicher gesichert.'],
-    ['Wie bekomme ich die App auf den Homescreen?', 'iPhone: in Safari auf Teilen tippen, dann „Zum Home-Bildschirm“. Android: in Chrome das Menü (⋮) öffnen, dann „App installieren“ oder „Zum Startbildschirm hinzufügen“.'],
-    ['Wie werden Points berechnet?', 'Points gibt es für echte Steigerungen deiner Maximalkraft und für regelmäßiges Training. Details: Einstellungen › Berechnungslogik.'],
-    ['Was ist die Maximalkraft (1RM)?', 'Das Gewicht, das du theoretisch genau einmal schaffen würdest. Die App schätzt es aus Gewicht und Wiederholungen deiner Sätze.'],
-    ['Wie lösche ich eine Übung oder einen Satz?', 'Übung nach links wischen und „Löschen“ antippen. Einen geplanten Satz löschst du mit ✕. Du wählst jeweils, ob nur für dieses Training oder dauerhaft.'],
-    ['Ich habe aus Versehen einen Satz beendet.', 'Tippe den erledigten Satz an und dann „Satz zurücksetzen und neu machen“.']],
-  en: [['Where is my data stored?', 'Right now only on your phone (in the app’s browser storage). Cloud sync will add an account and a secure backup.'],
-    ['How do I get the app on my home screen?', 'iPhone: in Safari tap Share, then “Add to Home Screen”. Android: in Chrome open the menu (⋮), then “Install app” or “Add to Home screen”.'],
-    ['How are points calculated?', 'You earn points for real gains in max strength and for training regularly. Details: Settings › Calculation logic.'],
-    ['What is max strength (1RM)?', 'The weight you could lift exactly once. The app estimates it from weight and reps of your sets.'],
-    ['How do I delete an exercise or a set?', 'Swipe the exercise left and tap “Delete”. Delete a planned set with ✕. You choose: only for this session or for good.'],
-    ['I finished a set by mistake.', 'Tap the finished set, then “Reset and redo this set”.']] };
+// v0.15: FAQ grouped by topic; a 3rd entry 'train' shows the little delete animation
+const FAQ_G = {
+  de: [['Grundlagen', [
+      ['Wie bekomme ich die App auf den Homescreen?', 'iPhone: in Safari unten auf Teilen tippen, dann „Zum Home-Bildschirm“. Android: in Chrome oben rechts das Menü (⋮) öffnen, dann „App installieren“ oder „Zum Startbildschirm hinzufügen“. Danach startet TRAIN wie eine normale App.'],
+      ['Wo werden meine Daten gespeichert?', 'Ohne Account nur auf diesem Gerät (im Speicher der App). Löschst du die App oder die Browserdaten, sind sie weg. Mit Account (kommt mit dem Cloud-Modus) werden sie zusätzlich sicher gesichert.'],
+      ['Brauche ich einen Account?', 'Nein, alles funktioniert auch ohne. Mit Account sind deine Trainings gesichert, auch beim Handywechsel, und du kannst Freunden folgen.']]],
+    ['Training', [
+      ['Wie starte ich ein Workout?', 'Auf der Startseite das Zehneck antippen, Workout wählen, im Bereit-Screen kurz prüfen, dann Start. Erst ab Start laufen Timer und Mini-Leiste.'],
+      ['Wie lösche ich eine Übung oder einen Satz?', 'Übung nach links wischen und „Löschen“ antippen. Einen geplanten Satz löschst du mit ✕. Du wählst jeweils, ob nur für heute oder dauerhaft aus dem Workout.', 'train'],
+      ['Ich habe aus Versehen einen Satz beendet.', 'Tippe auf ↺ in der Satzzeile. Der Satz ist sofort wieder dran, danach geht es dort weiter, wo du warst. Das geht auch bei früheren Übungen.'],
+      ['Sind Änderungen im Bereit-Screen dauerhaft?', 'Ja: hinzugefügte Übungen, die Satzanzahl und ein neuer Name werden im Workout gespeichert. Gelöschte Übungen nur, wenn du „Dauerhaft“ wählst. Gewichte pro Satz gelten für heute.'],
+      ['Wie minimiere ich ein laufendes Workout?', 'Nach unten wischen, wenn die Liste ganz oben ist, oder ⌄ antippen. Die Leiste über dem Menü öffnet es wieder. Leiste zur Seite wischen: Workout beenden.']]],
+    ['Fortschritt & Points', [
+      ['Wie werden Points berechnet?', 'Points gibt es für echte Steigerungen deiner Maximalkraft und fürs regelmäßige Training, nicht für möglichst viele Kilos. Details: Einstellungen › Berechnung.'],
+      ['Was ist die Maximalkraft (1RM)?', 'Das Gewicht, das du genau einmal schaffen würdest, geschätzt aus deinem stärksten Satz: 1RM = Gewicht × (1 + Wdh. ÷ 30). Beispiel: 60 kg × 10 = 80 kg.'],
+      ['Was zeigt die gestrichelte Linie?', 'Die Prognose: wo du in ein paar Wochen stehen könntest, wenn du so weitertrainierst. Zeiträume änderst du unter Einstellungen › Fortschritt.'],
+      ['Was zählt als Rekord?', 'Wenn dein geschätztes 1RM einer Übung höher ist als je zuvor. Unter Personal Bests steht pro Übung dein bester Satz.'],
+      ['Warum zählen meine Dips oder Klimmzüge kaum?', 'Standardmäßig zählt bei Körpergewicht-Übungen nur das Zusatzgewicht. Trag dein Körpergewicht ein und schalte „Körpergewicht mitzählen“ ein (Einstellungen › Profil).']]],
+    ['Freunde', [
+      ['Wie folge ich Freunden?', 'Das kommt mit dem Cloud-Modus. Bis dahin zeigt die Freunde-Seite Beispieldaten, damit du siehst, wie es aussehen wird.'],
+      ['Was ist Kräftemessen?', 'Ein Vergleich deiner Maximalkraft in einer Übung mit Freunden über 12 Wochen, mit einer Linie pro Person.']]]],
+  en: [['Basics', [
+      ['How do I get the app on my home screen?', 'iPhone: in Safari tap Share at the bottom, then “Add to Home Screen”. Android: in Chrome open the menu (⋮) top right, then “Install app” or “Add to Home screen”. TRAIN then starts like a normal app.'],
+      ['Where is my data stored?', 'Without an account only on this device (in the app’s storage). If you delete the app or the browser data, it is gone. With an account (coming with cloud sync) it is also backed up safely.'],
+      ['Do I need an account?', 'No, everything works without one. With an account your sessions are backed up, even when you change phones, and you can follow friends.']]],
+    ['Training', [
+      ['How do I start a workout?', 'Tap the decagon on the start screen, pick a workout, check the ready screen, then Start. Timer and mini bar only run after Start.'],
+      ['How do I delete an exercise or a set?', 'Swipe the exercise left and tap “Delete”. Delete a planned set with ✕. You choose: only today or for good from the workout.', 'train'],
+      ['I finished a set by mistake.', 'Tap ↺ in the set row. The set is up again right away, then you continue where you were. This also works for earlier exercises.'],
+      ['Are changes on the ready screen permanent?', 'Yes: added exercises, the number of sets and a new name are saved in the workout. Deleted exercises only if you choose “for good”. Weights per set apply to today.'],
+      ['How do I minimise a running workout?', 'Swipe down when the list is at the top, or tap ⌄. The bar above the menu opens it again. Swipe the bar sideways: end the workout.']]],
+    ['Progress & points', [
+      ['How are points calculated?', 'You earn points for real gains in max strength and for training regularly, not for lots of kilos. Details: Settings › Calculation.'],
+      ['What is max strength (1RM)?', 'The weight you could lift exactly once, estimated from your strongest set: 1RM = weight × (1 + reps ÷ 30). Example: 60 kg × 10 = 80 kg.'],
+      ['What does the dashed line show?', 'The forecast: where you could be in a few weeks if you keep training like this. Change the periods in Settings › Progress.'],
+      ['What counts as a record?', 'When your estimated 1RM of an exercise is higher than ever. Personal bests show your best set per exercise.'],
+      ['Why do my dips or pull-ups barely count?', 'For body-weight exercises only the extra weight counts by default. Enter your body weight and turn on “Count body weight” (Settings › Profile).']]],
+    ['Friends', [
+      ['How do I follow friends?', 'That comes with cloud sync. Until then the friends page shows sample data so you can see how it will look.'],
+      ['What is head to head?', 'A comparison of your max strength in one exercise with friends over 12 weeks, one line per person.']]]] };
+const FAQ = { de: FAQ_G.de.flatMap(g => g[1]), en: FAQ_G.en.flatMap(g => g[1]) };
 // intro preview from settings: play it on the start screen, then come back to the same settings page
 function previewIntro() {
   const page = setPage, y = $('v-settings').scrollTop, kind = S.intro; show('start');
@@ -2249,7 +2320,7 @@ function renderSettings() {
       ${item('display', t('spDisplay'), t('spDisplayHint'), sic('display'))}
       ${item('logic', t('spLogic'), t('spLogicHint'), sic('logic'))}
       ${item('share', t('share'), t('shareHint'), sic('share'))}
-      ${item('help', S.lang === 'de' ? 'Hilfe' : 'Help', S.lang === 'de' ? 'Einführung, häufige Fragen' : 'Intro, FAQ', sic('help'))}
+      ${item('help', S.lang === 'de' ? 'Hilfe' : 'Help', S.lang === 'de' ? 'Schnellanleitung, häufige Fragen' : 'Quick guide, FAQ', sic('help'))}
       ${item('imprint', S.lang === 'de' ? 'Impressum & Datenschutz' : 'Imprint & privacy', S.lang === 'de' ? 'Anbieter, Datenschutzerklärung' : 'Provider, privacy policy', sic('imprint'))}
       ${ENV === 'dev' ? `<button class="setrow sprow devrow" data-sp="dev">${sic('dev')}<div style="flex:1;text-align:left"><b>${t('devTools')}</b><p>${S.lang === 'de' ? 'Nur in der Dev-Version' : 'Dev version only'}</p></div>${CHEV}</button>` : ''}</div>
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
@@ -2268,8 +2339,9 @@ function renderSettings() {
       </div>${pdDirty() ? `<button class="mainbtn savebar" id="pe-save">${de ? 'Änderungen speichern' : 'Save changes'}</button>` : ''}`;
   } else if (setPage === 'help') {
     const de = S.lang === 'de';
-    h = head(de ? 'Hilfe' : 'Help') + `<button class="mainbtn" id="help-onb">${de ? 'Einführung ansehen' : 'Watch the intro'}</button>
-      <div><b>${de ? 'Häufige Fragen' : 'FAQ'}</b></div><div>${FAQ[S.lang].map(([q, a], j) => `<div class="faq ${faqOpen === j ? 'open' : ''}"><button class="faq-q" data-faq="${j}"><b>${esc(q)}</b>${CHEV}</button>${faqOpen === j ? `<div class="faq-a"><p>${a}</p>${j === 4 ? `<div class="faq-vis">${onbVisual('train')}</div>` : ''}</div>` : ''}</div>`).join('')}</div>`;
+    let j = -1;
+    h = head(de ? 'Hilfe' : 'Help') + `<button class="mainbtn" id="help-onb">${de ? 'Schnellanleitung' : 'Quick guide'}</button>
+      <div><b>${de ? 'Häufige Fragen' : 'FAQ'}</b></div>${FAQ_G[S.lang].map(([g, qs]) => `<div class="faq-g"><div class="eyebrow">${esc(g)}</div>${qs.map(([q, a, vis]) => { j++; return `<div class="faq ${faqOpen === j ? 'open' : ''}"><button class="faq-q" data-faq="${j}"><b>${esc(q)}</b>${CHEV}</button>${faqOpen === j ? `<div class="faq-a"><p>${a}</p>${vis ? `<div class="faq-vis">${onbVisual(vis)}</div>` : ''}</div>` : ''}</div>`; }).join('')}</div>`).join('')}`;
   } else if (setPage === 'dev') {
     h = head(t('devTools')) + devHTML();
   } else if (setPage === 'general') {
@@ -2312,12 +2384,11 @@ function renderSettings() {
       <div class="setrow setcol"><div><b>${t('fcTitle')}</b><button class="info" id="fci" aria-label="Info">i</button><p>${t('fcHint')}</p></div>${seg('fch', [[0, t('fcOff')], [4, '4 ' + wk], [6, '6 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk]], S.fcHor)}</div>
       <div class="setrow setcol" ${S.fcHor ? '' : 'style="opacity:.4;pointer-events:none"'}><div><b>${t('lookTitle')}</b><p>${t('lookHint')}</p></div>${seg('fcl', [[4, '4 ' + wk], [8, '8 ' + wk], [12, '12 ' + wk], [0, t('all')]], S.fcLook)}</div></div>`;
   } else if (setPage === 'logic') {
-    h = head(t('spLogic')) + `<div class="logic2">${t('logic').map(([a, b]) => `<div class="logic"><h3>${a}</h3>${b.startsWith('<p>') ? b : `<p>${b.replace(/^<b>[^<]*<\/b><br>/, '')}</p>`}</div>`).join('')}</div>`;
+    h = head(t('spLogic')) + `<div class="logic2">${t('logic').map(([a, b]) => `<div class="logic"><h3>${a}</h3>${b}</div>`).join('')}</div>`;
   } else if (setPage === 'share') {
     h = head(t('share')) + `<p class="hint" style="font-size:14px">${t('shareText')}</p>
       <div class="qrbox" id="qrbox" aria-label="QR-Code"></div>
-      <div class="linkrow"><span id="sharelink" class="num">${SHARE_URL}</span></div>
-      <button class="mainbtn" id="copylink">${t('copyLink')}</button>
+      <div class="linkrow linkcopy"><span id="sharelink" class="num">${SHARE_URL}</span><button class="textbtn" id="copylink">${S.lang === 'de' ? 'Kopieren' : 'Copy'}</button></div>
       ${navigator.share ? `<button class="ghostbtn" id="nativeshare">${t('shareNative')}</button>` : ''}`;
   } else if (setPage === 'imprint') {
     h = head(S.lang === 'de' ? 'Impressum & Datenschutz' : 'Imprint & privacy') + `<div class="logic" style="border-top:1px solid var(--line)">${t('imprint')}</div>

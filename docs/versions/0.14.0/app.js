@@ -97,7 +97,7 @@ const T = {
     dlgBackTitle:'Workout verwerfen?', dlgBackText:'Deine Eingaben gehen verloren.', dlgBackNo:'Weiter bearbeiten', dlgBackYes:'Verwerfen',
     slogans:['Stark. Workout erledigt.','Das war Arbeit. Gute Arbeit.','Eisen bewegt. Ziel erreicht.','Heute stärker als gestern.','Abgehakt. Erhol dich gut.','Saubere Leistung.'],
     ptsEarned:'Points verdient', duration:'Dauer', highlightEx:'Highlight-Übung', today2:'Heute', lastTime:'Letztes Mal', allEx:'Alle Übungen', newPR:'Neuer Rekord', strength:'Kraft', volume:'Volumen', emptyReview:'Noch keine Sätze eingetragen.',
-    namePh:'Name, z. B. Arm Day', chosen:'Reihenfolge', searchPh:'Übung suchen …', customAdd:'+ Eigene Übung', customName:'Name der Übung', muscle:'Muskelgruppe', equipment:'Equipment', add:'Übung hinzufügen', save:'Speichern', saveN:n=>`Speichern (${n})`, needName:'Bitte Namen und mindestens eine Übung wählen', needCustom:'Bitte Namen der Übung eingeben', saved:'Workout angelegt', own:'Eigene',
+    namePh:'z. B. Arm Day', chosen:'Reihenfolge', searchPh:'Übung suchen …', customAdd:'+ Eigene Übung', customName:'Übung, z. B. Kabel-Fliegende', muscle:'Muskelgruppe', equipment:'Equipment', add:'Übung hinzufügen', save:'Speichern', saveN:n=>`Speichern (${n})`, needName:'Bitte Namen und mindestens eine Übung wählen', needCustom:'Bitte Namen der Übung eingeben', saved:'Workout angelegt', own:'Eigene',
     pickEx:'Übung wählen', onlyFav:'Nur Favoriten', notTrained:'noch nicht trainiert',
     groups:{chest:'Brust',shoulders:'Schultern',triceps:'Trizeps',back:'Rücken',biceps:'Bizeps',legs:'Beine'}, eqs:{bb:'Langhantel',db:'Kurzhantel',cable:'Kabel',machine:'Maschine',bw:'Körpergewicht'},
     wd:['Mo','Di','Mi','Do','Fr','Sa','So'],
@@ -129,7 +129,7 @@ const T = {
     dlgBackTitle:'Discard workout?', dlgBackText:'Your changes will be lost.', dlgBackNo:'Keep editing', dlgBackYes:'Discard',
     slogans:['Strong. Workout done.','That was work. Good work.','Iron moved. Goal reached.','Stronger than yesterday.','Done. Recover well.','Clean performance.'],
     ptsEarned:'points earned', duration:'Duration', highlightEx:'Highlight exercise', today2:'Today', lastTime:'Last time', allEx:'All exercises', newPR:'New record', strength:'Strength', volume:'Volume', emptyReview:'No sets logged yet.',
-    namePh:'Name, e.g. Arm Day', chosen:'Order', searchPh:'Search exercise …', customAdd:'+ Custom exercise', customName:'Exercise name', muscle:'Muscle group', equipment:'Equipment', add:'Add exercise', save:'Save', saveN:n=>`Save (${n})`, needName:'Please enter a name and pick at least one exercise', needCustom:'Please enter the exercise name', saved:'Workout created', own:'Custom',
+    namePh:'e.g. Arm Day', chosen:'Order', searchPh:'Search exercise …', customAdd:'+ Custom exercise', customName:'Exercise, e.g. cable flyes', muscle:'Muscle group', equipment:'Equipment', add:'Add exercise', save:'Save', saveN:n=>`Save (${n})`, needName:'Please enter a name and pick at least one exercise', needCustom:'Please enter the exercise name', saved:'Workout created', own:'Custom',
     pickEx:'Choose exercise', onlyFav:'Favourites only', notTrained:'not trained yet',
     groups:{chest:'Chest',shoulders:'Shoulders',triceps:'Triceps',back:'Back',biceps:'Biceps',legs:'Legs'}, eqs:{bb:'Barbell',db:'Dumbbell',cable:'Cable',machine:'Machine',bw:'Body weight'},
     wd:['Mo','Tu','We','Th','Fr','Sa','Su'],
@@ -234,6 +234,10 @@ const SLOGANS = {
     pr:['New record! Strong.','Record broken.','Stronger than ever.','Personal best!','Limit moved.','That was a PR.'] } };
 SLOGANS.de.any.push('Jetzt ein Protein-Shake. Verdient.', 'Das Pre-Workout hat geliefert.', 'Die Muskeln rufen nach Protein.');
 SLOGANS.en.any.push('Protein shake time. Earned.', 'The pre-workout delivered.', 'Your muscles are calling for protein.');
+SLOGANS.de.any.push('Gekommen, gehoben, gewonnen.', 'Dein zukünftiges Ich sagt danke.', 'Ausreden: 0. Sätze: alle.', 'Das Eisen hat verloren.', 'Konstanz ist dein Superpower.', 'Wieder da gewesen. Das ist der Trick.', 'Muskelkater ist Fortschritt auf Raten.', 'Heute investiert, morgen stärker.', 'Kein Satz zu viel, keiner zu wenig.', 'Stark gemacht. Ab unter die Dusche.', 'Ein Training näher am nächsten Level.', 'Diese Wiederholungen gehören dir.');
+SLOGANS.en.any.push('Came, lifted, conquered.', 'Your future self says thanks.', 'Excuses: 0. Sets: all.', 'The iron lost.', 'Consistency is your superpower.', 'Showed up again. That’s the trick.', 'Sore muscles are progress in instalments.', 'Invested today, stronger tomorrow.', 'Not one set too many, not one too few.', 'Well done. Hit the showers.', 'One session closer to the next level.', 'Those reps are yours.');
+SLOGANS.de.pr.push('Neue Bestmarke. Merk dir dieses Gefühl.', 'Rekord! Heute wurde Geschichte geschrieben.', 'Mehr als je zuvor. Einfach stark.', 'Das Limit von gestern ist dein Aufwärmen von morgen.');
+SLOGANS.en.pr.push('New best. Remember this feeling.', 'Record! History made today.', 'More than ever before. Just strong.', 'Yesterday’s limit is tomorrow’s warm-up.');
 function pickSlogan(pr) {
   const L = SLOGANS[S.lang], h = new Date().getHours(), slot = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 18 ? 'day' : h >= 18 && h < 23 ? 'evening' : 'night';
   const pool = pr ? L.pr : L.any.concat(L[slot], L[slot]); return pool[Math.floor(Math.random() * pool.length)];
@@ -291,6 +295,20 @@ Object.assign(T.de, { privacyHtml: '<p><b>ENTWURF, noch nicht rechtlich geprüft
 Object.assign(T.en, { privacyHtml: '<p><b>DRAFT, not yet legally reviewed.</b> November 2026.</p><p><b>1. Controller</b><br>See imprint.</p><p><b>2. Principle</b><br>TRAIN only stores what the app needs. No ads, no trackers, no analytics, no sharing for advertising.</p><p><b>3. Without account (guest)</b><br>All data stays on your device only. We have no access. Deleting the app or browser data deletes it.</p><p><b>4. With account (cloud)</b><br>Email, username, display name, password (hashed only), training data, settings, profile photo, body weight and age (if given) and whom you follow. Purpose: backup, several devices, friends (Art. 6(1)(b) GDPR).</p><p><b>5. Health-related data</b><br>Body weight and training data are processed only with your explicit consent (Art. 9(2)(a) GDPR), which you can withdraw at any time.</p><p><b>6. Friends and visibility</b><br>Others only see your username, display name, photo and the profile elements you make visible. Nobody sees your email or body weight.</p><p><b>7. Service providers</b><br>Hosting: GitHub Pages (USA), technical logs. Database and login: Supabase, servers in the EU (Frankfurt), with a data processing agreement. Notifications: Apple or Google push service (device token only).</p><p><b>8. Deletion</b><br>Deleting your account removes all data within 30 days, backups within 90 days.</p><p><b>9. Your rights</b><br>Access, rectification, erasure, restriction, portability, objection, withdrawal of consent, complaint to a supervisory authority.</p><p><b>10. Cookies</b><br>None. Local device storage is used only for the app itself.</p>' });
 Object.assign(T.de, { groups: { chest:'Brust', shoulders:'Schultern', triceps:'Trizeps', back:'Rücken', lowback:'Unterer Rücken', biceps:'Bizeps', legs:'Oberschenkel vorne', hams:'Oberschenkel hinten', glutes:'Po', calves:'Waden', core:'Bauch' } });
 Object.assign(T.en, { groups: { chest:'Chest', shoulders:'Shoulders', triceps:'Triceps', back:'Back', lowback:'Lower back', biceps:'Biceps', legs:'Quads', hams:'Hamstrings', glutes:'Glutes', calves:'Calves', core:'Core' } });
+Object.assign(T.de, {
+  info1rm: '<b>Maximalkraft (1RM)</b><br>Das Gewicht, das du genau 1× schaffen würdest. Berechnet aus deinem <b>stärksten Satz</b> des Trainings.<br><code>1RM = Gewicht × (1 + Wdh. ÷ 30)</code><br>• 1 Wdh.: 1RM = das Gewicht selbst<br>• Mehr als 12 Wdh.: gerechnet wie 12 (darüber wird die Formel ungenau)<div class="ex"><i>Beispiel</i> 60 kg × 10 Wdh.<br><code>60 × (1 + 10 ÷ 30) = 80 kg</code></div>',
+  infoBest: '<b>Bester Satz</b><br>Der Satz mit der höchsten geschätzten Maximalkraft (1RM) in diesem Training. So zählt ein schwerer Satz mit wenigen Wdh. genauso wie ein leichterer mit vielen.',
+  infoVol: '<b>Volumen</b><br><code>Volumen = Gewicht × Wdh.</code><br>Über alle Sätze dieser Übung in einem Training zusammengezählt.<div class="ex"><i>Beispiel</i> 3 Sätze 50 kg × 10<br><code>3 × 50 × 10 = 1.500 kg</code></div>',
+  infoWeight: '<b>Arbeitsgewicht</b><br>Das schwerste Gewicht, das du in diesem Training bei dieser Übung bewegt hast, egal mit wie vielen Wdh. Daneben steht, wie oft du es geschafft hast.<br>So siehst du, ob du dich an schwerere Gewichte wagst, auch wenn die Wdh. dabei sinken.',
+  infoPB: '<b>Personal Bests</b><br>Pro Übung dein bester Satz aller Zeiten (höchste geschätzte Maximalkraft). Wirst du besser, ersetzt der neue Rekord den alten. Neueste zuerst.',
+  infoFc: () => `<b>Prognose</b><br>Die gestrichelte Linie zeigt, wo du in <b>${S.fcHor || 6} Wochen</b> stehen könntest, wenn du so weitertrainierst.<br>Grundlage: ${S.fcLook ? `deine Trainings der letzten <b>${S.fcLook} Wochen</b>` : '<b>alle</b> deine Trainings'}. Die Kurve flacht ab, weil Kraft mit der Zeit langsamer wächst. Grau = Unsicherheit.<br>Zeiträume änderst du unter Einstellungen › Darstellung.` });
+Object.assign(T.en, {
+  info1rm: '<b>Max strength (1RM)</b><br>The weight you could lift exactly once. Calculated from your <b>strongest set</b> of the session.<br><code>1RM = weight × (1 + reps ÷ 30)</code><br>• 1 rep: 1RM = the weight itself<br>• More than 12 reps: counted as 12 (the formula gets inaccurate above)<div class="ex"><i>Example</i> 60 kg × 10 reps<br><code>60 × (1 + 10 ÷ 30) = 80 kg</code></div>',
+  infoBest: '<b>Best set</b><br>The set with the highest estimated max strength (1RM) in this session. A heavy set with few reps counts just like a lighter one with many.',
+  infoVol: '<b>Volume</b><br><code>Volume = weight × reps</code><br>Added up over all sets of this exercise in one session.<div class="ex"><i>Example</i> 3 sets 50 kg × 10<br><code>3 × 50 × 10 = 1,500 kg</code></div>',
+  infoWeight: '<b>Working weight</b><br>The heaviest weight you moved in this exercise in that session, no matter how many reps. Next to it: how often you made it.<br>Shows whether you dare heavier weights, even if the reps go down.',
+  infoPB: '<b>Personal bests</b><br>Per exercise your best set ever (highest estimated max strength). When you improve, the new record replaces the old one. Newest first.',
+  infoFc: () => `<b>Forecast</b><br>The dashed line shows where you could be in <b>${S.fcHor || 6} weeks</b> if you keep training like this.<br>Based on ${S.fcLook ? `your sessions of the last <b>${S.fcLook} weeks</b>` : '<b>all</b> your sessions'}. It flattens because strength grows slower over time. Grey = uncertainty.<br>Change the periods in Settings › Display.` });
 const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === 'function' ? v(...a) : v; };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -333,8 +351,8 @@ const totalPts = () => HISTORY.reduce((a, h) => a + ptsFor(h), 0);
 // training minutes = time under load (sum of set timers), rests not counted
 const trainMin = h => { const sec = h.ex.reduce((a, e) => a + e.sets.reduce((b, x) => b + (x.d || 0), 0), 0); return sec ? Math.max(1, Math.round(sec / 60)) : 0; };
 function weekStats() { const dow = (new Date().getDay() + 6) % 7; const cur = HISTORY.filter(h => h.ago <= dow), prev = HISTORY.filter(h => h.ago > dow && h.ago <= dow + 7); const v1 = cur.reduce((a, h) => a + sessVol(h), 0), v0 = prev.reduce((a, h) => a + sessVol(h), 0); const m1 = cur.reduce((a, h) => a + trainMin(h), 0), m0 = prev.reduce((a, h) => a + trainMin(h), 0); return { n: cur.length, n0: prev.length, vol: v1, vol0: v0, min: m1, min0: m0, pct: v0 ? Math.round((v1 / v0 - 1) * 100) : null, pts: cur.reduce((a, h) => a + ptsFor(h), 0) }; }
-const deltaTag = (a, b, abs) => { if (!b && !a) return ''; if (!b) return '<em class="dl up">▲</em>'; const d = abs ? a - b : Math.round((a / b - 1) * 100); if (d === 0) return '<em class="dl">±0</em>'; return `<em class="dl ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}${abs ? '' : ' %'}</em>`; };
-const pctTag = d => d === null || d === undefined || d === 0 ? '' : `<em class="dl ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : '='} ${Math.abs(d)} %</em>`;
+const deltaTag = (a, b, abs) => { if (!b && !a) return ''; if (!b) return '<em class="dl up">▲</em>'; const d = abs ? a - b : Math.round((a / b - 1) * 100); if (d === 0) return '<em class="dl">±0</em>'; return `<em class="dl ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}${abs ? '' : '%'}</em>`; };
+const pctTag = d => d === null || d === undefined || d === 0 ? '' : `<em class="dl ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : '='} ${Math.abs(d)}%</em>`;
 function prCount(days) { let n = 0; const seen = {}; [...HISTORY].sort((a, b) => b.ago - a.ago || a.date - b.date).forEach(h => h.ex.forEach(e => { const b = Math.max(...e.sets.map(s => e1rm(Math.max(0, effW(e.k, s.w)), s.r))); if (b > 0 && seen[e.k] !== undefined && b > seen[e.k] && h.ago < days) n++; seen[e.k] = Math.max(seen[e.k] ?? 0, b); })); return n; }
 const volTxt = v => v >= 1000 ? fmt(v / 1000, 1) + ' t' : fmt(Math.round(v)) + ' kg';
 const sessVol = h => h.ex.reduce((a, e) => a + e.sets.reduce((b, s) => b + Math.max(0, effW(e.k, s.w)) * s.r, 0), 0);
@@ -444,6 +462,29 @@ const ICON_EX = {
     pushdown: `<path d="M21 2v20M18.5 22h5M15.8 2h5.2"/><circle cx="16.6" cy="4.3" r="1.3"/><path d="M16.6 5.6v8.4"/><path d="M13 14h7.2" stroke-width="2.4"/><circle cx="7.5" cy="4.4" r="1.8"/><path d="M7.5 6.2v8.8M7.5 15l-1.8 6.5M7.5 15l1.8 6.5"/><path d="M7.5 8.4l1.2 4 4.6 1.6"/>`,
     calf: standS + `<path d="M8.2 21.6 h6.6 v-1.8 h-6.6 z"/><path d="M17.6 13.4v-4.6M16.2 10.2l1.4-1.6 1.4 1.6" stroke-width="1.3"/>` + L('11 7', '13.4 13') + dbV(13.6, 14.4),
     pecdeckrear: ICON_EX.reversefly });
+  // v0.15: redrawn closer to the real movement
+  const sideArm = (hx, hy) => L('11 7', '11.6 12.2', `${hx} ${hy}`); // side view: upper arm down, forearm curled up
+  Object.assign(ICON_EX, {
+    curl: standS + sideArm(15.8, 8.2) + dbH(16.4, 7.8),
+    hammer: standS + sideArm(15.6, 8.4) + dbV(15.8, 7.6),
+    bbcurl: standS + sideArm(15.6, 8.4) + plate(16.4, 8, 2.6),
+    revcurl: standS + sideArm(15.6, 8.4) + plate(16.4, 8, 2.6),
+    ezcurl: standF + L('12 7', '9.4 12.6', '8.6 9.6') + L('12 7', '14.6 12.6', '15.4 9.6') + `<path d="M3.6 9.6H7.4L8.6 11L9.8 9.4H14.2L15.4 11L16.6 9.6H20.4"/><path d="M4.6 7.6v4M19.4 7.6v4" stroke-width="2.2"/>`,
+    arnold: standF + L('12 7', '6.8 8.4', '6.2 3.4') + dbH(6.2, 2.6) + L('12 7', '17 11.6', '17 8') + dbV(17, 6.8) + `<path d="M20.4 10.6a5.4 5.4 0 0 0 0-7M20.4 3.6l-1.5.5M20.4 3.6l.3 1.6" stroke-width="1.2"/>`,
+    uprightrow: standF + L('12 7', '6.6 6.6', '10.4 10.4') + L('12 7', '17.4 6.6', '13.6 10.4') + `<path d="M3.2 10.4H20.8"/><path d="M4.4 8.4v4M19.6 8.4v4" stroke-width="2.2"/><path d="M12 1.2v-.1M3 5.4l1.4-1.6 1.4 1.6" stroke-width="1.2" opacity="0"/>`,
+    sumodl: floor + H(12, 3.6) + L('12 5.4', '12 11.6') + L('12 11.6', '6.4 14.4', '5.6 21.4') + L('12 11.6', '17.6 14.4', '18.4 21.4') + `<path d="M10 7.2H14"/>` + L('10 7.2', '10.4 15.8') + L('14 7.2', '13.6 15.8') + `<path d="M1.8 16H22.2"/><path d="M2.8 12.6v6.8M21.2 12.6v6.8" stroke-width="2.6"/>`,
+    straightarm: `<path d="M21.8 2v20M19.4 22h4.8"/>` + H(19.2, 3.6, 1.1) + H(8.2, 4.8) + L('8.6 6.5', '7.6 13.6') + L('7.6 13.6', '6.4 21.6') + L('7.6 13.6', '9.6 21.6') + L('8.8 8', '14.4 5') + `<path d="M14.2 3.6l.8 2.8" stroke-width="2.2"/><path d="M14.8 4.8L18.2 3.8" stroke-dasharray="1.2 1"/><path d="M16.2 7.4a6 6 0 0 1-3.4 6.4M12.8 13.8l.6-1.7M12.8 13.8l1.8.2" stroke-width="1.2"/>`,
+    bbrow: floor + H(5.4, 7.4) + L('7 8.4', '15.4 11.4') + L('15.4 11.4', '13.8 16.2', '15.4 21.4') + L('8.6 9', '9.2 14.6') + plate(9.2, 16.2, 2.2) + `<path d="M12.4 17.4v-3.8M11.2 14.8l1.2-1.4 1.2 1.4" stroke-width="1.2"/>`,
+    tbar: floor + H(5.4, 7.4) + L('7 8.4', '15.4 11.4') + L('15.4 11.4', '13.8 16.2', '15.4 21.4') + L('8.6 9', '9.2 14.6') + `<path d="M9.2 14.8 L21.6 21.4"/>` + plate(7.4, 15.8, 2) + `<path d="M8.2 13.6h2.4" stroke-width="2"/>`,
+    shrug: standF + L('12 6.6', '8 13.6') + L('12 6.6', '16 13.6') + dbV(7.6, 15) + dbV(16.4, 15) + `<path d="M7.6 7.4V4.4M6.6 5.4l1-1.2 1 1.2M16.4 7.4V4.4M15.4 5.4l1-1.2 1 1.2" stroke-width="1.2"/>`,
+    ohext: standS + L('11 6.8', '13.4 1.8', '8 3.2') + dbV(7.2, 3.4),
+    frontsquat: sq + L('10.8 7.2', '8 7.6') + plate(7, 7.4, 1.5) + floor,
+    glutekick: `<path d="M1.2 2v20"/>` + floor + H(9, 4.4) + L('9.4 6.1', '10.6 13') + L('10.6 13', '10.4 21.6') + L('10.6 13', '15.2 16', '19.8 14.4') + L('9.2 8', '1.4 10') + `<path d="M1.6 19.6 L19.6 14.8" stroke-dasharray="1.2 1.1" stroke-width="1"/>`,
+    decline: `<path d="M3.4 17.4 L17.6 13.6M6 16.7v4.9M15.4 14.2v7.4M3.4 21.6h14"/>` + H(4.8, 14.6) + L('6.4 14.2', '15 12') + L('15 12', '18.6 10.4', '21.4 12.8') + L('12.4 12.6', '12.4 6.2') + bar(6.8, 18, 5.6),
+    pushup: floor + H(3.8, 12.8) + L('5.4 13.6', '21 19.6') + L('7 14.2', '7.2 21.4') + `<path d="M19.6 19.6l1.6 1.8" stroke-width="1.2" opacity="0"/>`,
+    legraise: `<path d="M3 2h18"/>` + L('10.4 2', '10.6 8') + H(8.6, 7.2, 1.6) + L('10.6 8', '10.6 15') + L('10.6 15', '19 15') + `<path d="M17.8 12.6v-4M16.6 9.8l1.2-1.4 1.2 1.4" stroke-width="1.2"/>`,
+    dbpress: standF + L('12 7', '6.4 8.4', '5.8 3.6') + L('12 7', '17.6 8.4', '18.2 3.6') + dbH(5.8, 2.8) + dbH(18.2, 2.8),
+    concentration: `<path d="M1.8 15.8h7.4M3 15.8v5.8M8 15.8v5.8"/>` + H(9.6, 4.4) + L('8.8 6', '5 15') + L('5 15', '13.4 14.4', '13.8 21.6') + L('8 7.8', '11.8 13.4', '16 10.4') + dbH(16.8, 9.8) });
 })();
 const ico = k => `<span class="ico" title="${esc(t('eqs')[EX[k].eq])}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">${EX[k].custom ? ICON.custom : (ICON_EX[k] || ICON[EX[k].eq])}</svg></span>`;
 const SIC = {
@@ -666,6 +707,7 @@ function openW() {
 function minimize() {
   const s = $('wsheet'), m = $('mini');
   if (!W) { s.classList.add('down'); s.style.transform = ''; m.hidden = true; return; }
+  if (W.mode === 'ready') { s.style.transform = ''; closeW(); return; }
   if (morphing) return; morphing = true;
   m.hidden = false; tick(); m.style.transition = 'none'; m.style.opacity = '0';
   const { tf, br } = morphTarget();
@@ -706,7 +748,7 @@ function swipeRows(container, rowSel, onDelete) {
   if (!container) return; container.style.position = 'relative';
   container.querySelectorAll(':scope > ' + rowSel).forEach((row, idx) => {
     let x0 = null, y0 = 0, dx = 0, mode = null, base = 0, bg = null;
-    const setX = x => { row.style.transform = x ? `translateX(${x}px)` : ''; };
+    const setX = x => { row.style.transform = x ? `translateX(${x}px)` : ''; if (bg) bg.style.width = Math.max(0, -x) + 'px'; }; // red area = exactly the uncovered part, drawn above the row so nothing pokes into it
     const ensureBg = () => { if (bg) return; bg = document.createElement('button'); bg.className = 'swipe-del'; bg.innerHTML = `<span>${t('swipeDel')}</span>`;
       bg.style.top = row.offsetTop + 'px'; bg.style.height = row.offsetHeight + 'px'; container.insertBefore(bg, row);
       bg.onclick = ev => { ev.stopPropagation(); onDelete(idx, () => { setX(0); base = 0; }); }; };
@@ -785,11 +827,12 @@ function blockHTML(e, i) {
   let h = `<div class="block ${isCur ? 'cur' : ''} ${complete && !isCur ? 'done' : ''}"><div class="bhead"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(e.k)}<button class="tapzone exname" data-tog="${i}">${esc(exName(e.k))}${isCur && open && LAST[e.k] ? `<small>${t('lastShort', wLabel(e.k, LAST[e.k][0]), LAST[e.k][1])}</small>` : ''}</button><span class="stat num">${n}/${e.target}${complete ? ' ✓' : ''}</span><span class="grip" data-grip aria-label="ziehen">${GRIP}</span></div>`;
   if (open) {
     h += `<div class="setlist">`;
+    const num = j => (W.redoAt && W.redoAt[0] === i && j >= W.redoAt[1]) ? j + 2 : j + 1;
     e.sets.forEach((s, j) => {
       if (W.edit && W.edit[0] === i && W.edit[1] === j) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', j+1)}</span><button class="reset" data-saveedit="1">${t('ok')}</button></div>${inputsHTML('ed', s.w, s.r, e.k)}${j === n - 1 ? `<button class="textbtn redo" data-redo="${i}">↺ ${S.lang === 'de' ? 'Satz zurücksetzen und neu machen' : 'Reset and redo this set'}</button>` : ''}</div>`;
-      else h += `<button class="set" data-edit="${i}:${j}"><span class="idx num">${j+1}</span><span class="sv num">${esc(wLabel(e.k, s.w))} × ${s.r}</span><span class="st num">${mmss(s.d || 0)}</span><span>✓</span></button>`;
+      else h += `<div class="set donerow" data-edit="${i}:${j}" role="button" tabindex="0"><span class="idx num">${num(j)}</span><span class="sv num">${esc(wLabel(e.k, s.w))} × ${s.r}</span><span class="st num">${mmss(s.d || 0)}</span><span>✓</span><button class="sx rsx" data-redoset="${i}:${j}" aria-label="${S.lang === 'de' ? 'Satz zurücksetzen' : 'Reset set'}">↺</button></div>`;
     });
-    if (isCur && n < e.target) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', n+1)}</span>${W.phase === 'set' ? `<button class="reset" id="resetbtn" aria-label="Reset">↺ ${t('resetLbl')}</button>` : ''}</div>${inputsHTML('cu', e.w, e.r, e.k)}</div>`;
+    if (isCur && n < e.target) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', W.redoAt && W.redoAt[0] === i ? W.redoAt[1] + 1 : n+1)}</span>${W.phase === 'set' ? `<button class="reset" id="resetbtn" aria-label="Reset">↺ ${t('resetLbl')}</button>` : ''}</div>${inputsHTML('cu', e.w, e.r, e.k)}</div>`;
     for (let j = n + (isCur ? 1 : 0); j < e.target; j++) { const p = (e.plan && e.plan[j]) || e; h += `<div class="set planned" data-goto="${i}" role="button" tabindex="0"><span class="idx num">${j+1}</span><span class="sv num">${esc(wLabel(e.k, p.w))} × ${p.r}</span><span></span><button class="sx" data-tsx="${i}:${j}" aria-label="${t('delSetT')}">✕</button></div>`; }
     h += `<button class="addset" data-addset="${i}">${t('addSet')}</button></div>`;
   }
@@ -818,11 +861,14 @@ function bindW() {
   $('wtitle') && wById(W.src.id) && ($('wtitle').onclick = () => $('wrename').click());
   $('wname') && ($('wname').onblur = () => { const n = $('wname').value.trim(); W.renaming = false; if (n) { W.name = n; const w = wById(W.src.id); if (w) w.name = n; } renderW(); });
   $('blocks') && sortable($('blocks'), '.block', (f, to) => { const c = W.ex[W.cur]; moveItem(W.ex, f, to); W.cur = W.ex.indexOf(c); W.open = {}; renderW(); });
-  q('[data-tog]').forEach(b => b.onclick = () => { const i = +b.dataset.tog; if (i === W.cur) W.curClosed = !W.curClosed; else W.open[i] = !W.open[i]; renderW(); });
+  q('[data-tog]').forEach(b => b.onclick = () => { const i = +b.dataset.tog; W.noScroll = true; if (i === W.cur) W.curClosed = !W.curClosed; else W.open[i] = !W.open[i]; renderW(); });
   q('[data-goto]').forEach(b => b.onclick = () => { const i = +b.dataset.goto; if (i === W.cur) return; readInputs(); W.cur = i; W.open = {}; W.curClosed = false; W.edit = null; applyPlan(W.ex[i]); if (W.phase === 'set') { W.phase = 'rest'; W.phaseStart = Date.now(); } renderW(); });
   q('[data-addset]').forEach(b => b.onclick = () => { readInputs(); const e = W.ex[+b.dataset.addset]; ensurePlan(e); const l = e.plan[e.plan.length - 1] || e; e.plan.push({ w: l.w, r: l.r }); e.target++; renderW(); });
-  q('[data-edit]').forEach(b => b.onclick = () => { readInputs(); W.edit = b.dataset.edit.split(':').map(Number); renderW(); });
-  q('[data-saveedit]').forEach(b => b.onclick = () => { readInputs(); W.edit = null; renderW(); });
+  q('[data-edit]').forEach(b => b.onclick = () => { readInputs(); W.noScroll = true; W.edit = b.dataset.edit.split(':').map(Number); renderW(); });
+  q('[data-saveedit]').forEach(b => b.onclick = () => { readInputs(); W.noScroll = true; W.edit = null; renderW(); });
+  q('[data-redoset]').forEach(b => b.onclick = ev => { ev.stopPropagation(); readInputs(); const [i, j] = b.dataset.redoset.split(':').map(Number), de = S.lang === 'de';
+    dialog(de ? `Satz ${j + 1} zurücksetzen?` : `Reset set ${j + 1}?`, de ? 'Der Satz ist sofort wieder dran. Danach geht es dort weiter, wo du warst.' : 'The set is up again right away. After that you continue where you were.', [[de ? 'Behalten' : 'Keep', 'mainbtn', () => {}], [de ? 'Zurücksetzen' : 'Reset', 'ghostbtn', () => {
+      const e = W.ex[i], st = e.sets.splice(j, 1)[0]; if (!st) return; if (W.redoAt == null) W.back = W.cur; W.redoAt = [i, j]; W.edit = null; W.cur = i; W.open = {}; W.curClosed = false; e.w = st.w; e.r = st.r; W.phase = 'rest'; W.phaseStart = Date.now(); save(); renderW(); }]]); });
   q('[data-redo]').forEach(b => b.onclick = () => { readInputs(); const i = +b.dataset.redo, e = W.ex[i], st = e.sets.pop(); W.edit = null; W.cur = i; W.open = {}; W.curClosed = false; applyPlan(e); e.w = st.w; e.r = st.r; W.phase = 'rest'; W.phaseStart = Date.now(); renderW(); });
   $('resetbtn') && ($('resetbtn').onclick = () => dialog(t('resetTitle'), t('resetText'), [[t('resetNo'), 'mainbtn', () => {}], [t('resetYes'), 'ghostbtn', () => { W.restCarry = (W.restCarry || 0) + (Date.now() - W.phaseStart); W.phaseStart = Date.now(); renderW(); }]]));
   q('[data-st]').forEach(b => b.onclick = () => {
@@ -837,11 +883,16 @@ function bindW() {
   $('finishbtn') && ($('finishbtn').onclick = toReview);
   $('nocd') && ($('nocd').onclick = toReview);
   $('donebtn') && ($('donebtn').onclick = saveWorkout);
-  q('[data-rvtog]').forEach(b => b.onclick = () => { W.rvOpen = !W.rvOpen; renderW(); });
+  q('[data-rvtog]').forEach(b => b.onclick = () => { W.rvOpen = !W.rvOpen; renderW(); if (W.rvOpen) revealMore($('wbody')); });
   $('mainact') && ($('mainact').onclick = () => {
     readInputs(); const e = curEx(), a = $('mainact').dataset.a;
     if (a === 'start') { W.phase = 'set'; W.phaseStart = Date.now(); }
-    else if (a === 'done') { e.sets.push({ w:e.w, r:e.r, d:Math.round((Date.now() - W.phaseStart) / 1000) }); W.phase = 'rest'; W.phaseStart = Date.now(); applyPlan(e); if (e.sets.length >= e.target && !allDone()) { W.cur = nextOpen(); W.open = {}; W.curClosed = false; applyPlan(W.ex[W.cur]); } }
+    else if (a === 'done') { const set = { w:e.w, r:e.r, d:Math.round((Date.now() - W.phaseStart) / 1000) }; W.phase = 'rest'; W.phaseStart = Date.now();
+      if (W.redoAt && W.redoAt[0] === W.cur) { // redone set goes back to its place, then continue where you were
+        e.sets.splice(Math.min(W.redoAt[1], e.sets.length), 0, set); const back = W.back; W.redoAt = null; W.back = null; applyPlan(e);
+        const goBack = back != null && back !== W.cur && W.ex[back] && W.ex[back].sets.length < W.ex[back].target;
+        if (goBack || (e.sets.length >= e.target && !allDone())) { W.cur = goBack ? back : nextOpen(); W.open = {}; W.curClosed = false; applyPlan(W.ex[W.cur]); } }
+      else { e.sets.push(set); applyPlan(e); if (e.sets.length >= e.target && !allDone()) { W.cur = nextOpen(); W.open = {}; W.curClosed = false; applyPlan(W.ex[W.cur]); } } }
     else if (a === 'next') { W.cur = nextOpen(); W.open = {}; W.curClosed = false; applyPlan(W.ex[W.cur]); }
     else if (a === 'cool') { W.mode = 'cooldown'; W.phaseStart = Date.now(); }
     renderW();
@@ -850,6 +901,7 @@ function bindW() {
 function toReview() { setTimeout(() => celebrate(seasonNow() || S.celeb), 250); W.mode = 'review'; W.end = Date.now(); W.slogan = pickSlogan(W.ex.some(e => e.sets.length && (() => { const p = sessionsFor(e.k); const b = Math.max(...e.sets.map(x => e1rm(Math.max(0, effW(e.k, x.w)), Math.min(x.r, 12)))); return p.length && b > Math.max(...p.map(q => q.best)); })())); renderW(); $('wbody').scrollTop = 0; }
 // scrolls so the current exercise (and its active set) stays fully visible
 function keepCurInView() {
+  if (W.noScroll) { W.noScroll = false; return; }
   const body = $('wbody'), b = body.querySelector('.block.cur'); if (!b) return;
   const br = body.getBoundingClientRect(), r = b.getBoundingClientRect(), a = b.querySelector('.set.active'), ar = a ? a.getBoundingClientRect() : r;
   const barH = $('wbar').getBoundingClientRect().height || 0, viewBottom = br.bottom - barH;
@@ -935,11 +987,12 @@ function bindRvCharts(root) {
   });
   root.addEventListener('click', () => root.querySelectorAll('.mlist').forEach(l => l.hidden = true));
   root.querySelectorAll('[data-rinfo]').forEach(b => b.onclick = e => { e.stopPropagation(); showInfo(t('info1rm')); });
+  root.querySelectorAll('[data-binfo]').forEach(b => b.onclick = e => { e.stopPropagation(); showInfo(t('infoBest')); });
 }
 function exBlock(x, first, id) {
   const dv = x.pVol ? Math.round((x.v / x.pVol - 1) * 100) : null;
-  return `<div class="rvblock" ${first ? 'style="border-top:0;padding-top:0"' : ''}><h3>${ico(x.e.k)}${esc(exName(x.e.k))}</h3>${setChart(x, id)}
-    <div class="tiles3 num"><div><span>${t('volTotal')} ${pctTag(dv)}</span><b>${fmt(Math.round(x.v))} kg</b></div><div><span>${t('bestSet')}</span><b>${esc(wLabel(x.e.k, x.top.w))} × ${x.top.r}</b></div><div><span>${t('strengthShort')} <button class="info" data-rinfo="1" aria-label="Info">i</button></span><b>${fmt(Math.round(x.best))} kg</b></div></div></div>`;
+  return `<div class="rvblock" ${first ? 'style="border-top:0;padding-top:0"' : ''}><h3>${ico(x.e.k)}${esc(exName(x.e.k))}</h3><div class="cells num">${x.e.sets.map(s => `<span>${esc(wLabel(x.e.k, s.w))} × ${s.r}</span>`).join('')}</div>${setChart(x, id)}
+    <div class="tiles3 num"><div><span>${t('volTotal')} ${pctTag(dv)}</span><b>${fmt(Math.round(x.v))} kg</b></div><div><span>${t('bestSet')} <button class="info" data-binfo="1" aria-label="Info">i</button></span><b>${esc(wLabel(x.e.k, x.top.w))} × ${x.top.r}</b></div><div><span>${t('strengthShort')} <button class="info" data-rinfo="1" aria-label="Info">i</button></span><b>${fmt(Math.round(x.best))} kg</b></div></div></div>`;
 }
 // shared review layout: after a workout and when opening a past session from the calendar
 function reviewCore(o) {
@@ -956,6 +1009,7 @@ function reviewCore(o) {
   if (rest.length) { h += `<button class="morebtn morerow" data-rvtog="1"><span>${t('moreEx')} <b class="num">${rest.length}</b></span><span class="mdec dec">${o.open ? '−' : '+'}</span></button>`; if (o.open) h += `<div>${rest.map((x, i) => exBlock(x, false, o.key + i)).join('')}</div>`; }
   return h;
 }
+function revealMore(sc) { const m = sc && sc.querySelector('.morerow'); if (!m) return; requestAnimationFrame(() => { const top = m.getBoundingClientRect().top - sc.getBoundingClientRect().top; sc.scrollTo({ top: sc.scrollTop + Math.max(0, top - 70), behavior: 'smooth' }); }); }
 function reviewHTML() {
   const dur = Math.max(1, Math.round(((W.end || Date.now()) - (W.start || Date.now())) / 60000));
   return reviewCore({ name: W.name, slogan: W.slogan, ex: W.ex.filter(e => e.sets.length), dur, before: W.start || Date.now(), key: 'w', open: W.rvOpen });
@@ -985,11 +1039,15 @@ function tick() {
   }
 }
 setInterval(tick, 250);
-$('mini').onclick = openW;
+$('mini').onclick = () => { if (!$('mini').dataset.swiped) openW(); };
 (() => { const m = $('mini'); let y0 = null; // swipe the bar up = open the workout (like a music app)
-  m.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; }, { passive: true });
-  m.addEventListener('touchmove', e => { if (y0 !== null && y0 - e.touches[0].clientY > 24) { y0 = null; openW(); } }, { passive: true });
-  m.addEventListener('touchend', () => { y0 = null; }, { passive: true }); })();
+  let x0 = null;
+  m.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; m.style.transition = 'none'; }, { passive: true });
+  m.addEventListener('touchmove', e => { if (y0 === null) return; const dx = e.touches[0].clientX - x0, dy = y0 - e.touches[0].clientY;
+    if (dy > 24 && Math.abs(dx) < 30) { y0 = null; m.style.transform = ''; openW(); return; }
+    if (Math.abs(dx) > 12 && Math.abs(dx) > dy) m.style.transform = `translateX(${dx}px)`; }, { passive: true });
+  m.addEventListener('touchend', e => { const dx = x0 === null ? 0 : e.changedTouches[0].clientX - x0; m.style.transition = ''; m.style.transform = ''; y0 = x0 = null;
+    if (Math.abs(dx) > 90 && W) { m.dataset.swiped = '1'; setTimeout(() => delete m.dataset.swiped, 400); if (W.mode === 'ready') closeW(); else { openW(); if (W.mode !== 'review') setTimeout(endDialog, 480); } } }, { passive: true }); })();
 (() => { // swipe down to minimise: handle (mouse + touch) and anywhere when scrolled to top (touch)
   const s = $('wsheet'), body = $('wbody');
   const drag = dy => { s.style.transition = 'none'; s.style.transform = `translateY(${Math.max(0, dy)}px)`; };
@@ -1000,9 +1058,9 @@ $('mini').onclick = openW;
   const end = () => { if (y0 === null) return; y0 = null; release(dy); };
   h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
   let ty = null, tdy = 0, active = false;
-  let inHead = false;
-  s.addEventListener('touchstart', e => { if (e.target.closest('[data-grip], input, .handle, button')) { ty = null; return; } ty = e.touches[0].clientY; tdy = 0; active = false; inHead = !!e.target.closest('#whead'); }, { passive:true });
-  s.addEventListener('touchmove', e => { if (ty === null) return; const d = e.touches[0].clientY - ty; if (!active && d > 8 && (inHead || body.scrollTop <= 0)) active = true; if (active) { e.preventDefault(); tdy = d; drag(d); } }, { passive:false });
+  let inHead = false, atTop = false;
+  s.addEventListener('touchstart', e => { if (e.target.closest('[data-grip], input, .handle, button')) { ty = null; return; } ty = e.touches[0].clientY; tdy = 0; active = false; inHead = !!e.target.closest('#whead'); atTop = body.scrollTop <= 0; }, { passive:true });
+  s.addEventListener('touchmove', e => { if (ty === null) return; const d = e.touches[0].clientY - ty; if (!active && d > 8 && (inHead || (atTop && body.scrollTop <= 0))) active = true; if (active) { e.preventDefault(); tdy = d; drag(d); } }, { passive:false });
   s.addEventListener('touchend', () => { if (active) release(tdy); ty = null; active = false; });
 })();
 
@@ -1074,6 +1132,7 @@ function renderO() {
     const qi = $('f-q'); qi.oninput = () => { O.q = qi.value; const pos = qi.selectionStart; renderO(); const n = $('f-q'); n.focus(); n.setSelectionRange(pos, pos); };
     document.querySelectorAll('[data-fh]').forEach(x => x.onclick = () => openProfile(DEMO_FRIENDS[+x.dataset.fh], 'find'));
     $('f-scan').onclick = () => toast(S.lang === 'de' ? 'Scannen kommt mit dem Cloud-Modus' : 'Scanning comes with cloud sync'); return; }
+  if (O.mode === 'compare') { b.innerHTML = compareHTML(); setOBar(''); bindCompare(); return; }
   if (O.mode === 'charttest') { b.innerHTML = chartTestHTML(); setOBar(''); $('o-back').onclick = closeO; bindRvCharts(b); return; }
   if (O.mode === 'add') {
     b.innerHTML = `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${t('addEx').replace('+ ', '')}</span><span style="width:44px"></span></div>
@@ -1091,22 +1150,23 @@ function renderO() {
     const h = O.h, ds = new Date(h.date).toLocaleDateString(loc(), { weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' });
     b.innerHTML = `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${esc(ds)}</span><span style="width:44px"></span></div>
       ${reviewCore({ name: h.wname || '', slogan: h.wname || '', ex: h.ex.filter(e => EX[e.k]), dur: h.dur, before: h.date, key: 'd', open: O.open, pts: h.pts })}
-      <div class="sect"><h2>${t('allSets')}</h2><div>${h.ex.filter(e => EX[e.k]).map(e => `<div class="rvblock"><h3>${ico(e.k)}${esc(exName(e.k))}</h3><div class="cells num">${e.sets.map(s => `<span>${esc(wLabel(e.k, s.w))} × ${s.r}</span>`).join('')}</div></div>`).join('')}</div></div></div>`;
+      </div>`;
     setOBar('');
     $('o-back').onclick = () => { if (O.back != null) { O = { mode:'day', ago: O.back }; renderO(); } else closeO(); };
-    b.querySelectorAll('[data-rvtog]').forEach(x => x.onclick = () => { O.open = !O.open; renderO(); });
+    b.querySelectorAll('[data-rvtog]').forEach(x => x.onclick = () => { O.open = !O.open; renderO(); if (O.open) revealMore($('obody')); });
     bindRvCharts(b);
     return;
   }
   if (O.mode === 'create') {
     const chosen = O.picked.map(([k, n], i) => `<div class="srow"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(k)}<div class="exname" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="min-width:0">${esc(exName(k))}</span><span class="mini-step"><button data-ps="${i}:-1" aria-label="minus">−</button><span class="num">${t('sets', n)}</span><button data-ps="${i}:1" aria-label="plus">+</button></span></div><span class="grip" data-grip aria-label="ziehen">${GRIP}</span></div>`).join('');
-    const custom = O.custom ? `<div class="custom"><input id="c-name" name="fitter-exercise" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="${t('customName')}" value="${esc(O.custom.name)}">
+    const custom = O.custom ? `<div class="custom cbox"><div class="row"><b class="eyebrow">${t('customAdd').replace('+ ', '')}</b><button class="iconbtn" id="c-cancel" aria-label="${S.lang === 'de' ? 'Schließen' : 'Close'}">✕</button></div>
+        <input id="c-ttl" name="fx-uebung" type="text" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" data-form-type="other" data-lpignore="true" enterkeyhint="done" placeholder="${t('customName')}" value="${esc(O.custom.name)}">
         <div><div class="eyebrow" style="margin-bottom:8px">${t('muscle')}</div><div class="opts">${Object.entries(t('groups')).map(([g, l]) => `<button class="${O.custom.gs.includes(g)?'on':''}" data-cg="${g}">${l}</button>`).join('')}</div></div>
         <div><div class="eyebrow" style="margin-bottom:8px">${t('equipment')}</div><div class="opts">${Object.entries(t('eqs')).map(([g, l]) => `<button class="${O.custom.eq===g?'on':''}" data-ce="${g}">${l}</button>`).join('')}</div></div>
-        <button class="ghostbtn" id="c-add" style="border-style:dashed">${t('addCustom')}</button><button class="textbtn" id="c-cancel" style="align-self:center">${t('never')}</button></div>` : '';
+        <button class="mainbtn" id="c-add">${t('addCustom')}</button></div>` : '';
     b.innerHTML = `<div class="inner">
       <div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${O.editId ? t('editWorkout') : t('newWorkout')}</span><span style="width:44px"></span></div>
-      <input class="field" id="o-name" enterkeyhint="done" placeholder="${t('namePh')}" value="${esc(O.name)}">
+      <label class="namewrap"><span class="eyebrow">${S.lang === 'de' ? 'Name des Workouts' : 'Workout name'}</span><input class="field" id="o-name" enterkeyhint="done" autocomplete="off" data-form-type="other" placeholder="${t('namePh')}" value="${esc(O.name)}"></label>
       ${O.picked.length ? `<div><div class="eyebrow" style="margin-bottom:4px">${t('chosen')}</div><div class="sortlist" id="chosen">${chosen}</div></div>` : ''}
       <div style="display:flex;flex-direction:column;gap:10px">${O.custom ? custom : `<button class="newbtn" id="c-open" style="border-style:dashed"><span>${t('customAdd')}</span></button>`}
         <div class="searchrow"><input class="search" id="o-q" enterkeyhint="search" placeholder="${t('searchPh')}" value="${esc(O.q)}"></div>${filterRowHTML()}</div>
@@ -1115,21 +1175,23 @@ function renderO() {
     $('o-del') && ($('o-del').onclick = () => dialog(t('delWTitle'), t('delWText'), [[t('keep'), 'mainbtn', () => {}], [t('delYes'), 'ghostbtn', () => { const eid = O.editId; workouts = workouts.filter(w => w.id !== eid); save(); closeO(); if (W && W.mode === 'ready' && W.src.id === eid) closeW(); renderSelect(); }]]));
     setOBar(O.custom ? '' : `<button class="mainbtn" id="o-save">${O.picked.length ? t('saveN', O.picked.length) : t('save')}</button>`);
     $('o-back').onclick = () => (O.name.trim() || O.picked.length) ? dialog(t('dlgBackTitle'), t('dlgBackText'), [[t('dlgBackNo'), 'mainbtn', () => {}], [t('dlgBackYes'), 'ghostbtn', closeO]]) : closeO();
-    $('o-name').oninput = e => O.name = e.target.value;
+    $('o-name').oninput = e => { O.name = e.target.value; e.target.classList.remove('err'); };
     $('o-q').oninput = e => { O.q = e.target.value; renderPickList(); };
     $('chosen') && sortable($('chosen'), '.srow', (f, to) => { moveItem(O.picked, f, to); renderO(); });
     $('chosen') && swipeRows($('chosen'), '.srow', (i, reset) => { const de = S.lang === 'de'; dialog(de ? 'Übung entfernen?' : 'Remove exercise?', esc(exName(O.picked[i][0])), [[t('delNo'), 'mainbtn', () => reset && reset()], [de ? 'Aus dem Workout entfernen' : 'Remove from workout', 'ghostbtn', () => { O.picked.splice(i, 1); renderO(); }]]); });
     b.querySelectorAll('[data-ps]').forEach(x => x.onclick = () => { const [i, d] = x.dataset.ps.split(':').map(Number); O.picked[i][1] = Math.max(1, O.picked[i][1] + d); renderO(); });
-    $('c-open') && ($('c-open').onclick = () => { O.custom = { name:'', gs:['chest'], eq:'bb', dirty:false }; renderO(); $('c-name').focus(); });
+    $('c-open') && ($('c-open').onclick = () => { O.custom = { name:'', gs:['chest'], eq:'bb', dirty:false }; renderO(); $('c-ttl').focus(); });
     if (O.custom) {
-      $('c-name').oninput = e => { O.custom.name = e.target.value; O.custom.dirty = true; };
+      $('c-ttl').oninput = e => { O.custom.name = e.target.value; O.custom.dirty = true; };
       b.querySelectorAll('[data-cg]').forEach(x => x.onclick = () => { const g = x.dataset.cg, gs = O.custom.gs; O.custom.gs = gs.includes(g) ? (gs.length > 1 ? gs.filter(y => y !== g) : gs) : gs.concat(g); O.custom.dirty = true; renderO(); });
       b.querySelectorAll('[data-ce]').forEach(x => x.onclick = () => { O.custom.eq = x.dataset.ce; O.custom.dirty = true; renderO(); });
       $('c-cancel').onclick = () => { if (!O.custom.dirty && !O.custom.name.trim()) { O.custom = null; renderO(); return; } const de = S.lang === 'de';
         dialog(de ? 'Eigene Übung verwerfen?' : 'Discard custom exercise?', de ? 'Deine Eingaben gehen verloren.' : 'Your input will be lost.', [[de ? 'Weiter bearbeiten' : 'Keep editing', 'mainbtn', () => {}], [de ? 'Verwerfen' : 'Discard', 'ghostbtn', () => { O.custom = null; renderO(); }]]); };
       $('c-add').onclick = () => { const n = O.custom.name.trim(); if (!n) { toast(t('needCustom')); return; } const k = 'c' + Date.now(); EX[k] = { de:n, en:n, g:O.custom.gs[0], gs:O.custom.gs.slice(), eq:O.custom.eq, custom:true }; O.picked.push([k, 4]); O.custom = null; save(); renderO(); };
     }
-    $('o-save') && ($('o-save').onclick = () => { const n = O.name.trim(); if (!n || !O.picked.length) { toast(t('needName')); return; } const ex = O.picked.map(p => [...p]); if (O.editId) { const w = wById(O.editId); w.name = n; w.ex = ex; } else workouts.unshift({ id:'w' + Date.now(), name:n, ex }); const wasEdit = !!O.editId, eid = O.editId; save(); closeO(); renderSelect(); toast(wasEdit ? '✓' : t('saved')); if (W && W.mode === 'ready' && W.src.id === eid) prepareWorkout(wById(eid)); });
+    $('o-save') && ($('o-save').onclick = () => { const n = O.name.trim(), de = S.lang === 'de';
+      if (!n) { toast(!O.picked.length ? (de ? 'Name und mindestens eine Übung fehlen' : 'Name and at least one exercise missing') : (de ? 'Name fehlt' : 'Name missing')); $('obody').scrollTo({ top: 0, behavior: 'smooth' }); const f = $('o-name'); f.classList.remove('err'); void f.offsetWidth; f.classList.add('err'); f.focus({ preventScroll: true }); return; }
+      if (!O.picked.length) { toast(de ? 'Füge mindestens eine Übung hinzu' : 'Add at least one exercise'); const q = $('o-q'); q && q.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; } const ex = O.picked.map(p => [...p]); if (O.editId) { const w = wById(O.editId); w.name = n; w.ex = ex; } else workouts.unshift({ id:'w' + Date.now(), name:n, ex }); const wasEdit = !!O.editId, eid = O.editId; save(); closeO(); renderSelect(); toast(wasEdit ? '✓' : t('saved')); if (W && W.mode === 'ready' && W.src.id === eid) prepareWorkout(wById(eid)); });
   } else {
     b.innerHTML = `<div class="inner">
       <div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${t('pickEx')}</span><span style="width:44px"></span></div>
@@ -1160,7 +1222,7 @@ function renderPickList() {
     const ks = listKeys(); if (!ks.length) L.innerHTML = `<p class="hint" style="padding:14px 0">${t('noMatch')}</p>`;
     ks.forEach(k => {
       const on = O.picked.some(p => p[0] === k); const x = document.createElement('div'); x.className = 'pick' + (on ? ' on' : '');
-      x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${esc(grpTxt(k))} · ${t('eqs')[EX[k].eq]}${EX[k].custom ? ` <em class="ownbadge">${t('own')}</em>` : ''}</small></button>${starBtn(k)}<button class="box" data-pk="1" aria-label="auswählen">${on ? '✓' : ''}</button>`;
+      x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${esc(grpTxt(k))} · ${t('eqs')[EX[k].eq]}${EX[k].custom ? ` <em class="ownbadge">${t('own')}</em>` : ''}</small></button>${starBtn(k)}<button class="box" data-pk="1" aria-label="${on ? 'entfernen' : 'hinzufügen'}">${on ? '✓' : '+'}</button>`;
       x.querySelectorAll('[data-pk]').forEach(y => y.onclick = () => { const i = O.picked.findIndex(p => p[0] === k); i >= 0 ? O.picked.splice(i, 1) : O.picked.push([k, 4]); renderO(); });
       L.appendChild(x);
     });
@@ -1211,7 +1273,7 @@ function renderProgress() {
       ${S.fav.length ? `<div class="favs">${S.fav.map(k => `<button class="fav ${k===S.chartKey?'on':''}" data-ck="${k}">★ ${esc(exName(k))}</button>`).join('')}</div>` : ''}
       <div id="charts"></div>
     </div>
-    <div class="sect" id="pbsect"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div>${pbCount() > 5 ? `<button class="linkbtn" id="pball">${pbAll ? (de ? 'Weniger ▴' : 'Less ▴') : (de ? `Alle ${pbCount()} anzeigen ▾` : `Show all ${pbCount()} ▾`)}</button>` : ''}</div>
+    <div class="sect" id="pbsect"><div class="charthead"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><button class="info" data-info="infoPB" aria-label="Info">i</button></div><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div>${pbCount() > 5 ? `<button class="linkbtn" id="pball">${pbAll ? (de ? 'Weniger ▴' : 'Less ▴') : (de ? `Alle ${pbCount()} anzeigen ▾` : `Show all ${pbCount()} ▾`)}</button>` : ''}</div>
     <div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Rückblick' : 'Recap'}</h2>
       <div class="recap2 num"><div class="rc-h"><span></span><b>${de ? '7 Tage' : '7 days'}</b><b>${de ? '30 Tage' : '30 days'}</b></div>
         ${[[t('wCount'), last7.length, last30.length], [t('movedW'), volTxt(vol7), volTxt(vol30)], [t('trainTime'), hm(min7), hm(min30)], [t('prs'), prCount(7), prCount(30)]].map(([l, a, b]) => `<div class="rc-r"><span>${l}</span><b>${a}</b><b>${b}</b></div>`).join('')}</div></div>
@@ -1268,14 +1330,82 @@ function photoView() {
 function renderFriends() {
   const de = S.lang === 'de', me = myProfile();
   $('v-progress').innerHTML = `<div class="inner">${progSwitch()}
-    <button class="fr-me" id="fr-me">${avatarHTML(me.name, 52, S.photo)}<div><b>${esc(me.name)}</b><small>${me.user ? '@' + esc(me.user) + ' · ' : ''}Level ${me.lv + 1} · ${esc(LEVELS[me.lv][S.lang])} · ${fmt(me.pts)} Points</small></div>${CHEV}</button>
+    ${isGuest() ? `<button class="fr-me fr-guest" id="fr-me"><span class="avatar dec" style="width:52px;height:52px;font-size:26px">+</span><div><b>${de ? 'Account anlegen' : 'Create account'}</b><small>${de ? 'Für dein Profil, Freunde und sichere Daten' : 'For your profile, friends and safe data'}</small></div>${CHEV}</button>` : `<button class="fr-me" id="fr-me">${avatarHTML(me.name, 52, S.photo)}<div><b>${esc(me.name)}</b><small>${me.user ? '@' + esc(me.user) + ' · ' : ''}Level ${me.lv + 1} · ${esc(LEVELS[me.lv][S.lang])} · ${fmt(me.pts)} Points</small></div>${CHEV}</button>`}
     <div class="fr-cta"><b>${de ? 'Freunde folgen, Level vergleichen' : 'Follow friends, compare levels'}</b><p class="hint">${de ? 'Kommt mit dem Cloud-Modus: Folge Freunden, sieh ihre Level, Rekorde und letzten Trainings.' : 'Coming with cloud sync: follow friends, see their levels, records and recent sessions.'}</p><button class="mainbtn" id="fr-find">${de ? 'Freunde finden' : 'Find friends'}</button></div>
     <div class="sect"><div class="row"><h2>${de ? 'Vorschau' : 'Preview'}</h2><span class="eyebrow">${de ? 'Beispieldaten' : 'Sample data'}</span></div>
-      <div>${DEMO_FRIENDS.map((f, i) => `<button class="fr-row" data-fr="${i}">${avatarHTML(f.name, 44)}<div><b>${esc(f.name)}</b><small>${levelIcon(f.lv)} Level ${f.lv + 1} · ${esc(LEVELS[f.lv][S.lang])}</small></div><div class="fr-kpi"><b>${esc(f.last[0])}</b><small>${t('ago', f.last[1])}</small></div></button>`).join('')}</div></div></div>`;
+      <div>${DEMO_FRIENDS.map((f, i) => `<button class="fr-row" data-fr="${i}">${avatarHTML(f.name, 44)}<div><b>${esc(f.name)}</b><small>${levelIcon(f.lv)} Level ${f.lv + 1} · ${esc(LEVELS[f.lv][S.lang])}</small></div><div class="fr-kpi"><b>${esc(f.last[0])}</b><small>${t('ago', f.last[1])}</small></div></button>`).join('')}</div>
+      <button class="mainbtn fr-cmpbtn" id="fr-cmp">${de ? 'Kräftemessen' : 'Head to head'}</button><p class="hint" style="text-align:center">${de ? 'Vergleiche deine Maximalkraft mit Freunden' : 'Compare your max strength with friends'}</p></div></div>`;
   bindProgSwitch();
+  $('fr-cmp').onclick = () => { O = { mode:'compare', k: cmpDefaultEx(), fr: [0, 1] }; renderO(); openO(); $('obody').scrollTop = 0; };
   $('fr-find').onclick = () => { O = { mode:'find', q:'' }; renderO(); openO(); };
   $('fr-me').onclick = () => isGuest() ? showAuth(false, 'signup') : openProfile(myProfile());
   document.querySelectorAll('[data-fr]').forEach(b => b.onclick = () => openProfile(DEMO_FRIENDS[+b.dataset.fr]));
+}
+// ---------- head to head: my max strength vs. friends (friends = sample data until the cloud) ----------
+const cmpExList = () => { const c = {}; HISTORY.forEach(h => h.ex.forEach(e => { if (EX[e.k] && e.sets.some(x => x.r > 0)) c[e.k] = (c[e.k] || 0) + 1; })); return Object.keys(c).sort((a, b) => c[b] - c[a]); };
+const cmpDefaultEx = () => { const l = cmpExList(); return l.includes('bench') ? 'bench' : l[0] || 'bench'; };
+const FR_LVL = { better: [1.24, 1.12, 1.06], worse: [.78, .86, .93], mix: [1.16, .87, 1.03] }, FR_GROW = [.05, .1, .03];
+function cmpSeries(k) { // 12 weekly points: best estimated 1RM of that week, gaps carry the last value
+  const W = 12, m0 = monday(Date.now()), me = []; let last = null;
+  const ss = sessionsFor(k).filter(x => x.best > 0), first = ss.length ? Math.min(...ss.map(x => x.date)) : 0;
+  for (let w = W - 1; w >= 0; w--) { const from = m0 - w * 7 * 864e5, to = from + 7 * 864e5, inW = ss.filter(x => x.date >= from && x.date < to);
+    if (inW.length) last = Math.max(...inW.map(x => x.best)); me.push(to <= first ? null : last); }
+  const end = [...me].reverse().find(v => v != null), lv = FR_LVL[S.frLvl || 'mix'];
+  const fr = DEMO_FRIENDS.map((f, j) => me.map((v, i) => end == null ? null : r05(end * lv[j] * (1 - FR_GROW[j] * (W - 1 - i) / (W - 1)) * (1 + .012 * Math.sin(i * 1.7 + j * 2)))));
+  return { me, fr }; }
+function cmpSummary(k, ser) {
+  const de = S.lang === 'de', D = (a, b) => fmtW(Math.abs(r05(a - b))) + ' kg', lastV = a => [...a].reverse().find(v => v != null), firstV = a => a.find(v => v != null);
+  const me = lastV(ser.me), meG = firstV(ser.me) ? (me / firstV(ser.me) - 1) * 100 : 0, sel = O.fr.map(i => ({ f: DEMO_FRIENDS[i], v: lastV(ser.fr[i]), g: (lastV(ser.fr[i]) / firstV(ser.fr[i]) - 1) * 100 }));
+  if (me == null) return de ? 'Trainiere diese Übung, dann siehst du hier, wo du stehst.' : 'Train this exercise to see where you stand.';
+  if (!sel.length) return de ? `Deine Maximalkraft: ${fmtW(r05(me))} kg. Füge Freunde hinzu, um dich zu vergleichen.` : `Your max strength: ${fmtW(r05(me))} kg. Add friends to compare.`;
+  const ahead = sel.filter(x => me >= x.v), behind = sel.filter(x => me < x.v).sort((a, b) => a.v - b.v), names = l => l.map(x => x.f.name).join(de ? ' und ' : ' and ').replace(/ und (?=.* und )/g, ', ').replace(/ and (?=.* and )/g, ', ');
+  const out = [], gTxt = Math.round(meG);
+  if (!behind.length) out.push(de ? `Stark! Du liegst vor ${names(ahead)}. ${ahead.length > 1 ? 'Der Abstand zum Nächsten' : 'Der Abstand'}: ${D(me, Math.max(...ahead.map(x => x.v)))}.` : `Strong! You are ahead of ${names(ahead)}. Gap${ahead.length > 1 ? ' to the closest' : ''}: ${D(me, Math.max(...ahead.map(x => x.v)))}.`);
+  else if (!ahead.length) out.push(de ? `${names(behind)} ${behind.length > 1 ? 'heben' : 'hebt'} gerade mehr. Bis ${behind[0].f.name} fehlen dir nur ${D(behind[0].v, me)}.` : `${names(behind)} currently lift${behind.length > 1 ? '' : 's'} more. You are just ${D(behind[0].v, me)} behind ${behind[0].f.name}.`);
+  else out.push(de ? `Du liegst vor ${names(ahead)}. Als Nächstes: ${behind[0].f.name}, nur noch ${D(behind[0].v, me)} entfernt.` : `You are ahead of ${names(ahead)}. Next up: ${behind[0].f.name}, only ${D(behind[0].v, me)} away.`);
+  const slower = sel.filter(x => meG > x.g);
+  if (gTxt > 0 && slower.length) out.push(de ? `Seit 12 Wochen: +${gTxt}%. Damit wächst du schneller als ${names(slower)}.` : `Last 12 weeks: +${gTxt}%. That is faster growth than ${names(slower)}.`);
+  else if (gTxt > 0) out.push(de ? `Dein Plus seit 12 Wochen: +${gTxt}%. Dranbleiben zahlt sich aus.` : `Your gain over 12 weeks: +${gTxt}%. Consistency pays off.`);
+  else out.push(de ? 'Jeder Satz zählt: Ein, zwei Trainings mehr pro Woche bringen die Kurve wieder nach oben.' : 'Every set counts: one or two more sessions a week get the curve going up again.');
+  return out.join(' '); }
+function compareHTML() {
+  const de = S.lang === 'de', k = O.k, ser = cmpSeries(k), people = [{ name: de ? 'Du' : 'You', d: ser.me, me: true }].concat(O.fr.map(i => ({ name: DEMO_FRIENDS[i].name, d: ser.fr[i], i })));
+  const DASH = ['6 4', '2 4', '10 3 2 3'];
+  const W0 = 340, H0 = 200, L = 40, R = 46, Tp = 12, B = 22, vals = people.flatMap(p => p.d).filter(v => v != null);
+  let svg = '';
+  if (vals.length) { let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * .15 || 5; lo -= pad; hi += pad;
+    const x = i => L + i * (W0 - L - R) / 11, y = v => Tp + (hi - v) * (H0 - Tp - B) / (hi - lo);
+    [lo + pad, (lo + hi) / 2, hi - pad].forEach(v => svg += `<line x1="${L}" x2="${W0 - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">${fmt(Math.round(v))}</text>`);
+    const labels = [];
+    people.slice().reverse().forEach(p => { const pts = p.d.map((v, i) => v == null ? null : `${x(i)},${y(v)}`).filter(Boolean).join(' '); if (!pts) return;
+      svg += `<polyline points="${pts}" fill="none" stroke="var(--fg)" stroke-width="${p.me ? 3 : 1.8}" ${p.me ? '' : `stroke-dasharray="${DASH[p.i]}" opacity=".7"`} stroke-linejoin="round"/>`;
+      const lv = [...p.d].reverse().find(v => v != null); labels.push({ y: y(lv), t: p.name, me: p.me }); svg += `<circle cx="${x(11)}" cy="${y(lv)}" r="${p.me ? 4 : 3}" fill="${p.me ? 'var(--fg)' : 'var(--bg)'}" stroke="var(--fg)" stroke-width="2"/>`; });
+    labels.sort((a, b) => a.y - b.y); for (let i = 1; i < labels.length; i++) labels[i].y = Math.max(labels[i].y, labels[i - 1].y + 12);
+    labels.forEach(l => svg += `<text x="${x(11) + 8}" y="${l.y + 4}" font-size="11" font-weight="${l.me ? 800 : 500}" fill="${l.me ? 'var(--fg)' : 'var(--muted)'}">${esc(l.t)}</text>`);
+    svg += `<text x="${L}" y="${H0 - 6}" font-size="10" font-family="var(--mono)" fill="var(--muted)">${de ? 'vor 12 Wo.' : '12 wk ago'}</text><text x="${x(11)}" y="${H0 - 6}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">${de ? 'heute' : 'today'}</text>`; }
+  const lastV = a => [...a].reverse().find(v => v != null);
+  return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${de ? 'Freunde' : 'Friends'}</span><span style="width:44px"></span></div>
+    <div class="charthead cmp-h"><h1>${de ? 'Kräftemessen' : 'Head to head'}</h1><button class="info" id="cmp-i" aria-label="Info">i</button></div>
+    <button class="cmp-ex" id="cmp-ex"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><small>${de ? 'Übung wechseln' : 'Change'}</small>${CHEV}</button>
+    <div class="chartbox"><div class="charthead"><h2>${de ? 'Maximalkraft (1RM)' : 'Max strength (1RM)'}</h2></div><svg class="chart" id="cmp-ch" viewBox="0 0 ${W0} ${H0}">${svg}</svg>
+      <div class="cmp-lg">${people.map(p => `<span><svg width="26" height="8"><line x1="1" x2="25" y1="4" y2="4" stroke="var(--fg)" stroke-width="${p.me ? 3 : 1.8}" ${p.me ? '' : `stroke-dasharray="${DASH[p.i]}"`}/></svg>${esc(p.name)}</span>`).join('')}</div></div>
+    <p class="cmp-sum" id="cmp-sum">${esc(cmpSummary(k, ser))}</p>
+    <div class="sect"><div class="row"><h2>${de ? 'Im Vergleich' : 'Compared'}</h2><button class="iconbtn cmp-add" id="cmp-add" aria-label="${de ? 'Freund hinzufügen' : 'Add friend'}">+</button></div>
+      <div id="cmp-list">${people.map(p => `<div class="fr-row cmp-row">${p.me ? avatarHTML(S.name || p.name, 40, S.photo) : avatarHTML(p.name, 40)}<div><b>${esc(p.name)}</b><small>${lastV(p.d) != null ? fmtW(r05(lastV(p.d))) + ' kg' : '–'}</small></div>${p.me ? '<span style="width:44px"></span>' : `<button class="sx" data-cmpdel="${p.i}" aria-label="${de ? 'Entfernen' : 'Remove'}">✕</button>`}</div>`).join('')}</div>
+      <p class="hint">${de ? 'Freunde sind Beispieldaten, bis der Cloud-Modus kommt.' : 'Friends are sample data until cloud sync arrives.'}</p></div></div>`;
+}
+function bindCompare() { const de = S.lang === 'de';
+  $('o-back').onclick = closeO;
+  $('cmp-i').onclick = () => showInfo(de ? '<b>Kräftemessen</b><br>Wer hebt bei dieser Übung am meisten? Verglichen wird die geschätzte Maximalkraft (1RM) aus dem stärksten Satz jeder Woche, über 12 Wochen.<br>Fairer als das reine Gewicht: 80 kg × 10 zählt mehr als 85 kg × 1.' : '<b>Head to head</b><br>Who lifts the most in this exercise? Compared is the estimated max strength (1RM) of each week’s strongest set, over 12 weeks.<br>Fairer than plain weight: 80 kg × 10 counts more than 85 kg × 1.');
+  $('cmp-ex').onclick = () => { const l = cmpExList(), el = document.createElement('div'); el.className = 'overlay'; el.id = 'cmpexov';
+    el.innerHTML = `<div class="dialog pfaddbox cmpbox"><div class="row"><h2>${de ? 'Übung wählen' : 'Choose exercise'}</h2><button class="iconbtn" id="cmpx-x" aria-label="Schließen">✕</button></div><div class="cmpscroll">${l.map(k => `<button class="pfadd-row ${k === O.k ? 'on' : ''}" data-cmpk="${k}"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b></button>`).join('') || `<p class="hint">${de ? 'Noch keine Trainings.' : 'No sessions yet.'}</p>`}</div></div>`;
+    $('app').appendChild(el); el.onclick = e => { if (e.target === el) el.remove(); }; $('cmpx-x').onclick = () => el.remove();
+    el.querySelectorAll('[data-cmpk]').forEach(b => b.onclick = () => { O.k = b.dataset.cmpk; el.remove(); renderO(); }); };
+  $('cmp-add').onclick = () => { const rest = DEMO_FRIENDS.map((f, i) => i).filter(i => !O.fr.includes(i)), el = document.createElement('div'); el.className = 'overlay'; el.id = 'cmpfrov';
+    el.innerHTML = `<div class="dialog pfaddbox"><div class="row"><h2>${de ? 'Freund hinzufügen' : 'Add friend'}</h2><button class="iconbtn" id="cmpf-x" aria-label="Schließen">✕</button></div>${rest.map(i => `<button class="pfadd-row" data-cmpf="${i}">${avatarHTML(DEMO_FRIENDS[i].name, 34)}<b>${esc(DEMO_FRIENDS[i].name)}</b></button>`).join('') || `<p class="hint">${de ? 'Alle Freunde sind schon dabei.' : 'All friends are already in.'}</p>`}</div>`;
+    $('app').appendChild(el); el.onclick = e => { if (e.target === el) el.remove(); }; $('cmpf-x').onclick = () => el.remove();
+    el.querySelectorAll('[data-cmpf]').forEach(b => b.onclick = () => { O.fr = O.fr.concat(+b.dataset.cmpf).sort(); el.remove(); renderO(); }); };
+  document.querySelectorAll('[data-cmpdel]').forEach(b => b.onclick = () => { O.fr = O.fr.filter(i => i !== +b.dataset.cmpdel); renderO(); });
 }
 function openProfile(p, from) { O = { mode:'profile', p, from }; renderO(); openO(); $('obody').scrollTop = 0; }
 // a profile as others see it (own profile respects the visibility settings)
@@ -1321,8 +1451,9 @@ function bindProfileScroll() { const hero = $('pfhero'), sc = $('pfscroll'); if 
     ht.style.transform = `translate(${L((Wd - htW) / 2, small + 12, k)}px, ${L(top, (small - htH * sc2) / 2, k)}px) scale(${L(1, sc2, k)})`;
     more.style.transform = `translateY(${top + htH + 12}px)`; more.style.opacity = Math.max(0, 1 - k * 2.5); more.style.pointerEvents = k > .3 ? 'none' : '';
     hero.style.height = L(bigH, small, k) + 'px'; };
-  lay(O && O.edit ? 0 : 0); let raf = 0, lastK = -1; sc.onscroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; const k = Math.round(Math.max(0, Math.min(1, sc.scrollTop / 160)) * 100) / 100; if (k !== lastK) { lastK = k; lay(k); } }); };
-  const need = 160 + sc.clientHeight + (bigH - small) - sc.scrollHeight; if (need > 0) sc.style.paddingBottom = need + 'px'; }
+  lay(0); let raf = 0, cur = 0, tgt = 0; const tick = () => { cur += (tgt - cur) * .2; if (Math.abs(tgt - cur) < .004) cur = tgt; lay(cur); raf = cur !== tgt ? requestAnimationFrame(tick) : 0; };
+  sc.onscroll = () => { tgt = Math.max(0, Math.min(1, (sc.scrollTop - 40) / 170)); if (!raf) raf = requestAnimationFrame(tick); };
+  const need = 210 + sc.clientHeight + (bigH - small) - sc.scrollHeight; if (need > 0) sc.style.paddingBottom = need + 'px'; }
 
 function findHTML() {
   const de = S.lang === 'de', q = (O.q || '').toLowerCase().replace(/^@/, ''), hits = q ? DEMO_FRIENDS.filter(f => f.user.includes(q) || f.name.toLowerCase().includes(q)) : [];
@@ -1368,7 +1499,7 @@ let pbAll = false;
 const pbCount = () => Object.keys(EX).filter(k => sessionsFor(k).some(s => s.best > 0)).length;
 function pbHTML() {
   return Object.keys(EX).map(k => { const ss = sessionsFor(k).filter(s => s.best > 0); if (!ss.length) return null; const b = ss.reduce((x, y) => y.best > x.best ? y : x); const s = b.sets.reduce((x, y) => e1rm(effW(k, y.w), y.r) > e1rm(effW(k, x.w), x.r) ? y : x); return { k, ago:b.ago, w:s.w, r:s.r, best:b.best }; })
-    .filter(Boolean).sort((a, b) => a.ago - b.ago).slice(0, pbAll ? 999 : 5).map(p => `<div class="pb"><b>${esc(exName(p.k))}</b><span class="pw num">${esc(wLabel(p.k, p.w))} × ${p.r}</span><small>${dShort(dayDate(p.ago))}</small><small>${t('approx', fmt(Math.round(p.best)))}</small></div>`).join('');
+    .filter(Boolean).sort((a, b) => a.ago - b.ago).slice(0, pbAll ? 999 : 5).map(p => `<div class="pb"><b><span class="pf-ic">${ico(p.k)}</span>${esc(exName(p.k))}</b><span class="pw num">${esc(wLabel(p.k, p.w))} × ${p.r}</span><small>${dShort(dayDate(p.ago))}</small><small>${t('approx', fmt(Math.round(p.best)))}</small></div>`).join('');
 }
 function renderCharts() {
   const k = S.chartKey; const ss = sessionsFor(k).slice(0, 12).reverse();
@@ -1381,7 +1512,7 @@ function renderCharts() {
     { id:'wgt', title:t('chWeight'), info:'infoWeight', data:ss.map(s => effW(k, s.top.w)), fc:true }
   ];
   wrap.innerHTML = defs.map(d => `<div class="chartbox"><div class="charthead"><h2>${d.title}</h2><button class="info" data-info="${d.info}" aria-label="Info">i</button></div><div class="val num" id="val-${d.id}"></div><svg class="chart" id="ch-${d.id}" role="img" aria-label="${d.title}"></svg>${d.fc && S.fcHor ? `<div class="legend" id="lg-${d.id}"><span><i></i>${t('trend')}</span><span><i class="dash"></i>${t('forecast')}</span></div>` : ''}</div>`).join('');
-  wrap.querySelectorAll('[data-info]').forEach(b => b.onclick = () => showInfo(t(b.dataset.info) + (S.fcHor ? `<hr class="ihr"><b>${t('fcTitle')}</b><br>${t('infoFc', S.fcLook, S.fcHor)}` : '')));
+  wrap.querySelectorAll('[data-info]').forEach(b => b.onclick = () => showInfo(t(b.dataset.info) + (S.fcHor ? `<hr class="ihr">${t('infoFc')}` : '')));
   defs.forEach(d => drawChart(d, ss));
 }
 function drawChart(def, ss) {
@@ -1500,11 +1631,11 @@ function showOnboarding(fromHelp) {
 function playIntro() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const r = goRect(go), size = r.width, cx = innerWidth / 2 - size / 2, cy = innerHeight / 2 - size / 2;
-  const el = document.createElement('div'); el.id = 'intro'; el.innerHTML = `<div class="intro-bg"></div><div class="intro-dec dec" style="width:${size}px;height:${size}px;left:${cx}px;top:${cy}px"><span>TRAIN</span></div>`;
+  const el = document.createElement('div'); el.id = 'intro'; el.innerHTML = `<div class="intro-bg"></div><div class="intro-dec octa dec" style="width:${size}px;height:${size}px;left:${cx}px;top:${cy}px;transform:scale(.1) rotate(-144deg);opacity:0">${go.innerHTML.replace(/ id="[^"]*"/g, '')}</div>`;
   $('app').appendChild(el); go.style.visibility = 'hidden';
-  const d = el.querySelector('.intro-dec'), bg = el.querySelector('.intro-bg'), label = d.querySelector('span');
+  const d = el.querySelector('.intro-dec'), bg = el.querySelector('.intro-bg');
   d.animate([{ transform: 'scale(.1) rotate(-144deg)', opacity: 0 }, { transform: 'scale(.52) rotate(-20deg)', opacity: 1, offset: .6 }, { transform: 'scale(.48) rotate(0deg)', opacity: 1 }], { duration: 950, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' }).finished
-    .then(() => { label.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }); bg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
+    .then(() => { bg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
       const r2 = goRect(go);
       return d.animate([{ transform: 'scale(.48)' }, { transform: `translate(${r2.left - cx}px, ${r2.top - cy}px) scale(${r2.width / size})` }], { duration: 650, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished; })
     .then(() => { go.style.visibility = ''; el.remove(); })
@@ -1529,7 +1660,10 @@ function playIntroType() {
     if (done) return; await sleep(220); cta.innerHTML = ce.innerHTML;
     cta.animate([{ opacity: 0, transform: 'scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 380, fill: 'forwards' });
     await sleep(800); if (done) return;
-    el.querySelector('.i2-box').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
+    const box = el.querySelector('.i2-box'), br = box.getBoundingClientRect(), gEl = go.querySelector('.greet'), gr = gEl ? gEl.getBoundingClientRect() : br, k2 = Math.min(1, gr.width / br.width);
+    box.style.transformOrigin = '0 0';
+    box.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${gr.left + gr.width / 2 - (br.left + br.width * k2 / 2)}px, ${gr.top + gr.height / 2 - (br.top + br.height * k2 / 2)}px) scale(${k2})`, opacity: .15 }], { duration: 700, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' });
+    const tEl = go.querySelector('.tap'); if (tEl) { const tr = tEl.getBoundingClientRect(), tp = document.createElement('p'); tp.className = 'i2-tap'; tp.textContent = tEl.textContent; const tc = getComputedStyle(tEl); tp.style.cssText = `position:absolute;left:0;right:0;top:${tr.top}px;text-align:center;margin:0;font:${tc.font};letter-spacing:${tc.letterSpacing};text-transform:${tc.textTransform};color:var(--bg)`; el.appendChild(tp); tp.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 150, fill: 'both' }); }
     const big = decPts(innerWidth / 2, H / 2, Math.hypot(innerWidth, H) / 2 / Math.cos(Math.PI / 10) + 4);
     const r2 = goRect(go), small = decPts(r2.left + r2.width / 2, r2.top + r2.height / 2, r2.width / 2);
     await el.animate([{ clipPath: poly(big) }, { clipPath: poly(small) }], { duration: 750, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished.catch(() => {});
@@ -1562,8 +1696,8 @@ const LVL_IC = {
   deca:'<polygon points="' + P(decPts(12, 12, 10.2)) + '"/><path d="M12 6.2l1.8 3.7 4 .6-2.9 2.8.7 4L12 15.4l-3.6 1.9.7-4-2.9-2.8 4-.6z" fill="currentColor"/>' };
 const levelIcon = i => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${LVL_IC[LEVELS[i].ic]}</svg>`;
 const levelOf = pts => { let i = 0; LEVELS.forEach((l, k) => { if (pts >= l.p) i = k; }); return i; };
-function openLevels() { O = { mode:'levels' }; renderO(); openO(); $('obody').scrollTop = 0; bindLadder(); }
-function bindLadder() {
+function openLevels() { lvlOpen = null; O = { mode:'levels' }; renderO(); openO(); $('obody').scrollTop = 0; bindLadder(); }
+function bindLadder(keepY) {
   const lad = $('ladder'), c = lad && lad.querySelector('.cur'), hero = document.querySelector('.lvl-hero'); if (!c || !hero) return;
   const dec = hero.querySelector('.lvl-dec'), ht = hero.querySelector('.lvl-ht'), more = hero.querySelector('.lvl-more');
   hero.classList.add('fluid'); const Wd = hero.clientWidth, htW = Math.min(Wd, ht.offsetWidth), htH = ht.offsetHeight, mH = more ? more.offsetHeight : 0;
@@ -1577,10 +1711,20 @@ function bindLadder() {
     hero.style.height = L(bigH, small, k) + 'px'; };
   const rows = [...lad.querySelectorAll('.lvl-row')], ci = rows.indexOf(c), init = ci >= 2 ? rows[ci - 2].offsetTop : 0, span = 160;
   lay(0); lad.scrollTop = init;
-  const need = init + span + lad.clientHeight + (bigH - small) - lad.scrollHeight; if (need > 0) lad.style.paddingBottom = need + 'px'; lad.scrollTop = init;
-  let raf = 0, closed = false; lad.onscroll = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; const st = lad.scrollTop;
-    let k = closed ? st / span : (st - init) / span; k = Math.max(0, Math.min(1, k)); if (k >= 1) closed = true; if (closed && st <= 0) closed = false; lay(k); }); };
+  const need = init + span + lad.clientHeight + (bigH - small) - lad.scrollHeight; if (need > 0) lad.style.paddingBottom = need + 'px'; lad.scrollTop = keepY != null ? keepY : init;
+  let raf = 0, closed = false, cur = 0, tgt = 0; const tick = () => { cur += (tgt - cur) * .18; if (Math.abs(tgt - cur) < .004) cur = tgt; lay(cur); raf = cur !== tgt ? requestAnimationFrame(tick) : 0; };
+  lad.onscroll = () => { const st = lad.scrollTop; let k = closed ? st / span : (st - init) / span; k = Math.max(0, Math.min(1, k)); if (k >= 1) closed = true; if (closed && st <= 0) closed = false; tgt = k; if (!raf) raf = requestAnimationFrame(tick); };
+  lad.querySelectorAll('[data-lvl]').forEach(r => r.onclick = () => { const i = +r.dataset.lvl, y = lad.scrollTop; lvlOpen = r.classList.contains('open') ? -1 : i; const html = levelsHTML(); $('obody').innerHTML = html; $('o-back').onclick = closeO; bindLadder(y); });
 }
+// per level: sessions in that level, best estimated 1RM of your main exercise at that time, average training minutes per week
+function levelStats() { const hs = [...HISTORY].sort((a, b) => a.date - b.date), out = {}, fx = favExercise(), k = fx && fx[0]; let acc = 0;
+  hs.forEach(h => { const lv = levelOf(acc); acc += ptsFor(h); const o = out[lv] = out[lv] || { n: 0, min: 0, best: 0, from: h.date, to: h.date };
+    o.n++; o.min += trainMin(h); o.to = h.date; const e = k && h.ex.find(x => x.k === k); if (e) o.best = Math.max(o.best, ...e.sets.map(st => e1rm(Math.max(0, effW(k, st.w)), st.r))); });
+  Object.values(out).forEach(o => { o.perWeek = Math.round(o.min / Math.max(1, (o.to - o.from) / 6048e5 + 1)); }); return { out, k }; }
+let lvlOpen = null;
+function lvlHL(i, LS) { const o = LS.out[i], de = S.lang === 'de'; if (!o) return `<p class="hint lvl-hl-none">${de ? 'Noch keine Trainings in diesem Level' : 'No sessions in this level yet'}</p>`;
+  const d = (v, l) => `<div class="lvl-hld"><span class="dec"><b class="num">${v}</b></span><small>${l}</small></div>`;
+  return `<div class="lvl-hl">${d(o.n, de ? 'Trainings' : 'Sessions')}${d(o.best ? fmt(Math.round(o.best)) + ' kg' : '–', LS.k ? (de ? `Max. ${esc(exName(LS.k))}` : `Max ${esc(exName(LS.k))}`) : '1RM')}${d(o.perWeek + ' min', de ? 'pro Woche' : 'per week')}</div>`; }
 function levelsHTML() {
   const pts = totalPts(), li = levelOf(pts), cur = LEVELS[li], nxt = LEVELS[li + 1];
   const pct = nxt ? Math.round((pts - cur.p) / (nxt.p - cur.p) * 100) : 100;
@@ -1588,7 +1732,7 @@ function levelsHTML() {
     <div class="lvl-hero"><div class="lvl-dec dec">${levelIcon(li)}</div><div class="lvl-ht"><div class="eyebrow">Level ${li + 1} / ${LEVELS.length}</div><h1>${esc(cur[S.lang])}</h1>
       <div class="lvl-pts num"><b>${fmt(pts)}</b> Points</div></div>
       ${nxt ? `<div class="lvl-more"><div class="lvl-bar"><i style="width:${pct}%"></i></div><p class="hint">${S.lang === 'de' ? `Noch ${fmt(nxt.p - pts)} Points bis ${esc(nxt.de)}` : `${fmt(nxt.p - pts)} points to ${esc(nxt.en)}`}</p></div>` : ''}</div>
-    <div class="sect lvl-sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div class="lvl-ladder" id="ladder">${LEVELS.map((l, i) => i).reverse().map(i => { const l = LEVELS[i]; return `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''}"><span class="lvl-ic dec">${levelIcon(i)}</span><div><b><span class="num">${i + 1}</span> ${esc(l[S.lang])}</b><small class="num">${i > li ? (S.lang === 'de' ? `noch ${fmt(l.p - pts)} Points` : `${fmt(l.p - pts)} points to go`) : `${fmt(l.p)} Points`}</small>${i === li && nxt ? `<span class="lvl-mini"><i style="width:${pct}%"></i></span>` : ''}</div><span class="num lvl-st">${i < li ? '✓' : i === li ? (S.lang === 'de' ? 'DU' : 'YOU') : ''}</span></div>`; }).join('')}</div></div></div>`;
+    <div class="sect lvl-sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div class="lvl-ladder" id="ladder">${(() => { const LS = levelStats(); return LEVELS.map((l, i) => i).reverse().map(i => { const l = LEVELS[i], open = i <= li && (lvlOpen === null ? i === li : lvlOpen === i); return `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''} ${open ? 'open' : ''}" ${i <= li ? `data-lvl="${i}" role="button"` : ''}><span class="lvl-ic dec">${levelIcon(i)}</span><div><b><span class="num">${i + 1}</span> ${esc(l[S.lang])}</b><small class="num">${i > li ? (S.lang === 'de' ? `noch ${fmt(l.p - pts)} Points` : `${fmt(l.p - pts)} points to go`) : `${fmt(l.p)} Points`}</small>${i === li && nxt ? `<span class="lvl-mini"><i style="width:${pct}%"></i></span>` : ''}</div><span class="num lvl-st">${i < li ? '✓' : i === li ? (S.lang === 'de' ? 'DU' : 'YOU') : ''}</span>${open ? lvlHL(i, LS) : ''}</div>`; }).join(''); })()}</div></div></div>`;
 }
 function playIntroTear() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1618,7 +1762,11 @@ function playIntroVortex() {
   el.firstChild.animate([{ transform: `scale(${k}) rotate(-540deg)` }, { transform: `scale(${k * .6}) rotate(-300deg)`, offset: .35 }, { transform: 'scale(1) rotate(0deg)' }], { duration: 1300, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' })
     .finished.then(() => { go.style.visibility = ''; el.remove(); }, () => { go.style.visibility = ''; el.remove(); });
 }
-function playIntroSel(kind = S.intro) { if (kind === 'type') playIntroType(); else if (kind === 'tear') playIntroTear(); else if (kind === 'vortex') playIntroVortex(); else if (kind !== 'off') playIntro(); }
+function playIntroSel(kind = S.intro) {
+  const pul = [...document.querySelectorAll('#go.pulse, .hero .ss-wrap.pulse')]; pul.forEach(x => x.classList.remove('pulse'));
+  playIntroRaw(kind); const iv = setInterval(() => { if (!$('intro')) { clearInterval(iv); pul.forEach(x => x.classList.add('pulse')); } }, 80);
+}
+function playIntroRaw(kind) { if (kind === 'type') playIntroType(); else if (kind === 'tear') playIntroTear(); else if (kind === 'vortex') playIntroVortex(); else if (kind !== 'off') playIntro(); }
 function celebrate(kind = S.celeb) {
   if (!kind || kind === 'off' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const old = $('celeb'); if (old) old.remove();
@@ -1628,21 +1776,22 @@ function celebrate(kind = S.celeb) {
   const mono = [FG, FG, MU, '#bdbdb6'], bright = ['#ffd400', '#35c46a', '#f0524a', '#4aa3ff', '#f3f3ef', '#ff7ad9'];
   const R = (a, b) => a + Math.random() * (b - a), P = [];
   const add = o => P.push(Object.assign({ x: 0, y: 0, vx: 0, vy: 0, g: .25, rot: R(0, 6.28), vr: R(-.2, .2), size: R(5, 9), shape: 'rect', col: FG, life: 1, decay: R(.006, .012), drag: .995, delay: 0, flip3d: true, flip: R(0, 6.28), fs: R(.08, .22) }, o));
-  if (kind === 'confetti' || kind === 'colorconf') for (let i = 0; i < 190; i++) { const side = i % 3, pal = kind === 'colorconf' ? bright : mono;
-    add({ x: side === 0 ? R(-10, Wd * .12) : side === 1 ? R(Wd * .88, Wd + 10) : R(0, Wd), y: side === 2 ? R(-60, -10) : R(-30, Ht * .2), vx: side === 0 ? R(1.5, 5) : side === 1 ? R(-5, -1.5) : R(-1.5, 1.5), vy: R(1, 4), g: .12, col: pal[i % pal.length], shape: i % 4 ? 'rect' : 'circle', size: R(5, 10), decay: R(.004, .008) }); }
-  if (kind === 'cannons') for (let i = 0; i < 180; i++) { const L = i % 2 === 0; add({ shape: i % 6 === 0 ? 'ribbon' : i % 6 === 1 ? 'circle' : 'rect', flip3d: i % 6 > 1, delay: Math.floor(i / 60) * 14, sway: 0, tw: Math.random() * 6, x: L ? -5 : Wd + 5, y: Ht * .8, vx: (L ? 1 : -1) * R(3, 10), vy: R(-17, -9), g: .35, col: mono[i % 4], size: R(5, 9), decay: R(.005, .009) }); }
+  if (kind === 'confetti' || kind === 'colorconf') for (let i = 0; i < 280; i++) { const side = i % 4, pal = kind === 'colorconf' ? bright : mono; // from the top and from both sides, in two waves
+    add({ x: side === 0 ? R(-10, Wd * .1) : side === 1 ? R(Wd * .9, Wd + 10) : R(0, Wd), y: side >= 2 ? R(-80, -10) : R(Ht * .1, Ht * .45), vx: side === 0 ? R(2, 7) : side === 1 ? R(-7, -2) : R(-1.5, 1.5), vy: side >= 2 ? R(1, 4) : R(-7, -2), g: .12, col: pal[i % pal.length], shape: i % 5 ? 'rect' : 'circle', size: R(5, 10), sway: .4, tw: Math.random() * 6, decay: R(.0035, .007), delay: i % 2 ? 0 : 24 }); }
+  if (kind === 'cannons') for (let i = 0; i < 300; i++) { const L = i % 2 === 0, v = Math.floor(i / 100); add({ shape: i % 6 === 0 ? 'ribbon' : i % 6 === 1 ? 'circle' : 'rect', flip3d: i % 6 > 1, delay: v * 26, tw: Math.random() * 6, x: L ? -5 : Wd + 5, y: Ht * (.82 - v * .08), vx: (L ? 1 : -1) * R(3, 11), vy: R(-18, -9), g: .33, col: mono[i % 4], size: R(5, 10), decay: R(.0045, .008) }); } // three volleys
   if (kind === 'fireworks') { const pal = ['#ffd400', '#ff5a5f', '#7cc4ff', '#7dff9b', '#c39bff', '#fff3b0']; [[.25, .26], [.72, .2], [.5, .38], [.3, .5], [.75, .45]].forEach(([fx, fy], k) => { const y0 = Ht + 10, ty = Ht * fy;
     add({ x: Wd * fx + R(-20, 20), y: y0, vx: R(-.4, .4), vy: -Math.sqrt(2 * .16 * (y0 - ty)), g: .16, drag: 1, shape: 'circle', size: 3, col: '#fff3b0', glow: true, rocket: true, pal, decay: 0, delay: k * 22, flip3d: false }); }); }
-  if (kind === 'decagons') for (let i = 0; i < 56; i++) { const a = R(-2.6, -.5), sp = R(5, 12); add({ x: Wd / 2 + R(-30, 30), y: Ht * .55, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .22, shape: i % 3 ? 'dec' : 'decline', size: R(9, 22), col: mono[i % 4], vr: R(-.08, .08), fs: R(.05, .14), decay: R(.005, .009), delay: Math.floor(i / 8) * 3 }); }
+  if (kind === 'decagons') add({ x: Wd / 2, y: Ht * .4, g: 0, vr: .06, shape: 'dec', size: 30, grow: 3.2, col: FG, life: 1, decay: 0, flip3d: false, burstAt: 26, kids: 64 }); // one big decagon pops into many small ones
   if (kind === 'stars') for (let i = 0; i < 60; i++) add({ x: R(0, Wd), y: R(-220, -10), vx: R(-.5, .5), vy: R(2, 4), g: .05, shape: 'star', size: R(6, 12), col: mono[i % 4], decay: R(.004, .007) });
   if (kind === 'streamers') for (let i = 0; i < 46; i++) add({ x: R(0, Wd), y: R(-260, -20), vx: R(-1, 1), vy: R(1.5, 3.5), g: .05, shape: 'ribbon', size: R(16, 28), col: [FG, FG, MU, '#ffd400', '#bdbdb6'][i % 5], vr: R(-.05, .05), sway: .8, tw: Math.random() * 6, decay: R(.0035, .006), flip3d: false });
-  if (kind === 'glitter') for (let i = 0; i < 130; i++) add({ x: R(0, Wd), y: R(0, Ht * .6), vx: R(-.3, .3), vy: R(-.2, .6), g: .01, shape: 'circle', size: R(1.5, 3.5), col: FG, tw: R(0, 6.28), decay: R(.006, .012) });
+  if (kind === 'glitter') for (let i = 0; i < 170; i++) add({ x: R(0, Wd), y: R(0, Ht * .7), vx: R(-.3, .3), vy: R(-.2, .5), g: .006, shape: 'circle', size: R(1.5, 3.8), col: FG, glow: i % 3 === 0, tw: R(0, 6.28), decay: R(.0028, .0055), delay: Math.floor(R(0, 60)) });
   if (kind === 'xmas') { const pal = ['#f3f3ef', '#f3f3ef', '#d6262e', '#2e9e4f', '#ffd400']; for (let i = 0; i < 120; i++) add({ x: R(0, Wd), y: R(-300, -10), vx: R(-.8, .8), vy: R(1.5, 3.5), g: .03, shape: i % 3 ? 'circle' : 'star', size: R(4, 10), col: pal[i % 5], decay: R(.003, .006) }); }
   if (kind === 'easter') { const pal = ['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0']; for (let i = 0; i < 46; i++) { const a = R(0, 6.28), sp = R(4, 10); add({ x: Wd / 2, y: Ht * .35, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 4, g: .22, shape: 'egg', size: R(12, 20), col: pal[i % 5], decay: R(.005, .009) }); } }
   if (kind === 'newyear') { const pal = ['#ffd400', '#f3f3ef', '#ff5a5f', '#4aa3ff', '#b58cff']; [[.22, .26], [.75, .2], [.5, .4], [.3, .55], [.72, .5]].forEach(([fx, fy], k) => { for (let i = 0; i < 48; i++) { const a = i / 48 * 6.28, sp = R(2.5, 6.5); add({ x: Wd * fx, y: Ht * fy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .05, drag: .97, shape: 'circle', size: R(2.5, 4.5), col: pal[(k + i) % 5], delay: k * 14, decay: R(.011, .018) }); } }); }
-  if (kind === 'plates') for (let i = 0; i < 30; i++) add({ fancy: true, fs: R(.03, .08), x: R(0, Wd), y: R(-500, -20), vx: R(-.6, .6), vy: R(1, 3), g: .16, shape: 'plate', size: R(16, 30), col: mono[i % 4], vr: R(-.08, .08), decay: R(.003, .005) });
+  if (kind === 'plates') for (let i = 0; i < 26; i++) add({ fancy: true, fs: R(.03, .08), bounce: true, x: R(Wd * .05, Wd * .95), y: R(-520, -30), vx: R(-.8, .8), vy: R(1, 3), g: .3, shape: 'plate', size: R(18, 34), col: mono[i % 4], vr: R(-.08, .08), decay: R(.0032, .0045) });
   if (kind === 'shock') for (let i = 0; i < 7; i++) add({ x: Wd / 2, y: Ht * .4, g: 0, vr: .01, shape: 'ring', size: 20, grow: R(7, 9), col: FG, delay: i * 9, decay: .011, drag: 1 });
-  if (kind === 'fountain') for (let i = 0; i < 160; i++) add({ x: Wd / 2 + R(-8, 8), y: Ht + 5, vx: R(-3.2, 3.2), vy: R(-19, -12), g: .32, col: mono[i % 4], shape: i % 3 ? 'rect' : 'dec', size: R(5, 9), delay: Math.floor(i / 4), decay: R(.006, .01) });
+  if (kind === 'fountain') { for (let i = 0; i < 190; i++) add({ x: Wd / 2 + R(-8, 8), y: Ht + 5, vx: R(-3.4, 3.4), vy: R(-19, -12), g: .32, col: bright[i % bright.length], glow: i % 4 === 0, shape: i % 3 ? 'rect' : 'dec', size: R(5, 9), delay: Math.floor(i / 4), decay: R(.006, .01) });
+    [[.5, .16], [.3, .24], [.7, .22]].forEach(([fx, fy], k) => add({ x: Wd * fx, y: Ht + 10, vx: 0, vy: -Math.sqrt(2 * .16 * (Ht + 10 - Ht * fy)), g: .16, drag: 1, shape: 'circle', size: 3, col: '#fff3b0', glow: true, rocket: true, pal: bright, decay: 0, delay: 40 + k * 16, flip3d: false })); } // colourful fountain, crowned by fireworks
   const shape = p => { const z = p.size; ctx.beginPath();
     if (p.shape === 'ribbon') { ctx.beginPath(); for (let i = 0; i <= 12; i++) { const x = -z + i * z / 6, y = Math.sin(i * .9 + p.rot * 3) * z * .18; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.strokeStyle = p.col; ctx.lineWidth = 3.2; ctx.lineCap = 'round'; ctx.stroke(); return; }
     if (p.shape === 'decline') { for (let i = 0; i < 10; i++) { const a = i * .628; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * z / 2, Math.sin(a) * z / 2); } ctx.closePath(); ctx.strokeStyle = p.col; ctx.lineWidth = 2.2; ctx.stroke(); return; }
@@ -1658,7 +1807,8 @@ function celebrate(kind = S.celeb) {
     else for (let i = 0; i < 10; i++) { const a = i * .628 - 1.57, rr = i % 2 ? z / 4 : z / 2; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * rr, Math.sin(a) * rr); }
     ctx.closePath(); ctx.fill(); };
   const t0 = performance.now();
-  const TRAILS = ['fireworks', 'fountain', 'glitter', 'shock', 'xmas', 'newyear'].includes(kind), DUR = kind === 'fireworks' || kind === 'newyear' ? 4200 : 3400;
+  const FLOOR = Ht - 96 - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sab')) || 0);
+  const TRAILS = ['fireworks', 'fountain', 'glitter', 'shock', 'xmas', 'newyear'].includes(kind), DUR = kind === 'fireworks' || kind === 'newyear' || kind === 'glitter' || kind === 'fountain' ? 4600 : kind === 'plates' || kind === 'decagons' ? 4200 : 3600;
   const boom = r => { const n = 54, c2 = r.pal[Math.floor(Math.random() * r.pal.length)]; for (let i = 0; i < n; i++) { const a = i / n * 6.283 + R(-.04, .04), sp = R(1.8, 4.6);
     add({ x: r.x, y: r.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .045, drag: .975, shape: 'circle', size: R(2.4, 3.6), col: i % 3 ? r.col : c2, glow: true, tw: Math.random() * 6, decay: R(.011, .017), flip3d: false }); } };
   const step = now => {
@@ -1667,6 +1817,8 @@ function celebrate(kind = S.celeb) {
     for (let i = 0; i < P.length; i++) { const p = P[i]; if (p.delay > 0) { p.delay--; alive++; continue; } if (p.life <= 0) continue; alive++;
       p.vx *= p.drag; p.vy = p.vy * p.drag + p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay; if (p.grow) p.size += p.grow;
       if (p.rocket && p.vy >= -.6) { p.life = 0; boom(p); continue; }
+      p.age = (p.age || 0) + 1; if (p.burstAt && p.age >= p.burstAt) { p.life = 0; for (let j = 0; j < p.kids; j++) { const an = j / p.kids * 6.283, sp = R(3, 11); add({ x: p.x, y: p.y, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp - 4, g: .28, shape: j % 4 ? 'dec' : 'decline', size: R(9, 20), col: mono[j % 4], bounce: true, vr: R(-.1, .1), fs: R(.05, .14), decay: R(.004, .007) }); } continue; }
+      if (p.bounce && p.y > FLOOR && p.vy > 0) { p.y = FLOOR; p.vy *= -.52; p.vx *= .8; p.vr *= .7; p.bn = (p.bn || 0) + 1; if (p.bn > 3) { p.vy = 0; p.g = 0; p.vx *= .9; } }
       if (p.sway) p.x += Math.sin(now / 260 + p.tw) * p.sway;
       ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.4)) * (p.tw !== undefined && p.life < .5 ? .45 + .55 * Math.abs(Math.sin(now / 70 + p.tw)) : 1);
       if (p.glow) { ctx.shadowColor = p.col; ctx.shadowBlur = 10; }
@@ -1789,6 +1941,8 @@ function showAuth(preview, start) {
       <ul class="au-miss">${benefits.map(b => `<li><i class="dec"></i>${esc(b)}</li>`).join('')}</ul>
       <div class="au-btns"><button class="mainbtn" data-am="signup">${de ? 'Doch Account anlegen' : 'Create account after all'}</button><button class="textbtn" id="au-guest">${de ? 'Als Gast fortfahren' : 'Continue as guest'}</button></div></div>`;
     el.querySelectorAll('[data-am]').forEach(b => b.onclick = () => { mode = b.dataset.am; draw(); });
+    if (mode === 'signup') { const chk = () => { $('au-go').disabled = !($('au-user').value.trim() && $('au-mail').value.trim() && $('au-pw').value && $('au-agb').checked && $('au-dse').checked); };
+      ['au-user', 'au-mail', 'au-pw', 'au-agb', 'au-dse'].forEach(id => { $(id).addEventListener('input', chk); $(id).addEventListener('change', chk); }); chk(); }
     el.querySelectorAll('[data-legal]').forEach(a => a.onclick = e => { e.preventDefault(); legal(a.dataset.legal); });
     $('au-x') && ($('au-x').onclick = () => { if (mode === 'home' || (start && mode === start)) el.remove(); else { mode = mode === 'forgot' || mode === 'reset' ? 'login' : 'home'; draw(); } });
     $('au-guest') && ($('au-guest').onclick = () => { S.guest = true; done(); });
@@ -1924,6 +2078,10 @@ function devHTML() {
       ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-auth', 'Anmeldung / Account anlegen', 'Entwurf, erscheint vor dem Onboarding')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('reseed', t('reseed'))}</div>
       <button class="ghostbtn" id="dev-safari">Erstbesuch im Browser testen</button></div>
 
+    <div class="sect"><h2>Account & Freunde</h2>
+      <div class="dlabel">Account</div>${seg('dacc', [['in', 'Angemeldet (Test-Account)'], ['out', 'Nicht angemeldet']], isGuest() ? 'out' : 'in')}
+      <div class="dlabel">Freunde-Level (Kräftemessen)</div>${seg('dfl', [['better', 'Alle besser'], ['worse', 'Alle schlechter'], ['mix', 'Mix']], S.frLvl || 'mix')}</div>
+
     <div class="sect"><h2>Seasons</h2>
       <div class="dlabel">Vorschau, nur hier in Dev</div>${seg('spv', [['live', 'Wie live'], ['off', 'Aus'], ['xmas', 'Weihn.'], ['easter', 'Ostern'], ['newyear', 'Silvester']], sz)}
       <div class="dlabel">Live für alle Nutzer</div>
@@ -1958,6 +2116,8 @@ function bindDev() {
   on('dev-onb', () => showOnboarding(true)); on('dev-intro', () => previewIntro()); on('dev-celeb', () => celebrate(seasonNow() || S.celeb));
   on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
   on('dev-inst', () => showInstall(true)); on('dev-auth', () => showAuth(true));
+  document.querySelectorAll('[data-dacc]').forEach(b => b.onclick = () => { S.guest = b.dataset.dacc === 'out'; S.authSeen = true; save(); rr(); });
+  document.querySelectorAll('[data-dfl]').forEach(b => b.onclick = () => { S.frLvl = b.dataset.dfl; save(); rr(); });
   // iPhone: x-safari-https:// opens the real Safari (iOS 17+); otherwise the link is copied
   on('dev-safari', () => dialog('Erstbesuch im Browser testen', 'Eine Homescreen-App darf Safari nicht selbst öffnen. Darum: Link kopieren, Safari öffnen, in die Adresszeile einfügen.<br><br>Der Link startet mit einem <b>Test-Profil</b>: wie ein ganz neuer Nutzer (Installations-Anleitung, Anmeldung, Onboarding), deine Daten bleiben unberührt. Jedes Öffnen beginnt wieder von vorn.', [['Link kopieren', 'mainbtn', () => copyText(DEV_LINK)], ['Abbrechen', 'ghostbtn', () => {}]])); on('dev-verall', () => { devVerAll = !devVerAll; rr(); });
   on('reseed', () => dialog(t('reseed'), t('reseedText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('reseed'), 'ghostbtn', () => { seedMock(); save(); setPage = null; show('progress'); }]]));
