@@ -10,6 +10,9 @@
 - [ ] **Ben:** Dev v0.15.1 ansehen → Feedback → „freigeben“ für Live
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Sicherheit: `security-auditor` vor jeder Freigabe (RLS-Angriffe mit 2 Test-Accounts, XSS, Speicher, Anmeldung, Schlüssel); Schlüssel-Check läuft schon automatisch
+  - [ ] Account löschen löscht wirklich alles (Auth, Tabellen per Cascade, Profilbilder, Freundschaften) + Test; Backup-Frist in Datenschutzerklärung
+  - [ ] Passwort vergessen per E-Mail: eigener SMTP-Versand (Brevo, EU, AV-Vertrag) in Supabase Auth; Links laufen ab, kein Verraten existierender E-Mails
+  - [ ] Live-Index lädt noch Google Fonts von Google-Servern (Datenschutz!) → verschwindet mit der nächsten Freigabe (release.py stellt auf lokale Schriften um)
   - [ ] Datenschutzerklärung final (nicht Entwurf) + Einwilligung beim Account-Anlegen (Supabase, Entwickler-/KI-Zugriff auf pseudonymisierte Daten), vor dem ersten Tester; juristisch prüfen lassen
   - [ ] Homescreen-Name: iPhone übernimmt neuen Namen nur bei Neuinstallation → erst neu hinzufügen, wenn die Daten in der Cloud liegen (sonst Datenverlust)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
