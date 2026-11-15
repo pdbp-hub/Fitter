@@ -1500,11 +1500,11 @@ function showOnboarding(fromHelp) {
 function playIntro() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const r = goRect(go), size = r.width, cx = innerWidth / 2 - size / 2, cy = innerHeight / 2 - size / 2;
-  const el = document.createElement('div'); el.id = 'intro'; el.innerHTML = `<div class="intro-bg"></div><div class="intro-dec dec" style="width:${size}px;height:${size}px;left:${cx}px;top:${cy}px"><span>TRAIN</span></div>`;
+  const el = document.createElement('div'); el.id = 'intro'; el.innerHTML = `<div class="intro-bg"></div><div class="intro-dec octa dec" style="width:${size}px;height:${size}px;left:${cx}px;top:${cy}px;transform:scale(.1) rotate(-144deg);opacity:0">${go.innerHTML.replace(/ id="[^"]*"/g, '')}</div>`;
   $('app').appendChild(el); go.style.visibility = 'hidden';
-  const d = el.querySelector('.intro-dec'), bg = el.querySelector('.intro-bg'), label = d.querySelector('span');
+  const d = el.querySelector('.intro-dec'), bg = el.querySelector('.intro-bg');
   d.animate([{ transform: 'scale(.1) rotate(-144deg)', opacity: 0 }, { transform: 'scale(.52) rotate(-20deg)', opacity: 1, offset: .6 }, { transform: 'scale(.48) rotate(0deg)', opacity: 1 }], { duration: 950, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' }).finished
-    .then(() => { label.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }); bg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
+    .then(() => { bg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
       const r2 = goRect(go);
       return d.animate([{ transform: 'scale(.48)' }, { transform: `translate(${r2.left - cx}px, ${r2.top - cy}px) scale(${r2.width / size})` }], { duration: 650, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished; })
     .then(() => { go.style.visibility = ''; el.remove(); })
@@ -1529,7 +1529,10 @@ function playIntroType() {
     if (done) return; await sleep(220); cta.innerHTML = ce.innerHTML;
     cta.animate([{ opacity: 0, transform: 'scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 380, fill: 'forwards' });
     await sleep(800); if (done) return;
-    el.querySelector('.i2-box').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
+    const box = el.querySelector('.i2-box'), br = box.getBoundingClientRect(), gEl = go.querySelector('.greet'), gr = gEl ? gEl.getBoundingClientRect() : br, k2 = Math.min(1, gr.width / br.width);
+    box.style.transformOrigin = '0 0';
+    box.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${gr.left + gr.width / 2 - (br.left + br.width * k2 / 2)}px, ${gr.top + gr.height / 2 - (br.top + br.height * k2 / 2)}px) scale(${k2})`, opacity: .15 }], { duration: 700, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' });
+    const tEl = go.querySelector('.tap'); if (tEl) { const tr = tEl.getBoundingClientRect(), tp = document.createElement('p'); tp.className = 'i2-tap'; tp.textContent = tEl.textContent; const tc = getComputedStyle(tEl); tp.style.cssText = `position:absolute;left:0;right:0;top:${tr.top}px;text-align:center;margin:0;font:${tc.font};letter-spacing:${tc.letterSpacing};text-transform:${tc.textTransform};color:var(--bg)`; el.appendChild(tp); tp.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 150, fill: 'both' }); }
     const big = decPts(innerWidth / 2, H / 2, Math.hypot(innerWidth, H) / 2 / Math.cos(Math.PI / 10) + 4);
     const r2 = goRect(go), small = decPts(r2.left + r2.width / 2, r2.top + r2.height / 2, r2.width / 2);
     await el.animate([{ clipPath: poly(big) }, { clipPath: poly(small) }], { duration: 750, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished.catch(() => {});
@@ -1618,7 +1621,11 @@ function playIntroVortex() {
   el.firstChild.animate([{ transform: `scale(${k}) rotate(-540deg)` }, { transform: `scale(${k * .6}) rotate(-300deg)`, offset: .35 }, { transform: 'scale(1) rotate(0deg)' }], { duration: 1300, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' })
     .finished.then(() => { go.style.visibility = ''; el.remove(); }, () => { go.style.visibility = ''; el.remove(); });
 }
-function playIntroSel(kind = S.intro) { if (kind === 'type') playIntroType(); else if (kind === 'tear') playIntroTear(); else if (kind === 'vortex') playIntroVortex(); else if (kind !== 'off') playIntro(); }
+function playIntroSel(kind = S.intro) {
+  const pul = [...document.querySelectorAll('#go.pulse, .hero .ss-wrap.pulse')]; pul.forEach(x => x.classList.remove('pulse'));
+  playIntroRaw(kind); const iv = setInterval(() => { if (!$('intro')) { clearInterval(iv); pul.forEach(x => x.classList.add('pulse')); } }, 80);
+}
+function playIntroRaw(kind) { if (kind === 'type') playIntroType(); else if (kind === 'tear') playIntroTear(); else if (kind === 'vortex') playIntroVortex(); else if (kind !== 'off') playIntro(); }
 function celebrate(kind = S.celeb) {
   if (!kind || kind === 'off' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const old = $('celeb'); if (old) old.remove();
@@ -1628,21 +1635,22 @@ function celebrate(kind = S.celeb) {
   const mono = [FG, FG, MU, '#bdbdb6'], bright = ['#ffd400', '#35c46a', '#f0524a', '#4aa3ff', '#f3f3ef', '#ff7ad9'];
   const R = (a, b) => a + Math.random() * (b - a), P = [];
   const add = o => P.push(Object.assign({ x: 0, y: 0, vx: 0, vy: 0, g: .25, rot: R(0, 6.28), vr: R(-.2, .2), size: R(5, 9), shape: 'rect', col: FG, life: 1, decay: R(.006, .012), drag: .995, delay: 0, flip3d: true, flip: R(0, 6.28), fs: R(.08, .22) }, o));
-  if (kind === 'confetti' || kind === 'colorconf') for (let i = 0; i < 190; i++) { const side = i % 3, pal = kind === 'colorconf' ? bright : mono;
-    add({ x: side === 0 ? R(-10, Wd * .12) : side === 1 ? R(Wd * .88, Wd + 10) : R(0, Wd), y: side === 2 ? R(-60, -10) : R(-30, Ht * .2), vx: side === 0 ? R(1.5, 5) : side === 1 ? R(-5, -1.5) : R(-1.5, 1.5), vy: R(1, 4), g: .12, col: pal[i % pal.length], shape: i % 4 ? 'rect' : 'circle', size: R(5, 10), decay: R(.004, .008) }); }
-  if (kind === 'cannons') for (let i = 0; i < 180; i++) { const L = i % 2 === 0; add({ shape: i % 6 === 0 ? 'ribbon' : i % 6 === 1 ? 'circle' : 'rect', flip3d: i % 6 > 1, delay: Math.floor(i / 60) * 14, sway: 0, tw: Math.random() * 6, x: L ? -5 : Wd + 5, y: Ht * .8, vx: (L ? 1 : -1) * R(3, 10), vy: R(-17, -9), g: .35, col: mono[i % 4], size: R(5, 9), decay: R(.005, .009) }); }
+  if (kind === 'confetti' || kind === 'colorconf') for (let i = 0; i < 280; i++) { const side = i % 4, pal = kind === 'colorconf' ? bright : mono; // from the top and from both sides, in two waves
+    add({ x: side === 0 ? R(-10, Wd * .1) : side === 1 ? R(Wd * .9, Wd + 10) : R(0, Wd), y: side >= 2 ? R(-80, -10) : R(Ht * .1, Ht * .45), vx: side === 0 ? R(2, 7) : side === 1 ? R(-7, -2) : R(-1.5, 1.5), vy: side >= 2 ? R(1, 4) : R(-7, -2), g: .12, col: pal[i % pal.length], shape: i % 5 ? 'rect' : 'circle', size: R(5, 10), sway: .4, tw: Math.random() * 6, decay: R(.0035, .007), delay: i % 2 ? 0 : 24 }); }
+  if (kind === 'cannons') for (let i = 0; i < 300; i++) { const L = i % 2 === 0, v = Math.floor(i / 100); add({ shape: i % 6 === 0 ? 'ribbon' : i % 6 === 1 ? 'circle' : 'rect', flip3d: i % 6 > 1, delay: v * 26, tw: Math.random() * 6, x: L ? -5 : Wd + 5, y: Ht * (.82 - v * .08), vx: (L ? 1 : -1) * R(3, 11), vy: R(-18, -9), g: .33, col: mono[i % 4], size: R(5, 10), decay: R(.0045, .008) }); } // three volleys
   if (kind === 'fireworks') { const pal = ['#ffd400', '#ff5a5f', '#7cc4ff', '#7dff9b', '#c39bff', '#fff3b0']; [[.25, .26], [.72, .2], [.5, .38], [.3, .5], [.75, .45]].forEach(([fx, fy], k) => { const y0 = Ht + 10, ty = Ht * fy;
     add({ x: Wd * fx + R(-20, 20), y: y0, vx: R(-.4, .4), vy: -Math.sqrt(2 * .16 * (y0 - ty)), g: .16, drag: 1, shape: 'circle', size: 3, col: '#fff3b0', glow: true, rocket: true, pal, decay: 0, delay: k * 22, flip3d: false }); }); }
-  if (kind === 'decagons') for (let i = 0; i < 56; i++) { const a = R(-2.6, -.5), sp = R(5, 12); add({ x: Wd / 2 + R(-30, 30), y: Ht * .55, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .22, shape: i % 3 ? 'dec' : 'decline', size: R(9, 22), col: mono[i % 4], vr: R(-.08, .08), fs: R(.05, .14), decay: R(.005, .009), delay: Math.floor(i / 8) * 3 }); }
+  if (kind === 'decagons') add({ x: Wd / 2, y: Ht * .4, g: 0, vr: .06, shape: 'dec', size: 30, grow: 3.2, col: FG, life: 1, decay: 0, flip3d: false, burstAt: 26, kids: 64 }); // one big decagon pops into many small ones
   if (kind === 'stars') for (let i = 0; i < 60; i++) add({ x: R(0, Wd), y: R(-220, -10), vx: R(-.5, .5), vy: R(2, 4), g: .05, shape: 'star', size: R(6, 12), col: mono[i % 4], decay: R(.004, .007) });
   if (kind === 'streamers') for (let i = 0; i < 46; i++) add({ x: R(0, Wd), y: R(-260, -20), vx: R(-1, 1), vy: R(1.5, 3.5), g: .05, shape: 'ribbon', size: R(16, 28), col: [FG, FG, MU, '#ffd400', '#bdbdb6'][i % 5], vr: R(-.05, .05), sway: .8, tw: Math.random() * 6, decay: R(.0035, .006), flip3d: false });
-  if (kind === 'glitter') for (let i = 0; i < 130; i++) add({ x: R(0, Wd), y: R(0, Ht * .6), vx: R(-.3, .3), vy: R(-.2, .6), g: .01, shape: 'circle', size: R(1.5, 3.5), col: FG, tw: R(0, 6.28), decay: R(.006, .012) });
+  if (kind === 'glitter') for (let i = 0; i < 170; i++) add({ x: R(0, Wd), y: R(0, Ht * .7), vx: R(-.3, .3), vy: R(-.2, .5), g: .006, shape: 'circle', size: R(1.5, 3.8), col: FG, glow: i % 3 === 0, tw: R(0, 6.28), decay: R(.0028, .0055), delay: Math.floor(R(0, 60)) });
   if (kind === 'xmas') { const pal = ['#f3f3ef', '#f3f3ef', '#d6262e', '#2e9e4f', '#ffd400']; for (let i = 0; i < 120; i++) add({ x: R(0, Wd), y: R(-300, -10), vx: R(-.8, .8), vy: R(1.5, 3.5), g: .03, shape: i % 3 ? 'circle' : 'star', size: R(4, 10), col: pal[i % 5], decay: R(.003, .006) }); }
   if (kind === 'easter') { const pal = ['#f4a7c0', '#a7d8f4', '#f4e07a', '#b6e3a1', '#d1b3f0']; for (let i = 0; i < 46; i++) { const a = R(0, 6.28), sp = R(4, 10); add({ x: Wd / 2, y: Ht * .35, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 4, g: .22, shape: 'egg', size: R(12, 20), col: pal[i % 5], decay: R(.005, .009) }); } }
   if (kind === 'newyear') { const pal = ['#ffd400', '#f3f3ef', '#ff5a5f', '#4aa3ff', '#b58cff']; [[.22, .26], [.75, .2], [.5, .4], [.3, .55], [.72, .5]].forEach(([fx, fy], k) => { for (let i = 0; i < 48; i++) { const a = i / 48 * 6.28, sp = R(2.5, 6.5); add({ x: Wd * fx, y: Ht * fy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .05, drag: .97, shape: 'circle', size: R(2.5, 4.5), col: pal[(k + i) % 5], delay: k * 14, decay: R(.011, .018) }); } }); }
-  if (kind === 'plates') for (let i = 0; i < 30; i++) add({ fancy: true, fs: R(.03, .08), x: R(0, Wd), y: R(-500, -20), vx: R(-.6, .6), vy: R(1, 3), g: .16, shape: 'plate', size: R(16, 30), col: mono[i % 4], vr: R(-.08, .08), decay: R(.003, .005) });
+  if (kind === 'plates') for (let i = 0; i < 26; i++) add({ fancy: true, fs: R(.03, .08), bounce: true, x: R(Wd * .05, Wd * .95), y: R(-520, -30), vx: R(-.8, .8), vy: R(1, 3), g: .3, shape: 'plate', size: R(18, 34), col: mono[i % 4], vr: R(-.08, .08), decay: R(.0032, .0045) });
   if (kind === 'shock') for (let i = 0; i < 7; i++) add({ x: Wd / 2, y: Ht * .4, g: 0, vr: .01, shape: 'ring', size: 20, grow: R(7, 9), col: FG, delay: i * 9, decay: .011, drag: 1 });
-  if (kind === 'fountain') for (let i = 0; i < 160; i++) add({ x: Wd / 2 + R(-8, 8), y: Ht + 5, vx: R(-3.2, 3.2), vy: R(-19, -12), g: .32, col: mono[i % 4], shape: i % 3 ? 'rect' : 'dec', size: R(5, 9), delay: Math.floor(i / 4), decay: R(.006, .01) });
+  if (kind === 'fountain') { for (let i = 0; i < 190; i++) add({ x: Wd / 2 + R(-8, 8), y: Ht + 5, vx: R(-3.4, 3.4), vy: R(-19, -12), g: .32, col: bright[i % bright.length], glow: i % 4 === 0, shape: i % 3 ? 'rect' : 'dec', size: R(5, 9), delay: Math.floor(i / 4), decay: R(.006, .01) });
+    [[.5, .16], [.3, .24], [.7, .22]].forEach(([fx, fy], k) => add({ x: Wd * fx, y: Ht + 10, vx: 0, vy: -Math.sqrt(2 * .16 * (Ht + 10 - Ht * fy)), g: .16, drag: 1, shape: 'circle', size: 3, col: '#fff3b0', glow: true, rocket: true, pal: bright, decay: 0, delay: 40 + k * 16, flip3d: false })); } // colourful fountain, crowned by fireworks
   const shape = p => { const z = p.size; ctx.beginPath();
     if (p.shape === 'ribbon') { ctx.beginPath(); for (let i = 0; i <= 12; i++) { const x = -z + i * z / 6, y = Math.sin(i * .9 + p.rot * 3) * z * .18; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.strokeStyle = p.col; ctx.lineWidth = 3.2; ctx.lineCap = 'round'; ctx.stroke(); return; }
     if (p.shape === 'decline') { for (let i = 0; i < 10; i++) { const a = i * .628; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * z / 2, Math.sin(a) * z / 2); } ctx.closePath(); ctx.strokeStyle = p.col; ctx.lineWidth = 2.2; ctx.stroke(); return; }
@@ -1658,7 +1666,8 @@ function celebrate(kind = S.celeb) {
     else for (let i = 0; i < 10; i++) { const a = i * .628 - 1.57, rr = i % 2 ? z / 4 : z / 2; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * rr, Math.sin(a) * rr); }
     ctx.closePath(); ctx.fill(); };
   const t0 = performance.now();
-  const TRAILS = ['fireworks', 'fountain', 'glitter', 'shock', 'xmas', 'newyear'].includes(kind), DUR = kind === 'fireworks' || kind === 'newyear' ? 4200 : 3400;
+  const FLOOR = Ht - 96 - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sab')) || 0);
+  const TRAILS = ['fireworks', 'fountain', 'glitter', 'shock', 'xmas', 'newyear'].includes(kind), DUR = kind === 'fireworks' || kind === 'newyear' || kind === 'glitter' || kind === 'fountain' ? 4600 : kind === 'plates' || kind === 'decagons' ? 4200 : 3600;
   const boom = r => { const n = 54, c2 = r.pal[Math.floor(Math.random() * r.pal.length)]; for (let i = 0; i < n; i++) { const a = i / n * 6.283 + R(-.04, .04), sp = R(1.8, 4.6);
     add({ x: r.x, y: r.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: .045, drag: .975, shape: 'circle', size: R(2.4, 3.6), col: i % 3 ? r.col : c2, glow: true, tw: Math.random() * 6, decay: R(.011, .017), flip3d: false }); } };
   const step = now => {
@@ -1667,6 +1676,8 @@ function celebrate(kind = S.celeb) {
     for (let i = 0; i < P.length; i++) { const p = P[i]; if (p.delay > 0) { p.delay--; alive++; continue; } if (p.life <= 0) continue; alive++;
       p.vx *= p.drag; p.vy = p.vy * p.drag + p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay; if (p.grow) p.size += p.grow;
       if (p.rocket && p.vy >= -.6) { p.life = 0; boom(p); continue; }
+      p.age = (p.age || 0) + 1; if (p.burstAt && p.age >= p.burstAt) { p.life = 0; for (let j = 0; j < p.kids; j++) { const an = j / p.kids * 6.283, sp = R(3, 11); add({ x: p.x, y: p.y, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp - 4, g: .28, shape: j % 4 ? 'dec' : 'decline', size: R(9, 20), col: mono[j % 4], bounce: true, vr: R(-.1, .1), fs: R(.05, .14), decay: R(.004, .007) }); } continue; }
+      if (p.bounce && p.y > FLOOR && p.vy > 0) { p.y = FLOOR; p.vy *= -.52; p.vx *= .8; p.vr *= .7; p.bn = (p.bn || 0) + 1; if (p.bn > 3) { p.vy = 0; p.g = 0; p.vx *= .9; } }
       if (p.sway) p.x += Math.sin(now / 260 + p.tw) * p.sway;
       ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.4)) * (p.tw !== undefined && p.life < .5 ? .45 + .55 * Math.abs(Math.sin(now / 70 + p.tw)) : 1);
       if (p.glow) { ctx.shadowColor = p.col; ctx.shadowBlur = 10; }
