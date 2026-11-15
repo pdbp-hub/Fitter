@@ -33,6 +33,8 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     if (/^\[data-tab=/.test(sel) && !(await page.evaluate(() => { const v = document.querySelector('.screen:not([hidden])'); return !v || (v.id === 'v-start') || (v.id === 'v-settings' && !document.getElementById('spback')) || (v.id === 'v-progress' && !document.querySelector('.fr-me')); }))) { await page.click(sel, { force: true }); await page.waitForTimeout(120); } };
   const ev = fn => page.evaluate(fn);
   const openCal = async () => { if (await page.$('#calopen')) { await click('#calopen'); await page.waitForTimeout(250); } };
+  const openAdd = async () => { if (await page.$('#c-addex')) { await click('#c-addex'); await page.waitForTimeout(400); } };
+  const doneAdd = async () => { if (await page.$('#x-done')) { await click('#x-done'); await page.waitForTimeout(300); } };
   const settle = () => page.waitForTimeout(450); // Sheet-Animationen abwarten
 
   await page.goto(URL + TARGET + (TARGET ? '?noseed&test' : '?test')); await page.waitForTimeout(400);
@@ -156,7 +158,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 
   console.log('Workouts verwalten');
   await click('[data-tab=start]'); await click('#go'); await click('#add'); await settle();
-  await page.fill('#o-name', 'Arm'); await page.locator('#o-list [data-pk]').first().click({ force: true }); await page.waitForTimeout(150);
+  await page.fill('#o-name', 'Arm'); await openAdd(); await page.locator('#o-list [data-pk]').first().click({ force: true }); await page.waitForTimeout(150); await doneAdd();
   await click('#o-back');
   check('Zurück fragt vor dem Verwerfen', await ev(() => !document.getElementById('overlay').hidden));
   await click('[data-db="0"]'); await click('#o-save'); await settle();
@@ -234,7 +236,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Bereit: Gewicht pro Satz planbar', await ev(() => document.querySelector('[data-pw="0:1"]').value === '77,5'));
     await click('[data-psx="0:0"]');
     check('Satz-✕ fragt mittig nach', await centered('#overlay .dialog'));
-    await click('[data-db="1"]');
+    await click('#overlay .mainbtn');
     check('Satz gelöscht', await ev(() => document.querySelectorAll('.redit .pset').length) === nPlan - 1);
     const nRows = await ev(() => document.querySelectorAll('#readylist > .srow').length);
     await ev(() => document.querySelectorAll('#readylist > .srow')[1].scrollIntoView({ block: 'center' }));
@@ -242,7 +244,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await page.mouse.move(rb.x + rb.width * .6, rb.y + 20); await page.mouse.down(); await page.mouse.move(rb.x + rb.width * .6 - 140, rb.y + 22, { steps: 10 }); await page.mouse.up(); await page.waitForTimeout(300);
     check('Wischen nach links zeigt rote Lösch-Fläche', await ev(() => !!document.querySelector('#readylist .swipe-del')));
     const db = await page.locator('#readylist .swipe-del').boundingBox(); await page.mouse.click(db.x + db.width - 40, db.y + db.height / 2); await page.waitForTimeout(150);
-    await click('[data-db="1"]'); await page.waitForTimeout(200);
+    await click('#overlay .mainbtn'); await page.waitForTimeout(200);
     check('Übung per Wischen gelöscht', await ev(() => document.querySelectorAll('#readylist > .srow').length) === nRows - 1);
     await click('#startbtn');
     check('Aufwärmen: ✕ oben zum Abbrechen', await ev(() => !!document.getElementById('endbtn')));
@@ -284,14 +286,16 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Info-Fenster mittig', await centered('#popover .popover'));
     await click('#popover .x');
     await click('[data-tab=start]'); await click('#go'); await click('#add'); await settle();
-    check('„+ Eigene Übung“ als breiter Button', await ev(() => document.getElementById('c-open').getBoundingClientRect().width > 300));
+    check('Workout anlegen: „Workout speichern“ Hauptknopf, „+ Übung hinzufügen“ zweitrangig, „Eigene Übung erstellen“ gestrichelt', await ev(() => /Workout speichern/.test(document.getElementById('o-save').textContent) && document.getElementById('o-save').classList.contains('mainbtn') && !document.getElementById('c-addex').classList.contains('mainbtn') && getComputedStyle(document.getElementById('c-open')).borderTopStyle === 'dashed' && !document.getElementById('o-list')));
+    await openAdd();
+    check('„+ Übung hinzufügen“ öffnet Fenster von unten mit Suche', await ev(() => !!document.querySelector('#xsheet .xsheet') && !!document.querySelector('#xsheet #o-q')));
     check('Übungsdatenbank erweitert (≥ 60)', await ev(() => document.querySelectorAll('#o-list .pick').length >= 60));
     await click('#o-filter'); await page.waitForTimeout(350); await click('[data-fg="legs"]'); await click('#fs-apply'); await page.waitForTimeout(350);
     check('Filter nach Muskelgruppe', await ev(() => [...document.querySelectorAll('#o-list .pick small')].every(e => /Oberschenkel vorne|Quads/.test(e.textContent))));
     await click('#o-sort'); await click('[data-sort="fav"]');
     check('Sortieren umschaltbar', await ev(() => /Favoriten|Favourites/.test(document.getElementById('o-sort').textContent)));
     for (const n of [0, 1, 2, 3]) await page.locator('#o-list [data-star]').nth(n).click({ force: true });
-    await click('#o-back'); if (await page.$('#overlay:not([hidden])')) await click('[data-db="1"]'); await settle();
+    await doneAdd(); await click('#o-back'); if (await page.$('#overlay:not([hidden])')) await click('[data-db="1"]'); await settle();
     await click('[data-tab=progress]');
     check('Fortschritt: nur noch Dropdown mit Icon, keine Favoriten-Leiste', await ev(() => !document.querySelector('.favs') && !!document.querySelector('#exsel .ico svg')));
     await click('#exsel'); await settle();
@@ -338,16 +342,16 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Lösch-Text in der roten Fläche zentriert', await ev(() => { const b = document.querySelector('#readylist .swipe-del span'); return b && getComputedStyle(b).textAlign === 'center'; }));
     const d3 = await page.locator('#readylist .swipe-del').boundingBox(); await page.mouse.click(d3.x + d3.width - 40, d3.y + d3.height / 2); await page.waitForTimeout(150);
     check('Löschen fragt „Nur heute“ oder „Dauerhaft“', await ev(() => document.querySelectorAll('#overlay [data-db]').length === 3));
-    await click('[data-db="1"]'); await page.waitForTimeout(200);
+    await click('#overlay .mainbtn'); await page.waitForTimeout(200);
     check('„Nur heute“ lässt das gespeicherte Workout unverändert', await ev(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).workouts.find(w => w.name === 'Push Power').ex.length) === nTpl);
     await click('#startbtn'); await click('#endbtn'); await click('[data-db="1"]'); await settle(); // Aufwärmen abbrechen → kein laufendes Workout
     await click('[data-tab=start]'); await click('#go'); await settle();
     check('Workout-Liste offen', await ev(() => !document.getElementById('v-select').hidden));
     await page.mouse.move(5, 300); await page.mouse.down(); await page.mouse.move(150, 305, { steps: 8 }); await page.mouse.up(); await page.waitForTimeout(200);
     check('Wischen vom linken Rand = zurück', await ev(() => !document.getElementById('v-start').hidden && document.getElementById('v-select').hidden));
-    await click('#go'); await click('#add'); await settle();
+    await click('#go'); await click('#add'); await settle(); await openAdd();
     check('Sortieren ohne „Muskelgruppe“, feste Breite', await ev(() => !document.querySelector('[data-sort="group"]') && document.getElementById('o-sort').getBoundingClientRect().width >= 170));
-    await click('#c-open');
+    await doneAdd(); await click('#c-open');
     check('Eigene Übung: breiter „Übung hinzufügen“, ✕ im gestrichelten Rahmen, keine Speichern-Leiste', await ev(() => document.getElementById('c-add').getBoundingClientRect().width > 280 && document.getElementById('c-cancel').textContent.trim() === '✕' && getComputedStyle(document.querySelector('.custom.cbox')).borderTopStyle === 'dashed' && !document.getElementById('o-save')));
     check('Eigene Übung: Feld ohne „Name“ (kein iOS-Kontakte-Vorschlag) (REGRESSION)', await ev(() => { const i = document.getElementById('c-ttl'); return i.getAttribute('autocomplete') === 'off' && !/name/i.test(i.id + i.name + i.placeholder); }));
     await click('#c-cancel'); await click('#o-back'); if (await page.$('#overlay:not([hidden])')) await click('[data-db="1"]'); await settle();
@@ -410,7 +414,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('#o-back'); await settle();
     await click('[data-tab=start]'); await click('#ptsbtn'); await settle();
     check('Level-Leiter: 15 oben, aktuelles Level sichtbar', await ev(() => { const r = document.querySelectorAll('#ladder .lvl-row'), lad = document.getElementById('ladder'), c = lad.querySelector('.cur').getBoundingClientRect(), b = lad.getBoundingClientRect(); return r.length === 15 && /^15/.test(r[0].querySelector('b').textContent.trim()) && c.top >= b.top - 1 && c.bottom <= b.bottom + 1; }));
-    check('Level-Seite: nur die Leiter scrollt, Kopf schrumpft fließend (schon beim ersten Scrollen)', await (async () => { const h0 = await ev(() => document.querySelector('.lvl-hero').getBoundingClientRect().height); await ev(() => { const l = document.getElementById('ladder'); l.scrollTop += 80; }); await page.waitForTimeout(300); const h1 = await ev(() => document.querySelector('.lvl-hero').getBoundingClientRect().height); await ev(() => { const l = document.getElementById('ladder'); l.scrollTop = l.scrollHeight; }); await page.waitForTimeout(300); const h2 = await ev(() => document.querySelector('.lvl-hero').getBoundingClientRect().height); return ev(() => { const o = document.getElementById('obody'); return o.scrollHeight <= o.clientHeight + 1; }) && h1 < h0 && h1 > h2 && h2 < 70; })());
+    check('Level-Seite: Kopf bleibt stehen (keine Hochwisch-Animation), nur die Leiter scrollt', await ev(() => { const h = document.querySelector('.lvl-hero'), y0 = h.getBoundingClientRect().height, lad = document.getElementById('ladder'); lad.scrollTop += 200; return !h.classList.contains('fluid') && Math.abs(h.getBoundingClientRect().height - y0) < 1; }));
     await click('#o-back'); await settle();
     check('Startseite: „Diese Woche“ einzeilig, „vs. Vorwoche“ einzeilig (REGRESSION)', await ev(() => { const h = document.querySelector('.weekhead span'), s = document.querySelector('.weekhead small'), lh = e => parseFloat(getComputedStyle(e).fontSize) * 1.6; return h.getBoundingClientRect().height < lh(h) && s.getBoundingClientRect().height < lh(s); }));
     await click('[data-tab=progress]'); await click('[data-ptab="friends"]'); await click('[data-fr="0"]'); await settle();
@@ -440,16 +444,18 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
       const cells = [...document.querySelectorAll('.weekstats > div')], ok = cells.every((c, i) => { const r = c.getBoundingClientRect(); return [...c.querySelectorAll('*')].every(e => { const q = e.getBoundingClientRect(); return q.left >= r.left - 1 && q.right <= r.right + 1; }); });
       return ok && /±0/.test(document.querySelector('.weekstats').textContent) && !/=/.test(document.querySelector('.weekstats').textContent); }); await ev(() => renderStart()); return r; })());
     await click('#go'); await click('.witem'); await settle();
-    check('Bereit: Kopfzeile „Bereit?“, Name groß mit „Name ändern“ daneben', await ev(() => /Bereit|Ready/.test(document.querySelector('.wtop .eyebrow').textContent) && !!document.querySelector('.rtitle #wtitle') && !!document.querySelector('.rtitle #wrename')));
+    check('Bereit: Kopfzeile „Bereit?“, Name groß mit Stift daneben, kein Hinweistext', await ev(() => /Bereit|Ready/.test(document.querySelector('.wtop .eyebrow').textContent) && !!document.querySelector('.rtitle #wtitle') && !!document.querySelector('.rtitle #wrename svg') && !document.querySelector('#wbody .hint')));
     await click('#startbtn'); await click('#warmdone'); await click('#mainact'); await click('#mainact');
     check('Satz erledigt', await ev(() => W.ex[W.cur].sets.length === 1));
-    await click('[data-edit="0:0"]');
-    check('Erledigter Satz: „zurücksetzen und neu machen“ vorhanden', !!(await page.$('[data-redo]')));
-    await click('[data-redo]');
+    check('Erledigter Satz: ↺ in der Satzzeile', !!(await page.$('[data-redoset="0:0"]')));
+    await ev(() => document.querySelector('[data-redoset="0:0"]').click()); await page.waitForTimeout(150);
+    check('Reset-Dialog: Hauptknopf „Zurücksetzen“, „Abbrechen“ klein darunter', await ev(() => /Zurücksetzen|Reset/.test(document.querySelector('#overlay .mainbtn').textContent) && /Abbrechen|Cancel/.test(document.querySelector('#overlay .textbtn').textContent)));
+    await click('#overlay .mainbtn'); await page.waitForTimeout(150);
     check('Satz zurückgesetzt: wieder Satz 1 offen', await ev(() => W.ex[0].sets.length === 0 && W.cur === 0 && W.phase === 'rest'));
     await page.evaluate(() => document.querySelector('[data-tsx]').click()); await page.waitForTimeout(200);
     check('Löschen-Dialog: „Nur für dieses Training“', await ev(() => /Nur für dieses Training|Only for this session/.test(document.getElementById('overlay').textContent)));
-    await click('[data-db="0"]'); await click('#endbtn'); await page.waitForTimeout(150);
+    check('Löschen-Dialog: Hauptknopf „Nur für dieses Training“, „Dauerhaft“ gestrichelt', await ev(() => /Nur für dieses Training|Only for this session/.test(document.querySelector('#overlay .mainbtn').textContent) && !!document.querySelector('#overlay .dashbtn')));
+    await click('#overlay .textbtn'); await click('#endbtn'); await page.waitForTimeout(150);
     await page.evaluate(() => { const b = [...document.querySelectorAll('#overlay button')].pop(); b.click(); }); await page.waitForTimeout(200);
     if (await page.$('#overlay:not([hidden])')) await page.evaluate(() => [...document.querySelectorAll('#overlay button')][1].click()); await settle();
   }
@@ -590,9 +596,10 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('#fr-cmp'); await settle();
     check('Kräftemessen: Chart mit einer Linie pro Person + Zusammenfassung', await ev(() => document.querySelectorAll('#cmp-ch polyline').length === 3 && document.getElementById('cmp-sum').textContent.length > 20));
     await ev(() => { S.frLvl = 'better'; renderO(); });
-    check('Kräftemessen: alle besser = trotzdem motivierend', await ev(() => /fehlen dir nur|just .* behind/.test(document.getElementById('cmp-sum').textContent)));
+    check('Kräftemessen: alle besser = eine kurze Zeile „Platz 3 von 3 · noch … bis …“', await ev(() => /^Platz 3 von 3 · noch .+ kg bis /.test(document.getElementById('cmp-sum').textContent)));
     await ev(() => { S.frLvl = 'worse'; renderO(); });
-    check('Kräftemessen: alle schlechter = „Du liegst vor“', await ev(() => /Stark! Du liegst vor/.test(document.getElementById('cmp-sum').textContent)));
+    check('Kräftemessen: alle schlechter = „Platz 1“', await ev(() => /^Platz 1 von 3 · .+ kg vor /.test(document.getElementById('cmp-sum').textContent)));
+    check('Kräftemessen: Rangliste statt Text, keine Zusatz-Überschriften', await ev(() => document.querySelectorAll('#cmp-list .cmp-row').length === 3 && document.querySelector('#cmp-list .cmp-row .cmp-pl').textContent === '1' && !document.querySelector('#obody .sect h2') && !document.querySelector('.cmp-lg')));
     await ev(() => { S.frLvl = 'mix'; renderO(); }); await click('#cmp-add');
     check('Kräftemessen: + öffnet Freunde-Auswahl mittig', await ev(() => !!document.querySelector('#cmpfrov [data-cmpf]')));
     await click('#cmpfrov [data-cmpf]'); check('Freund hinzugefügt: 4 Linien', await ev(() => document.querySelectorAll('#cmp-ch polyline').length === 4));
@@ -609,9 +616,12 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('#popover .x'); check('… und lässt sich schließen', await ev(() => document.getElementById('popover').hidden));
     await ev(() => { document.getElementById('auth').remove(); S.guest = false; S.authSeen = true; save(); }); await click('[data-ptab="me"]');
     // create workout: per-field hints
-    await click('[data-tab=start]'); await ev(() => { show('select'); openCreate(); }); await settle();
+    await click('[data-tab=start]'); await ev(() => { show('select'); openCreate(); }); await settle(); await openAdd();
+    check('Favoriten oben, dann „Alle Übungen“', await ev(() => /Favoriten/.test(document.querySelector('#o-list .pickhead').textContent)));
     check('Workout anlegen: „+“ statt leerer Kästchen', await ev(() => document.querySelector('#o-list .pick .box').textContent.trim() === '+'));
-    await click('#o-list .pick .box'); await click('#o-save'); await page.waitForTimeout(200);
+    await click('#o-list .pick .box');
+    check('Antippen in der Liste: ✓ ohne Neuaufbau, Zähler im „Fertig“-Knopf', await ev(() => document.querySelector('#o-list .pick .box').textContent.trim() === '✓' && /\(1\)/.test(document.getElementById('x-cnt').textContent)));
+    await doneAdd(); await click('#o-save'); await page.waitForTimeout(200);
     check('Speichern ohne Namen: „Name fehlt“, Feld rot', await ev(() => /Name fehlt/.test([...document.querySelectorAll('.toast')].pop().textContent) && document.getElementById('o-name').classList.contains('err')));
     await page.fill('#o-name', 'Test v15'); await ev(() => { O.picked = []; renderO(); }); await click('#o-save'); await page.waitForTimeout(200);
     check('Speichern ohne Übung: „mindestens eine Übung“', await ev(() => /mindestens eine Übung/.test([...document.querySelectorAll('.toast')].pop().textContent)));
@@ -628,7 +638,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     for (let n = 0; n < 2; n++) { await click('#mainact'); await click('#mainact'); }
     await ev(() => { W.cur = 1; W.open = {}; renderW(); });
     check('Erledigter Satz: sichtbares ↺ in der Satzzeile (auch frühere Übung)', await ev(() => { W.open[0] = true; renderW(); return !!document.querySelector('[data-redoset="0:0"]'); }));
-    await ev(() => document.querySelector('[data-redoset="0:0"]').click()); await page.waitForTimeout(150); await click('#overlay .ghostbtn'); await page.waitForTimeout(200);
+    await ev(() => document.querySelector('[data-redoset="0:0"]').click()); await page.waitForTimeout(150); await click('#overlay .mainbtn'); await page.waitForTimeout(200);
     check('↺: Satz 1 ist wieder dran', await ev(() => W.cur === 0 && W.ex[0].sets.length === 1 && /Satz 1|Set 1/.test(document.querySelector('.block.cur .set.active .lbl').textContent)));
     await click('#mainact'); await click('#mainact');
     check('… danach weiter bei der Übung, wo man war', await ev(() => W.cur === 1 && W.ex[0].sets.length === 2));
@@ -653,6 +663,39 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await ev(() => { setPage = 'privacy'; renderSettings(); });
     check('Datenschutzerklärung vollständig (Verantwortlicher, Drittland, Speicherdauer, Rechte, Art. 22, Sichtbarkeit, Änderungen)', await ev(() => { const x = document.getElementById('v-settings').textContent; return ['Benjamin Pellner', 'Luxemburger Straße 6', '80805 München', 'Frankfurt', 'Standardvertragsklauseln', 'Speicherdauer', 'Art. 22', 'Sichtbarkeit für andere Mitglieder', 'Mindestalter', 'Datensicherheit', 'Änderungen dieser Erklärung', 'BayLDA'].every(w => x.includes(w)); }));
     await back(); await back();
+  }
+
+  if (TARGET) {
+    console.log('Neu in v0.16');
+    await ev(() => { document.querySelectorAll('.overlay').forEach(e => e.id === 'overlay' ? (e.hidden = true) : e.remove()); closeO(); show('start'); });
+    await ev(() => openLevels()); await settle();
+    check('Level: fester Kopf ohne Hochwisch-Animation, aktuelles Level nur „Du bist hier“', await ev(() => !document.querySelector('.lvl-hero.fluid') && /Du bist hier/.test(document.querySelector('.lvl-row.cur').textContent) && !document.querySelector('.lvl-row.cur .lvl-mini')));
+    check('Level: Highlights Trainings · Neue Rekorde · bewegt', await ev(() => { const t = document.querySelector('.lvl-row.cur .lvl-hl').textContent; return /Trainings/.test(t) && /Neue Rekorde/.test(t) && /bewegt/.test(t) && !/pro Woche/.test(t); }));
+    await ev(() => closeO()); await settle();
+    // two fingers on a progress chart = two lines + difference
+    await click('[data-tab=progress]'); await page.waitForTimeout(300);
+    const two = await ev(() => { const svg = document.querySelector('#charts svg.chart'), r = svg.getBoundingClientRect(), y = r.top + r.height / 2;
+      const pe = (type, id, x) => svg.dispatchEvent(new PointerEvent(type, { pointerId: id, clientX: x, clientY: y, bubbles: true, pointerType: 'touch' }));
+      pe('pointerdown', 1, r.left + r.width * .2); pe('pointerdown', 2, r.left + r.width * .6);
+      const ok = svg.querySelectorAll('.scrub line').length === 2 && !!document.querySelector('#charts .difftag') && / bis /.test(document.querySelector('#charts .val').textContent);
+      pe('pointerup', 2, r.left + r.width * .6); const one = svg.querySelectorAll('.scrub line').length === 1; pe('pointerup', 1, r.left + r.width * .2); return ok && one; });
+    check('Charts: zwei Finger = zwei Linien + Differenz, ein Finger weg = wieder eine Linie', two);
+    // rest colour
+    await ev(() => { S.pauseCol = true; S.pauseMode = 'std'; save(); });
+    check('Pausen-Farbe: Rot unter 1 Min, Gelb bis 2, Grün ab 2 (Standard), eigene Zielpause', await ev(() => { const a = [pauseColor(30), pauseColor(90), pauseColor(130)]; S.pauseMode = 'own'; S.pauseTarget = 180; const b = [pauseColor(80), pauseColor(120), pauseColor(181)]; S.pauseMode = 'std'; return a.join() === '#e5484d,#f5b400,#2fbf71' && b.join() === '#e5484d,#f5b400,#2fbf71'; }));
+    await click('[data-tab=settings]'); await sp('display');
+    check('Darstellung: Pausen-Farbe mit Info-i und Auswahl', await ev(() => !!document.getElementById('pcol') && !!document.getElementById('pci') && document.querySelectorAll('[data-pcm]').length === 2));
+    await back();
+    await ev(() => { show('start'); document.getElementById('go').click(); }); await settle(); await click('.witem'); await settle();
+    const g = await page.locator('#readylist .grip').first().boundingBox(); await page.mouse.click(g.x + g.width / 2, g.y + g.height / 2); await page.waitForTimeout(200);
+    check('Bereit: kurzes Tippen auf den Griff klappt auf', await ev(() => W.rOpen === 0));
+    await click('#startbtn'); await click('#warmdone'); await settle();
+    check('Pause: Zehneck gefärbt', await ev(() => !!document.querySelector('#wsheet .rcol polygon')));
+    await click('#mainact'); await click('#mainact'); await click('#mainact'); await click('#mainact');
+    await ev(() => document.querySelector('[data-redoset="0:0"]').click()); await page.waitForTimeout(150); await click('#overlay .mainbtn'); await page.waitForTimeout(150);
+    check('Zurückgesetzter Satz 1 bleibt oben (wandert nicht nach unten)', await ev(() => { const l = [...document.querySelectorAll('.block.cur .setlist > .set')]; return l[0].classList.contains('active') && /Satz 1|Set 1/.test(l[0].textContent) && l[1].classList.contains('donerow'); }));
+    await ev(() => { S.pauseCol = false; W = null; save(); closeW(); });
+    check('Review: keine Überschrift „Highlight-Übung“', await ev(() => !reviewCore.toString().includes("t('highlightEx')")));
   }
 
   if (!TARGET) {

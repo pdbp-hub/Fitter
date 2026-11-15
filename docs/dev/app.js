@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.15.7';
+const APP_VERSION = '0.16.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -356,6 +356,12 @@ const PRIV_EN = [
   ['18. Changes to this policy', 'We update this policy when the app, the services used or the law change. The current version is always in Settings › Imprint & privacy. We inform you about material changes in the app and ask for consent where required.'] ];
 const privHTML = L => L.map(([h, b]) => `<p>${h ? `<b>${h}</b><br>` : ''}${b}</p>`).join('');
 Object.assign(T.de, { privacyHtml: privHTML(PRIV_DE) }); Object.assign(T.en, { privacyHtml: privHTML(PRIV_EN) });
+// v0.16: rest colour (optional): based on ACSM Position Stand 2009 and Schoenfeld et al. 2016
+const PAUSE_REF = { de: 'Quellen: American College of Sports Medicine, Position Stand „Progression Models in Resistance Training“ (2009); Schoenfeld et al., J Strength Cond Res 30(7), 2016.', en: 'Sources: American College of Sports Medicine, Position Stand “Progression Models in Resistance Training” (2009); Schoenfeld et al., J Strength Cond Res 30(7), 2016.' };
+Object.assign(T.de, { infoPause: `<b>Pausen-Farbe</b><br>In der Pause färbt sich das Zehneck:<br>• <b>Rot</b>: unter 1 Minute, die Muskeln sind noch nicht erholt<br>• <b>Gelb</b>: 1 bis 2 Minuten<br>• <b>Grün</b>: ab 2 Minuten, bereit für den nächsten schweren Satz<div class="ex"><i>Warum 2 Minuten?</i> Für schwere Grundübungen empfiehlt das American College of Sports Medicine 2 bis 3 Minuten Pause, für Ergänzungsübungen 1 bis 2. In einer Studie brachten 3 Minuten mehr Kraft und Muskelzuwachs als 1 Minute.</div><br>Mit „Eigene Zielpause“ wird es bei deiner Zielzeit grün (Rot bis zur Hälfte, dann Gelb).<br><small>${PAUSE_REF.de}</small>` });
+Object.assign(T.en, { infoPause: `<b>Rest colour</b><br>While you rest, the decagon changes colour:<br>• <b>Red</b>: under 1 minute, muscles not recovered yet<br>• <b>Yellow</b>: 1 to 2 minutes<br>• <b>Green</b>: from 2 minutes, ready for the next heavy set<div class="ex"><i>Why 2 minutes?</i> For heavy compound lifts the American College of Sports Medicine recommends 2 to 3 minutes of rest, 1 to 2 for assistance exercises. In a study 3 minutes brought more strength and muscle gain than 1 minute.</div><br>With “Own target” it turns green at your target time (red up to half of it, then yellow).<br><small>${PAUSE_REF.en}</small>` });
+// colour for the current rest: red, yellow, green
+const pauseColor = sec => { const tg = S.pauseMode === 'own' ? (S.pauseTarget || 120) : 120, lo = S.pauseMode === 'own' ? tg / 2 : 60; return sec < lo ? '#e5484d' : sec < tg ? '#f5b400' : '#2fbf71'; };
 // v0.15: calculation page for users: mini headline, formula, one sentence
 const LG = (h, f, txt) => [h, (f ? `<code>${f}</code>` : '') + `<p>${txt}</p>`];
 Object.assign(T.de, { logic: [
@@ -370,7 +376,8 @@ Object.assign(T.de, { logic: [
   LG('Neue Rekorde', 'Rekord = 1RM höher als je zuvor', 'Gezählt pro Übung und Training: Schlägt dein geschätztes 1RM alle früheren Werte dieser Übung, ist das ein Rekord. Das allererste Training einer Übung zählt noch nicht.'),
   LG('Körpergewicht (Dips, Klimmzüge & Co.)', '1RM = (Körpergewicht + Zusatz) × (1 + Wdh. ÷ 30)', 'Standardmäßig zählt nur das Zusatzgewicht. Mit „Körpergewicht mitzählen“ kommt dein Körpergewicht dazu, Unterstützung (Minus-kg) wird abgezogen.'),
   LG('Trend-Farben', '', 'Grün, wenn der letzte Wert im Chart mindestens so hoch ist wie der erste, sonst rot.'),
-  LG('Vergleich zur Vorwoche', 'Diese Woche ÷ Vorwoche', 'Bewegtes Gewicht seit Montag gegen die komplette Vorwoche.') ] });
+  LG('Vergleich zur Vorwoche', 'Diese Woche ÷ Vorwoche', 'Bewegtes Gewicht seit Montag gegen die komplette Vorwoche.'),
+  LG('Pausen-Farbe (optional)', 'Rot unter 1 Min. · Gelb 1 bis 2 Min. · Grün ab 2 Min.', 'Nach den Empfehlungen des American College of Sports Medicine; mit eigener Zielpause: Rot bis zur Hälfte, Grün ab dem Ziel.') ] });
 Object.assign(T.en, { logic: [
   LG('Points for progress', 'New best = 10 + 3 × gain in %', 'Per exercise we compare today’s 1RM with your best of the last 8 weeks. Held gives 6, weaker 2, first time 5, heavier than ever +10. At most 40 per exercise, 6 exercises per session.'),
   LG('Points for consistency', '+10 per training day', 'Up to 5 days per week count, the 2nd training day of the week gives +15 extra. Several sessions on one day count once.'),
@@ -383,7 +390,8 @@ Object.assign(T.en, { logic: [
   LG('New records', 'Record = 1RM higher than ever', 'Counted per exercise and session: if your estimated 1RM beats all earlier values of that exercise, it is a record. The very first session of an exercise does not count yet.'),
   LG('Body weight (dips, pull-ups & co.)', '1RM = (body weight + extra) × (1 + reps ÷ 30)', 'By default only the extra weight counts. With “Count body weight” your body weight is added, assistance (minus kg) is subtracted.'),
   LG('Trend colours', '', 'Green if the last value in the chart is at least as high as the first, otherwise red.'),
-  LG('Compared to last week', 'This week ÷ last week', 'Weight moved since Monday against the whole previous week.') ] });
+  LG('Compared to last week', 'This week ÷ last week', 'Weight moved since Monday against the whole previous week.'),
+  LG('Rest colour (optional)', 'Red under 1 min · yellow 1 to 2 min · green from 2 min', 'Following the American College of Sports Medicine; with an own target: red up to half, green from the target.') ] });
 const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === 'function' ? v(...a) : v; };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -558,6 +566,7 @@ const ICON_EX = {
     decline: `<path d="M3.4 17.4 L17.6 13.6M6 16.7v4.9M15.4 14.2v7.4M3.4 21.6h14"/>` + H(4.8, 14.6) + L('6.4 14.2', '15 12') + L('15 12', '18.6 10.4', '21.4 12.8') + L('12.4 12.6', '12.4 6.2') + bar(6.8, 18, 5.6),
     pushup: floor + H(3.8, 12.8) + L('5.4 13.6', '21 19.6') + L('7 14.2', '7.2 21.4') + `<path d="M19.6 19.6l1.6 1.8" stroke-width="1.2" opacity="0"/>`,
     legraise: `<path d="M3 2h18"/>` + L('10.4 2', '10.6 8') + H(8.6, 7.2, 1.6) + L('10.6 8', '10.6 15') + L('10.6 15', '19 15') + `<path d="M17.8 12.6v-4M16.6 9.8l1.2-1.4 1.2 1.4" stroke-width="1.2"/>`,
+    bench: `<path d="M2.4 16.2h14.2M4.4 16.2v5.2M14.6 16.2v5.2"/>` + H(4.6, 12.6) + L('6.4 13.4', '14.4 13.4') + L('14.4 13.4', '18 11.4', '19.8 21.4') + L('9.4 13.4', '9.4 7.4') + plate(9.4, 5.4, 2.6) + `<path d="M5.6 5.4h1.2M12 5.4h1.2" stroke-width="2.2"/>`,
     dbpress: standF + L('12 7', '6.4 8.4', '5.8 3.6') + L('12 7', '17.6 8.4', '18.2 3.6') + dbH(5.8, 2.8) + dbH(18.2, 2.8),
     concentration: `<path d="M1.8 15.8h7.4M3 15.8v5.8M8 15.8v5.8"/>` + H(9.6, 4.4) + L('8.8 6', '5 15') + L('5 15', '13.4 14.4', '13.8 21.6') + L('8 7.8', '11.8 13.4', '16 10.4') + dbH(16.8, 9.8) });
 })();
@@ -570,6 +579,7 @@ const SIC = {
 const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="square"><path d="M9 5.5l6.5 6.5L9 18.5"/></svg>';
 const ARROW = '<svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="square"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5"/></svg>';
 const GRIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 12h14M5 16h14"/></svg>';
+const PEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
 
 /* ---------- Decagon geometry + animations ---------- */
 const decPts = (cx, cy, r) => Array.from({length:10}, (_, i) => { const a = 36 * i * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
@@ -608,12 +618,13 @@ function sortable(container, rowSel, onMove) {
   container.querySelectorAll('[data-grip]').forEach(g => g.addEventListener('pointerdown', e => {
     e.preventDefault(); e.stopPropagation();
     const row = g.closest(rowSel), rows = [...container.querySelectorAll(':scope > ' + rowSel)], from = rows.indexOf(row);
-    const rects = rows.map(r => r.getBoundingClientRect()), y0 = e.clientY, h = rects[from].height; let to = from;
+    const rects = rows.map(r => r.getBoundingClientRect()), y0 = e.clientY, h = rects[from].height, t0 = Date.now(); let to = from, maxD = 0;
     row.classList.add('dragging'); g.setPointerCapture(e.pointerId);
-    const move = ev => { const dy = ev.clientY - y0; row.style.transform = `translateY(${dy}px)`; const mid = rects[from].top + h / 2 + dy;
+    const move = ev => { const dy = ev.clientY - y0; maxD = Math.max(maxD, Math.abs(dy)); row.style.transform = `translateY(${dy}px)`; const mid = rects[from].top + h / 2 + dy;
       to = rects.filter((r, i) => i !== from && r.top + r.height / 2 < mid).length;
       rows.forEach((r, i) => { if (r === row) return; let sh = 0; if (from < to && i > from && i <= to) sh = -h; if (from > to && i < from && i >= to) sh = h; r.style.transform = sh ? `translateY(${sh}px)` : ''; }); };
-    const up = () => { g.removeEventListener('pointermove', move); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); rows.forEach(r => r.style.transform = ''); row.classList.remove('dragging'); if (to !== from) onMove(from, to); };
+    const up = () => { g.removeEventListener('pointermove', move); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); rows.forEach(r => r.style.transform = ''); row.classList.remove('dragging');
+      if (to !== from) onMove(from, to); else if (maxD < 8 && Date.now() - t0 < 400) { const tz = row.querySelector('.tapzone'); if (tz) tz.click(); } }; // short tap on the grip = open, like tapping the row
     g.addEventListener('pointermove', move); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up);
   }));
 }
@@ -839,8 +850,9 @@ function swipeRows(container, rowSel, onDelete) {
     row.addEventListener('click', e => { if (row.dataset.swiped) { e.stopPropagation(); e.preventDefault(); return; } if (base) { e.stopPropagation(); e.preventDefault(); base = 0; setX(0); if (bg) { bg.remove(); bg = null; } } }, true);
   });
 }
-const confirmDelEx = i => (i2, reset) => { const w = tmpl(); dialog(t('delExT'), t('delExX'), [[t('delNo'), 'mainbtn', () => reset && reset()], [t('delToday'), 'ghostbtn', () => removeExercise(i2)]].concat(w ? [[t('delPerm', w.name), 'ghostbtn', () => removeExercise(i2, null, true)]] : [])); };
-const confirmDelSet = (i, j) => { const w = tmpl(); dialog(t('delSetT'), t('delSetX'), [[t('delNo'), 'mainbtn', () => {}], [t('delSetToday'), 'ghostbtn', () => removePlannedSet(i, j)]].concat(w ? [[t('delSetPerm', w.name), 'ghostbtn', () => removePlannedSet(i, j, true)]] : [])); };
+// v0.16: main = only this session, dashed = for good, small cancel below
+const confirmDelEx = i => (i2, reset) => { const w = tmpl(); dialog(t('delExT'), t('delExX'), [[t('delToday'), 'mainbtn', () => removeExercise(i2)]].concat(w ? [[t('delPerm', w.name), 'ghostbtn dashbtn', () => removeExercise(i2, null, true)]] : [], [[t('delNo'), 'textbtn', () => reset && reset()]])); };
+const confirmDelSet = (i, j) => { const w = tmpl(); dialog(t('delSetT'), t('delSetX'), [[t('delSetToday'), 'mainbtn', () => removePlannedSet(i, j)]].concat(w ? [[t('delSetPerm', w.name), 'ghostbtn dashbtn', () => removePlannedSet(i, j, true)]] : [], [[t('delNo'), 'textbtn', () => {}]])); };
 // keeps the saved workout in sync with set counts / added / removed exercises (order stays per session)
 function syncTemplate() { return; /* template edits are explicit now (tplSet/tplAdd/tplRemove) */ }
 function syncTemplateOld() { const w = W && W.src && wById(W.src.id); if (!w) return; const cnt = Object.fromEntries(W.ex.map(e => [e.k, e.target])); const kept = w.ex.filter(([k]) => k in cnt).map(([k]) => [k, cnt[k]]); W.ex.forEach(e => { if (!kept.some(([k]) => k === e.k)) kept.push([e.k, e.target]); }); w.ex = kept; save(); }
@@ -857,7 +869,7 @@ function renderHead() {
   let ph = '';
   if (W.mode === 'train') {
     const lbl = W.phase === 'set' ? t('setLabel', curEx().sets.length + 1) : t('rest');
-    ph = `<div class="wphase"><div class="wdec ${W.rise ? 'rise' : ''}">${seasonDeco() ? `<span class="ss-mini">${seasonDeco()}</span>` : ''}${animSVG(loadAnim(), W.phase !== 'set', false)}<svg viewBox="0 0 200 200" class="outline" aria-hidden="true"><polygon points="${P(decPts(100,100,97))}" fill="none" stroke="var(--fg)" stroke-width="3"/></svg><div class="inside"><span class="plabel">${lbl}</span><span class="pval num" id="phasetime">00:00</span></div></div></div>`;
+    ph = `<div class="wphase"><div class="wdec ${W.rise ? 'rise' : ''}">${seasonDeco() ? `<span class="ss-mini">${seasonDeco()}</span>` : ''}${animSVG(loadAnim(), W.phase !== 'set', false)}<svg viewBox="0 0 200 200" class="outline" aria-hidden="true"><polygon points="${P(decPts(100,100,97))}" fill="none" stroke="var(--fg)" stroke-width="3"/></svg>${S.pauseCol && W.phase !== 'set' ? `<svg viewBox="0 0 200 200" class="rcol" aria-hidden="true"><polygon points="${P(decPts(100,100,96))}" style="stroke:${pauseColor((Date.now() - W.phaseStart) / 1000)};fill:${pauseColor((Date.now() - W.phaseStart) / 1000)}"/></svg>` : ''}<div class="inside"><span class="plabel">${lbl}</span><span class="pval num" id="phasetime">00:00</span></div></div></div>`;
     W.rise = false;
   }
   $('whead').firstElementChild.innerHTML = top + ph;
@@ -868,7 +880,7 @@ function renderW() {
   renderHead();
   let h = '';
   if (W.mode === 'ready') {
-    h = `<div>${W.renaming ? `<input class="field" id="wname" value="${esc(W.name)}" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false">` : `<div class="rtitle"><h1 id="wtitle">${esc(W.name)}</h1>${wById(W.src.id) ? `<button class="textbtn" id="wrename" style="padding:0">${t('rename')}</button>` : ''}</div>`}<p class="hint" style="margin-top:8px">${t('readyHint')}</p></div><div class="sortlist" id="readylist">` +
+    h = `<div>${W.renaming ? `<input class="field" id="wname" value="${esc(W.name)}" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false">` : `<div class="rtitle"><h1 id="wtitle">${esc(W.name)}</h1>${wById(W.src.id) ? `<button class="iconbtn renbtn" id="wrename" aria-label="${t('rename')}">${PEN}</button>` : ''}</div>`}</div><div class="sortlist" id="readylist">` +
       W.ex.map((e, i) => `<div class="srow ${W.rOpen === i ? 'ropen' : ''}"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(e.k)}<button class="exname tapzone" data-ropen="${i}">${esc(exName(e.k))}<small>${t('sets', e.target)} · ${esc(wLabel(e.k, e.w))} × ${e.r}</small></button><span class="grip" data-grip aria-label="ziehen">${GRIP}</span>${W.rOpen === i ? `<div class="redit"><div class="pset phead"><span></span><span>${isBW(e.k) ? t('kgExtra') : t('kg')}</span><span>${t('reps')}</span><span></span></div>${ensurePlan(e).map((p, j) => `<div class="pset"><span class="idx num">${j + 1}</span><div class="ctl sm"><button data-pst="${i}:${j}:w:-0.5" aria-label="minus">−</button><input inputmode="decimal" enterkeyhint="done" class="num" data-pw="${i}:${j}" value="${fmtW(p.w)}"><button data-pst="${i}:${j}:w:0.5" aria-label="plus">+</button></div><div class="ctl sm"><button data-pst="${i}:${j}:r:-1" aria-label="minus">−</button><input inputmode="numeric" enterkeyhint="done" class="num" data-pr="${i}:${j}" value="${p.r}"><button data-pst="${i}:${j}:r:1" aria-label="plus">+</button></div><button class="sx" data-psx="${i}:${j}" aria-label="${t('delSetT')}">✕</button></div>`).join('')}<button class="addset" data-padd="${i}">${t('setAdd')}</button></div>` : ''}</div>`).join('') + `</div><button class="addset" id="raddex" style="font-size:14px">${t('addEx')}</button>`;
     setBar(`<button class="mainbtn" id="startbtn">${t('start')}</button>`);
   } else if (W.mode === 'warmup' || W.mode === 'cooldown') {
@@ -902,12 +914,15 @@ function blockHTML(e, i) {
   let h = `<div class="block ${isCur ? 'cur' : ''} ${complete && !isCur ? 'done' : ''}"><div class="bhead"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(e.k)}<button class="tapzone exname" data-tog="${i}">${esc(exName(e.k))}${isCur && open && LAST[e.k] ? `<small>${t('lastShort', wLabel(e.k, LAST[e.k][0]), LAST[e.k][1])}</small>` : ''}</button><span class="stat num">${n}/${e.target}${complete ? ' ✓' : ''}</span><span class="grip" data-grip aria-label="ziehen">${GRIP}</span></div>`;
   if (open) {
     h += `<div class="setlist">`;
-    const num = j => (W.redoAt && W.redoAt[0] === i && j >= W.redoAt[1]) ? j + 2 : j + 1;
+    const redo = W.redoAt && W.redoAt[0] === i ? W.redoAt[1] : null, num = j => (redo !== null && j >= redo) ? j + 2 : j + 1;
+    // a reset set stays at its place: done sets before it, then the live set, then the rest
+    const activeHTML = () => isCur && n < e.target ? `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', redo !== null ? redo + 1 : n + 1)}</span>${W.phase === 'set' ? `<button class="reset" id="resetbtn" aria-label="Reset">↺ ${t('resetLbl')}</button>` : ''}</div>${inputsHTML('cu', e.w, e.r, e.k)}</div>` : '';
     e.sets.forEach((s, j) => {
-      if (W.edit && W.edit[0] === i && W.edit[1] === j) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', j+1)}</span><button class="reset" data-saveedit="1">${t('ok')}</button></div>${inputsHTML('ed', s.w, s.r, e.k)}${j === n - 1 ? `<button class="textbtn redo" data-redo="${i}">↺ ${S.lang === 'de' ? 'Satz zurücksetzen und neu machen' : 'Reset and redo this set'}</button>` : ''}</div>`;
+      if (j === redo) h += activeHTML();
+      if (W.edit && W.edit[0] === i && W.edit[1] === j) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', num(j))}</span><button class="reset" data-saveedit="1">${t('ok')}</button></div>${inputsHTML('ed', s.w, s.r, e.k)}</div>`;
       else h += `<div class="set donerow" data-edit="${i}:${j}" role="button" tabindex="0"><span class="idx num">${num(j)}</span><span class="sv num">${esc(wLabel(e.k, s.w))} × ${s.r}</span><span class="st num">${mmss(s.d || 0)}</span><span>✓</span><button class="sx rsx" data-redoset="${i}:${j}" aria-label="${S.lang === 'de' ? 'Satz zurücksetzen' : 'Reset set'}">↺</button></div>`;
     });
-    if (isCur && n < e.target) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', W.redoAt && W.redoAt[0] === i ? W.redoAt[1] + 1 : n+1)}</span>${W.phase === 'set' ? `<button class="reset" id="resetbtn" aria-label="Reset">↺ ${t('resetLbl')}</button>` : ''}</div>${inputsHTML('cu', e.w, e.r, e.k)}</div>`;
+    if (redo === null || redo >= n) h += activeHTML();
     for (let j = n + (isCur ? 1 : 0); j < e.target; j++) { const p = (e.plan && e.plan[j]) || e; h += `<div class="set planned" data-goto="${i}" role="button" tabindex="0"><span class="idx num">${j+1}</span><span class="sv num">${esc(wLabel(e.k, p.w))} × ${p.r}</span><span></span><button class="sx" data-tsx="${i}:${j}" aria-label="${t('delSetT')}">✕</button></div>`; }
     h += `<button class="addset" data-addset="${i}">${t('addSet')}</button></div>`;
   }
@@ -942,10 +957,12 @@ function bindW() {
   q('[data-edit]').forEach(b => b.onclick = () => { readInputs(); W.noScroll = true; W.edit = b.dataset.edit.split(':').map(Number); renderW(); });
   q('[data-saveedit]').forEach(b => b.onclick = () => { readInputs(); W.noScroll = true; W.edit = null; renderW(); });
   q('[data-redoset]').forEach(b => b.onclick = ev => { ev.stopPropagation(); readInputs(); const [i, j] = b.dataset.redoset.split(':').map(Number), de = S.lang === 'de';
-    dialog(de ? `Satz ${j + 1} zurücksetzen?` : `Reset set ${j + 1}?`, de ? 'Der Satz ist sofort wieder dran. Danach geht es dort weiter, wo du warst.' : 'The set is up again right away. After that you continue where you were.', [[de ? 'Behalten' : 'Keep', 'mainbtn', () => {}], [de ? 'Zurücksetzen' : 'Reset', 'ghostbtn', () => {
-      const e = W.ex[i], st = e.sets.splice(j, 1)[0]; if (!st) return; if (W.redoAt == null) W.back = W.cur; W.redoAt = [i, j]; W.edit = null; W.cur = i; W.open = {}; W.curClosed = false; e.w = st.w; e.r = st.r; W.phase = 'rest'; W.phaseStart = Date.now(); save(); renderW(); }]]); });
+    dialog(de ? `Satz ${j + 1} zurücksetzen?` : `Reset set ${j + 1}?`, de ? 'Der Satz ist sofort wieder dran. Danach geht es dort weiter, wo du warst.' : 'The set is up again right away. After that you continue where you were.', [[de ? 'Zurücksetzen' : 'Reset', 'mainbtn', () => {
+      const e = W.ex[i], st = e.sets.splice(j, 1)[0]; if (!st) return; if (W.redoAt == null) W.back = W.cur; W.redoAt = [i, j]; W.edit = null; W.cur = i; W.open = {}; W.curClosed = false; e.w = st.w; e.r = st.r; W.phase = 'rest'; W.phaseStart = Date.now(); save(); renderW(); }], [de ? 'Abbrechen' : 'Cancel', 'textbtn', () => {}]]); });
   q('[data-redo]').forEach(b => b.onclick = () => { readInputs(); const i = +b.dataset.redo, e = W.ex[i], st = e.sets.pop(); W.edit = null; W.cur = i; W.open = {}; W.curClosed = false; applyPlan(e); e.w = st.w; e.r = st.r; W.phase = 'rest'; W.phaseStart = Date.now(); renderW(); });
-  $('resetbtn') && ($('resetbtn').onclick = () => dialog(t('resetTitle'), t('resetText'), [[t('resetNo'), 'mainbtn', () => {}], [t('resetYes'), 'ghostbtn', () => { W.restCarry = (W.restCarry || 0) + (Date.now() - W.phaseStart); W.phaseStart = Date.now(); renderW(); }]]));
+  // same look as resetting a done set: "Satz N zurücksetzen?", main = reset, small cancel
+  $('resetbtn') && ($('resetbtn').onclick = () => { const de = S.lang === 'de', e = curEx(), n = W.redoAt && W.redoAt[0] === W.cur ? W.redoAt[1] + 1 : e.sets.length + 1;
+    dialog(de ? `Satz ${n} zurücksetzen?` : `Reset set ${n}?`, de ? 'Die Zeit dieses Satzes startet neu. Die bisherige Zeit zählt zur Pause davor.' : 'This set’s time starts over. The time so far counts as rest.', [[de ? 'Zurücksetzen' : 'Reset', 'mainbtn', () => { W.restCarry = (W.restCarry || 0) + (Date.now() - W.phaseStart); W.phaseStart = Date.now(); renderW(); }], [de ? 'Abbrechen' : 'Cancel', 'textbtn', () => {}]]); });
   q('[data-st]').forEach(b => b.onclick = () => {
     const [id, d] = b.dataset.st.split(':'); const inp = $(id); const isKg = id.endsWith('kg');
     let v = (parseNum(inp.value) ?? 0) + parseFloat(d); if (!isKg) v = Math.max(1, Math.round(v));
@@ -1037,12 +1054,21 @@ function drawSetChart(id) {
     val.innerHTML = esc(txt) + dHtml; sc.innerHTML = `<line x1="${X(i)}" x2="${X(i)}" y1="${Tp}" y2="${H0-B}" stroke="var(--fg)" stroke-dasharray="3 3"/>`;
   };
   const idxAt = e => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * W0; return n === 1 ? 0 : Math.max(0, Math.min(n - 1, Math.round((px - L) / ((W0 - L - R) / (n - 1))))); };
-  let down = false;
-  svg.addEventListener('pointerdown', e => { down = true; svg.setPointerCapture(e.pointerId); show(idxAt(e)); });
-  svg.addEventListener('pointermove', e => { if (down || e.pointerType === 'mouse') show(idxAt(e)); });
-  const end = () => { down = false; show(null); };
-  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end); svg.addEventListener('pointerleave', end);
+  chartTouch(svg, idxAt, show, (a, b) => { // two fingers: compare two sets of today
+    const va = cur[a], vb = cur[b]; if (va === undefined || vb === undefined) return show(b);
+    sc.innerHTML = [a, b].map(i => `<line x1="${X(i)}" x2="${X(i)}" y1="${Tp}" y2="${H0-B}" stroke="var(--fg)" stroke-dasharray="3 3"/>`).join('');
+    val.innerHTML = `${esc(t('setN', a + 1))} bis ${b + 1}: ` + diffTag(va, vb, v => fmt(Math.round(v)) + unit); }, () => show(null));
 }
+// all line charts: one finger = value at that point, two fingers = two lines and the difference between them (green up, red down)
+function chartTouch(svg, idxAt, one, two, rest) { const P = new Map();
+  const upd = () => { const v = [...P.values()]; if (v.length >= 2) { const [a, b] = [idxAt(v[0]), idxAt(v[1])].sort((x, y) => x - y); two(a, b); } else if (v.length) one(idxAt(v[0])); };
+  svg.addEventListener('pointerdown', e => { P.set(e.pointerId, e); try { svg.setPointerCapture(e.pointerId); } catch (_) { /* old browsers */ } upd(); });
+  svg.addEventListener('pointermove', e => { if (P.has(e.pointerId)) { P.set(e.pointerId, e); upd(); } else if (e.pointerType === 'mouse') one(idxAt(e)); });
+  const end = e => { P.delete(e.pointerId); if (P.size) upd(); else rest(); };
+  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end); svg.addEventListener('pointerleave', e => { if (!P.size) rest(); });
+}
+const diffTag = (a, b, u) => { const d = b - a, pc = a ? Math.round((b / a - 1) * 100) : 0, c = d > 0 ? '#2fbf71' : d < 0 ? '#e5484d' : 'var(--fg)';
+  return `<b class="difftag" style="color:${c}">${d > 0 ? '▲ +' : d < 0 ? '▼ −' : '± '}${u(Math.abs(d))} (${pc > 0 ? '+' : ''}${pc}%)</b>`; };
 // dev tool: how the review charts look when a session is better, worse or mixed vs. last time
 function chartTestHTML() {
   const mk = (cur, prev) => ({ e: { k:'bench', sets: cur.map(([w, r]) => ({ w, r })) }, prevSets: prev.map(([w, r]) => ({ w, r })) });
@@ -1079,7 +1105,7 @@ function reviewCore(o) {
   if (!sets.length) return h + `<p class="hint">${t('emptyReview')}</p>`;
   const xs = o.ex.filter(e => e.sets.length).map(e => exStatsOf(e, o.before));
   const hi = xs.filter(x => x.best > 0).sort((a, b) => (b.best / (b.pBest || b.best)) - (a.best / (a.pBest || a.best)))[0];
-  if (hi) h += `<div class="sect"><div class="row"><h2>${t('highlightEx')}</h2>${hi.best > hi.pBest && hi.pBest ? `<span class="pill" style="padding:2px 8px;font-size:10px">${t('newPR')}</span>` : ''}</div>${exBlock(hi, true, o.key + 'h')}</div>`;
+  if (hi) h += `<div class="sect">${exBlock(hi, true, o.key + 'h')}</div>`; // v0.16: no "Highlight" headline, the exercise itself is the headline
   const rest = xs.filter(x => x !== hi);
   if (rest.length) { h += `<button class="morebtn morerow" data-rvtog="1"><span>${t('moreEx')} <b class="num">${rest.length}</b></span><span class="mdec dec">${o.open ? '−' : '+'}</span></button>`; if (o.open) h += `<div>${rest.map((x, i) => exBlock(x, false, o.key + i)).join('')}</div>`; }
   return h;
@@ -1110,6 +1136,7 @@ function tick() {
   const all = W.start ? (Date.now() - W.start) / 1000 : 0, ph = (Date.now() - W.phaseStart) / 1000;
   const o = $('w-overall'); if (o && W.mode !== 'review') o.textContent = mmss(all);
   const p = $('phasetime'); if (p) p.textContent = mmss(ph);
+  const rc = document.querySelector('#wsheet .rcol polygon'); if (rc) { const c = pauseColor(ph); rc.style.stroke = c; rc.style.fill = c; }
   const st = $('settime'); if (st) st.textContent = mmss(ph);
   if (!$('mini').hidden) {
     const label = W.mode === 'ready' ? t('ready') : W.mode === 'review' ? 'Review' : W.mode === 'train' ? t(W.phase === 'set' ? 'set' : 'rest') : t(W.mode);
@@ -1150,6 +1177,13 @@ function openO() { $('osheet').classList.remove('down'); }
 function closeO() { $('osheet').classList.add('down'); O = null; }
 function setOBar(html) { $('obar').firstElementChild.innerHTML = html; $('obar').hidden = !html; }
 function openCreate(w) { O = { fG:new Set(), fE:new Set(), sort:'az', mode:'create', editId: w ? w.id : null, name: w ? w.name : '', q:'', picked: w ? w.ex.filter(([k]) => EX[k]).map(e => [...e]) : [], custom:null }; renderO(); openO(); $('obody').scrollTop = 0; }
+// "add exercise" sheet in the create screen: slides up, "Fertig" or swipe down closes it
+function bindXSheet() { const w = $('xsheet'), s = w.querySelector('.xsheet'), close = () => { O.sheet = false; O.q = ''; renderO(); };
+  $('x-done').onclick = close; w.onclick = e => { if (e.target === w) close(); };
+  let y0 = null, dy = 0; const h = $('xhandle'), head = w.querySelector('.xhead');
+  [h, head].forEach(el => { el.addEventListener('touchstart', e => { if (e.target.closest('button')) return; y0 = e.touches[0].clientY; dy = 0; s.style.transition = 'none'; }, { passive: true });
+    el.addEventListener('touchmove', e => { if (y0 === null) return; dy = Math.max(0, e.touches[0].clientY - y0); s.style.transform = `translateY(${dy}px)`; }, { passive: true });
+    el.addEventListener('touchend', () => { if (y0 === null) return; y0 = null; s.style.transition = ''; if (dy > 90) close(); else s.style.transform = ''; }); }); }
 function openPicker() { O = { mode:'picker', q:'', filter:false, onlyFav:false, groups:new Set(Object.keys(T.de.groups)) }; renderO(); openO(); $('obody').scrollTop = 0; }
 const fsCount = () => (O.fG ? O.fG.size : 0) + (O.fE ? O.fE.size : 0) + (O.fO ? 1 : 0);
 const filterRowHTML = () => (O.sort in t('sorts') || (O.sort = 'az')) && `<div class="fsrow"><button class="fsbtn" id="o-filter">${FILTER_IC}${t('filter')}${fsCount() ? ` (${fsCount()})` : ''}</button>
@@ -1248,15 +1282,20 @@ function renderO() {
       <div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${O.editId ? t('editWorkout') : t('newWorkout')}</span><span style="width:44px"></span></div>
       <label class="namewrap"><span class="eyebrow">${S.lang === 'de' ? 'Name des Workouts' : 'Workout name'}</span><input class="field" id="o-name" enterkeyhint="done" autocomplete="off" data-form-type="other" placeholder="${t('namePh')}" value="${esc(O.name)}"></label>
       ${O.picked.length ? `<div><div class="eyebrow" style="margin-bottom:4px">${t('chosen')}</div><div class="sortlist" id="chosen">${chosen}</div></div>` : ''}
-      <div style="display:flex;flex-direction:column;gap:10px">${O.custom ? custom : `<button class="newbtn" id="c-open" style="border-style:dashed"><span>${t('customAdd')}</span></button>`}
-        <div class="searchrow"><input class="search" id="o-q" enterkeyhint="search" placeholder="${t('searchPh')}" value="${esc(O.q)}"></div>${filterRowHTML()}</div>
-      <div id="o-list"></div>${O.editId ? `<button class="ghostbtn" id="o-del" style="border-color:var(--line)">${t('delWorkout')}</button>` : ''}</div>`;
-    renderPickList(); bindFilterRow();
+      <div class="cr-acts"><button class="ghostbtn cr-add" id="c-addex">${S.lang === 'de' ? '+ Übung hinzufügen' : '+ Add exercise'}</button>${O.custom ? custom : `<button class="ghostbtn cr-own" id="c-open">${S.lang === 'de' ? 'Eigene Übung erstellen' : 'Create own exercise'}</button>`}</div>
+      ${O.editId ? `<button class="ghostbtn" id="o-del" style="border-color:var(--line)">${t('delWorkout')}</button>` : ''}</div>
+      ${O.sheet ? `<div class="xsheet-wrap" id="xsheet"><div class="xsheet ${O.sheetAnim ? 'anim' : ''}"><div class="xhandle" id="xhandle"><i></i></div>
+        <div class="row xhead"><b>${S.lang === 'de' ? 'Übung hinzufügen' : 'Add exercise'}</b><button class="mainbtn xdone" id="x-done">${S.lang === 'de' ? 'Fertig' : 'Done'} <span class="num" id="x-cnt">${O.picked.length ? '(' + O.picked.length + ')' : ''}</span></button></div>
+        <div class="searchrow"><input class="search" id="o-q" enterkeyhint="search" placeholder="${t('searchPh')}" value="${esc(O.q)}"></div>${filterRowHTML()}
+        <div id="o-list" class="xlist"></div></div></div>` : ''}`;
+    O.sheetAnim = false;
+    if (O.sheet) { renderPickList(); bindFilterRow(); bindXSheet(); }
     $('o-del') && ($('o-del').onclick = () => dialog(t('delWTitle'), t('delWText'), [[t('keep'), 'mainbtn', () => {}], [t('delYes'), 'ghostbtn', () => { const eid = O.editId; workouts = workouts.filter(w => w.id !== eid); save(); closeO(); if (W && W.mode === 'ready' && W.src.id === eid) closeW(); renderSelect(); }]]));
-    setOBar(O.custom ? '' : `<button class="mainbtn" id="o-save">${O.picked.length ? t('saveN', O.picked.length) : t('save')}</button>`);
+    setOBar(O.custom || O.sheet ? '' : `<button class="mainbtn" id="o-save">${S.lang === 'de' ? 'Workout speichern' : 'Save workout'}</button>`);
+    $('c-addex').onclick = () => { O.sheet = true; O.sheetAnim = true; O.q = ''; renderO(); };
     $('o-back').onclick = () => (O.name.trim() || O.picked.length) ? dialog(t('dlgBackTitle'), t('dlgBackText'), [[t('dlgBackNo'), 'mainbtn', () => {}], [t('dlgBackYes'), 'ghostbtn', closeO]]) : closeO();
     $('o-name').oninput = e => { O.name = e.target.value; e.target.classList.remove('err'); };
-    $('o-q').oninput = e => { O.q = e.target.value; renderPickList(); };
+    $('o-q') && ($('o-q').oninput = e => { O.q = e.target.value; renderPickList(); });
     $('chosen') && sortable($('chosen'), '.srow', (f, to) => { moveItem(O.picked, f, to); renderO(); });
     $('chosen') && swipeRows($('chosen'), '.srow', (i, reset) => { const de = S.lang === 'de'; dialog(de ? 'Übung entfernen?' : 'Remove exercise?', esc(exName(O.picked[i][0])), [[t('delNo'), 'mainbtn', () => reset && reset()], [de ? 'Aus dem Workout entfernen' : 'Remove from workout', 'ghostbtn', () => { O.picked.splice(i, 1); renderO(); }]]); });
     b.querySelectorAll('[data-ps]').forEach(x => x.onclick = () => { const [i, d] = x.dataset.ps.split(':').map(Number); O.picked[i][1] = Math.max(1, O.picked[i][1] + d); renderO(); });
@@ -1271,7 +1310,7 @@ function renderO() {
     }
     $('o-save') && ($('o-save').onclick = () => { const n = O.name.trim(), de = S.lang === 'de';
       if (!n) { toast(!O.picked.length ? (de ? 'Name und mindestens eine Übung fehlen' : 'Name and at least one exercise missing') : (de ? 'Name fehlt' : 'Name missing')); $('obody').scrollTo({ top: 0, behavior: 'smooth' }); const f = $('o-name'); f.classList.remove('err'); void f.offsetWidth; f.classList.add('err'); f.focus({ preventScroll: true }); return; }
-      if (!O.picked.length) { toast(de ? 'Füge mindestens eine Übung hinzu' : 'Add at least one exercise'); const q = $('o-q'); q && q.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; } const ex = O.picked.map(p => [...p]); if (O.editId) { const w = wById(O.editId); w.name = n; w.ex = ex; } else workouts.unshift({ id:'w' + Date.now(), name:n, ex }); const wasEdit = !!O.editId, eid = O.editId; save(); closeO(); renderSelect(); toast(wasEdit ? '✓' : t('saved')); if (W && W.mode === 'ready' && W.src.id === eid) prepareWorkout(wById(eid)); });
+      if (!O.picked.length) { toast(de ? 'Füge mindestens eine Übung hinzu' : 'Add at least one exercise'); const q = $('c-addex'); q.scrollIntoView({ behavior: 'smooth', block: 'center' }); q.classList.remove('err'); void q.offsetWidth; q.classList.add('err'); return; } const ex = O.picked.map(p => [...p]); if (O.editId) { const w = wById(O.editId); w.name = n; w.ex = ex; } else workouts.unshift({ id:'w' + Date.now(), name:n, ex }); const wasEdit = !!O.editId, eid = O.editId; save(); closeO(); renderSelect(); toast(wasEdit ? '✓' : t('saved')); if (W && W.mode === 'ready' && W.src.id === eid) prepareWorkout(wById(eid)); });
   } else {
     b.innerHTML = `<div class="inner">
       <div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${t('pickEx')}</span><span style="width:44px"></span></div>
@@ -1299,11 +1338,17 @@ function renderPickList() {
     return;
   }
   if (O.mode === 'create') {
-    const ks = listKeys(); if (!ks.length) L.innerHTML = `<p class="hint" style="padding:14px 0">${t('noMatch')}</p>`;
-    ks.forEach(k => {
-      const on = O.picked.some(p => p[0] === k); const x = document.createElement('div'); x.className = 'pick' + (on ? ' on' : '');
+    const all = listKeys(); if (!all.length) L.innerHTML = `<p class="hint" style="padding:14px 0">${t('noMatch')}</p>`;
+    // favourites first (again in "all"), then everything; rows update in place so the list keeps its scroll position
+    const favs = !O.q ? S.fav.filter(k => all.includes(k)) : [], ks = favs.concat(all), head = txt => { const h = document.createElement('div'); h.className = 'pickhead eyebrow'; h.textContent = txt; L.appendChild(h); };
+    if (favs.length) head(S.lang === 'de' ? '★ Favoriten' : '★ Favourites');
+    ks.forEach((k, n) => {
+      if (favs.length && n === favs.length) head(S.lang === 'de' ? 'Alle Übungen' : 'All exercises');
+      const on = O.picked.some(p => p[0] === k); const x = document.createElement('div'); x.className = 'pick' + (on ? ' on' : ''); x.dataset.k = k;
       x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${esc(grpTxt(k))} · ${t('eqs')[EX[k].eq]}${EX[k].custom ? ` <em class="ownbadge">${t('own')}</em>` : ''}</small></button>${starBtn(k)}<button class="box" data-pk="1" aria-label="${on ? 'entfernen' : 'hinzufügen'}">${on ? '✓' : '+'}</button>`;
-      x.querySelectorAll('[data-pk]').forEach(y => y.onclick = () => { const i = O.picked.findIndex(p => p[0] === k); i >= 0 ? O.picked.splice(i, 1) : O.picked.push([k, 4]); renderO(); });
+      x.querySelectorAll('[data-pk]').forEach(y => y.onclick = () => { const i = O.picked.findIndex(p => p[0] === k); i >= 0 ? O.picked.splice(i, 1) : O.picked.push([k, 4]); const now = i < 0;
+        L.querySelectorAll(`.pick[data-k="${k}"]`).forEach(r => { r.classList.toggle('on', now); const bx = r.querySelector('.box'); bx.textContent = now ? '✓' : '+'; bx.setAttribute('aria-label', now ? 'entfernen' : 'hinzufügen'); });
+        const c = $('x-cnt'); if (c) c.textContent = O.picked.length ? `(${O.picked.length})` : ''; });
       L.appendChild(x);
     });
     // own exercises: swipe left = delete for good (from every workout)
@@ -1317,7 +1362,7 @@ function renderPickList() {
     if (favs.length) head(S.lang === 'de' ? '★ Favoriten' : '★ Favourites');
     favs.concat(favs.length ? ['|'] : [], all).forEach(k => {
       if (k === '|') { head(S.lang === 'de' ? 'Alle Übungen' : 'All exercises'); return; }
-      const a = lastAgoEx(k); const x = document.createElement('div'); x.className = 'pick' + (k === S.chartKey ? ' on' : '');
+      const a = lastAgoEx(k); const x = document.createElement('div'); x.className = 'pick' + (k === S.chartKey ? ' cur' : '');
       x.innerHTML = `${ico(k)}<button class="pmain" data-sel="1">${esc(exName(k))}<br><small>${a === null ? t('notTrained') : t('lastDone', t('ago', a))}</small></button>${starBtn(k)}<span></span>`;
       x.querySelector('[data-sel]').onclick = () => { S.chartKey = k; save(); closeO(); renderProgress(); };
       L.appendChild(x);
@@ -1435,28 +1480,23 @@ function cmpSeries(k) { // 12 weekly points: best estimated 1RM of that week, ga
   const end = [...me].reverse().find(v => v != null), lv = FR_LVL[S.frLvl || 'mix'];
   const fr = DEMO_FRIENDS.map((f, j) => me.map((v, i) => end == null ? null : r05(end * lv[j] * (1 - FR_GROW[j] * (W - 1 - i) / (W - 1)) * (1 + .012 * Math.sin(i * 1.7 + j * 2)))));
   return { me, fr }; }
+// v0.16: one calm line instead of a chatbot summary: your place and the gap to the next one
 function cmpSummary(k, ser) {
-  const de = S.lang === 'de', D = (a, b) => fmtW(Math.abs(r05(a - b))) + ' kg', lastV = a => [...a].reverse().find(v => v != null), firstV = a => a.find(v => v != null);
-  const me = lastV(ser.me), meG = firstV(ser.me) ? (me / firstV(ser.me) - 1) * 100 : 0, sel = O.fr.map(i => ({ f: DEMO_FRIENDS[i], v: lastV(ser.fr[i]), g: (lastV(ser.fr[i]) / firstV(ser.fr[i]) - 1) * 100 }));
-  if (me == null) return de ? 'Trainiere diese Übung, dann siehst du hier, wo du stehst.' : 'Train this exercise to see where you stand.';
-  if (!sel.length) return de ? `Deine Maximalkraft: ${fmtW(r05(me))} kg. Füge Freunde hinzu, um dich zu vergleichen.` : `Your max strength: ${fmtW(r05(me))} kg. Add friends to compare.`;
-  const ahead = sel.filter(x => me >= x.v), behind = sel.filter(x => me < x.v).sort((a, b) => a.v - b.v), names = l => l.map(x => x.f.name).join(de ? ' und ' : ' and ').replace(/ und (?=.* und )/g, ', ').replace(/ and (?=.* and )/g, ', ');
-  const out = [], gTxt = Math.round(meG);
-  if (!behind.length) out.push(de ? `Stark! Du liegst vor ${names(ahead)}. ${ahead.length > 1 ? 'Der Abstand zum Nächsten' : 'Der Abstand'}: ${D(me, Math.max(...ahead.map(x => x.v)))}.` : `Strong! You are ahead of ${names(ahead)}. Gap${ahead.length > 1 ? ' to the closest' : ''}: ${D(me, Math.max(...ahead.map(x => x.v)))}.`);
-  else if (!ahead.length) out.push(de ? `${names(behind)} ${behind.length > 1 ? 'heben' : 'hebt'} gerade mehr. Bis ${behind[0].f.name} fehlen dir nur ${D(behind[0].v, me)}.` : `${names(behind)} currently lift${behind.length > 1 ? '' : 's'} more. You are just ${D(behind[0].v, me)} behind ${behind[0].f.name}.`);
-  else out.push(de ? `Du liegst vor ${names(ahead)}. Als Nächstes: ${behind[0].f.name}, nur noch ${D(behind[0].v, me)} entfernt.` : `You are ahead of ${names(ahead)}. Next up: ${behind[0].f.name}, only ${D(behind[0].v, me)} away.`);
-  const slower = sel.filter(x => meG > x.g);
-  if (gTxt > 0 && slower.length) out.push(de ? `Seit 12 Wochen: +${gTxt}%. Damit wächst du schneller als ${names(slower)}.` : `Last 12 weeks: +${gTxt}%. That is faster growth than ${names(slower)}.`);
-  else if (gTxt > 0) out.push(de ? `Dein Plus seit 12 Wochen: +${gTxt}%. Dranbleiben zahlt sich aus.` : `Your gain over 12 weeks: +${gTxt}%. Consistency pays off.`);
-  else out.push(de ? 'Jeder Satz zählt: Ein, zwei Trainings mehr pro Woche bringen die Kurve wieder nach oben.' : 'Every set counts: one or two more sessions a week get the curve going up again.');
-  return out.join(' '); }
+  const de = S.lang === 'de', kg = v => fmtW(r05(Math.abs(v))) + ' kg', lastV = a => [...a].reverse().find(v => v != null);
+  const me = lastV(ser.me); if (me == null) return de ? 'Trainiere diese Übung, dann siehst du, wo du stehst.' : 'Train this exercise to see where you stand.';
+  const sel = O.fr.map(i => ({ n: DEMO_FRIENDS[i].name, v: lastV(ser.fr[i]) })); if (!sel.length) return de ? 'Füge Freunde hinzu, um dich zu messen.' : 'Add friends to compare.';
+  const above = sel.filter(x => x.v > me).sort((a, b) => a.v - b.v), place = above.length + 1, of = sel.length + 1;
+  if (place === 1) { const nx = sel.slice().sort((a, b) => b.v - a.v)[0]; return de ? `Platz 1 von ${of} · ${kg(me - nx.v)} vor ${nx.n}` : `1st of ${of} · ${kg(me - nx.v)} ahead of ${nx.n}`; }
+  return de ? `Platz ${place} von ${of} · noch ${kg(above[0].v - me)} bis ${above[0].n}` : `${place}${['st', 'nd', 'rd'][place - 1] || 'th'} of ${of} · ${kg(above[0].v - me)} to ${above[0].n}`; }
+let CMPG = null; // chart geometry for scrubbing
 function compareHTML() {
   const de = S.lang === 'de', k = O.k, ser = cmpSeries(k), people = [{ name: de ? 'Du' : 'You', d: ser.me, me: true }].concat(O.fr.map(i => ({ name: DEMO_FRIENDS[i].name, d: ser.fr[i], i })));
   const DASH = ['6 4', '2 4', '10 3 2 3'];
   const W0 = 340, H0 = 200, L = 40, R = 46, Tp = 12, B = 22, vals = people.flatMap(p => p.d).filter(v => v != null);
   let svg = '';
+  CMPG = null;
   if (vals.length) { let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * .15 || 5; lo -= pad; hi += pad;
-    const x = i => L + i * (W0 - L - R) / 11, y = v => Tp + (hi - v) * (H0 - Tp - B) / (hi - lo);
+    const x = i => L + i * (W0 - L - R) / 11, y = v => Tp + (hi - v) * (H0 - Tp - B) / (hi - lo); CMPG = { x, y, L, R, W0, Tp, H0, B, people };
     [lo + pad, (lo + hi) / 2, hi - pad].forEach(v => svg += `<line x1="${L}" x2="${W0 - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">${fmt(Math.round(v))}</text>`);
     const labels = [];
     people.slice().reverse().forEach(p => { const pts = p.d.map((v, i) => v == null ? null : `${x(i)},${y(v)}`).filter(Boolean).join(' '); if (!pts) return;
@@ -1464,21 +1504,29 @@ function compareHTML() {
       const lv = [...p.d].reverse().find(v => v != null); labels.push({ y: y(lv), t: p.name, me: p.me }); svg += `<circle cx="${x(11)}" cy="${y(lv)}" r="${p.me ? 4 : 3}" fill="${p.me ? 'var(--fg)' : 'var(--bg)'}" stroke="var(--fg)" stroke-width="2"/>`; });
     labels.sort((a, b) => a.y - b.y); for (let i = 1; i < labels.length; i++) labels[i].y = Math.max(labels[i].y, labels[i - 1].y + 12);
     labels.forEach(l => svg += `<text x="${x(11) + 8}" y="${l.y + 4}" font-size="11" font-weight="${l.me ? 800 : 500}" fill="${l.me ? 'var(--fg)' : 'var(--muted)'}">${esc(l.t)}</text>`);
-    svg += `<text x="${L}" y="${H0 - 6}" font-size="10" font-family="var(--mono)" fill="var(--muted)">${de ? 'vor 12 Wo.' : '12 wk ago'}</text><text x="${x(11)}" y="${H0 - 6}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">${de ? 'heute' : 'today'}</text>`; }
-  const lastV = a => [...a].reverse().find(v => v != null);
+    svg += `<text x="${L}" y="${H0 - 6}" font-size="10" font-family="var(--mono)" fill="var(--muted)">${de ? 'vor 12 Wo.' : '12 wk ago'}</text><text x="${x(11)}" y="${H0 - 6}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">${de ? 'heute' : 'today'}</text><g class="scrub"></g>`; }
+  // ranking = the list itself: place, name, max strength, gap to you; airy, no extra headings
+  const lastV = a => [...a].reverse().find(v => v != null), meV = lastV(ser.me), rank = people.slice().sort((a, b) => (lastV(b.d) ?? -1) - (lastV(a.d) ?? -1));
   return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${de ? 'Freunde' : 'Friends'}</span><span style="width:44px"></span></div>
     <div class="charthead cmp-h"><h1>${de ? 'Kräftemessen' : 'Head to head'}</h1><button class="info" id="cmp-i" aria-label="Info">i</button></div>
-    <button class="cmp-ex" id="cmp-ex"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><small>${de ? 'Übung wechseln' : 'Change'}</small>${CHEV}</button>
-    <div class="chartbox"><div class="charthead"><h2>${de ? 'Maximalkraft (1RM)' : 'Max strength (1RM)'}</h2></div><svg class="chart" id="cmp-ch" viewBox="0 0 ${W0} ${H0}">${svg}</svg>
-      <div class="cmp-lg">${people.map(p => `<span><svg width="26" height="8"><line x1="1" x2="25" y1="4" y2="4" stroke="var(--fg)" stroke-width="${p.me ? 3 : 1.8}" ${p.me ? '' : `stroke-dasharray="${DASH[p.i]}"`}/></svg>${esc(p.name)}</span>`).join('')}</div></div>
-    <p class="cmp-sum" id="cmp-sum">${esc(cmpSummary(k, ser))}</p>
-    <div class="sect"><div class="row"><h2>${de ? 'Im Vergleich' : 'Compared'}</h2><button class="iconbtn cmp-add" id="cmp-add" aria-label="${de ? 'Freund hinzufügen' : 'Add friend'}">+</button></div>
-      <div id="cmp-list">${people.map(p => `<div class="fr-row cmp-row">${p.me ? avatarHTML(S.name || p.name, 40, S.photo) : avatarHTML(p.name, 40)}<div><b>${esc(p.name)}</b><small>${lastV(p.d) != null ? fmtW(r05(lastV(p.d))) + ' kg' : '–'}</small></div>${p.me ? '<span style="width:44px"></span>' : `<button class="sx" data-cmpdel="${p.i}" aria-label="${de ? 'Entfernen' : 'Remove'}">✕</button>`}</div>`).join('')}</div>
-      <p class="hint">${de ? 'Freunde sind Beispieldaten, bis der Cloud-Modus kommt.' : 'Friends are sample data until cloud sync arrives.'}</p></div></div>`;
+    <button class="cmp-ex" id="cmp-ex"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b><span class="drop2">${DOWN}</span></button>
+    <p class="cmp-sum num" id="cmp-sum">${esc(cmpSummary(k, ser))}</p>
+    <svg class="chart cmp-chart" id="cmp-ch" viewBox="0 0 ${W0} ${H0}">${svg}</svg>
+    <div id="cmp-list" class="cmp-rank">${rank.map((p, n) => { const v = lastV(p.d), dv = v != null && meV != null && !p.me ? v - meV : null;
+      return `<div class="cmp-row ${p.me ? 'me' : ''}"><span class="cmp-pl num">${n + 1}</span><b>${esc(p.name)}</b><span class="cmp-v num">${v != null ? fmtW(r05(v)) + ' kg' : '–'}${dv != null ? `<small>${dv > 0 ? '+' : dv < 0 ? '−' : '±'}${fmtW(r05(Math.abs(dv)))}</small>` : ''}</span>${p.me ? '<span class="cmp-x"></span>' : `<button class="sx cmp-x" data-cmpdel="${p.i}" aria-label="${de ? 'Entfernen' : 'Remove'}">✕</button>`}</div>`; }).join('')}</div>
+    <button class="textbtn cmp-add" id="cmp-add">${de ? '+ Freund hinzufügen' : '+ Add friend'}</button></div>`;
 }
 function bindCompare() { const de = S.lang === 'de';
   $('o-back').onclick = closeO;
-  $('cmp-i').onclick = () => showInfo(de ? '<b>Kräftemessen</b><br>Wer hebt bei dieser Übung am meisten? Verglichen wird die geschätzte Maximalkraft (1RM) aus dem stärksten Satz jeder Woche, über 12 Wochen.<br>Fairer als das reine Gewicht: 80 kg × 10 zählt mehr als 85 kg × 1.' : '<b>Head to head</b><br>Who lifts the most in this exercise? Compared is the estimated max strength (1RM) of each week’s strongest set, over 12 weeks.<br>Fairer than plain weight: 80 kg × 10 counts more than 85 kg × 1.');
+  $('cmp-i').onclick = () => showInfo(de ? '<b>Kräftemessen</b><br>Wer hebt bei dieser Übung am meisten? Verglichen wird die geschätzte Maximalkraft (1RM) aus dem stärksten Satz jeder Woche, über 12 Wochen. Die Zahl hinter dem Gewicht ist der Abstand zu dir.<br>Fairer als das reine Gewicht: 80 kg × 10 zählt mehr als 85 kg × 1.<br>Im Chart: ein Finger zeigt die Werte einer Woche, zwei Finger deine Veränderung dazwischen.<br><small>Freunde sind Beispieldaten, bis der Cloud-Modus kommt.</small>' : '<b>Head to head</b><br>Who lifts the most in this exercise? Compared is the estimated max strength (1RM) of each week’s strongest set, over 12 weeks. The number after the weight is the gap to you.<br>Fairer than plain weight: 80 kg × 10 counts more than 85 kg × 1.<br>In the chart: one finger shows a week’s values, two fingers your change in between.<br><small>Friends are sample data until cloud sync arrives.</small>');
+  // chart: one finger = that week for everyone, two fingers = your change between the two weeks
+  const svg = $('cmp-ch'), G = CMPG, sum = $('cmp-sum'), base = sum.textContent;
+  if (G) { const sc = svg.querySelector('.scrub'), me = G.people.find(p => p.me), wk = i => dShort(new Date(monday(Date.now()) - (11 - i) * 7 * 864e5));
+    const idxAt = e => { const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * G.W0; return Math.max(0, Math.min(11, Math.round((px - G.L) / ((G.W0 - G.L - G.R) / 11)))); };
+    const vline = i => `<line x1="${G.x(i)}" x2="${G.x(i)}" y1="${G.Tp}" y2="${G.H0 - G.B}" stroke="var(--fg)" stroke-dasharray="3 3"/>`;
+    chartTouch(svg, idxAt, i => { sc.innerHTML = vline(i); sum.innerHTML = `<span class="cmp-wk">${esc(wk(i))}</span> ` + G.people.filter(p => p.d[i] != null).sort((a, b) => b.d[i] - a.d[i]).map(p => `${p.me ? '<b>' : ''}${esc(p.name)} ${fmtW(r05(p.d[i]))}${p.me ? '</b>' : ''}`).join(' · '); },
+      (a, b) => { sc.innerHTML = vline(a) + vline(b); if (me.d[a] == null || me.d[b] == null) return; sum.innerHTML = `${esc(wk(a))} bis ${esc(wk(b))}: ` + diffTag(me.d[a], me.d[b], v => fmtW(r05(v)) + ' kg'); },
+      () => { sc.innerHTML = ''; sum.textContent = base; }); }
   $('cmp-ex').onclick = () => { const l = cmpExList(), el = document.createElement('div'); el.className = 'overlay'; el.id = 'cmpexov';
     el.innerHTML = `<div class="dialog pfaddbox cmpbox"><div class="row"><h2>${de ? 'Übung wählen' : 'Choose exercise'}</h2><button class="iconbtn" id="cmpx-x" aria-label="Schließen">✕</button></div><div class="cmpscroll">${l.map(k => `<button class="pfadd-row ${k === O.k ? 'on' : ''}" data-cmpk="${k}"><span class="pf-ic">${ico(k)}</span><b>${esc(exName(k))}</b></button>`).join('') || `<p class="hint">${de ? 'Noch keine Trainings.' : 'No sessions yet.'}</p>`}</div></div>`;
     $('app').appendChild(el); el.onclick = e => { if (e.target === el) el.remove(); }; $('cmpx-x').onclick = () => el.remove();
@@ -1628,11 +1676,10 @@ function drawChart(def, ss) {
     sc.innerHTML = (scrub ? `<line x1="${X}" x2="${X}" y1="${Tp}" y2="${H0-B}" stroke="${col}" stroke-dasharray="3 3"/>` : '') + `<circle cx="${X}" cy="${Y}" r="5" fill="${isF ? 'var(--bg)' : col}" stroke="${col}" stroke-width="2"/>`;
   };
   const idxAt = e => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * W0; return Math.max(0, Math.min(all - 1, Math.round((px - L) / ((W0 - L - R) / Math.max(1, all - 1))))); };
-  let down = false;
-  svg.addEventListener('pointerdown', e => { down = true; svg.setPointerCapture(e.pointerId); showAt(idxAt(e), true); });
-  svg.addEventListener('pointermove', e => { if (down || e.pointerType === 'mouse') showAt(idxAt(e), true); });
-  const reset = () => { down = false; showAt(li, false); };
-  svg.addEventListener('pointerup', reset); svg.addEventListener('pointercancel', reset); svg.addEventListener('pointerleave', reset);
+  const vAt = i => i > li ? f[i-li-1].y : d[i];
+  chartTouch(svg, idxAt, i => showAt(i, true), (a, b) => {
+    sc.innerHTML = [a, b].map(i => `<line x1="${x(i)}" x2="${x(i)}" y1="${Tp}" y2="${H0-B}" stroke="var(--fg)" stroke-dasharray="3 3"/><circle cx="${x(i)}" cy="${y(vAt(i))}" r="5" fill="${i > li ? 'var(--bg)' : col}" stroke="${col}" stroke-width="2"/>`).join('');
+    val.innerHTML = `${esc(dateAt(a))} bis ${esc(dateAt(b))}: ` + diffTag(vAt(a), vAt(b), unit); }, () => showAt(li, false));
   showAt(li, false);
 }
 
@@ -1766,7 +1813,7 @@ const LVL_IC = {
   kettle:'<path d="M8.8 8.6V7a3.2 3.2 0 0 1 6.4 0v1.6"/><path d="M5.5 15a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0z"/><path d="M6.4 21h11.2"/>',
   db:'<path d="M8.5 12h7"/><rect x="5" y="7" width="3.5" height="10" rx=".6"/><rect x="15.5" y="7" width="3.5" height="10" rx=".6"/><rect x="2.5" y="9" width="2.5" height="6" rx=".4"/><rect x="19" y="9" width="2.5" height="6" rx=".4"/>',
   bb:'<path d="M1 12h22"/><rect x="3" y="7.5" width="2" height="9" rx=".3"/><rect x="5.3" y="9" width="1.5" height="6" rx=".3"/><rect x="19" y="7.5" width="2" height="9" rx=".3"/><rect x="17.2" y="9" width="1.5" height="6" rx=".3"/>',
-  arm:'<path d="M4 20.5c.5-4.5 2.5-8.5 5.5-11.5l1.5-3.5 3.2.8-1.4 3.7c3.6.2 6.8 2.3 7.7 6v4.5z"/><path d="M11.5 14.5c1.6-1.2 3.8-1.2 5.2 0"/>',
+  arm:'<rect x="12.6" y="2.6" width="6.6" height="5" rx="1.8"/><path d="M19.2 7.6V15a5 5 0 0 1-5 5H2.8"/><path d="M13.6 7.6v4"/><path d="M2.8 13.2h3.4c1.2-3.6 5.4-4.6 7.4-1.6"/>',
   bolt:'<path d="M13.5 2L5 13.5h6L10 22l9-12h-6.2z"/>',
   shield:'<path d="M12 2.5l8 3v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/>',
   plate:'<circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="1.6"/>',
@@ -1779,34 +1826,22 @@ const LVL_IC = {
 const levelIcon = i => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${LVL_IC[LEVELS[i].ic]}</svg>`;
 const levelOf = pts => { let i = 0; LEVELS.forEach((l, k) => { if (pts >= l.p) i = k; }); return i; };
 function openLevels() { lvlOpen = null; O = { mode:'levels' }; renderO(); openO(); $('obody').scrollTop = 0; bindLadder(); }
+// v0.16: static head (no shrinking animation); the ladder opens at your level, tap a reached level = its highlights
 function bindLadder(keepY) {
-  const lad = $('ladder'), c = lad && lad.querySelector('.cur'), hero = document.querySelector('.lvl-hero'); if (!c || !hero) return;
-  const dec = hero.querySelector('.lvl-dec'), ht = hero.querySelector('.lvl-ht'), more = hero.querySelector('.lvl-more');
-  hero.classList.add('fluid'); const Wd = hero.clientWidth, htW = Math.min(Wd, ht.offsetWidth), htH = ht.offsetHeight, mH = more ? more.offsetHeight : 0;
-  const big = 128, small = 56, sc = .62, top = big + 10, bigH = top + htH + (mH ? 12 + mH : 0);
-  const L = (a, b, k) => a + (b - a) * k;
-  // the header shrinks continuously while you scroll the ladder down: icon moves left, title moves next to it
-  const lay = k => { const ds = L(big, small, k) / big;
-    dec.style.transform = `translate(${L((Wd - big) / 2, 0, k)}px, 0) scale(${ds})`;
-    ht.style.transform = `translate(${L((Wd - htW) / 2, small + 14, k)}px, ${L(top, (small - htH * sc) / 2, k)}px) scale(${L(1, sc, k)})`;
-    if (more) { more.style.transform = `translateY(${top + htH + 12}px)`; more.style.opacity = Math.max(0, 1 - k * 2.5); }
-    hero.style.height = L(bigH, small, k) + 'px'; };
-  const rows = [...lad.querySelectorAll('.lvl-row')], ci = rows.indexOf(c), init = ci >= 2 ? rows[ci - 2].offsetTop : 0, span = 160;
-  lay(0); lad.scrollTop = init;
-  const need = init + span + lad.clientHeight + (bigH - small) - lad.scrollHeight; if (need > 0) lad.style.paddingBottom = need + 'px'; lad.scrollTop = keepY != null ? keepY : init;
-  let raf = 0, closed = false, cur = 0, tgt = 0; const tick = () => { cur += (tgt - cur) * .18; if (Math.abs(tgt - cur) < .004) cur = tgt; lay(cur); raf = cur !== tgt ? requestAnimationFrame(tick) : 0; };
-  lad.onscroll = () => { const st = lad.scrollTop; let k = closed ? st / span : (st - init) / span; k = Math.max(0, Math.min(1, k)); if (k >= 1) closed = true; if (closed && st <= 0) closed = false; tgt = k; if (!raf) raf = requestAnimationFrame(tick); };
-  lad.querySelectorAll('[data-lvl]').forEach(r => r.onclick = () => { const i = +r.dataset.lvl, y = lad.scrollTop; lvlOpen = r.classList.contains('open') ? -1 : i; const html = levelsHTML(); $('obody').innerHTML = html; $('o-back').onclick = closeO; bindLadder(y); });
+  const lad = $('ladder'), c = lad && lad.querySelector('.cur'); if (!c) return;
+  lad.scrollTop = keepY != null ? keepY : Math.max(0, lad.scrollTop + c.getBoundingClientRect().top - lad.getBoundingClientRect().top - 90);
+  lad.querySelectorAll('[data-lvl]').forEach(r => r.onclick = () => { const i = +r.dataset.lvl, y = lad.scrollTop; lvlOpen = r.classList.contains('open') ? -1 : i; $('obody').innerHTML = levelsHTML(); $('o-back').onclick = closeO; bindLadder(y); });
 }
-// per level: sessions in that level, best estimated 1RM of your main exercise at that time, average training minutes per week
-function levelStats() { const hs = [...HISTORY].sort((a, b) => a.date - b.date), out = {}, fx = favExercise(), k = fx && fx[0]; let acc = 0;
-  hs.forEach(h => { const lv = levelOf(acc); acc += ptsFor(h); const o = out[lv] = out[lv] || { n: 0, min: 0, best: 0, from: h.date, to: h.date };
-    o.n++; o.min += trainMin(h); o.to = h.date; const e = k && h.ex.find(x => x.k === k); if (e) o.best = Math.max(o.best, ...e.sets.map(st => e1rm(Math.max(0, effW(k, st.w)), st.r))); });
-  Object.values(out).forEach(o => { o.perWeek = Math.round(o.min / Math.max(1, (o.to - o.from) / 6048e5 + 1)); }); return { out, k }; }
+// per level, comparable for every level: sessions, new records and weight moved while you were in it
+function levelStats() { const hs = [...HISTORY].sort((a, b) => a.date - b.date), out = {}, seen = {}; let acc = 0;
+  hs.forEach(h => { const lv = levelOf(acc); acc += ptsFor(h); const o = out[lv] = out[lv] || { n: 0, prs: 0, vol: 0 };
+    o.n++; o.vol += sessVol(h);
+    h.ex.forEach(e => { const b = Math.max(0, ...e.sets.map(st => e1rm(Math.max(0, effW(e.k, st.w)), st.r))); if (b > 0 && seen[e.k] !== undefined && b > seen[e.k]) o.prs++; if (b > 0) seen[e.k] = Math.max(seen[e.k] || 0, b); }); });
+  return { out }; }
 let lvlOpen = null;
 function lvlHL(i, LS) { const o = LS.out[i], de = S.lang === 'de'; if (!o) return `<p class="hint lvl-hl-none">${de ? 'Noch keine Trainings in diesem Level' : 'No sessions in this level yet'}</p>`;
   const d = (v, l) => `<div class="lvl-hld"><span class="dec"><b class="num">${v}</b></span><small>${l}</small></div>`;
-  return `<div class="lvl-hl">${d(o.n, de ? 'Trainings' : 'Sessions')}${d(o.best ? fmt(Math.round(o.best)) + ' kg' : '–', LS.k ? (de ? `Max. ${esc(exName(LS.k))}` : `Max ${esc(exName(LS.k))}`) : '1RM')}${d(o.perWeek + ' min', de ? 'pro Woche' : 'per week')}</div>`; }
+  return `<div class="lvl-hl">${d(o.n, de ? 'Trainings' : 'Sessions')}${d(o.prs, de ? 'Neue Rekorde' : 'New records')}${d(volTxt(o.vol).replace(' ', '&nbsp;'), de ? 'bewegt' : 'moved')}</div>`; }
 function levelsHTML() {
   const pts = totalPts(), li = levelOf(pts), cur = LEVELS[li], nxt = LEVELS[li + 1];
   const pct = nxt ? Math.round((pts - cur.p) / (nxt.p - cur.p) * 100) : 100;
@@ -1814,7 +1849,7 @@ function levelsHTML() {
     <div class="lvl-hero"><div class="lvl-dec dec">${levelIcon(li)}</div><div class="lvl-ht"><div class="eyebrow">Level ${li + 1} / ${LEVELS.length}</div><h1>${esc(cur[S.lang])}</h1>
       <div class="lvl-pts num"><b>${fmt(pts)}</b> Points</div></div>
       ${nxt ? `<div class="lvl-more"><div class="lvl-bar"><i style="width:${pct}%"></i></div><p class="hint">${S.lang === 'de' ? `Noch ${fmt(nxt.p - pts)} Points bis ${esc(nxt.de)}` : `${fmt(nxt.p - pts)} points to ${esc(nxt.en)}`}</p></div>` : ''}</div>
-    <div class="sect lvl-sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div class="lvl-ladder" id="ladder">${(() => { const LS = levelStats(); return LEVELS.map((l, i) => i).reverse().map(i => { const l = LEVELS[i], open = i <= li && (lvlOpen === null ? i === li : lvlOpen === i); return `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''} ${open ? 'open' : ''}" ${i <= li ? `data-lvl="${i}" role="button"` : ''}><span class="lvl-ic dec">${levelIcon(i)}</span><div><b><span class="num">${i + 1}</span> ${esc(l[S.lang])}</b><small class="num">${i > li ? (S.lang === 'de' ? `noch ${fmt(l.p - pts)} Points` : `${fmt(l.p - pts)} points to go`) : `${fmt(l.p)} Points`}</small>${i === li && nxt ? `<span class="lvl-mini"><i style="width:${pct}%"></i></span>` : ''}</div><span class="num lvl-st">${i < li ? '✓' : i === li ? (S.lang === 'de' ? 'DU' : 'YOU') : ''}</span>${open ? lvlHL(i, LS) : ''}</div>`; }).join(''); })()}</div></div></div>`;
+    <div class="sect lvl-sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div class="lvl-ladder" id="ladder">${(() => { const LS = levelStats(); return LEVELS.map((l, i) => i).reverse().map(i => { const l = LEVELS[i], open = i <= li && (lvlOpen === null ? i === li : lvlOpen === i); return `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''} ${open ? 'open' : ''}" ${i <= li ? `data-lvl="${i}" role="button"` : ''}><span class="lvl-ic dec">${levelIcon(i)}</span><div><b><span class="num">${i + 1}</span> ${esc(l[S.lang])}</b><small class="num">${i > li ? (S.lang === 'de' ? `noch ${fmt(l.p - pts)} Points` : `${fmt(l.p - pts)} points to go`) : i === li ? (S.lang === 'de' ? 'Du bist hier' : 'You are here') : `${fmt(l.p)} Points`}</small></div><span class="num lvl-st">${i < li ? '✓' : ''}</span>${open ? lvlHL(i, LS) : ''}</div>`; }).join(''); })()}</div></div></div>`;
 }
 function playIntroTear() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -2281,7 +2316,8 @@ const FAQ_G = {
       ['Wie lösche ich eine Übung oder einen Satz?', 'Übung nach links wischen und „Löschen“ antippen. Einen geplanten Satz löschst du mit ✕. Du wählst jeweils, ob nur für heute oder dauerhaft aus dem Workout.', 'train'],
       ['Ich habe aus Versehen einen Satz beendet.', 'Tippe auf ↺ in der Satzzeile. Der Satz ist sofort wieder dran, danach geht es dort weiter, wo du warst. Das geht auch bei früheren Übungen.'],
       ['Sind Änderungen im Bereit-Screen dauerhaft?', 'Ja: hinzugefügte Übungen, die Satzanzahl und ein neuer Name werden im Workout gespeichert. Gelöschte Übungen nur, wenn du „Dauerhaft“ wählst. Gewichte pro Satz gelten für heute.'],
-      ['Wie minimiere ich ein laufendes Workout?', 'Nach unten wischen, wenn die Liste ganz oben ist, oder ⌄ antippen. Die Leiste über dem Menü öffnet es wieder. Leiste zur Seite wischen: Workout beenden.']]],
+      ['Wie minimiere ich ein laufendes Workout?', 'Nach unten wischen, wenn die Liste ganz oben ist, oder ⌄ antippen. Die Leiste über dem Menü öffnet es wieder. Leiste zur Seite wischen: Workout beenden.'],
+      ['Was bedeutet die Farbe in der Pause?', 'Optional unter Einstellungen › Darstellung › Pausen-Farbe: Rot unter 1 Minute, Gelb 1 bis 2 Minuten, Grün ab 2 Minuten (Empfehlung für schwere Übungen). Du kannst auch eine eigene Zielpause wählen.']]],
     ['Fortschritt & Points', [
       ['Wie werden Points berechnet?', 'Points gibt es für echte Steigerungen deiner Maximalkraft und fürs regelmäßige Training, nicht für möglichst viele Kilos. Details: Einstellungen › Berechnung.'],
       ['Was ist die Maximalkraft (1RM)?', 'Das Gewicht, das du genau einmal schaffen würdest, geschätzt aus deinem stärksten Satz: 1RM = Gewicht × (1 + Wdh. ÷ 30). Beispiel: 60 kg × 10 = 80 kg.'],
@@ -2301,7 +2337,8 @@ const FAQ_G = {
       ['How do I delete an exercise or a set?', 'Swipe the exercise left and tap “Delete”. Delete a planned set with ✕. You choose: only today or for good from the workout.', 'train'],
       ['I finished a set by mistake.', 'Tap ↺ in the set row. The set is up again right away, then you continue where you were. This also works for earlier exercises.'],
       ['Are changes on the ready screen permanent?', 'Yes: added exercises, the number of sets and a new name are saved in the workout. Deleted exercises only if you choose “for good”. Weights per set apply to today.'],
-      ['How do I minimise a running workout?', 'Swipe down when the list is at the top, or tap ⌄. The bar above the menu opens it again. Swipe the bar sideways: end the workout.']]],
+      ['How do I minimise a running workout?', 'Swipe down when the list is at the top, or tap ⌄. The bar above the menu opens it again. Swipe the bar sideways: end the workout.'],
+      ['What does the colour during rest mean?', 'Optional in Settings › Display › Rest colour: red under 1 minute, yellow 1 to 2 minutes, green from 2 minutes (recommended for heavy lifts). You can also choose an own target.']]],
     ['Progress & points', [
       ['How are points calculated?', 'You earn points for real gains in max strength and for training regularly, not for lots of kilos. Details: Settings › Calculation.'],
       ['What is max strength (1RM)?', 'The weight you could lift exactly once, estimated from your strongest set: 1RM = weight × (1 + reps ÷ 30). Example: 60 kg × 10 = 80 kg.'],
@@ -2444,7 +2481,9 @@ function renderSettings() {
   } else if (setPage === 'display') {
     h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
-      <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div></div>
+      <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div>
+      <div class="setrow ${S.pauseCol ? 'setcol' : ''}"><div><b>${S.lang === 'de' ? 'Pausen-Farbe' : 'Rest colour'}</b><button class="info" id="pci" aria-label="Info">i</button><p>${S.lang === 'de' ? 'Zehneck färbt sich in der Pause von Rot zu Grün' : 'Decagon turns from red to green while you rest'}</p></div>${tog('pcol', !!S.pauseCol)}
+        ${S.pauseCol ? `${seg('pcm', [['std', S.lang === 'de' ? 'Empfohlen (2 Min.)' : 'Recommended (2 min)'], ['own', S.lang === 'de' ? 'Eigene Zielpause' : 'Own target']], S.pauseMode || 'std')}${S.pauseMode === 'own' ? seg('pct', [[60, '1'], [90, '1,5'], [120, '2'], [180, '3'], [240, '4 Min.']], S.pauseTarget || 120) : ''}` : ''}</div></div>
       <div style="margin-top:8px"><b>${t('trendColor')}</b><p class="hint" style="margin-top:4px">${t('trendColorHint')}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.trendColor ? 'on' : ''}" data-trc="${v}">${trendPreview(!!v)}<span>${t(v ? 'trcColor' : 'trcBW')}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${S.lang === 'de' ? 'Schalter' : 'Switches'}</b><p class="hint" style="margin-top:4px">${S.lang === 'de' ? 'Farbe eines eingeschalteten Schalters' : 'Colour of a switch that is on'}</p></div>
@@ -2509,6 +2548,9 @@ function renderSettings() {
   setPage !== 'profile' && $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
   on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));
   on('inv', () => { S.inverted = !S.inverted; applyClasses(); renderSettings(); });
+  on('pcol', () => { S.pauseCol = !S.pauseCol; save(); renderSettings(); }); on('pci', () => showInfo(t('infoPause')));
+  document.querySelectorAll('[data-pcm]').forEach(b => b.onclick = () => { S.pauseMode = b.dataset.pcm; save(); renderSettings(); });
+  document.querySelectorAll('[data-pct]').forEach(b => b.onclick = () => { S.pauseTarget = +b.dataset.pct; save(); renderSettings(); });
   document.querySelectorAll('[data-tgc]').forEach(b => b.onclick = () => { S.togGreen = b.dataset.tgc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { S.accent = b.dataset.acc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-trc]').forEach(b => b.onclick = () => { S.trendColor = b.dataset.trc === '1'; renderSettings(); });

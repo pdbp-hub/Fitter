@@ -1,23 +1,12 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **🔝 Feedback-Runde 2026-11-15 (→ v0.16)**
-  - [ ] Level-Seite: 3 klare, vergleichbare Highlights pro Level (Vorschlag: Trainings · neue Rekorde · bewegtes Gewicht im Level); Kopfzeile ohne Doppelung + ohne Hochwisch-Animation (statischer Kopf mit Fortschritt zum nächsten Level, Zeitstrahl darunter); Icon „Kraftpaket“ (Level 6) neu
-  - [ ] Icon Bankdrücken neu
-  - [ ] Workout anlegen entzerren: oben Name, darunter „+ Übung hinzufügen“ (Hauptknopf, öffnet Overlay von unten mit Suche, Filter/Sortierung, Favoriten oben, dann alle) und „Eigene Übung erstellen“; unten nur „Workout speichern“
-  - [ ] Bereit-Screen: kurzes Tippen auf den Griff = aufklappen (langes Halten = verschieben); Hinweistext unterm Titel weg/kürzer; „Name ändern“ besser sichtbar, nicht klobig
-  - [ ] Einstellungen › Darstellung: Pausen-Farbe (Toggle): Zehneck in der Pause rot → grün je nach Pausendauer; Standard nach Studienlage + benutzerdefiniert; Info-i mit Quelle
-  - [ ] Dialoge: Löschen = Hauptknopf „Aus diesem Training“, „Dauerhaft löschen“ gestrichelt, „Abbrechen“ klein darunter; Reset genauso; beide Reset-Dialoge (laufender / erledigter Satz) gleich benennen
-  - [ ] Zurückgesetzter Satz bleibt an seiner Position (wandert nicht nach unten)
-  - [ ] Review: Überschrift „Highlight-Übung“ weg (höchstens kleines Symbol)
-  - [ ] Alle Linien-Charts: 2 Finger = 2 Linien + Differenz grün/rot zwischen den beiden Tagen; Kräftemessen-Chart auch wischbar
-  - [ ] Kräftemessen: Chatbot-Text ersetzen durch kompakte Rangliste (Platz, Abstand in kg zu dir) + eine kurze, klare Zeile
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.15.7 ansehen → Feedback → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.16.0 ansehen → Feedback → „freigeben“ für Live
 - [ ] **🔝🔝 Pflicht, bevor die Cloud live geht** (Claude segnet ab):
   - [ ] Backups der Nutzerdaten (täglich, EU), Wiederherstellung einmal testen
   - [ ] Datenstruktur schlank: Übungen/Gruppen als Kurzcodes, Sätze kompakt (z. B. [kg, Wdh., Sek.]), keine doppelten Daten; Speicher pro Nutzer messen
@@ -109,6 +98,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.16.0** (2026-11-15): Level-Seite (fester Kopf, „Du bist hier“, Highlights Trainings/Rekorde/bewegt), Icons Kraftpaket + Bankdrücken neu, Workout anlegen entzerrt (Fenster von unten, Knopf-Hierarchie), Bereit-Screen (Griff antippen = aufklappen, Stift statt Text, kein Hinweistext), Pausen-Farbe (ACSM-Empfehlung, eigene Zielpause), Dialoge mit klarer Hierarchie, zurückgesetzter Satz bleibt an seinem Platz, Review ohne „Highlight-Übung“, Zwei-Finger-Vergleich in allen Linien-Charts, Kräftemessen als ruhige Rangliste mit wischbarem Chart
 - [x] **Dev v0.15.7** (2026-11-15): Fortschritt startet mit Übung + Charts, schlanker Dropdown-Pfeil, Personal Bests raus (bleiben im Profil), Rückblick mit Kalender-Knopf (Kalender im mittigen Fenster); Tests unabhängig von der live geschalteten Season
 - [x] **Dev v0.15.6** (2026-11-15, Feedback Kumpel): Trainingstage als abgesetzte Fläche, Übungswahl nur noch Dropdown mit Icon (Favoriten oben, dann „Alle Übungen“), Mitteilungs-Schalter funktioniert auch nach Ablehnen (Erklärung, wo man es erlaubt)
 - [x] **Dev v0.15.5** (2026-11-15): Impressum + Datenschutz mit vollständiger Anschrift und Kontakt-E-Mail
