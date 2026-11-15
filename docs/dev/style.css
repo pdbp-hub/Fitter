@@ -1202,3 +1202,10 @@ body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-
 .pickhead { padding: 16px 0 6px; border-bottom: 2px solid var(--fg); }
 .pick.on .pmain { text-decoration: underline; text-underline-offset: 4px; }
 .pushwarn { align-self: flex-start; margin-top: 4px; padding: 2px 0; text-transform: none; letter-spacing: 0; font-size: 12px; }
+/* v0.15.7: progress = exercise + charts first; recap with calendar button; calendar in a centred window */
+.exsel .drop2 { flex: none; width: 36px; height: 36px; display: grid; place-items: center; }
+.exsel .drop2 svg { width: 20px; height: 20px; }
+.calopen { display: inline-flex; align-items: center; gap: 6px; padding: 6px 0 6px 10px; font-family: var(--display); font-stretch: 110%; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg); }
+.calopen svg { width: 18px; height: 18px; }
+.calbox { gap: 12px; max-width: 420px; } .calbox .row h2 { margin: 0; font-size: 18px; }
+.calbox .calgrid button.on { cursor: pointer; }

@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.15.6';
+const APP_VERSION = '0.15.7';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -1348,33 +1348,30 @@ function renderProgress() {
   const hm = m => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
   $('v-progress').innerHTML = `<div class="inner">
     ${progSwitch()}
-    <div class="sect sect-hist calband" style="border-top:0">
-      <div class="calband-h"><h2 class="hic">${SIC.cal}${de ? 'Trainingstage' : 'Training days'}</h2></div>
-      ${calOpen ? calHTML() : `<div class="strip-wrap"><div class="strip" id="strip">${Array.from({length:90}, (_, i) => dayTile(89 - i)).join('')}</div><button class="today-btn" id="todaybtn" hidden>${t('today')}</button></div>`}
-      <button class="linkbtn" id="calbtn">${calOpen ? t('lessCal') : t('fullCal')}</button>
-      <div id="daycard">${dayCard()}</div>
-    </div>
-    <div class="sect sect-ana">
-      <button class="exsel exsel-ic" id="exsel"><span class="pf-ic">${ico(S.chartKey)}</span><b>${esc(exName(S.chartKey))}</b><span class="drop">▼</span></button>
+    <div class="sect sect-ana" style="border-top:0;padding-top:0">
+      <button class="exsel exsel-ic" id="exsel"><span class="pf-ic">${ico(S.chartKey)}</span><b>${esc(exName(S.chartKey))}</b><span class="drop2">${DOWN}</span></button>
       <div id="charts"></div>
     </div>
-    <div class="sect" id="pbsect"><div class="charthead"><h2 class="hic">${SIC.pb}${t('pbs')}</h2><button class="info" data-info="infoPB" aria-label="Info">i</button></div><div>${pbHTML() || `<p class="hint">${t('noPB')}</p>`}</div>${pbCount() > 5 ? `<button class="linkbtn" id="pball">${pbAll ? (de ? 'Weniger ▴' : 'Less ▴') : (de ? `Alle ${pbCount()} anzeigen ▾` : `Show all ${pbCount()} ▾`)}</button>` : ''}</div>
-    <div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Rückblick' : 'Recap'}</h2>
+    <div class="sect"><div class="charthead"><h2 class="hic">${SIC.hist}${de ? 'Rückblick' : 'Recap'}</h2><button class="calopen" id="calopen">${SIC.cal}<span>${de ? 'Kalender' : 'Calendar'}</span></button></div>
       <div class="recap2 num"><div class="rc-h"><span></span><b>${de ? '7 Tage' : '7 days'}</b><b>${de ? '30 Tage' : '30 days'}</b></div>
         ${[[t('wCount'), last7.length, last30.length], [t('movedW'), volTxt(vol7), volTxt(vol30)], [t('trainTime'), hm(min7), hm(min30)], [t('prs'), prCount(7), prCount(30)]].map(([l, a, b]) => `<div class="rc-r"><span>${l}</span><b>${a}</b><b>${b}</b></div>`).join('')}</div></div>
   </div>`;
-  $('pball') && ($('pball').onclick = () => { const wasAll = pbAll; pbAll = !pbAll; renderProgress(); if (wasAll) { const v = $('v-progress'), h = $('pbsect'); if (h) v.scrollTop = Math.max(0, h.offsetTop - 12); } });
   bindProgSwitch();
-  $('calbtn').onclick = () => { calOpen = !calOpen; renderProgress(); };
   $('exsel').onclick = openPicker;
-  document.querySelectorAll('[data-ck]').forEach(b => b.onclick = () => { S.chartKey = b.dataset.ck; renderProgress(); });
-  bindDays();
-  $('calprev') && ($('calprev').onclick = () => { calMonth--; renderProgress(); });
-  $('calnext') && ($('calnext').onclick = () => { if (calMonth < 0) { calMonth++; renderProgress(); } });
-  const strip = $('strip');
-  if (strip) { strip.scrollLeft = strip.scrollWidth; const tb = $('todaybtn'); strip.addEventListener('scroll', () => { tb.hidden = strip.scrollLeft > strip.scrollWidth - strip.clientWidth - 40; }); tb.onclick = () => strip.scrollTo({ left: strip.scrollWidth, behavior:'smooth' }); }
+  $('calopen').onclick = calSheet;
   renderCharts();
 }
+// small chevron for the exercise dropdown (instead of a boxed triangle)
+const DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square"><path d="M5.5 9l6.5 6.5L18.5 9"/></svg>';
+// calendar in a centred window: month view, tap a training day = its own page
+function calSheet() { const de = S.lang === 'de'; calMonth = 0; selDay = null;
+  const el = document.createElement('div'); el.className = 'overlay'; el.id = 'calov';
+  const draw = () => { el.innerHTML = `<div class="dialog calbox"><div class="row"><h2 class="hic">${SIC.cal}${de ? 'Kalender' : 'Calendar'}</h2><button class="iconbtn" id="cal-x" aria-label="${de ? 'Schließen' : 'Close'}">✕</button></div>${calHTML()}<p class="hint">${de ? 'Ausgefüllt = Training. Antippen für Details.' : 'Filled = session. Tap for details.'}</p></div>`;
+    el.querySelector('#cal-x').onclick = () => el.remove();
+    el.querySelector('#calprev').onclick = () => { calMonth--; draw(); };
+    el.querySelector('#calnext').onclick = () => { if (calMonth < 0) { calMonth++; draw(); } };
+    el.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { const ago = +b.dataset.day; if (!histOn(ago)) return toast(de ? 'An diesem Tag kein Training' : 'No session on this day'); el.remove(); openDay(ago); }); };
+  draw(); $('app').appendChild(el); el.onclick = e => { if (e.target === el) el.remove(); }; }
 const PIC1 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5"/></svg>', PIC2 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8.5" r="3.2"/><path d="M2.5 20.5c0-3.9 2.9-6.6 6.5-6.6s6.5 2.7 6.5 6.6"/><circle cx="16.5" cy="7" r="2.7"/><path d="M15.6 12.4c3.4-.4 6 2 6 5.6"/></svg>';
 const progSwitch = () => `<div class="ptabs"><button data-ptab="me" class="${progTab === 'me' ? 'on' : ''}">${PIC1}${S.lang === 'de' ? 'Ich' : 'Me'}</button><button data-ptab="friends" class="${progTab === 'friends' ? 'on' : ''}">${PIC2}${S.lang === 'de' ? 'Freunde' : 'Friends'}</button></div>`;
 function bindProgSwitch() { document.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { progTab = b.dataset.ptab; renderProgress(); $('v-progress').scrollTop = 0; }); }
@@ -2289,7 +2286,8 @@ const FAQ_G = {
       ['Wie werden Points berechnet?', 'Points gibt es für echte Steigerungen deiner Maximalkraft und fürs regelmäßige Training, nicht für möglichst viele Kilos. Details: Einstellungen › Berechnung.'],
       ['Was ist die Maximalkraft (1RM)?', 'Das Gewicht, das du genau einmal schaffen würdest, geschätzt aus deinem stärksten Satz: 1RM = Gewicht × (1 + Wdh. ÷ 30). Beispiel: 60 kg × 10 = 80 kg.'],
       ['Was zeigt die gestrichelte Linie?', 'Die Prognose: wo du in ein paar Wochen stehen könntest, wenn du so weitertrainierst. Zeiträume änderst du unter Einstellungen › Fortschritt.'],
-      ['Was zählt als Rekord?', 'Wenn dein geschätztes 1RM einer Übung höher ist als je zuvor. Unter Personal Bests steht pro Übung dein bester Satz.'],
+      ['Was zählt als Rekord?', 'Wenn dein geschätztes 1RM einer Übung höher ist als je zuvor. Neue Rekorde zählt der Rückblick, deine Personal Bests zeigst du im Profil.'],
+      ['Wo finde ich meine vergangenen Trainings?', 'Fortschritt › Rückblick › Kalender. Tage mit Training sind ausgefüllt, Antippen öffnet die Details.'],
       ['Warum zählen meine Dips oder Klimmzüge kaum?', 'Standardmäßig zählt bei Körpergewicht-Übungen nur das Zusatzgewicht. Trag dein Körpergewicht ein und schalte „Körpergewicht mitzählen“ ein (Einstellungen › Profil).']]],
     ['Freunde', [
       ['Wie folge ich Freunden?', 'Das kommt mit dem Cloud-Modus. Bis dahin zeigt die Freunde-Seite Beispieldaten, damit du siehst, wie es aussehen wird.'],
@@ -2308,7 +2306,8 @@ const FAQ_G = {
       ['How are points calculated?', 'You earn points for real gains in max strength and for training regularly, not for lots of kilos. Details: Settings › Calculation.'],
       ['What is max strength (1RM)?', 'The weight you could lift exactly once, estimated from your strongest set: 1RM = weight × (1 + reps ÷ 30). Example: 60 kg × 10 = 80 kg.'],
       ['What does the dashed line show?', 'The forecast: where you could be in a few weeks if you keep training like this. Change the periods in Settings › Progress.'],
-      ['What counts as a record?', 'When your estimated 1RM of an exercise is higher than ever. Personal bests show your best set per exercise.'],
+      ['What counts as a record?', 'When your estimated 1RM of an exercise is higher than ever. The recap counts new records, your personal bests appear in your profile.'],
+      ['Where do I find past sessions?', 'Progress › Recap › Calendar. Days with a session are filled, tap for details.'],
       ['Why do my dips or pull-ups barely count?', 'For body-weight exercises only the extra weight counts by default. Enter your body weight and turn on “Count body weight” (Settings › Profile).']]],
     ['Friends', [
       ['How do I follow friends?', 'That comes with cloud sync. Until then the friends page shows sample data so you can see how it will look.'],

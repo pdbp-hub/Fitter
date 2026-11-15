@@ -20,6 +20,9 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  // tests never depend on the season Ben has switched live: season.json always answers "none"
+  const pin = async c => { await c.route('**/season.json*', r => r.fulfill({ json: { season: '' } })); };
+  await pin(ctx);
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
@@ -29,6 +32,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     // tabs remember their sub page (v0.7): tap again to reach the tab's start page, which is what the tests expect
     if (/^\[data-tab=/.test(sel) && !(await page.evaluate(() => { const v = document.querySelector('.screen:not([hidden])'); return !v || (v.id === 'v-start') || (v.id === 'v-settings' && !document.getElementById('spback')) || (v.id === 'v-progress' && !document.querySelector('.fr-me')); }))) { await page.click(sel, { force: true }); await page.waitForTimeout(120); } };
   const ev = fn => page.evaluate(fn);
+  const openCal = async () => { if (await page.$('#calopen')) { await click('#calopen'); await page.waitForTimeout(250); } };
   const settle = () => page.waitForTimeout(450); // Sheet-Animationen abwarten
 
   await page.goto(URL + TARGET + (TARGET ? '?noseed&test' : '?test')); await page.waitForTimeout(400);
@@ -91,7 +95,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   check('„Training fortsetzen“ bleibt nach Neuladen', await ev(() => !!document.getElementById('resume')));
 
   console.log('Fortschritt');
-  await click('[data-tab=progress]');
+  await click('[data-tab=progress]'); await openCal();
   check('Heute ist als Trainingstag markiert', await ev(() => document.querySelector('[data-day="0"]').classList.contains('on')));
   if (await ev(() => typeof openDay === 'function')) { // v0.13: a day opens its own page with back
     await click('[data-day="0"]'); await settle();
@@ -198,10 +202,10 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Review-Chart interaktiv (Wert beim Ziehen)', await ev(() => /Satz|Set/.test(document.querySelector('#wbody .legend .val').textContent)));
     await page.mouse.up();
     await click('#donebtn'); await settle();
-    await click('[data-tab=progress]'); await click('[data-day="0"]'); await settle(); if (await page.$('[data-dayh]')) { await click('[data-dayh]'); await settle(); }
+    await click('[data-tab=progress]'); await openCal(); await click('[data-day="0"]'); await settle(); if (await page.$('[data-dayh]')) { await click('[data-dayh]'); await settle(); }
     check('Kalender-Details öffnen Review-Seite mit allen Sätzen', await ev(() => !document.getElementById('osheet').classList.contains('down') && !!document.querySelector('#obody .slogan') && !!document.querySelector('#obody .cells')));
     await click('#o-back'); await settle(); if (await ev(() => !document.getElementById('osheet').classList.contains('down'))) { await click('#o-back'); await settle(); }
-    check('Überschriften im Fortschritt mit Icons', await ev(() => document.querySelectorAll('#v-progress h2.hic svg').length === 3));
+    check('Überschriften im Fortschritt mit Icons', await ev(() => document.querySelectorAll('#v-progress h2.hic svg').length === 1));
     await click('[data-tab=settings]'); await sp('logic');
     check('Berechnungslogik: kein seitliches Scrollen (REGRESSION)', await ev(() => { const v = document.getElementById('v-settings'); return v.scrollWidth <= v.clientWidth + 1; }));
     await back(); await sp('display');
@@ -265,7 +269,10 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Review-Prozent bricht nicht um', await ev(() => [...document.querySelectorAll('.tiles3 .dl')].every(e => getComputedStyle(e).whiteSpace === 'nowrap')));
     await click('#donebtn'); await settle();
     await click('[data-tab=progress]');
-    check('„Ganzer Kalender“ mittig unter den Tagen', await ev(() => { const b = document.getElementById('calbtn'), s = document.getElementById('strip'); return b && s && b.getBoundingClientRect().top > s.getBoundingClientRect().bottom; }));
+    check('Fortschritt: oben Übung + Charts, kein Kalender, keine Personal Bests', await ev(() => !document.getElementById('strip') && !document.getElementById('pbsect') && document.querySelector('#v-progress .ptabs').nextElementSibling.querySelector('#exsel') && !!document.querySelector('#exsel .drop2 svg')));
+    await openCal();
+    check('Rückblick › Kalender öffnet mittiges Fenster mit Monat', await ev(() => { const d = document.querySelector('#calov .dialog'); if (!d) return false; const r = d.getBoundingClientRect(); return Math.abs((r.top + r.bottom) / 2 - innerHeight / 2) < 80 && document.querySelectorAll('#calov [data-day]').length >= 15; }));
+    await click('#cal-x');
     await click('#exsel'); await settle(); await ev(() => { const hs = document.querySelectorAll('#o-list .pickhead'), h = hs[hs.length - 1]; ((h ? h.nextElementSibling : document.querySelector('#o-list .pick')).querySelector('[data-sel]')).click(); }); await settle();
     check('Kein Info-i mehr in der Legende', await ev(() => !document.querySelector('#charts .legend .info')));
     const hh = await ev(() => document.querySelector('.chartbox').getBoundingClientRect().height);
@@ -287,7 +294,6 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('#o-back'); if (await page.$('#overlay:not([hidden])')) await click('[data-db="1"]'); await settle();
     await click('[data-tab=progress]');
     check('Fortschritt: nur noch Dropdown mit Icon, keine Favoriten-Leiste', await ev(() => !document.querySelector('.favs') && !!document.querySelector('#exsel .ico svg')));
-    check('Fortschritt: Trainingstage als abgesetzte Fläche', await ev(() => { const b = document.querySelector('.calband'); return b && getComputedStyle(b).backgroundColor !== getComputedStyle(document.getElementById('v-progress')).backgroundColor; }));
     await click('#exsel'); await settle();
     check('Übung wählen: Favoriten oben, Strich, „Alle Übungen“ (Favoriten auch dort)', await ev(() => { const hs = [...document.querySelectorAll('#o-list .pickhead')].map(h => h.textContent); const all = [...document.querySelectorAll('#o-list .pick')].length; return /Favoriten/.test(hs[0]) && /Alle Übungen/.test(hs[1]) && all === S.fav.length + Object.keys(EX).length; }));
     await click('#o-back'); await settle();
@@ -346,7 +352,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Eigene Übung: Feld ohne „Name“ (kein iOS-Kontakte-Vorschlag) (REGRESSION)', await ev(() => { const i = document.getElementById('c-ttl'); return i.getAttribute('autocomplete') === 'off' && !/name/i.test(i.id + i.name + i.placeholder); }));
     await click('#c-cancel'); await click('#o-back'); if (await page.$('#overlay:not([hidden])')) await click('[data-db="1"]'); await settle();
     await click('[data-tab=progress]');
-    check('Heute markiert in der Tagesleiste', await ev(() => /Heute|Today/.test(document.querySelector('[data-day="0"] small').textContent)));
+    await openCal(); check('Heute im Kalender markiert', await ev(() => document.querySelector('#calov [data-day="0"]').classList.contains('today'))); await click('#cal-x');
     await click('[data-ptab="friends"]');
     check('Freunde-Vorschlag im Fortschritt', await ev(() => document.querySelectorAll('.fr-row').length === 3 && !!document.getElementById('fr-find')));
     check('Fortschritt-Kopf passt in die Breite (REGRESSION)', await ev(() => { const v = document.getElementById('v-progress'); return v.scrollWidth <= v.clientWidth + 1 && document.querySelector('#v-progress .ptabs').getBoundingClientRect().left >= 0; }));
@@ -362,7 +368,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Tab-Tipp führt zur Einstellungen-Startseite zurück', await ev(() => document.querySelectorAll('[data-sp]').length >= 6));
     check('Keine langen Striche in Texten', await ev(() => !/ – /.test(document.body.innerText)));
     console.log('Intro & Onboarding');
-    const fresh = await browser.newContext({ viewport: { width: 390, height: 844 } }); const fp = await fresh.newPage(); fp.on('pageerror', e => errors.push('[intro] ' + e.message));
+    const fresh = await browser.newContext({ viewport: { width: 390, height: 844 } }); await pin(fresh); const fp = await fresh.newPage(); fp.on('pageerror', e => errors.push('[intro] ' + e.message));
     await fp.goto(URL + 'dev/?noseed'); await fp.waitForTimeout(400);
     check('Erster Start: zuerst Account anlegen / Anmelden / Gast', await fp.evaluate(() => !!document.getElementById('auth') && document.querySelectorAll('#auth [data-am]').length === 3 && !document.getElementById('onb')));
     await fp.evaluate(() => document.querySelector('#auth [data-am="signup"]').click());
