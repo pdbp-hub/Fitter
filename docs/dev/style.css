@@ -1116,3 +1116,29 @@ html, body { background: #0b0b0a; }
 .a2hs .chev { color: var(--bg); width: 14px; height: 14px; }
 .has-a2hs .screen { padding-top: calc(52px + env(safe-area-inset-top, 0px)); }
 .ownbadge { font-style: normal; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #0b0b0a; background: #ffd400; padding: 1px 5px; margin-left: 4px; }
+/* v0.15 level highlights */
+.lvl-ladder .lvl-row.got { cursor: pointer; }
+.lvl-ladder .lvl-row.open { grid-template-rows: auto auto; }
+.lvl-hl { grid-column: 2 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; position: relative; z-index: 1; }
+.lvl-hld { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.lvl-hld .dec { width: 58px; height: 58px; background: var(--fg); color: var(--bg); display: grid; place-items: center; } .lvl-hld b { font-family: var(--display); font-stretch: 75%; font-weight: 900; font-size: 14px; text-align: center; line-height: 1; }
+.lvl-hld small { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.2; }
+.lvl-hl-none { grid-column: 2 / -1; margin: 8px 0 0; font-size: 12px; }
+.lvl-ladder .lvl-row.cur.open .lvl-hld .dec { background: var(--bg); color: var(--fg); outline: 1px solid var(--fg); }
+.popover .ex, .info-ex { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); } .popover .ex i { font-weight: 700; margin-right: 6px; } .pb b { display: flex; align-items: center; gap: 8px; } .pb .pf-ic svg { width: 22px; height: 22px; }
+.popover code { display: inline-block; margin: 6px 0; }
+/* v0.15: legal texts above the account screen, long info texts scroll */
+body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-index: 97; }
+.popwrap .popover { max-height: calc(100dvh - 120px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.mainbtn:disabled { opacity: .3; pointer-events: none; }
+/* v0.15: head to head */
+.fr-cmpbtn { margin-top: 18px; }
+.cmp-ex { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 8px 0 14px; text-align: left; }
+.cmp-ex b { font-size: 17px; } .cmp-ex small { margin-left: auto; color: var(--muted); font-size: 12px; }
+.cmp-ex .pf-ic svg, .cmpbox .pf-ic svg { width: 28px; height: 28px; }
+.cmp-lg { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); padding-top: 6px; }
+.cmp-lg span { display: inline-flex; align-items: center; gap: 6px; }
+.cmp-sum { font-size: 16px; line-height: 1.5; margin: 16px 0 4px; font-weight: 600; }
+.cmp-row { cursor: default; } .cmp-add { font-size: 26px; font-weight: 800; }
+.cmpscroll { max-height: 55dvh; overflow-y: auto; } .pfadd-row.on b { text-decoration: underline; text-underline-offset: 4px; }
+.cmp-h { align-items: center; } .cmp-h h1 { margin: 0; } .cmp-h .info { flex: none; width: 28px; height: 28px; font-size: 14px; }
