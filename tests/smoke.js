@@ -34,6 +34,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   await page.goto(URL + TARGET + (TARGET ? '?noseed&test' : '?test')); await page.waitForTimeout(400);
 
   console.log('PWA');
+  check('App-Name: „TRAIN“ (Live) / „TRAIN Dev“', (await (await page.request.get(URL + TARGET + 'manifest.webmanifest')).json()).name === (TARGET ? 'TRAIN Dev' : 'TRAIN') && await ev(() => document.title === (location.pathname.includes('/dev/') ? 'TRAIN Dev' : 'TRAIN')));
   check('Manifest ist verlinkt und erreichbar', (await (await page.request.get(URL + TARGET + 'manifest.webmanifest')).json()).display === 'standalone');
   check('Service Worker registriert', await ev(async () => !!(await navigator.serviceWorker.getRegistration())));
   check('Startet leer: 0 Points', await ev(() => document.querySelector('.ptsline b').textContent.trim() === '0'));
@@ -552,7 +553,8 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     console.log('Neu in v0.15');
     await ev(() => { document.querySelectorAll('.overlay, #popover').forEach(e => e.id === 'popover' || e.id === 'overlay' ? (e.hidden = true) : e.remove()); closeO(); S.seasonPreview = null; applySeason(); show('start'); });
     check('Prozent ohne Leerzeichen (12% passt in die Kachel) (REGRESSION)', await ev(() => pctTag(12).includes('12%') && deltaTag(112, 100).includes('12%')));
-    check('Intro 1: kein „TRAIN“-Text mehr im Zehneck', await ev(() => !/intro-dec[^`]*TRAIN</.test(playIntroRaw.toString())));
+    check('Intro 1 wie früher: „TRAIN“ im Zehneck, blendet aus (Ben 2026-11-15)', await ev(() => /<span>TRAIN<\/span>/.test(playIntro.toString()) && /label\.animate/.test(playIntro.toString())));
+    check('App heißt „TRAIN Dev“ (Homescreen + Tab)', await (async () => (await (await page.request.get(URL + TARGET + 'manifest.webmanifest')).json()).name === 'TRAIN Dev' && await ev(() => document.title === 'TRAIN Dev'))());
     check('Feiern: Teile prallen am Boden ab', await ev(() => /bounce/.test(celebrate.toString())));
     check('Info-Texte: 1RM mit Rechenbeispiel, Volumen-Formel, Prognose passt sich an', await ev(() => /60 × \(1 \+ 10 ÷ 30\) = 80 kg/.test(T.de.info1rm) && /Volumen = Gewicht × Wdh/.test(T.de.infoVol) && (() => { const a = S.fcHor; S.fcHor = 12; const r = t('infoFc').includes('12 Wochen'); S.fcHor = a; return r; })()));
     check('Berechnung: Mini-Überschrift + Formel + Satz, keine Entwickler-Begriffe', await ev(() => T.de.logic.length >= 10 && T.de.logic.every(([h, b]) => !/kleinste Quadrate|Epley|Vorschlag/.test(b)) && T.de.logic.some(([h]) => h === 'Prognose')));
@@ -632,7 +634,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   await dev.goto(URL + 'dev/?test'); await dev.waitForTimeout(500);
   check('Dev startet mit Testdaten', await dev.evaluate(() => JSON.parse(localStorage.getItem('fitter.dev.v1')).history.length >= 20));
   check('Dev-Daten getrennt von Live-Daten', await dev.evaluate(() => JSON.parse(localStorage.getItem('fitter.v1')).history.length === 1));
-  check('Dev-Manifest heißt „Fitter Dev“', (await (await dev.request.get(URL + 'dev/manifest.webmanifest')).json()).name === 'Fitter Dev');
+  check('Dev-Manifest heißt „TRAIN Dev“', (await (await dev.request.get(URL + 'dev/manifest.webmanifest')).json()).name === 'TRAIN Dev');
   await dev.click('[data-tab=progress]', { force: true }); await dev.waitForTimeout(200);
   check('Dev zeigt Charts mit Testdaten', await dev.evaluate(() => document.querySelectorAll('.chartbox').length === 3));
   await dev.close();

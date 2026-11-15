@@ -1,6 +1,6 @@
 {
-  "name": "Fitter",
-  "short_name": "Fitter",
+  "name": "TRAIN",
+  "short_name": "TRAIN",
   "description": "Gym-Fortschritt tracken",
   "start_url": "./",
   "scope": "./",

@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.15.0';
+const APP_VERSION = '0.15.1';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -1664,11 +1664,11 @@ function showOnboarding(fromHelp) {
 function playIntro() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const r = goRect(go), size = r.width, cx = innerWidth / 2 - size / 2, cy = innerHeight / 2 - size / 2;
-  const el = document.createElement('div'); el.id = 'intro'; el.innerHTML = `<div class="intro-bg"></div><div class="intro-dec octa dec" style="width:${size}px;height:${size}px;left:${cx}px;top:${cy}px;transform:scale(.1) rotate(-144deg);opacity:0">${go.innerHTML.replace(/ id="[^"]*"/g, '')}</div>`;
+  const el = document.createElement('div'); el.id = 'intro'; el.innerHTML = `<div class="intro-bg"></div><div class="intro-dec dec" style="width:${size}px;height:${size}px;left:${cx}px;top:${cy}px;transform:scale(.1) rotate(-144deg);opacity:0"><span>TRAIN</span></div>`;
   $('app').appendChild(el); go.style.visibility = 'hidden';
-  const d = el.querySelector('.intro-dec'), bg = el.querySelector('.intro-bg');
+  const d = el.querySelector('.intro-dec'), bg = el.querySelector('.intro-bg'), label = d.querySelector('span');
   d.animate([{ transform: 'scale(.1) rotate(-144deg)', opacity: 0 }, { transform: 'scale(.52) rotate(-20deg)', opacity: 1, offset: .6 }, { transform: 'scale(.48) rotate(0deg)', opacity: 1 }], { duration: 950, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' }).finished
-    .then(() => { bg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
+    .then(() => { label.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }); bg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
       const r2 = goRect(go);
       return d.animate([{ transform: 'scale(.48)' }, { transform: `translate(${r2.left - cx}px, ${r2.top - cy}px) scale(${r2.width / size})` }], { duration: 650, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished; })
     .then(() => { go.style.visibility = ''; el.remove(); })
