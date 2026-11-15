@@ -1,6 +1,25 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Großer Prompt 2026-11-15 (→ v0.15, letzte Runde vor der Cloud)**
+  - [ ] A Intros: weißer Blitz beim Start (Intro 1) weg; Intro 1: „TRAIN“ → springt zu „LOS GEHT'S“ (stattdessen direkt Endzustand); bei „Wippen“ kippt das Zehneck schon vor dem Text (Puls erst nach Intro); Intro 2: fetter Spruch soll in den kleinen Spruch im Zehneck hineinmorphen, „START“ blendet dabei ein
+  - [ ] B Celebrations: Zehnecke + Hantelscheiben fallen und prallen am Boden ab; Zehnecke evtl. großes Zehneck explodiert in viele kleine; Konfetti mehr (oben + Seiten); Kanonen mehr Schüsse; Glitzer länger; Fontäne + Feuerwerk oben, farbige Variante
+  - [ ] C Level-Seite: Verschmelzen hängt an Scroll-Geschwindigkeit → weicher; je Level 3 Highlights (vergleichbare Kennzahlen), aktuelles Level zeigt sie direkt, andere per Antippen
+  - [ ] D Tages-Review: „12 %“ ohne Leerzeichen (kein Überlauf); „Bester Satz“ erklären; 1RM-Info lesbarer (Zeilen, Beispiel abgesetzt mit Rechnung); „Alle Übungen & Sätze“ weg, Satz-Kacheln unter jede Übungs-Überschrift; Vergleich immer mit letztem Mal dieser Übung prüfen
+  - [ ] E Fortschritt-Infos: Prognose-Text passt sich an Einstellung an (6/12 Wochen …); Volumen-Info „Volumen = Gewicht × Wdh.“; Arbeitsgewicht erklären; Personal Bests mit Übungs-Icons + Logik erklären (1 Eintrag je Übung)
+  - [ ] F Freunde: ohne Account „Account anlegen“ statt eigenem Profil; Profil-Verschmelzen etwas später starten; NEU „Kräftemessen“: Übung wählen, Freunde per + hinzufügen, Chart mit Linien je Person, Kurz-Zusammenfassung (wo besser/schlechter, motivierend auch wenn alle besser sind); Dev-Werkzeug „Freunde-Level: alle besser / alle schlechter / Mix“
+  - [ ] F2 Account: Dev-Schalter „Angemeldet (Test-Account) / Nicht angemeldet“ (alter Ben/@test-Rest); „Account anlegen“ ausgegraut bis alles ausgefüllt + beide Haken; AGB/Datenschutz-Fenster aus Anmeldung hängt (kein Schließen/Scrollen) – Bug
+  - [ ] G Workout anlegen: Speichern-Hinweis passend (Name fehlt / Übung fehlt), nach oben scrollen, Namensfeld rot markieren, Namensfeld auffälliger; Übungsliste mit „+“ wie im Bereit-Screen
+  - [ ] G2 Bug: Mini-Leiste schon im Bereit-Screen (vor Start) → erst nach Start; Mini-Leiste muss immer wegzubekommen sein
+  - [ ] G3 Bug: ✕-Umrandung ragt beim Wischen in die rote Löschfläche
+  - [ ] G4 Antwort: Übung hinzufügen / Namen ändern im Bereit-Screen = dauerhaft
+  - [ ] H Training: Hochscrollen in der Liste löst zu schnell Runterwischen aus (nur wenn beim Berühren schon ganz oben); Antippen einer anderen Übung scrollt nicht zur aktuellen; erledigte Sätze auch in früheren Übungen änderbar/zurücksetzbar, Zurücksetzen als sichtbares Symbol in der Satzzeile; danach weiter chronologisch; mehr Review-Sprüche; „Weitere Übungen“ aufgeklappt sichtbar machen (etwas scrollen)
+  - [ ] I Icons: neue Icons realistischer (Arnold Press, Aufrechtes Rudern, SZ-Curls, Sumo-Kreuzheben, Überzüge am Kabel …), alle neuen feinschleifen
+  - [ ] J Eigene Übung: iPhone schlägt „Kontakt ausfüllen“ vor (Feld umbenennen/autocomplete); eigener Bereich mit gestrichelter Umrandung + ✕ zum Schließen
+  - [ ] K Einstellungen: Körpergewicht-Logik bei Dips prüfen + erklären; Trend-Vorschau (Darstellung + Onboarding) läuft durch, verschwindet, startet neu (kein schrittweiser Abbau); Berechnung nutzerfreundlich (Mini-Überschrift, Formel, 1 Satz, keine Entwickler-Notizen), Prognose erklärt, „Neue Rekorde“ klar; Teilen: Link-Zeile mit „Kopieren“; Hilfe: „Schnellanleitung“ statt „Einführung ansehen“; FAQ ausbauen + nach Themen sortieren
+  - [ ] L Browser: Willkommen „Jetzt App installieren“ prominent; Android-Schritte prüfen; Balken kürzer + größere Schrift („App installieren & Daten sichern“); Seite scrollbar wenn Balken da; ohne Account nach jedem Workout Hinweis „Nur auf diesem Gerät gespeichert – Account anlegen“ (Vorschlag) + Dev-Vorschau
+  - [ ] M Push (Dev): mehr + positivere Sprüche je Kategorie; In-App-Balken mit Symbol (Uhr mit Pfeil / Pokal); „App“/„Push“ weiß + Abstand zum ✕; „An alle senden“ (geht erst mit Server)
+  - [ ] N Ostern: Gras + Eier wachsen aus den Ecken der Menüleiste, nie über „Diese Woche“ (auch mit Mini-Leiste)
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
@@ -72,6 +91,8 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 - [ ] **Monetarisierung** (langfristig): z. B. Preset-Workouts hinter einer Paywall (2026-11-01)
 
 ## Ideen-Parkplatz
+- Freunde-Vergleich langfristig: automatische Auswertungstexte (ohne LLM) wo man besser/schlechter ist (2026-11-15)
+- Seasons für einzelne Nutzer abschaltbar (evtl. Premium-Funktion) – Ben unsicher, ob gewünscht (2026-11-15)
 _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App offen._
 - **Achievements / Medaillen / Challenges** zum Freischalten (2026-11-02)
 - **Altersvergleich** in der Community („in deinem Alter bist du …“) – Alter wird im Profil schon erfasst (2026-11-02)
