@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.15.4';
+const APP_VERSION = '0.15.5';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -309,8 +309,8 @@ Object.assign(T.en, {
   infoWeight: '<b>Working weight</b><br>The heaviest weight you moved in this exercise in that session, no matter how many reps. Next to it: how often you made it.<br>Shows whether you dare heavier weights, even if the reps go down.',
   infoPB: '<b>Personal bests</b><br>Per exercise your best set ever (highest estimated max strength). When you improve, the new record replaces the old one. Newest first.',
   infoFc: () => `<b>Forecast</b><br>The dashed line shows where you could be in <b>${S.fcHor || 6} weeks</b> if you keep training like this.<br>Based on ${S.fcLook ? `your sessions of the last <b>${S.fcLook} weeks</b>` : '<b>all</b> your sessions'}. It flattens because strength grows slower over time. Grey = uncertainty.<br>Change the periods in Settings › Display.` });
-// v0.15.3: operator data (imprint + privacy policy). Fields in [ ] are still to be confirmed by Ben.
-const OWNER = { name: 'Benjamin Pellner', street: 'Luxemburger Straße [Hausnummer]', city: '[PLZ] München', mail: '[Kontakt-E-Mail]' };
+// v0.15.3: operator data (imprint + privacy policy)
+const OWNER = { name: 'Benjamin Pellner', street: 'Luxemburger Straße 6', city: '80805 München', mail: 'ben.pellner@gmail.com' }; // mail: later a company address
 const OWN_ADDR = `${OWNER.name}<br>${OWNER.street}<br>${OWNER.city}<br>Deutschland`;
 Object.assign(T.de, { imprint: `<p><b>Angaben gemäß § 5 DDG</b><br>${OWN_ADDR}</p><p><b>Kontakt</b><br>E-Mail: ${OWNER.mail}</p><p><b>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</b><br>${OWNER.name}, Anschrift wie oben</p><p><b>Haftung für Inhalte</b><br>Die Inhalte dieser App wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte, insbesondere geschätzter Werte wie Maximalkraft oder Prognosen, übernehmen wir keine Gewähr. Es gelten die Nutzungsbedingungen.</p><p><b>Verbraucherstreitbeilegung</b><br>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>` });
 Object.assign(T.en, { imprint: `<p><b>Information according to § 5 DDG (Germany)</b><br>${OWN_ADDR.replace('Deutschland', 'Germany')}</p><p><b>Contact</b><br>Email: ${OWNER.mail}</p><p><b>Responsible for content (§ 18 (2) MStV)</b><br>${OWNER.name}, address as above</p><p><b>Liability</b><br>The content of this app was created with great care. No guarantee is given for accuracy, completeness or timeliness, in particular for estimates such as max strength or forecasts. The terms of use apply.</p><p><b>Consumer dispute resolution</b><br>We are neither willing nor obliged to take part in dispute resolution before a consumer arbitration board.</p>` });

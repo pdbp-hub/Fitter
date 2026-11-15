@@ -636,7 +636,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Impressum & Datenschutz: Nutzungsbedingungen verlinkt', await ev(() => !!document.querySelector('[data-sp="terms"]')));
     await click('[data-sp="terms"]'); check('Nutzungsbedingungen mit Haftung + Gesundheit', await ev(() => /Haftung/.test(document.getElementById('v-settings').textContent) && /keine medizinische Anwendung/.test(document.getElementById('v-settings').textContent)));
     await ev(() => { setPage = 'privacy'; renderSettings(); });
-    check('Datenschutzerklärung vollständig (Verantwortlicher, Drittland, Speicherdauer, Rechte, Art. 22, Sichtbarkeit, Änderungen)', await ev(() => { const x = document.getElementById('v-settings').textContent; return ['Benjamin Pellner', 'Frankfurt', 'Standardvertragsklauseln', 'Speicherdauer', 'Art. 22', 'Sichtbarkeit für andere Mitglieder', 'Mindestalter', 'Datensicherheit', 'Änderungen dieser Erklärung', 'BayLDA'].every(w => x.includes(w)); }));
+    check('Datenschutzerklärung vollständig (Verantwortlicher, Drittland, Speicherdauer, Rechte, Art. 22, Sichtbarkeit, Änderungen)', await ev(() => { const x = document.getElementById('v-settings').textContent; return ['Benjamin Pellner', 'Luxemburger Straße 6', '80805 München', 'Frankfurt', 'Standardvertragsklauseln', 'Speicherdauer', 'Art. 22', 'Sichtbarkeit für andere Mitglieder', 'Mindestalter', 'Datensicherheit', 'Änderungen dieser Erklärung', 'BayLDA'].every(w => x.includes(w)); }));
     await back(); await back();
   }
 

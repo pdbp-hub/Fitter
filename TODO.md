@@ -6,14 +6,14 @@
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.15.4 ansehen → Feedback → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.15.5 ansehen → Feedback → „freigeben“ für Live
 - [ ] **🔝🔝 Pflicht, bevor die Cloud live geht** (Claude segnet ab):
   - [ ] Backups der Nutzerdaten (täglich, EU), Wiederherstellung einmal testen
   - [ ] Datenstruktur schlank: Übungen/Gruppen als Kurzcodes, Sätze kompakt (z. B. [kg, Wdh., Sek.]), keine doppelten Daten; Speicher pro Nutzer messen
   - [ ] Account löschen: sofort aus der Datenbank + Profilbilder + Freundschaften; aus Backups: kurze Aufbewahrung (z. B. 7 Tage) + Lösch-Liste, die nach jeder Wiederherstellung erneut angewendet wird (gelöschte Accounts kommen nie zurück); in der Datenschutzerklärung beschreiben
   - [ ] „Account löschen“-Knopf mit echter Server-Löschung verbinden (Vorschau ist in Dev unter Einstellungen › Daten)
   - [ ] Rechtstexte final: Datenschutzerklärung + Nutzungsbedingungen & Haftung, vor jeder Veröffentlichung abgleichen
-  - [ ] Impressum/Datenschutz: Hausnummer, PLZ und Kontakt-E-Mail von Ben eintragen (`OWNER` in app.js); ggf. Impressum-Service statt Privatadresse
+  - [ ] Impressum/Datenschutz: Kontakt-E-Mail später auf Firmen-Adresse umstellen (`OWNER` in app.js)
   - [ ] Zusagen aus der Datenschutzerklärung technisch umsetzen: Backups max. 7 Tage + Lösch-Liste, Protokolle max. 30 Tage, inaktive Accounts nach 24 Monaten (Hinweis-Mail + 4 Wochen), Einwilligung zur pseudonymisierten Auswertung speichern + widerrufbar in den Einstellungen, Datenexport (Art. 20)
   - [ ] AV-Verträge abschließen: Supabase, Brevo (ggf. Anthropic, falls Auswertung)
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
@@ -98,6 +98,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.15.5** (2026-11-15): Impressum + Datenschutz mit vollständiger Anschrift und Kontakt-E-Mail
 - [x] **Live-Schalter repariert** (2026-11-15, Dev v0.15.4): Live-Seite hat jetzt den Lader (lädt die in Dev gewählte Version), live.json/season.json am 10-Minuten-CDN-Cache vorbei, Dev-Werkzeug zeigt die gerade gewählte Version sofort an; Live-Schriften lokal statt Google
 - [x] **Dev v0.15.3** (2026-11-15): Ausführliche Datenschutzerklärung (18 Abschnitte, DSGVO), Impressum mit Bens Namen, freiwillige Einwilligung zur pseudonymisierten Auswertung beim Account anlegen
 - [x] **Dev v0.15.2** (2026-11-15): „Account löschen“ (Einstellungen › Daten, Vorschau bis zur Cloud), Nutzungsbedingungen & Haftung (ausführlicher Entwurf, in Daten + Impressum + Anmeldung), Publish-Check + Schlüssel-Check + Sicherheits-Agent
