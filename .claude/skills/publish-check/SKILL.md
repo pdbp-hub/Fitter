@@ -18,6 +18,8 @@ Prüft: Syntax (Dev + Live), Schlüssel im Code und in der Git-Historie, fremde 
 - **Neue Ausgabe von Nutzertext?** Jede Stelle, die Name, Benutzername, Workout-/Übungsname, Freundesdaten o. Ä. per `innerHTML` einsetzt, nutzt `esc()`.
 - **Neue Netzwerkaufrufe?** Nur eigene Server (GitHub Pages, eigenes Supabase-Projekt in der EU). Keine Drittanbieter ohne Eintrag in der Datenschutzerklärung und Bens Okay.
 - **Schlüssel:** Im Frontend nur der öffentliche Supabase-Schlüssel (anon/publishable). Nie service_role, nie Secret Keys, nie SMTP-/Brevo-Schlüssel (die gehören nur in Supabase-Einstellungen/Edge-Function-Secrets).
+- **Rechtstexte aktuell?** Datenschutzerklärung (`privacyHtml`) und Nutzungsbedingungen & Haftung (`TERMS`) passen zu dem, was die App jetzt tut (neue Daten, Funktionen, Dienstleister). Sonst anpassen.
+- **Fremde Server?** Jeder neue externe Abruf: Ben vorher gefragt? Bei Freigabe ausdrücklich warnen.
 - **Nichts verschwunden?** Nur das geändert, was Ben angefragt hat. Bestehende Features und Tests unverändert grün.
 
 ## 3. Cloud-Teil (sobald Supabase angebunden ist)

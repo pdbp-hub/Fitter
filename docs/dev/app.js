@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.15.1';
+const APP_VERSION = '0.15.2';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -1947,11 +1947,35 @@ const SEASON_GREET = { xmas: { de: ['Ho ho ho, Zeit für Gains.', 'Plätzchen ve
 
 
 // ================= Account (draft until the cloud exists; shown first, before the onboarding) =================
-const AGB_HTML = '<p><b>ENTWURF, noch nicht rechtlich geprüft.</b></p><p><b>1. Geltungsbereich</b><br>Diese Bedingungen gelten für die Nutzung der App TRAIN (Anbieter siehe Impressum).</p><p><b>2. Leistung</b><br>TRAIN hilft dir, Trainings zu planen und Fortschritte zu verfolgen. Die Nutzung ist kostenlos. Es besteht kein Anspruch auf ständige Verfügbarkeit.</p><p><b>3. Account</b><br>Du brauchst ein Mindestalter von 16 Jahren. Deine Zugangsdaten hältst du geheim. Der Benutzername darf keine Rechte Dritter verletzen und nicht beleidigend sein.</p><p><b>4. Gesundheit</b><br>TRAIN ersetzt keine ärztliche oder trainerische Beratung. Du trainierst auf eigene Verantwortung. Points, Prognosen und Schätzungen (z. B. Maximalkraft) sind Richtwerte.</p><p><b>5. Inhalte und Freunde</b><br>Was du für Freunde sichtbar machst, entscheidest du in deinem Profil. Missbrauch kann zur Sperrung führen.</p><p><b>6. Haftung</b><br>Der Anbieter haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper und Gesundheit, sonst nur bei Verletzung wesentlicher Pflichten und begrenzt auf den typischen Schaden.</p><p><b>7. Kündigung und Löschung</b><br>Du kannst deinen Account jederzeit in den Einstellungen löschen. Deine Daten werden dann gelöscht.</p><p><b>8. Änderungen</b><br>Änderungen dieser Bedingungen werden in der App angekündigt.</p><p><b>9. Schluss</b><br>Es gilt deutsches Recht.</p>';
+// v0.15.2: terms of use & liability (draft; kept up to date before every publish)
+const TERMS = {
+  de: '<p><b>ENTWURF, Stand November 2026, noch nicht juristisch geprüft.</b></p>'
+    + '<p><b>1. Geltungsbereich</b><br>Diese Nutzungsbedingungen gelten für die App TRAIN (Web-App, Anbieter siehe Impressum). Mit dem Anlegen eines Accounts oder der Nutzung der App erkennst du sie an.</p>'
+    + '<p><b>2. Leistung</b><br>TRAIN hilft dir, Workouts zu planen, Trainings zu erfassen und Fortschritte zu verfolgen. Die Nutzung ist derzeit kostenlos. Es besteht kein Anspruch auf eine bestimmte Verfügbarkeit oder bestimmte Funktionen; Funktionen können sich ändern oder wegfallen.</p>'
+    + '<p><b>3. Account</b><br>Du musst mindestens 16 Jahre alt sein. Deine Angaben müssen wahr sein, dein Kennwort hältst du geheim. Pro Person ein Account. Der Benutzername darf keine Rechte Dritter verletzen, nicht beleidigend oder irreführend sein.</p>'
+    + '<p><b>4. Gesundheit und Training</b><br>TRAIN ist keine medizinische Anwendung und ersetzt keine ärztliche Untersuchung, Physiotherapie oder Trainerbetreuung. Kläre vor Beginn eines Krafttrainings gesundheitliche Fragen mit einer Ärztin oder einem Arzt. Du trainierst auf eigene Verantwortung, achte auf saubere Technik, angemessene Gewichte und Hilfestellung. Geschätzte Werte (z. B. Maximalkraft, Prognosen, Points, Level) sind rechnerische Richtwerte und keine Empfehlung, ein bestimmtes Gewicht zu heben.</p>'
+    + '<p><b>5. Deine Inhalte und Freunde</b><br>Du bestimmst in deinem Profil, was Freunde sehen. Du darfst keine rechtswidrigen, beleidigenden oder fremden Inhalte (z. B. Fotos anderer Personen ohne Erlaubnis) hochladen. An deinen Inhalten räumst du uns nur die Rechte ein, die für den Betrieb der App nötig sind (Speichern, Anzeigen für dich und deine freigegebenen Freunde).</p>'
+    + '<p><b>6. Verbotene Nutzung</b><br>Untersagt sind Angriffe auf die App oder ihre Server, das Auslesen fremder Daten, automatisierte Massenabfragen, das Umgehen von Sicherheitsmaßnahmen und jede Nutzung, die andere schädigt. Bei Verstößen können wir Inhalte entfernen und Accounts sperren.</p>'
+    + '<p><b>7. Haftung</b><br>Wir haften unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei Schäden aus der Verletzung von Leben, Körper oder Gesundheit, die auf einer Pflichtverletzung von uns beruhen, und nach dem Produkthaftungsgesetz. Bei leichter Fahrlässigkeit haften wir nur bei Verletzung wesentlicher Pflichten (Pflichten, deren Erfüllung die Nutzung erst ermöglicht und auf die du vertrauen darfst), begrenzt auf den typischerweise vorhersehbaren Schaden. Im Übrigen ist die Haftung ausgeschlossen, insbesondere für Verletzungen, die durch eigenes Training, falsche Ausführung oder Überlastung entstehen, sowie für Datenverluste, die durch regelmäßige eigene Sicherung vermeidbar gewesen wären. Da die App kostenlos ist, gelten diese Grenzen soweit gesetzlich zulässig.</p>'
+    + '<p><b>8. Kündigung und Löschung</b><br>Du kannst deinen Account jederzeit unter Einstellungen › Persönliche Daten › Account löschen löschen. Dann werden deine Daten von unseren Servern gelöscht, Sicherungskopien werden nach der in der Datenschutzerklärung genannten Frist überschrieben. Wir können die Nutzung mit angemessener Frist beenden, bei schweren Verstößen sofort.</p>'
+    + '<p><b>9. Änderungen</b><br>Ändern sich diese Bedingungen, informieren wir dich in der App. Wesentliche Änderungen gelten erst, wenn du zustimmst; ohne Zustimmung kannst du deinen Account löschen.</p>'
+    + '<p><b>10. Schlussbestimmungen</b><br>Es gilt deutsches Recht. Zwingende Verbraucherschutzvorschriften deines Wohnsitzlandes bleiben unberührt. Sollte eine Bestimmung unwirksam sein, bleiben die übrigen wirksam.</p>',
+  en: '<p><b>DRAFT, November 2026, not yet legally reviewed. The German version applies.</b></p>'
+    + '<p><b>1. Scope</b><br>These terms apply to the TRAIN web app (provider: see imprint). By creating an account or using the app you accept them.</p>'
+    + '<p><b>2. Service</b><br>TRAIN helps you plan workouts, log sessions and track progress. It is currently free. There is no claim to availability or specific features.</p>'
+    + '<p><b>3. Account</b><br>Minimum age 16. Truthful details, keep your password secret, one account per person, no offensive or misleading usernames.</p>'
+    + '<p><b>4. Health and training</b><br>TRAIN is not a medical app and does not replace a doctor, physiotherapist or coach. Check health questions with a doctor before strength training. You train at your own risk. Estimates (max strength, forecasts, points, levels) are guide values, not a recommendation to lift a certain weight.</p>'
+    + '<p><b>5. Your content and friends</b><br>You decide what friends see. No unlawful, offensive or third-party content. You grant us only the rights needed to run the app.</p>'
+    + '<p><b>6. Prohibited use</b><br>No attacks on the app or its servers, no reading other people’s data, no automated mass requests, no bypassing security. Violations can lead to removal and suspension.</p>'
+    + '<p><b>7. Liability</b><br>Unlimited liability for intent, gross negligence, injury to life, body or health caused by our breach of duty, and under product liability law. For slight negligence only for breach of essential duties, limited to typical foreseeable damage. Otherwise excluded, in particular for injuries from your own training, wrong technique or overload, and for data loss avoidable by your own backups, as far as legally permitted.</p>'
+    + '<p><b>8. Termination and deletion</b><br>You can delete your account any time in Settings › Personal data › Delete account. Your data is then deleted from our servers; backups are overwritten after the period stated in the privacy policy.</p>'
+    + '<p><b>9. Changes</b><br>We announce changes in the app. Material changes only apply with your consent; otherwise you can delete your account.</p>'
+    + '<p><b>10. Final provisions</b><br>German law applies; mandatory consumer protection of your country of residence remains unaffected.</p>' };
+const AGB_HTML = TERMS.de;
 function showAuth(preview, start) {
   const de = S.lang === 'de', el = document.createElement('div'); el.id = 'auth'; el.className = 'onb auth'; $('app').appendChild(el); let mode = start || 'home';
   const done = () => { el.remove(); S.authSeen = true; save(); if (!preview && !S.onboarded) showOnboarding(); };
-  const legal = k => showInfo(k === 'agb' ? `<b>${de ? 'Allgemeine Geschäftsbedingungen' : 'Terms of use'}</b>${AGB_HTML}` : `<b>${t('privacy')}</b>${t('privacyHtml')}`);
+  const legal = k => showInfo(k === 'agb' ? `<b>${de ? 'Nutzungsbedingungen & Haftung' : 'Terms of use & liability'}</b>${TERMS[S.lang]}` : `<b>${t('privacy')}</b>${t('privacyHtml')}`);
   const field = (id, label, type = 'text', ac = 'off') => `<label class="afield"><span>${label}</span><input id="${id}" type="${type}" autocomplete="${ac}" autocapitalize="none" autocorrect="off" spellcheck="false"></label>`;
   const benefits = de ? ['Sichere Speicherung deiner Trainings, auch beim Handywechsel', 'Freunden folgen und Level vergleichen', 'Live mitbekommen, wenn Freunde Rekorde aufstellen', 'Training auf mehreren Geräten'] : ['Your sessions are stored safely, even if you change phones', 'Follow friends and compare levels', 'See live when friends set new records', 'Train on several devices'];
   const draw = () => {
@@ -1961,7 +1985,7 @@ function showAuth(preview, start) {
       <div class="au-btns"><button class="mainbtn" data-am="signup">${de ? 'Account anlegen' : 'Create account'}</button><button class="ghostbtn" data-am="login">${de ? 'Anmelden' : 'Log in'}</button><button class="textbtn" data-am="guest">${de ? 'Als Gast fortfahren' : 'Continue as guest'}</button></div></div>`;
     if (mode === 'signup') el.innerHTML = `<div class="onb-in">${top}<div><h1>${de ? 'Account anlegen' : 'Create account'}</h1></div>
       <div class="au-form">${field('au-user', de ? 'Benutzername (fest, für Freunde sichtbar)' : 'Username (fixed, visible to friends)')}${field('au-mail', 'E-Mail', 'email', 'email')}${field('au-pw', de ? 'Kennwort (mind. 8 Zeichen)' : 'Password (min. 8 characters)', 'password', 'new-password')}
-        <label class="acheck"><input type="checkbox" id="au-agb"><span>${de ? 'Ich akzeptiere die <a data-legal="agb">AGB</a>.' : 'I accept the <a data-legal="agb">terms</a>.'}</span></label>
+        <label class="acheck"><input type="checkbox" id="au-agb"><span>${de ? 'Ich akzeptiere die <a data-legal="agb">Nutzungsbedingungen</a>.' : 'I accept the <a data-legal="agb">terms of use</a>.'}</span></label>
         <label class="acheck"><input type="checkbox" id="au-dse"><span>${de ? 'Ich habe die <a data-legal="dse">Datenschutzerklärung</a> gelesen.' : 'I have read the <a data-legal="dse">privacy policy</a>.'}</span></label></div>
       <button class="mainbtn" id="au-go">${de ? 'Account anlegen' : 'Create account'}</button></div>`;
     if (mode === 'login') el.innerHTML = `<div class="onb-in">${top}<div><h1>${de ? 'Anmelden' : 'Log in'}</h1></div>
@@ -2355,7 +2379,8 @@ function renderSettings() {
         <div class="setrow" style="opacity:.45"><div><b>${t('account')}</b><p>${t('accountHint')}</p></div>${CHEV}</div>
       </div>
       <div style="margin-top:8px"><b>${t('spData')}</b><p class="hint" style="margin-top:4px">${t('localHint')}</p></div>
-      <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>`;
+      <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>
+      ${ENV === 'dev' && !isGuest() ? `<button class="ghostbtn delacc" id="delacc">${S.lang === 'de' ? 'Account löschen' : 'Delete account'}</button><p class="hint">${S.lang === 'de' ? 'Löscht deinen Account und alle Daten von allen Servern, endgültig.' : 'Deletes your account and all data from every server, for good.'}</p>` : ''}`;
   } else if (setPage === 'display') {
     h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
@@ -2392,12 +2417,14 @@ function renderSettings() {
       ${navigator.share ? `<button class="ghostbtn" id="nativeshare">${t('shareNative')}</button>` : ''}`;
   } else if (setPage === 'imprint') {
     h = head(S.lang === 'de' ? 'Impressum & Datenschutz' : 'Imprint & privacy') + `<div class="logic" style="border-top:1px solid var(--line)">${t('imprint')}</div>
-      <button class="setrow sprow" data-sp="privacy"><div style="flex:1;text-align:left"><b>${t('privacy')}</b><p>${t('privacyHint')}</p></div>${CHEV}</button>`;
+      <button class="setrow sprow" data-sp="privacy"><div style="flex:1;text-align:left"><b>${t('privacy')}</b><p>${t('privacyHint')}</p></div>${CHEV}</button><button class="setrow sprow" data-sp="terms"><div style="flex:1;text-align:left"><b>${S.lang === 'de' ? 'Nutzungsbedingungen & Haftung' : 'Terms of use & liability'}</b><p>${t('privacyHint')}</p></div>${CHEV}</button>`;
   } else if (setPage === 'data') {
     h = head(t('spData')) + `<p class="hint">${t('localHint')}</p>
       <button class="ghostbtn" id="resetall" style="border-color:var(--line)">${t('resetAll')}</button>
       <button class="setrow sprow" data-sp="privacy"><div style="flex:1;text-align:left"><b>${t('privacy')}</b><p>${t('privacyHint')}</p></div>${CHEV}</button>
       <p class="hint">${t('version')} ${APP_VERSION}${ENV === 'dev' ? ' · Dev' : ''}</p>`;
+  } else if (setPage === 'terms') {
+    h = head(S.lang === 'de' ? 'Nutzungsbedingungen' : 'Terms of use') + `<div class="logic" style="border-top:1px solid var(--line)">${TERMS[S.lang]}</div>`;
   } else if (setPage === 'privacy') {
     h = head(t('privacy')) + `<div class="logic" style="border-top:1px solid var(--line)">${t('privacyHtml')}</div>`;
   }
@@ -2414,6 +2441,10 @@ function renderSettings() {
   if (setPage === 'share') drawQR();
   document.querySelectorAll('[data-celeb]').forEach(b => b.onclick = () => { S.celeb = b.dataset.celeb; renderSettings(); celebrate(); });
   on('spback', () => { setPage = null; renderSettings(); $('v-settings').scrollTop = 0; });
+  on('delacc', () => { const de = S.lang === 'de';
+    dialog(de ? 'Account löschen?' : 'Delete account?', de ? 'Gelöscht werden <b>endgültig</b>: Account, Trainings, Workouts, Profil, Profilbild und Freundschaften, von allen Servern. Auch aus den Sicherungskopien verschwinden deine Daten (siehe Datenschutzerklärung). Das lässt sich nicht rückgängig machen.' : 'Deleted <b>for good</b>: account, sessions, workouts, profile, photo and friendships, from every server. Your data also disappears from backups (see privacy policy). This cannot be undone.',
+      [[de ? 'Abbrechen' : 'Cancel', 'mainbtn', () => {}], [de ? 'Weiter' : 'Continue', 'ghostbtn', () => dialog(de ? 'Wirklich endgültig löschen?' : 'Really delete for good?', '', [[de ? 'Abbrechen' : 'Cancel', 'mainbtn', () => {}], [de ? 'Ja, Account löschen' : 'Yes, delete account', 'ghostbtn', () => {
+        S.guest = true; save(); toast(de ? 'Vorschau: Mit dem Cloud-Modus wird hier alles gelöscht' : 'Preview: with cloud sync everything is deleted here'); renderSettings(); }]])]]); });
   on('resetall', () => dialog(t('resetAllTitle'), t('resetAllText'), [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => dialog(t('resetAllTitle'), '', [[t('resetAllNo'), 'mainbtn', () => {}], [t('resetAllYes'), 'ghostbtn', () => { try { localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); }]])]]));
   setPage !== 'profile' && $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
   on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));

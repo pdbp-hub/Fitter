@@ -626,6 +626,13 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=settings]'); await sp('share');
     check('Teilen: „Kopieren“ direkt in der Link-Zeile', await ev(() => !!document.querySelector('.linkrow #copylink')));
     await back();
+    await sp('personal');
+    check('Persönliche Daten: „Account löschen“', await ev(() => !!document.getElementById('delacc')));
+    await click('#delacc'); check('Account löschen: erste Nachfrage nennt Server + Sicherungskopien', await ev(() => /allen Servern/.test(document.getElementById('overlay').textContent) && /Sicherungskopien/.test(document.getElementById('overlay').textContent)));
+    await click('#overlay .mainbtn'); await back(); await sp('imprint');
+    check('Impressum & Datenschutz: Nutzungsbedingungen verlinkt', await ev(() => !!document.querySelector('[data-sp="terms"]')));
+    await click('[data-sp="terms"]'); check('Nutzungsbedingungen mit Haftung + Gesundheit', await ev(() => /Haftung/.test(document.getElementById('v-settings').textContent) && /keine medizinische Anwendung/.test(document.getElementById('v-settings').textContent)));
+    await back(); await back();
   }
 
   if (!TARGET) {

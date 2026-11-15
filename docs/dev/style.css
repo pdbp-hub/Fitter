@@ -1192,3 +1192,4 @@ body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-
 #season-grass .grass { position: absolute; bottom: 0; width: 110px; margin: 0; }
 #season-grass .grass svg { width: 100%; display: block; }
 #season-grass .gl { left: 0; } #season-grass .gr { right: 0; transform: scaleX(-1); }
+.delacc { color: #e5484d !important; border-color: rgba(229,72,77,.5) !important; }

@@ -7,7 +7,13 @@
 - [ ] Live-Versionswahl greift ab der nächsten Freigabe (release.py baut den Lader in die Live-App ein)
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.15.1 ansehen → Feedback → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.15.2 ansehen → Feedback → „freigeben“ für Live
+- [ ] **🔝🔝 Pflicht, bevor die Cloud live geht** (Claude segnet ab):
+  - [ ] Backups der Nutzerdaten (täglich, EU), Wiederherstellung einmal testen
+  - [ ] Datenstruktur schlank: Übungen/Gruppen als Kurzcodes, Sätze kompakt (z. B. [kg, Wdh., Sek.]), keine doppelten Daten; Speicher pro Nutzer messen
+  - [ ] Account löschen: sofort aus der Datenbank + Profilbilder + Freundschaften; aus Backups: kurze Aufbewahrung (z. B. 7 Tage) + Lösch-Liste, die nach jeder Wiederherstellung erneut angewendet wird (gelöschte Accounts kommen nie zurück); in der Datenschutzerklärung beschreiben
+  - [ ] „Account löschen“-Knopf mit echter Server-Löschung verbinden (Vorschau ist in Dev unter Einstellungen › Daten)
+  - [ ] Rechtstexte final: Datenschutzerklärung + Nutzungsbedingungen & Haftung, vor jeder Veröffentlichung abgleichen
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
   - [ ] Sicherheit: `security-auditor` vor jeder Freigabe (RLS-Angriffe mit 2 Test-Accounts, XSS, Speicher, Anmeldung, Schlüssel); Schlüssel-Check läuft schon automatisch
   - [ ] Account löschen löscht wirklich alles (Auth, Tabellen per Cascade, Profilbilder, Freundschaften) + Test; Backup-Frist in Datenschutzerklärung
@@ -91,6 +97,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.15.2** (2026-11-15): „Account löschen“ (Einstellungen › Daten, Vorschau bis zur Cloud), Nutzungsbedingungen & Haftung (ausführlicher Entwurf, in Daten + Impressum + Anmeldung), Publish-Check + Schlüssel-Check + Sicherheits-Agent
 - [x] **Dev v0.15.1** (2026-11-15): Intro 1 zurück auf die alte Version (TRAIN, blendet aus); App heißt jetzt „TRAIN“ (Live) und „TRAIN Dev“ (Name auf dem Homescreen + im Browser-Tab, Live direkt auf Bens Wunsch)
 - [x] **Dev v0.15.0** (2026-11-15, letzte Runde vor der Cloud): Intros ohne TRAIN-Sprung, Celebrations mit Abprallen/Explosion/mehr Konfetti, Level-Seite weich + 3 Highlights je Level, Tages-Review (12%, Sätze unter der Übung, Bester Satz erklärt, 1RM mit Rechenbeispiel), Fortschritt-Infos (Prognose passt sich an, Volumen, Arbeitsgewicht, PBs mit Icons), Freunde: Kräftemessen + Gast-Zeile, Account-Dev-Schalter, Anmelde-Button grau bis vollständig, AGB/Datenschutz-Fenster repariert, Workout anlegen (Hinweise je Feld, rotes Namensfeld, „+“-Liste), keine Mini-Leiste vor Start + Leiste wegwischbar, ✕ ragt nicht mehr in die Löschfläche, Training (Runterwischen nur von ganz oben, kein Zurückspringen, ↺ in jedem erledigten Satz, mehr Sprüche), Icons realistischer, eigene Übung im gestrichelten Rahmen ohne iOS-Kontakt-Vorschlag, Berechnung/FAQ/Teilen/Schnellanleitung neu, Install-Banner + „Jetzt App installieren“ + Gast-Hinweis nach dem Training, Push-Sprüche positiv + Banner-Icons, Ostergras an der Menüleiste
 - [x] **Dev v0.14.0** (2026-11-08): App-Start ohne Weiß, 1RM sauber (stärkster Satz, 1 Wdh. = Gewicht, Deckel 12) + erklärt, Points: schwerer = Fortschritt, Review „Gewicht pro Satz“, Prozent-Überlauf, „Weitere Übungen“ als Zeile, Fortschritt-Links schlicht + PB-„Weniger“-Sprung, Charts-Abstände, Ostergras nur Train-Start, Santa-Mütze, Ohren hüpfen synchron, Profil bearbeiten direkt im Profil (Griffe, Wischen/✕, Element hinzufügen, 3 neue Elemente, Speichern oben), Gast ohne Profil, Browser-Balken „Zum Homescreen“, Datenschutz-Entwurf ausführlich, Muskelgruppen mehrfach + neue Gruppen, 7 neue Übungen, ~40 neue Personen-Icons, eigene Übungen: mehrere Gruppen, Rückfrage, Wisch-Löschen (Workout + ganz), „Eigene“-Kennzeichnung + Filter, Celebrations Luftschlangen/Zehnecke/Kanonen
