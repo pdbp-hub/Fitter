@@ -97,7 +97,7 @@ const T = {
     dlgBackTitle:'Workout verwerfen?', dlgBackText:'Deine Eingaben gehen verloren.', dlgBackNo:'Weiter bearbeiten', dlgBackYes:'Verwerfen',
     slogans:['Stark. Workout erledigt.','Das war Arbeit. Gute Arbeit.','Eisen bewegt. Ziel erreicht.','Heute stärker als gestern.','Abgehakt. Erhol dich gut.','Saubere Leistung.'],
     ptsEarned:'Points verdient', duration:'Dauer', highlightEx:'Highlight-Übung', today2:'Heute', lastTime:'Letztes Mal', allEx:'Alle Übungen', newPR:'Neuer Rekord', strength:'Kraft', volume:'Volumen', emptyReview:'Noch keine Sätze eingetragen.',
-    namePh:'Name, z. B. Arm Day', chosen:'Reihenfolge', searchPh:'Übung suchen …', customAdd:'+ Eigene Übung', customName:'Name der Übung', muscle:'Muskelgruppe', equipment:'Equipment', add:'Übung hinzufügen', save:'Speichern', saveN:n=>`Speichern (${n})`, needName:'Bitte Namen und mindestens eine Übung wählen', needCustom:'Bitte Namen der Übung eingeben', saved:'Workout angelegt', own:'Eigene',
+    namePh:'z. B. Arm Day', chosen:'Reihenfolge', searchPh:'Übung suchen …', customAdd:'+ Eigene Übung', customName:'Übung, z. B. Kabel-Fliegende', muscle:'Muskelgruppe', equipment:'Equipment', add:'Übung hinzufügen', save:'Speichern', saveN:n=>`Speichern (${n})`, needName:'Bitte Namen und mindestens eine Übung wählen', needCustom:'Bitte Namen der Übung eingeben', saved:'Workout angelegt', own:'Eigene',
     pickEx:'Übung wählen', onlyFav:'Nur Favoriten', notTrained:'noch nicht trainiert',
     groups:{chest:'Brust',shoulders:'Schultern',triceps:'Trizeps',back:'Rücken',biceps:'Bizeps',legs:'Beine'}, eqs:{bb:'Langhantel',db:'Kurzhantel',cable:'Kabel',machine:'Maschine',bw:'Körpergewicht'},
     wd:['Mo','Di','Mi','Do','Fr','Sa','So'],
@@ -129,7 +129,7 @@ const T = {
     dlgBackTitle:'Discard workout?', dlgBackText:'Your changes will be lost.', dlgBackNo:'Keep editing', dlgBackYes:'Discard',
     slogans:['Strong. Workout done.','That was work. Good work.','Iron moved. Goal reached.','Stronger than yesterday.','Done. Recover well.','Clean performance.'],
     ptsEarned:'points earned', duration:'Duration', highlightEx:'Highlight exercise', today2:'Today', lastTime:'Last time', allEx:'All exercises', newPR:'New record', strength:'Strength', volume:'Volume', emptyReview:'No sets logged yet.',
-    namePh:'Name, e.g. Arm Day', chosen:'Order', searchPh:'Search exercise …', customAdd:'+ Custom exercise', customName:'Exercise name', muscle:'Muscle group', equipment:'Equipment', add:'Add exercise', save:'Save', saveN:n=>`Save (${n})`, needName:'Please enter a name and pick at least one exercise', needCustom:'Please enter the exercise name', saved:'Workout created', own:'Custom',
+    namePh:'e.g. Arm Day', chosen:'Order', searchPh:'Search exercise …', customAdd:'+ Custom exercise', customName:'Exercise, e.g. cable flyes', muscle:'Muscle group', equipment:'Equipment', add:'Add exercise', save:'Save', saveN:n=>`Save (${n})`, needName:'Please enter a name and pick at least one exercise', needCustom:'Please enter the exercise name', saved:'Workout created', own:'Custom',
     pickEx:'Choose exercise', onlyFav:'Favourites only', notTrained:'not trained yet',
     groups:{chest:'Chest',shoulders:'Shoulders',triceps:'Triceps',back:'Back',biceps:'Biceps',legs:'Legs'}, eqs:{bb:'Barbell',db:'Dumbbell',cable:'Cable',machine:'Machine',bw:'Body weight'},
     wd:['Mo','Tu','We','Th','Fr','Sa','Su'],
@@ -234,6 +234,10 @@ const SLOGANS = {
     pr:['New record! Strong.','Record broken.','Stronger than ever.','Personal best!','Limit moved.','That was a PR.'] } };
 SLOGANS.de.any.push('Jetzt ein Protein-Shake. Verdient.', 'Das Pre-Workout hat geliefert.', 'Die Muskeln rufen nach Protein.');
 SLOGANS.en.any.push('Protein shake time. Earned.', 'The pre-workout delivered.', 'Your muscles are calling for protein.');
+SLOGANS.de.any.push('Gekommen, gehoben, gewonnen.', 'Dein zukünftiges Ich sagt danke.', 'Ausreden: 0. Sätze: alle.', 'Das Eisen hat verloren.', 'Konstanz ist dein Superpower.', 'Wieder da gewesen. Das ist der Trick.', 'Muskelkater ist Fortschritt auf Raten.', 'Heute investiert, morgen stärker.', 'Kein Satz zu viel, keiner zu wenig.', 'Stark gemacht. Ab unter die Dusche.', 'Ein Training näher am nächsten Level.', 'Diese Wiederholungen gehören dir.');
+SLOGANS.en.any.push('Came, lifted, conquered.', 'Your future self says thanks.', 'Excuses: 0. Sets: all.', 'The iron lost.', 'Consistency is your superpower.', 'Showed up again. That’s the trick.', 'Sore muscles are progress in instalments.', 'Invested today, stronger tomorrow.', 'Not one set too many, not one too few.', 'Well done. Hit the showers.', 'One session closer to the next level.', 'Those reps are yours.');
+SLOGANS.de.pr.push('Neue Bestmarke. Merk dir dieses Gefühl.', 'Rekord! Heute wurde Geschichte geschrieben.', 'Mehr als je zuvor. Einfach stark.', 'Das Limit von gestern ist dein Aufwärmen von morgen.');
+SLOGANS.en.pr.push('New best. Remember this feeling.', 'Record! History made today.', 'More than ever before. Just strong.', 'Yesterday’s limit is tomorrow’s warm-up.');
 function pickSlogan(pr) {
   const L = SLOGANS[S.lang], h = new Date().getHours(), slot = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 18 ? 'day' : h >= 18 && h < 23 ? 'evening' : 'night';
   const pool = pr ? L.pr : L.any.concat(L[slot], L[slot]); return pool[Math.floor(Math.random() * pool.length)];
@@ -680,6 +684,7 @@ function openW() {
 function minimize() {
   const s = $('wsheet'), m = $('mini');
   if (!W) { s.classList.add('down'); s.style.transform = ''; m.hidden = true; return; }
+  if (W.mode === 'ready') { s.style.transform = ''; closeW(); return; }
   if (morphing) return; morphing = true;
   m.hidden = false; tick(); m.style.transition = 'none'; m.style.opacity = '0';
   const { tf, br } = morphTarget();
@@ -720,7 +725,7 @@ function swipeRows(container, rowSel, onDelete) {
   if (!container) return; container.style.position = 'relative';
   container.querySelectorAll(':scope > ' + rowSel).forEach((row, idx) => {
     let x0 = null, y0 = 0, dx = 0, mode = null, base = 0, bg = null;
-    const setX = x => { row.style.transform = x ? `translateX(${x}px)` : ''; };
+    const setX = x => { row.style.transform = x ? `translateX(${x}px)` : ''; if (bg) bg.style.width = Math.max(0, -x) + 'px'; }; // red area = exactly the uncovered part, drawn above the row so nothing pokes into it
     const ensureBg = () => { if (bg) return; bg = document.createElement('button'); bg.className = 'swipe-del'; bg.innerHTML = `<span>${t('swipeDel')}</span>`;
       bg.style.top = row.offsetTop + 'px'; bg.style.height = row.offsetHeight + 'px'; container.insertBefore(bg, row);
       bg.onclick = ev => { ev.stopPropagation(); onDelete(idx, () => { setX(0); base = 0; }); }; };
@@ -799,11 +804,12 @@ function blockHTML(e, i) {
   let h = `<div class="block ${isCur ? 'cur' : ''} ${complete && !isCur ? 'done' : ''}"><div class="bhead"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(e.k)}<button class="tapzone exname" data-tog="${i}">${esc(exName(e.k))}${isCur && open && LAST[e.k] ? `<small>${t('lastShort', wLabel(e.k, LAST[e.k][0]), LAST[e.k][1])}</small>` : ''}</button><span class="stat num">${n}/${e.target}${complete ? ' ✓' : ''}</span><span class="grip" data-grip aria-label="ziehen">${GRIP}</span></div>`;
   if (open) {
     h += `<div class="setlist">`;
+    const num = j => (W.redoAt && W.redoAt[0] === i && j >= W.redoAt[1]) ? j + 2 : j + 1;
     e.sets.forEach((s, j) => {
       if (W.edit && W.edit[0] === i && W.edit[1] === j) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', j+1)}</span><button class="reset" data-saveedit="1">${t('ok')}</button></div>${inputsHTML('ed', s.w, s.r, e.k)}${j === n - 1 ? `<button class="textbtn redo" data-redo="${i}">↺ ${S.lang === 'de' ? 'Satz zurücksetzen und neu machen' : 'Reset and redo this set'}</button>` : ''}</div>`;
-      else h += `<button class="set" data-edit="${i}:${j}"><span class="idx num">${j+1}</span><span class="sv num">${esc(wLabel(e.k, s.w))} × ${s.r}</span><span class="st num">${mmss(s.d || 0)}</span><span>✓</span></button>`;
+      else h += `<div class="set donerow" data-edit="${i}:${j}" role="button" tabindex="0"><span class="idx num">${num(j)}</span><span class="sv num">${esc(wLabel(e.k, s.w))} × ${s.r}</span><span class="st num">${mmss(s.d || 0)}</span><span>✓</span><button class="sx rsx" data-redoset="${i}:${j}" aria-label="${S.lang === 'de' ? 'Satz zurücksetzen' : 'Reset set'}">↺</button></div>`;
     });
-    if (isCur && n < e.target) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', n+1)}</span>${W.phase === 'set' ? `<button class="reset" id="resetbtn" aria-label="Reset">↺ ${t('resetLbl')}</button>` : ''}</div>${inputsHTML('cu', e.w, e.r, e.k)}</div>`;
+    if (isCur && n < e.target) h += `<div class="set active"><div class="activehead"><span class="lbl">${t('setLabel', W.redoAt && W.redoAt[0] === i ? W.redoAt[1] + 1 : n+1)}</span>${W.phase === 'set' ? `<button class="reset" id="resetbtn" aria-label="Reset">↺ ${t('resetLbl')}</button>` : ''}</div>${inputsHTML('cu', e.w, e.r, e.k)}</div>`;
     for (let j = n + (isCur ? 1 : 0); j < e.target; j++) { const p = (e.plan && e.plan[j]) || e; h += `<div class="set planned" data-goto="${i}" role="button" tabindex="0"><span class="idx num">${j+1}</span><span class="sv num">${esc(wLabel(e.k, p.w))} × ${p.r}</span><span></span><button class="sx" data-tsx="${i}:${j}" aria-label="${t('delSetT')}">✕</button></div>`; }
     h += `<button class="addset" data-addset="${i}">${t('addSet')}</button></div>`;
   }
@@ -832,11 +838,14 @@ function bindW() {
   $('wtitle') && wById(W.src.id) && ($('wtitle').onclick = () => $('wrename').click());
   $('wname') && ($('wname').onblur = () => { const n = $('wname').value.trim(); W.renaming = false; if (n) { W.name = n; const w = wById(W.src.id); if (w) w.name = n; } renderW(); });
   $('blocks') && sortable($('blocks'), '.block', (f, to) => { const c = W.ex[W.cur]; moveItem(W.ex, f, to); W.cur = W.ex.indexOf(c); W.open = {}; renderW(); });
-  q('[data-tog]').forEach(b => b.onclick = () => { const i = +b.dataset.tog; if (i === W.cur) W.curClosed = !W.curClosed; else W.open[i] = !W.open[i]; renderW(); });
+  q('[data-tog]').forEach(b => b.onclick = () => { const i = +b.dataset.tog; W.noScroll = true; if (i === W.cur) W.curClosed = !W.curClosed; else W.open[i] = !W.open[i]; renderW(); });
   q('[data-goto]').forEach(b => b.onclick = () => { const i = +b.dataset.goto; if (i === W.cur) return; readInputs(); W.cur = i; W.open = {}; W.curClosed = false; W.edit = null; applyPlan(W.ex[i]); if (W.phase === 'set') { W.phase = 'rest'; W.phaseStart = Date.now(); } renderW(); });
   q('[data-addset]').forEach(b => b.onclick = () => { readInputs(); const e = W.ex[+b.dataset.addset]; ensurePlan(e); const l = e.plan[e.plan.length - 1] || e; e.plan.push({ w: l.w, r: l.r }); e.target++; renderW(); });
-  q('[data-edit]').forEach(b => b.onclick = () => { readInputs(); W.edit = b.dataset.edit.split(':').map(Number); renderW(); });
-  q('[data-saveedit]').forEach(b => b.onclick = () => { readInputs(); W.edit = null; renderW(); });
+  q('[data-edit]').forEach(b => b.onclick = () => { readInputs(); W.noScroll = true; W.edit = b.dataset.edit.split(':').map(Number); renderW(); });
+  q('[data-saveedit]').forEach(b => b.onclick = () => { readInputs(); W.noScroll = true; W.edit = null; renderW(); });
+  q('[data-redoset]').forEach(b => b.onclick = ev => { ev.stopPropagation(); readInputs(); const [i, j] = b.dataset.redoset.split(':').map(Number), de = S.lang === 'de';
+    dialog(de ? `Satz ${j + 1} zurücksetzen?` : `Reset set ${j + 1}?`, de ? 'Der Satz ist sofort wieder dran. Danach geht es dort weiter, wo du warst.' : 'The set is up again right away. After that you continue where you were.', [[de ? 'Behalten' : 'Keep', 'mainbtn', () => {}], [de ? 'Zurücksetzen' : 'Reset', 'ghostbtn', () => {
+      const e = W.ex[i], st = e.sets.splice(j, 1)[0]; if (!st) return; if (W.redoAt == null) W.back = W.cur; W.redoAt = [i, j]; W.edit = null; W.cur = i; W.open = {}; W.curClosed = false; e.w = st.w; e.r = st.r; W.phase = 'rest'; W.phaseStart = Date.now(); save(); renderW(); }]]); });
   q('[data-redo]').forEach(b => b.onclick = () => { readInputs(); const i = +b.dataset.redo, e = W.ex[i], st = e.sets.pop(); W.edit = null; W.cur = i; W.open = {}; W.curClosed = false; applyPlan(e); e.w = st.w; e.r = st.r; W.phase = 'rest'; W.phaseStart = Date.now(); renderW(); });
   $('resetbtn') && ($('resetbtn').onclick = () => dialog(t('resetTitle'), t('resetText'), [[t('resetNo'), 'mainbtn', () => {}], [t('resetYes'), 'ghostbtn', () => { W.restCarry = (W.restCarry || 0) + (Date.now() - W.phaseStart); W.phaseStart = Date.now(); renderW(); }]]));
   q('[data-st]').forEach(b => b.onclick = () => {
@@ -851,11 +860,16 @@ function bindW() {
   $('finishbtn') && ($('finishbtn').onclick = toReview);
   $('nocd') && ($('nocd').onclick = toReview);
   $('donebtn') && ($('donebtn').onclick = saveWorkout);
-  q('[data-rvtog]').forEach(b => b.onclick = () => { W.rvOpen = !W.rvOpen; renderW(); });
+  q('[data-rvtog]').forEach(b => b.onclick = () => { W.rvOpen = !W.rvOpen; renderW(); if (W.rvOpen) revealMore($('wbody')); });
   $('mainact') && ($('mainact').onclick = () => {
     readInputs(); const e = curEx(), a = $('mainact').dataset.a;
     if (a === 'start') { W.phase = 'set'; W.phaseStart = Date.now(); }
-    else if (a === 'done') { e.sets.push({ w:e.w, r:e.r, d:Math.round((Date.now() - W.phaseStart) / 1000) }); W.phase = 'rest'; W.phaseStart = Date.now(); applyPlan(e); if (e.sets.length >= e.target && !allDone()) { W.cur = nextOpen(); W.open = {}; W.curClosed = false; applyPlan(W.ex[W.cur]); } }
+    else if (a === 'done') { const set = { w:e.w, r:e.r, d:Math.round((Date.now() - W.phaseStart) / 1000) }; W.phase = 'rest'; W.phaseStart = Date.now();
+      if (W.redoAt && W.redoAt[0] === W.cur) { // redone set goes back to its place, then continue where you were
+        e.sets.splice(Math.min(W.redoAt[1], e.sets.length), 0, set); const back = W.back; W.redoAt = null; W.back = null; applyPlan(e);
+        const goBack = back != null && back !== W.cur && W.ex[back] && W.ex[back].sets.length < W.ex[back].target;
+        if (goBack || (e.sets.length >= e.target && !allDone())) { W.cur = goBack ? back : nextOpen(); W.open = {}; W.curClosed = false; applyPlan(W.ex[W.cur]); } }
+      else { e.sets.push(set); applyPlan(e); if (e.sets.length >= e.target && !allDone()) { W.cur = nextOpen(); W.open = {}; W.curClosed = false; applyPlan(W.ex[W.cur]); } } }
     else if (a === 'next') { W.cur = nextOpen(); W.open = {}; W.curClosed = false; applyPlan(W.ex[W.cur]); }
     else if (a === 'cool') { W.mode = 'cooldown'; W.phaseStart = Date.now(); }
     renderW();
@@ -864,6 +878,7 @@ function bindW() {
 function toReview() { setTimeout(() => celebrate(seasonNow() || S.celeb), 250); W.mode = 'review'; W.end = Date.now(); W.slogan = pickSlogan(W.ex.some(e => e.sets.length && (() => { const p = sessionsFor(e.k); const b = Math.max(...e.sets.map(x => e1rm(Math.max(0, effW(e.k, x.w)), Math.min(x.r, 12)))); return p.length && b > Math.max(...p.map(q => q.best)); })())); renderW(); $('wbody').scrollTop = 0; }
 // scrolls so the current exercise (and its active set) stays fully visible
 function keepCurInView() {
+  if (W.noScroll) { W.noScroll = false; return; }
   const body = $('wbody'), b = body.querySelector('.block.cur'); if (!b) return;
   const br = body.getBoundingClientRect(), r = b.getBoundingClientRect(), a = b.querySelector('.set.active'), ar = a ? a.getBoundingClientRect() : r;
   const barH = $('wbar').getBoundingClientRect().height || 0, viewBottom = br.bottom - barH;
@@ -971,6 +986,7 @@ function reviewCore(o) {
   if (rest.length) { h += `<button class="morebtn morerow" data-rvtog="1"><span>${t('moreEx')} <b class="num">${rest.length}</b></span><span class="mdec dec">${o.open ? '−' : '+'}</span></button>`; if (o.open) h += `<div>${rest.map((x, i) => exBlock(x, false, o.key + i)).join('')}</div>`; }
   return h;
 }
+function revealMore(sc) { const m = sc && sc.querySelector('.morerow'); if (!m) return; requestAnimationFrame(() => { const top = m.getBoundingClientRect().top - sc.getBoundingClientRect().top; sc.scrollTo({ top: sc.scrollTop + Math.max(0, top - 70), behavior: 'smooth' }); }); }
 function reviewHTML() {
   const dur = Math.max(1, Math.round(((W.end || Date.now()) - (W.start || Date.now())) / 60000));
   return reviewCore({ name: W.name, slogan: W.slogan, ex: W.ex.filter(e => e.sets.length), dur, before: W.start || Date.now(), key: 'w', open: W.rvOpen });
@@ -1000,11 +1016,15 @@ function tick() {
   }
 }
 setInterval(tick, 250);
-$('mini').onclick = openW;
+$('mini').onclick = () => { if (!$('mini').dataset.swiped) openW(); };
 (() => { const m = $('mini'); let y0 = null; // swipe the bar up = open the workout (like a music app)
-  m.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; }, { passive: true });
-  m.addEventListener('touchmove', e => { if (y0 !== null && y0 - e.touches[0].clientY > 24) { y0 = null; openW(); } }, { passive: true });
-  m.addEventListener('touchend', () => { y0 = null; }, { passive: true }); })();
+  let x0 = null;
+  m.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; m.style.transition = 'none'; }, { passive: true });
+  m.addEventListener('touchmove', e => { if (y0 === null) return; const dx = e.touches[0].clientX - x0, dy = y0 - e.touches[0].clientY;
+    if (dy > 24 && Math.abs(dx) < 30) { y0 = null; m.style.transform = ''; openW(); return; }
+    if (Math.abs(dx) > 12 && Math.abs(dx) > dy) m.style.transform = `translateX(${dx}px)`; }, { passive: true });
+  m.addEventListener('touchend', e => { const dx = x0 === null ? 0 : e.changedTouches[0].clientX - x0; m.style.transition = ''; m.style.transform = ''; y0 = x0 = null;
+    if (Math.abs(dx) > 90 && W) { m.dataset.swiped = '1'; setTimeout(() => delete m.dataset.swiped, 400); if (W.mode === 'ready') closeW(); else { openW(); if (W.mode !== 'review') setTimeout(endDialog, 480); } } }, { passive: true }); })();
 (() => { // swipe down to minimise: handle (mouse + touch) and anywhere when scrolled to top (touch)
   const s = $('wsheet'), body = $('wbody');
   const drag = dy => { s.style.transition = 'none'; s.style.transform = `translateY(${Math.max(0, dy)}px)`; };
@@ -1015,9 +1035,9 @@ $('mini').onclick = openW;
   const end = () => { if (y0 === null) return; y0 = null; release(dy); };
   h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
   let ty = null, tdy = 0, active = false;
-  let inHead = false;
-  s.addEventListener('touchstart', e => { if (e.target.closest('[data-grip], input, .handle, button')) { ty = null; return; } ty = e.touches[0].clientY; tdy = 0; active = false; inHead = !!e.target.closest('#whead'); }, { passive:true });
-  s.addEventListener('touchmove', e => { if (ty === null) return; const d = e.touches[0].clientY - ty; if (!active && d > 8 && (inHead || body.scrollTop <= 0)) active = true; if (active) { e.preventDefault(); tdy = d; drag(d); } }, { passive:false });
+  let inHead = false, atTop = false;
+  s.addEventListener('touchstart', e => { if (e.target.closest('[data-grip], input, .handle, button')) { ty = null; return; } ty = e.touches[0].clientY; tdy = 0; active = false; inHead = !!e.target.closest('#whead'); atTop = body.scrollTop <= 0; }, { passive:true });
+  s.addEventListener('touchmove', e => { if (ty === null) return; const d = e.touches[0].clientY - ty; if (!active && d > 8 && (inHead || (atTop && body.scrollTop <= 0))) active = true; if (active) { e.preventDefault(); tdy = d; drag(d); } }, { passive:false });
   s.addEventListener('touchend', () => { if (active) release(tdy); ty = null; active = false; });
 })();
 
@@ -1110,19 +1130,20 @@ function renderO() {
       </div>`;
     setOBar('');
     $('o-back').onclick = () => { if (O.back != null) { O = { mode:'day', ago: O.back }; renderO(); } else closeO(); };
-    b.querySelectorAll('[data-rvtog]').forEach(x => x.onclick = () => { O.open = !O.open; renderO(); });
+    b.querySelectorAll('[data-rvtog]').forEach(x => x.onclick = () => { O.open = !O.open; renderO(); if (O.open) revealMore($('obody')); });
     bindRvCharts(b);
     return;
   }
   if (O.mode === 'create') {
     const chosen = O.picked.map(([k, n], i) => `<div class="srow"><span class="idx num">${String(i+1).padStart(2,'0')}</span>${ico(k)}<div class="exname" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="min-width:0">${esc(exName(k))}</span><span class="mini-step"><button data-ps="${i}:-1" aria-label="minus">−</button><span class="num">${t('sets', n)}</span><button data-ps="${i}:1" aria-label="plus">+</button></span></div><span class="grip" data-grip aria-label="ziehen">${GRIP}</span></div>`).join('');
-    const custom = O.custom ? `<div class="custom"><input id="c-name" name="fitter-exercise" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="${t('customName')}" value="${esc(O.custom.name)}">
+    const custom = O.custom ? `<div class="custom cbox"><div class="row"><b class="eyebrow">${t('customAdd').replace('+ ', '')}</b><button class="iconbtn" id="c-cancel" aria-label="${S.lang === 'de' ? 'Schließen' : 'Close'}">✕</button></div>
+        <input id="c-ttl" name="fx-uebung" type="text" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" data-form-type="other" data-lpignore="true" enterkeyhint="done" placeholder="${t('customName')}" value="${esc(O.custom.name)}">
         <div><div class="eyebrow" style="margin-bottom:8px">${t('muscle')}</div><div class="opts">${Object.entries(t('groups')).map(([g, l]) => `<button class="${O.custom.gs.includes(g)?'on':''}" data-cg="${g}">${l}</button>`).join('')}</div></div>
         <div><div class="eyebrow" style="margin-bottom:8px">${t('equipment')}</div><div class="opts">${Object.entries(t('eqs')).map(([g, l]) => `<button class="${O.custom.eq===g?'on':''}" data-ce="${g}">${l}</button>`).join('')}</div></div>
-        <button class="ghostbtn" id="c-add" style="border-style:dashed">${t('addCustom')}</button><button class="textbtn" id="c-cancel" style="align-self:center">${t('never')}</button></div>` : '';
+        <button class="mainbtn" id="c-add">${t('addCustom')}</button></div>` : '';
     b.innerHTML = `<div class="inner">
       <div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${O.editId ? t('editWorkout') : t('newWorkout')}</span><span style="width:44px"></span></div>
-      <input class="field" id="o-name" enterkeyhint="done" placeholder="${t('namePh')}" value="${esc(O.name)}">
+      <label class="namewrap"><span class="eyebrow">${S.lang === 'de' ? 'Name des Workouts' : 'Workout name'}</span><input class="field" id="o-name" enterkeyhint="done" autocomplete="off" data-form-type="other" placeholder="${t('namePh')}" value="${esc(O.name)}"></label>
       ${O.picked.length ? `<div><div class="eyebrow" style="margin-bottom:4px">${t('chosen')}</div><div class="sortlist" id="chosen">${chosen}</div></div>` : ''}
       <div style="display:flex;flex-direction:column;gap:10px">${O.custom ? custom : `<button class="newbtn" id="c-open" style="border-style:dashed"><span>${t('customAdd')}</span></button>`}
         <div class="searchrow"><input class="search" id="o-q" enterkeyhint="search" placeholder="${t('searchPh')}" value="${esc(O.q)}"></div>${filterRowHTML()}</div>
@@ -1131,21 +1152,23 @@ function renderO() {
     $('o-del') && ($('o-del').onclick = () => dialog(t('delWTitle'), t('delWText'), [[t('keep'), 'mainbtn', () => {}], [t('delYes'), 'ghostbtn', () => { const eid = O.editId; workouts = workouts.filter(w => w.id !== eid); save(); closeO(); if (W && W.mode === 'ready' && W.src.id === eid) closeW(); renderSelect(); }]]));
     setOBar(O.custom ? '' : `<button class="mainbtn" id="o-save">${O.picked.length ? t('saveN', O.picked.length) : t('save')}</button>`);
     $('o-back').onclick = () => (O.name.trim() || O.picked.length) ? dialog(t('dlgBackTitle'), t('dlgBackText'), [[t('dlgBackNo'), 'mainbtn', () => {}], [t('dlgBackYes'), 'ghostbtn', closeO]]) : closeO();
-    $('o-name').oninput = e => O.name = e.target.value;
+    $('o-name').oninput = e => { O.name = e.target.value; e.target.classList.remove('err'); };
     $('o-q').oninput = e => { O.q = e.target.value; renderPickList(); };
     $('chosen') && sortable($('chosen'), '.srow', (f, to) => { moveItem(O.picked, f, to); renderO(); });
     $('chosen') && swipeRows($('chosen'), '.srow', (i, reset) => { const de = S.lang === 'de'; dialog(de ? 'Übung entfernen?' : 'Remove exercise?', esc(exName(O.picked[i][0])), [[t('delNo'), 'mainbtn', () => reset && reset()], [de ? 'Aus dem Workout entfernen' : 'Remove from workout', 'ghostbtn', () => { O.picked.splice(i, 1); renderO(); }]]); });
     b.querySelectorAll('[data-ps]').forEach(x => x.onclick = () => { const [i, d] = x.dataset.ps.split(':').map(Number); O.picked[i][1] = Math.max(1, O.picked[i][1] + d); renderO(); });
-    $('c-open') && ($('c-open').onclick = () => { O.custom = { name:'', gs:['chest'], eq:'bb', dirty:false }; renderO(); $('c-name').focus(); });
+    $('c-open') && ($('c-open').onclick = () => { O.custom = { name:'', gs:['chest'], eq:'bb', dirty:false }; renderO(); $('c-ttl').focus(); });
     if (O.custom) {
-      $('c-name').oninput = e => { O.custom.name = e.target.value; O.custom.dirty = true; };
+      $('c-ttl').oninput = e => { O.custom.name = e.target.value; O.custom.dirty = true; };
       b.querySelectorAll('[data-cg]').forEach(x => x.onclick = () => { const g = x.dataset.cg, gs = O.custom.gs; O.custom.gs = gs.includes(g) ? (gs.length > 1 ? gs.filter(y => y !== g) : gs) : gs.concat(g); O.custom.dirty = true; renderO(); });
       b.querySelectorAll('[data-ce]').forEach(x => x.onclick = () => { O.custom.eq = x.dataset.ce; O.custom.dirty = true; renderO(); });
       $('c-cancel').onclick = () => { if (!O.custom.dirty && !O.custom.name.trim()) { O.custom = null; renderO(); return; } const de = S.lang === 'de';
         dialog(de ? 'Eigene Übung verwerfen?' : 'Discard custom exercise?', de ? 'Deine Eingaben gehen verloren.' : 'Your input will be lost.', [[de ? 'Weiter bearbeiten' : 'Keep editing', 'mainbtn', () => {}], [de ? 'Verwerfen' : 'Discard', 'ghostbtn', () => { O.custom = null; renderO(); }]]); };
       $('c-add').onclick = () => { const n = O.custom.name.trim(); if (!n) { toast(t('needCustom')); return; } const k = 'c' + Date.now(); EX[k] = { de:n, en:n, g:O.custom.gs[0], gs:O.custom.gs.slice(), eq:O.custom.eq, custom:true }; O.picked.push([k, 4]); O.custom = null; save(); renderO(); };
     }
-    $('o-save') && ($('o-save').onclick = () => { const n = O.name.trim(); if (!n || !O.picked.length) { toast(t('needName')); return; } const ex = O.picked.map(p => [...p]); if (O.editId) { const w = wById(O.editId); w.name = n; w.ex = ex; } else workouts.unshift({ id:'w' + Date.now(), name:n, ex }); const wasEdit = !!O.editId, eid = O.editId; save(); closeO(); renderSelect(); toast(wasEdit ? '✓' : t('saved')); if (W && W.mode === 'ready' && W.src.id === eid) prepareWorkout(wById(eid)); });
+    $('o-save') && ($('o-save').onclick = () => { const n = O.name.trim(), de = S.lang === 'de';
+      if (!n) { toast(!O.picked.length ? (de ? 'Name und mindestens eine Übung fehlen' : 'Name and at least one exercise missing') : (de ? 'Name fehlt' : 'Name missing')); $('obody').scrollTo({ top: 0, behavior: 'smooth' }); const f = $('o-name'); f.classList.remove('err'); void f.offsetWidth; f.classList.add('err'); f.focus({ preventScroll: true }); return; }
+      if (!O.picked.length) { toast(de ? 'Füge mindestens eine Übung hinzu' : 'Add at least one exercise'); const q = $('o-q'); q && q.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; } const ex = O.picked.map(p => [...p]); if (O.editId) { const w = wById(O.editId); w.name = n; w.ex = ex; } else workouts.unshift({ id:'w' + Date.now(), name:n, ex }); const wasEdit = !!O.editId, eid = O.editId; save(); closeO(); renderSelect(); toast(wasEdit ? '✓' : t('saved')); if (W && W.mode === 'ready' && W.src.id === eid) prepareWorkout(wById(eid)); });
   } else {
     b.innerHTML = `<div class="inner">
       <div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">${t('pickEx')}</span><span style="width:44px"></span></div>
@@ -1176,7 +1199,7 @@ function renderPickList() {
     const ks = listKeys(); if (!ks.length) L.innerHTML = `<p class="hint" style="padding:14px 0">${t('noMatch')}</p>`;
     ks.forEach(k => {
       const on = O.picked.some(p => p[0] === k); const x = document.createElement('div'); x.className = 'pick' + (on ? ' on' : '');
-      x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${esc(grpTxt(k))} · ${t('eqs')[EX[k].eq]}${EX[k].custom ? ` <em class="ownbadge">${t('own')}</em>` : ''}</small></button>${starBtn(k)}<button class="box" data-pk="1" aria-label="auswählen">${on ? '✓' : ''}</button>`;
+      x.innerHTML = `${ico(k)}<button class="pmain" data-pk="1">${esc(exName(k))}<br><small>${esc(grpTxt(k))} · ${t('eqs')[EX[k].eq]}${EX[k].custom ? ` <em class="ownbadge">${t('own')}</em>` : ''}</small></button>${starBtn(k)}<button class="box" data-pk="1" aria-label="${on ? 'entfernen' : 'hinzufügen'}">${on ? '✓' : '+'}</button>`;
       x.querySelectorAll('[data-pk]').forEach(y => y.onclick = () => { const i = O.picked.findIndex(p => p[0] === k); i >= 0 ? O.picked.splice(i, 1) : O.picked.push([k, 4]); renderO(); });
       L.appendChild(x);
     });

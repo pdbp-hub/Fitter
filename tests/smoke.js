@@ -329,7 +329,8 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('#go'); await click('#add'); await settle();
     check('Sortieren ohne „Muskelgruppe“, feste Breite', await ev(() => !document.querySelector('[data-sort="group"]') && document.getElementById('o-sort').getBoundingClientRect().width >= 170));
     await click('#c-open');
-    check('Eigene Übung: breiter „Übung hinzufügen“, „Doch nicht“, kein Autofill, keine Speichern-Leiste', await ev(() => document.getElementById('c-add').getBoundingClientRect().width > 300 && /Doch nicht|Never mind/.test(document.getElementById('c-cancel').textContent) && document.getElementById('c-name').getAttribute('autocomplete') === 'off' && !document.getElementById('o-save')));
+    check('Eigene Übung: breiter „Übung hinzufügen“, ✕ im gestrichelten Rahmen, keine Speichern-Leiste', await ev(() => document.getElementById('c-add').getBoundingClientRect().width > 280 && document.getElementById('c-cancel').textContent.trim() === '✕' && getComputedStyle(document.querySelector('.custom.cbox')).borderTopStyle === 'dashed' && !document.getElementById('o-save')));
+    check('Eigene Übung: Feld ohne „Name“ (kein iOS-Kontakte-Vorschlag) (REGRESSION)', await ev(() => { const i = document.getElementById('c-ttl'); return i.getAttribute('autocomplete') === 'off' && !/name/i.test(i.id + i.name + i.placeholder); }));
     await click('#c-cancel'); await click('#o-back'); if (await page.$('#overlay:not([hidden])')) await click('[data-db="1"]'); await settle();
     await click('[data-tab=progress]');
     check('Heute markiert in der Tagesleiste', await ev(() => /Heute|Today/.test(document.querySelector('[data-day="0"] small').textContent)));

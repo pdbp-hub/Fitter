@@ -1142,3 +1142,18 @@ body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-
 .cmp-row { cursor: default; } .cmp-add { font-size: 26px; font-weight: 800; }
 .cmpscroll { max-height: 55dvh; overflow-y: auto; } .pfadd-row.on b { text-decoration: underline; text-underline-offset: 4px; }
 .cmp-h { align-items: center; } .cmp-h h1 { margin: 0; } .cmp-h .info { flex: none; width: 28px; height: 28px; font-size: 14px; }
+/* v0.15: workout name more prominent, red when missing; custom exercise framed */
+.namewrap { display: flex; flex-direction: column; gap: 4px; }
+.namewrap .field { font-size: 30px; padding: 6px 0 10px; }
+.field.err { border-bottom-color: #e5484d; animation: errshake .35s; }
+.field.err::placeholder { color: #e5484d; opacity: .8; }
+@keyframes errshake { 25% { transform: translateX(-6px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+.pick .box { font-size: 18px; font-weight: 800; }
+.custom.cbox { border: 1px dashed var(--fg); padding: 12px 14px 16px; }
+.custom.cbox > .row { margin: -4px -6px -4px 0; }
+.custom.cbox > .row .iconbtn { width: 38px; height: 38px; }
+.swipe-del { left: auto; width: 0; z-index: 2; overflow: hidden; }
+.redit .pset .sx { width: 30px; height: 30px; justify-self: end; } /* v0.15: fits its column, nothing pokes into the red delete area */
+/* v0.15: done set with a visible reset icon */
+.set.donerow { grid-template-columns: 26px 1fr auto auto 30px; cursor: pointer; }
+.set.donerow .rsx { width: 30px; height: 30px; font-size: 16px; color: var(--fg); }
