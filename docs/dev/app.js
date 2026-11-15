@@ -462,6 +462,29 @@ const ICON_EX = {
     pushdown: `<path d="M21 2v20M18.5 22h5M15.8 2h5.2"/><circle cx="16.6" cy="4.3" r="1.3"/><path d="M16.6 5.6v8.4"/><path d="M13 14h7.2" stroke-width="2.4"/><circle cx="7.5" cy="4.4" r="1.8"/><path d="M7.5 6.2v8.8M7.5 15l-1.8 6.5M7.5 15l1.8 6.5"/><path d="M7.5 8.4l1.2 4 4.6 1.6"/>`,
     calf: standS + `<path d="M8.2 21.6 h6.6 v-1.8 h-6.6 z"/><path d="M17.6 13.4v-4.6M16.2 10.2l1.4-1.6 1.4 1.6" stroke-width="1.3"/>` + L('11 7', '13.4 13') + dbV(13.6, 14.4),
     pecdeckrear: ICON_EX.reversefly });
+  // v0.15: redrawn closer to the real movement
+  const sideArm = (hx, hy) => L('11 7', '11.6 12.2', `${hx} ${hy}`); // side view: upper arm down, forearm curled up
+  Object.assign(ICON_EX, {
+    curl: standS + sideArm(15.8, 8.2) + dbH(16.4, 7.8),
+    hammer: standS + sideArm(15.6, 8.4) + dbV(15.8, 7.6),
+    bbcurl: standS + sideArm(15.6, 8.4) + plate(16.4, 8, 2.6),
+    revcurl: standS + sideArm(15.6, 8.4) + plate(16.4, 8, 2.6),
+    ezcurl: standF + L('12 7', '9.4 12.6', '8.6 9.6') + L('12 7', '14.6 12.6', '15.4 9.6') + `<path d="M3.6 9.6H7.4L8.6 11L9.8 9.4H14.2L15.4 11L16.6 9.6H20.4"/><path d="M4.6 7.6v4M19.4 7.6v4" stroke-width="2.2"/>`,
+    arnold: standF + L('12 7', '6.8 8.4', '6.2 3.4') + dbH(6.2, 2.6) + L('12 7', '17 11.6', '17 8') + dbV(17, 6.8) + `<path d="M20.4 10.6a5.4 5.4 0 0 0 0-7M20.4 3.6l-1.5.5M20.4 3.6l.3 1.6" stroke-width="1.2"/>`,
+    uprightrow: standF + L('12 7', '6.6 6.6', '10.4 10.4') + L('12 7', '17.4 6.6', '13.6 10.4') + `<path d="M3.2 10.4H20.8"/><path d="M4.4 8.4v4M19.6 8.4v4" stroke-width="2.2"/><path d="M12 1.2v-.1M3 5.4l1.4-1.6 1.4 1.6" stroke-width="1.2" opacity="0"/>`,
+    sumodl: floor + H(12, 3.6) + L('12 5.4', '12 11.6') + L('12 11.6', '6.4 14.4', '5.6 21.4') + L('12 11.6', '17.6 14.4', '18.4 21.4') + `<path d="M10 7.2H14"/>` + L('10 7.2', '10.4 15.8') + L('14 7.2', '13.6 15.8') + `<path d="M1.8 16H22.2"/><path d="M2.8 12.6v6.8M21.2 12.6v6.8" stroke-width="2.6"/>`,
+    straightarm: `<path d="M21.8 2v20M19.4 22h4.8"/>` + H(19.2, 3.6, 1.1) + H(8.2, 4.8) + L('8.6 6.5', '7.6 13.6') + L('7.6 13.6', '6.4 21.6') + L('7.6 13.6', '9.6 21.6') + L('8.8 8', '14.4 5') + `<path d="M14.2 3.6l.8 2.8" stroke-width="2.2"/><path d="M14.8 4.8L18.2 3.8" stroke-dasharray="1.2 1"/><path d="M16.2 7.4a6 6 0 0 1-3.4 6.4M12.8 13.8l.6-1.7M12.8 13.8l1.8.2" stroke-width="1.2"/>`,
+    bbrow: floor + H(5.4, 7.4) + L('7 8.4', '15.4 11.4') + L('15.4 11.4', '13.8 16.2', '15.4 21.4') + L('8.6 9', '9.2 14.6') + plate(9.2, 16.2, 2.2) + `<path d="M12.4 17.4v-3.8M11.2 14.8l1.2-1.4 1.2 1.4" stroke-width="1.2"/>`,
+    tbar: floor + H(5.4, 7.4) + L('7 8.4', '15.4 11.4') + L('15.4 11.4', '13.8 16.2', '15.4 21.4') + L('8.6 9', '9.2 14.6') + `<path d="M9.2 14.8 L21.6 21.4"/>` + plate(7.4, 15.8, 2) + `<path d="M8.2 13.6h2.4" stroke-width="2"/>`,
+    shrug: standF + L('12 6.6', '8 13.6') + L('12 6.6', '16 13.6') + dbV(7.6, 15) + dbV(16.4, 15) + `<path d="M7.6 7.4V4.4M6.6 5.4l1-1.2 1 1.2M16.4 7.4V4.4M15.4 5.4l1-1.2 1 1.2" stroke-width="1.2"/>`,
+    ohext: standS + L('11 6.8', '13.4 1.8', '8 3.2') + dbV(7.2, 3.4),
+    frontsquat: sq + L('10.8 7.2', '8 7.6') + plate(7, 7.4, 1.5) + floor,
+    glutekick: `<path d="M1.2 2v20"/>` + floor + H(9, 4.4) + L('9.4 6.1', '10.6 13') + L('10.6 13', '10.4 21.6') + L('10.6 13', '15.2 16', '19.8 14.4') + L('9.2 8', '1.4 10') + `<path d="M1.6 19.6 L19.6 14.8" stroke-dasharray="1.2 1.1" stroke-width="1"/>`,
+    decline: `<path d="M3.4 17.4 L17.6 13.6M6 16.7v4.9M15.4 14.2v7.4M3.4 21.6h14"/>` + H(4.8, 14.6) + L('6.4 14.2', '15 12') + L('15 12', '18.6 10.4', '21.4 12.8') + L('12.4 12.6', '12.4 6.2') + bar(6.8, 18, 5.6),
+    pushup: floor + H(3.8, 12.8) + L('5.4 13.6', '21 19.6') + L('7 14.2', '7.2 21.4') + `<path d="M19.6 19.6l1.6 1.8" stroke-width="1.2" opacity="0"/>`,
+    legraise: `<path d="M3 2h18"/>` + L('10.4 2', '10.6 8') + H(8.6, 7.2, 1.6) + L('10.6 8', '10.6 15') + L('10.6 15', '19 15') + `<path d="M17.8 12.6v-4M16.6 9.8l1.2-1.4 1.2 1.4" stroke-width="1.2"/>`,
+    dbpress: standF + L('12 7', '6.4 8.4', '5.8 3.6') + L('12 7', '17.6 8.4', '18.2 3.6') + dbH(5.8, 2.8) + dbH(18.2, 2.8),
+    concentration: `<path d="M1.8 15.8h7.4M3 15.8v5.8M8 15.8v5.8"/>` + H(9.6, 4.4) + L('8.8 6', '5 15') + L('5 15', '13.4 14.4', '13.8 21.6') + L('8 7.8', '11.8 13.4', '16 10.4') + dbH(16.8, 9.8) });
 })();
 const ico = k => `<span class="ico" title="${esc(t('eqs')[EX[k].eq])}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">${EX[k].custom ? ICON.custom : (ICON_EX[k] || ICON[EX[k].eq])}</svg></span>`;
 const SIC = {
