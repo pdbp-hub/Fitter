@@ -1,6 +1,17 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Feedback-Runde 2026-11-15 (→ v0.16)**
+  - [ ] Level-Seite: 3 klare, vergleichbare Highlights pro Level (Vorschlag: Trainings · neue Rekorde · bewegtes Gewicht im Level); Kopfzeile ohne Doppelung + ohne Hochwisch-Animation (statischer Kopf mit Fortschritt zum nächsten Level, Zeitstrahl darunter); Icon „Kraftpaket“ (Level 6) neu
+  - [ ] Icon Bankdrücken neu
+  - [ ] Workout anlegen entzerren: oben Name, darunter „+ Übung hinzufügen“ (Hauptknopf, öffnet Overlay von unten mit Suche, Filter/Sortierung, Favoriten oben, dann alle) und „Eigene Übung erstellen“; unten nur „Workout speichern“
+  - [ ] Bereit-Screen: kurzes Tippen auf den Griff = aufklappen (langes Halten = verschieben); Hinweistext unterm Titel weg/kürzer; „Name ändern“ besser sichtbar, nicht klobig
+  - [ ] Einstellungen › Darstellung: Pausen-Farbe (Toggle): Zehneck in der Pause rot → grün je nach Pausendauer; Standard nach Studienlage + benutzerdefiniert; Info-i mit Quelle
+  - [ ] Dialoge: Löschen = Hauptknopf „Aus diesem Training“, „Dauerhaft löschen“ gestrichelt, „Abbrechen“ klein darunter; Reset genauso; beide Reset-Dialoge (laufender / erledigter Satz) gleich benennen
+  - [ ] Zurückgesetzter Satz bleibt an seiner Position (wandert nicht nach unten)
+  - [ ] Review: Überschrift „Highlight-Übung“ weg (höchstens kleines Symbol)
+  - [ ] Alle Linien-Charts: 2 Finger = 2 Linien + Differenz grün/rot zwischen den beiden Tagen; Kräftemessen-Chart auch wischbar
+  - [ ] Kräftemessen: Chatbot-Text ersetzen durch kompakte Rangliste (Platz, Abstand in kg zu dir) + eine kurze, klare Zeile
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
