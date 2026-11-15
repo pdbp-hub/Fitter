@@ -9,6 +9,9 @@
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
 - [ ] **Ben:** Dev v0.15.1 ansehen → Feedback → „freigeben“ für Live
 - [ ] **🔝 Danach: Cloud-Modus** (Supabase, siehe `HANDOVER.md`)
+  - [ ] Sicherheit: `security-auditor` vor jeder Freigabe (RLS-Angriffe mit 2 Test-Accounts, XSS, Speicher, Anmeldung, Schlüssel); Schlüssel-Check läuft schon automatisch
+  - [ ] Datenschutzerklärung final (nicht Entwurf) + Einwilligung beim Account-Anlegen (Supabase, Entwickler-/KI-Zugriff auf pseudonymisierte Daten), vor dem ersten Tester; juristisch prüfen lassen
+  - [ ] Homescreen-Name: iPhone übernimmt neuen Namen nur bei Neuinstallation → erst neu hinzufügen, wenn die Daten in der Cloud liegen (sonst Datenverlust)
   - [ ] Ben: Anmeldemethode entscheiden, Supabase-Account + Projekte `fitter-dev`/`fitter-live` (EU) anlegen, URL + anon key geben
   - [ ] Account: Registrierung mit Benutzername (einmalig, ersetzt @test) + E-Mail + Kennwort; **Anmelden mit E-Mail ODER Benutzername + Kennwort**; Kennwort zurücksetzen per E-Mail (Entscheidung Ben 2026-11-05); Übernahme der lokalen Daten
   - [ ] Abgleich offline-first (localStorage bleibt Zwischenspeicher)
@@ -54,6 +57,7 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 - [ ] **Datenschutzerklärung** + Einwilligungsabfrage (DSGVO)
 - [x] **Getrennte Versionen**: Live-Version für Nutzer + Entwickler-/Testversion, die Ben vorher prüft und freigibt (erst nach Freigabe geht ein Update live)
 - [ ] Daten in der Cloud mit Accounts (damit Nutzerdaten nicht verloren gehen)
+- [ ] **Sicherheits-Prüfung** (`security-auditor`) ohne kritische/hohe Funde + Schlüssel-Check sauber (auch Git-Historie)
 
 ## Später
 - [ ] Cloud-Speicherung + Accounts (Supabase)

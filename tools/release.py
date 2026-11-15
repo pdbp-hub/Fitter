@@ -1,6 +1,9 @@
 """Freigabe: übernimmt die Dev-Version (docs/dev) in die Live-Version (docs).
 Nur ausführen, wenn Ben „freigeben“ gesagt hat. Danach: node tests/smoke.js, committen, pushen."""
-import pathlib, re, shutil
+import pathlib, re, shutil, subprocess, sys
+# Sicherheit zuerst: kein geheimer Schlüssel darf live gehen
+if subprocess.run([sys.executable, str(pathlib.Path(__file__).resolve().parent / 'secret_scan.py'), '--history']).returncode:
+    sys.exit('Freigabe abgebrochen: Schlüssel-Check hat etwas gefunden.')
 D = pathlib.Path(__file__).resolve().parent.parent / 'docs'
 for f in ['app.js', 'style.css']:
     shutil.copy(D / 'dev' / f, D / f)
