@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.16.0';
+const APP_VERSION = '0.16.1';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -360,6 +360,11 @@ Object.assign(T.de, { privacyHtml: privHTML(PRIV_DE) }); Object.assign(T.en, { p
 const PAUSE_REF = { de: 'Quellen: American College of Sports Medicine, Position Stand „Progression Models in Resistance Training“ (2009); Schoenfeld et al., J Strength Cond Res 30(7), 2016.', en: 'Sources: American College of Sports Medicine, Position Stand “Progression Models in Resistance Training” (2009); Schoenfeld et al., J Strength Cond Res 30(7), 2016.' };
 Object.assign(T.de, { infoPause: `<b>Pausen-Farbe</b><br>In der Pause färbt sich das Zehneck:<br>• <b>Rot</b>: unter 1 Minute, die Muskeln sind noch nicht erholt<br>• <b>Gelb</b>: 1 bis 2 Minuten<br>• <b>Grün</b>: ab 2 Minuten, bereit für den nächsten schweren Satz<div class="ex"><i>Warum 2 Minuten?</i> Für schwere Grundübungen empfiehlt das American College of Sports Medicine 2 bis 3 Minuten Pause, für Ergänzungsübungen 1 bis 2. In einer Studie brachten 3 Minuten mehr Kraft und Muskelzuwachs als 1 Minute.</div><br>Mit „Eigene Zielpause“ wird es bei deiner Zielzeit grün (Rot bis zur Hälfte, dann Gelb).<br><small>${PAUSE_REF.de}</small>` });
 Object.assign(T.en, { infoPause: `<b>Rest colour</b><br>While you rest, the decagon changes colour:<br>• <b>Red</b>: under 1 minute, muscles not recovered yet<br>• <b>Yellow</b>: 1 to 2 minutes<br>• <b>Green</b>: from 2 minutes, ready for the next heavy set<div class="ex"><i>Why 2 minutes?</i> For heavy compound lifts the American College of Sports Medicine recommends 2 to 3 minutes of rest, 1 to 2 for assistance exercises. In a study 3 minutes brought more strength and muscle gain than 1 minute.</div><br>With “Own target” it turns green at your target time (red up to half of it, then yellow).<br><small>${PAUSE_REF.en}</small>` });
+// settings preview: a small decagon whose rest time runs around the edge (black & white, or red > yellow > green)
+const pausePreview = v => `<svg viewBox="0 0 100 100" class="pcprev ${v === 'off' ? '' : 'col'}" aria-hidden="true"><polygon class="pc-fill" points="${P(decPts(50, 50, 42))}"/><polygon class="pc-base" points="${P(decPts(50, 50, 42))}"/><polygon class="pc-sweep" pathLength="100" points="${P(decPts(50, 50, 42))}"/><text x="50" y="57" text-anchor="middle" class="pc-t">${v === 'own' ? (S.lang === 'de' ? 'ZIEL' : 'GOAL') : '2:00'}</text></svg>`;
+// when does it turn yellow / green (shown under the choice)
+const pauseLine = () => { const tg = S.pauseMode === 'own' ? (S.pauseTarget || 120) : 120, lo = S.pauseMode === 'own' ? tg / 2 : 60, m = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+  return S.lang === 'de' ? `<b class="pc-r">Rot</b> bis ${m(lo)} · <b class="pc-y">Gelb</b> bis ${m(tg)} · <b class="pc-g">Grün</b> ab ${m(tg)} Min.` : `<b class="pc-r">Red</b> until ${m(lo)} · <b class="pc-y">yellow</b> until ${m(tg)} · <b class="pc-g">green</b> from ${m(tg)} min`; };
 // colour for the current rest: red, yellow, green
 const pauseColor = sec => { const tg = S.pauseMode === 'own' ? (S.pauseTarget || 120) : 120, lo = S.pauseMode === 'own' ? tg / 2 : 60; return sec < lo ? '#e5484d' : sec < tg ? '#f5b400' : '#2fbf71'; };
 // v0.15: calculation page for users: mini headline, formula, one sentence
@@ -1011,7 +1016,7 @@ function endDialog() {
   dialog(t('dlgTitle'), t('dlgText'), [
     [t('dlgCont'), 'mainbtn', () => {}],
     [t('dlgSave'), 'ghostbtn', toReview],
-    [t('dlgDiscard'), 'textbtn', () => dialog(t('dlgDelTitle'), t('dlgDelText'), [[t('dlgDelNo'), 'mainbtn', () => {}], [t('dlgDelYes'), 'ghostbtn', () => { closeW(); toast(t('discarded')); }]])]
+    [t('dlgDiscard'), 'ghostbtn dangerbtn', () => dialog(t('dlgDelTitle'), t('dlgDelText'), [[t('dlgDelNo'), 'mainbtn', () => {}], [t('dlgDelYes'), 'ghostbtn dangerbtn', () => { closeW(); toast(t('discarded')); }]])]
   ]);
 }
 
@@ -1060,12 +1065,22 @@ function drawSetChart(id) {
     val.innerHTML = `${esc(t('setN', a + 1))} bis ${b + 1}: ` + diffTag(va, vb, v => fmt(Math.round(v)) + unit); }, () => show(null));
 }
 // all line charts: one finger = value at that point, two fingers = two lines and the difference between them (green up, red down)
-function chartTouch(svg, idxAt, one, two, rest) { const P = new Map();
-  const upd = () => { const v = [...P.values()]; if (v.length >= 2) { const [a, b] = [idxAt(v[0]), idxAt(v[1])].sort((x, y) => x - y); two(a, b); } else if (v.length) one(idxAt(v[0])); };
-  svg.addEventListener('pointerdown', e => { P.set(e.pointerId, e); try { svg.setPointerCapture(e.pointerId); } catch (_) { /* old browsers */ } upd(); });
-  svg.addEventListener('pointermove', e => { if (P.has(e.pointerId)) { P.set(e.pointerId, e); upd(); } else if (e.pointerType === 'mouse') one(idxAt(e)); });
-  const end = e => { P.delete(e.pointerId); if (P.size) upd(); else rest(); };
-  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end); svg.addEventListener('pointerleave', e => { if (!P.size) rest(); });
+// v0.16.1: real touch handling (pointer events break on iPhone as soon as a 2nd finger lands):
+// 1 finger: hold = value, move sideways = scrub, move up/down = page scrolls; 2 fingers = both positions, may cross or sit above each other
+function chartTouch(svg, idxAt, one, two, rest) { let mode = null, x0 = 0, y0 = 0;
+  // all fingers on this chart (targetTouches would split them when they land on different parts: line, area, grid)
+  const mine = e => [...e.touches].filter(t => svg.contains(t.target));
+  const upd = tl => { const ix = tl.map(idxAt); if (ix.length >= 2) { const [a, b] = ix.slice(0, 2).sort((p, q) => p - q); two(a, b); } else if (ix.length) one(ix[0]); };
+  svg.addEventListener('touchstart', e => { const tl = mine(e); if (tl.length >= 2) { mode = 'multi'; e.preventDefault(); upd(tl); return; }
+    if (mode === 'multi') return; mode = 'wait'; x0 = tl[0].clientX; y0 = tl[0].clientY; one(idxAt(tl[0])); }, { passive: false });
+  svg.addEventListener('touchmove', e => { const tl = mine(e); if (!tl.length) return;
+    if (tl.length >= 2) { mode = 'multi'; e.preventDefault(); upd(tl); return; }
+    if (mode === 'wait') { const dx = Math.abs(tl[0].clientX - x0), dy = Math.abs(tl[0].clientY - y0); if (dx < 6 && dy < 6) return; mode = dx >= dy ? 'scrub' : 'scroll'; if (mode === 'scroll') { rest(); return; } }
+    if (mode === 'scrub' || mode === 'multi') { e.preventDefault(); upd(tl); } }, { passive: false });
+  const end = e => { const tl = mine(e); if (!tl.length) { mode = null; rest(); } else if (mode !== 'scroll') upd(tl); };
+  svg.addEventListener('touchend', end); svg.addEventListener('touchcancel', end);
+  svg.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') one(idxAt(e)); });
+  svg.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') rest(); });
 }
 const diffTag = (a, b, u) => { const d = b - a, pc = a ? Math.round((b / a - 1) * 100) : 0, c = d > 0 ? '#2fbf71' : d < 0 ? '#e5484d' : 'var(--fg)';
   return `<b class="difftag" style="color:${c}">${d > 0 ? '▲ +' : d < 0 ? '▼ −' : '± '}${u(Math.abs(d))} (${pc > 0 ? '+' : ''}${pc}%)</b>`; };
@@ -1397,9 +1412,10 @@ function renderProgress() {
       <button class="exsel exsel-ic" id="exsel"><span class="pf-ic">${ico(S.chartKey)}</span><b>${esc(exName(S.chartKey))}</b><span class="drop2">${DOWN}</span></button>
       <div id="charts"></div>
     </div>
-    <div class="sect"><div class="charthead"><h2 class="hic">${SIC.hist}${de ? 'Rückblick' : 'Recap'}</h2><button class="calopen" id="calopen">${SIC.cal}<span>${de ? 'Kalender' : 'Calendar'}</span></button></div>
+    <div class="sect"><h2 class="hic">${SIC.hist}${de ? 'Rückblick' : 'Recap'}</h2>
       <div class="recap2 num"><div class="rc-h"><span></span><b>${de ? '7 Tage' : '7 days'}</b><b>${de ? '30 Tage' : '30 days'}</b></div>
-        ${[[t('wCount'), last7.length, last30.length], [t('movedW'), volTxt(vol7), volTxt(vol30)], [t('trainTime'), hm(min7), hm(min30)], [t('prs'), prCount(7), prCount(30)]].map(([l, a, b]) => `<div class="rc-r"><span>${l}</span><b>${a}</b><b>${b}</b></div>`).join('')}</div></div>
+        ${[[t('wCount'), last7.length, last30.length], [t('movedW'), volTxt(vol7), volTxt(vol30)], [t('trainTime'), hm(min7), hm(min30)], [t('prs'), prCount(7), prCount(30)]].map(([l, a, b]) => `<div class="rc-r"><span>${l}</span><b>${a}</b><b>${b}</b></div>`).join('')}</div>
+      <button class="ghostbtn calopen2" id="calopen">${SIC.cal}<span>${de ? 'Kalender' : 'Calendar'}</span></button></div>
   </div>`;
   bindProgSwitch();
   $('exsel').onclick = openPicker;
@@ -1411,7 +1427,7 @@ const DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 // calendar in a centred window: month view, tap a training day = its own page
 function calSheet() { const de = S.lang === 'de'; calMonth = 0; selDay = null;
   const el = document.createElement('div'); el.className = 'overlay'; el.id = 'calov';
-  const draw = () => { el.innerHTML = `<div class="dialog calbox"><div class="row"><h2 class="hic">${SIC.cal}${de ? 'Kalender' : 'Calendar'}</h2><button class="iconbtn" id="cal-x" aria-label="${de ? 'Schließen' : 'Close'}">✕</button></div>${calHTML()}<p class="hint">${de ? 'Ausgefüllt = Training. Antippen für Details.' : 'Filled = session. Tap for details.'}</p></div>`;
+  const draw = () => { el.innerHTML = `<div class="dialog calbox"><div class="row"><h2 class="hic">${SIC.cal}${de ? 'Kalender' : 'Calendar'}</h2><button class="iconbtn" id="cal-x" aria-label="${de ? 'Schließen' : 'Close'}">✕</button></div>${calHTML()}</div>`;
     el.querySelector('#cal-x').onclick = () => el.remove();
     el.querySelector('#calprev').onclick = () => { calMonth--; draw(); };
     el.querySelector('#calnext').onclick = () => { if (calMonth < 0) { calMonth++; draw(); } };
@@ -1844,12 +1860,14 @@ function lvlHL(i, LS) { const o = LS.out[i], de = S.lang === 'de'; if (!o) retur
   return `<div class="lvl-hl">${d(o.n, de ? 'Trainings' : 'Sessions')}${d(o.prs, de ? 'Neue Rekorde' : 'New records')}${d(volTxt(o.vol).replace(' ', '&nbsp;'), de ? 'bewegt' : 'moved')}</div>`; }
 function levelsHTML() {
   const pts = totalPts(), li = levelOf(pts), cur = LEVELS[li], nxt = LEVELS[li + 1];
-  const pct = nxt ? Math.round((pts - cur.p) / (nxt.p - cur.p) * 100) : 100;
+  const pct = nxt ? Math.round((pts - cur.p) / (nxt.p - cur.p) * 100) : 100, LS0 = levelStats();
+  // v0.16.1: the head is the only place for your level (with its 3 highlights); the ladder below just marks it
   return `<div class="inner"><div class="row"><button class="iconbtn" id="o-back" aria-label="Zurück">←</button><span class="eyebrow">Level</span><span style="width:44px"></span></div>
-    <div class="lvl-hero"><div class="lvl-dec dec">${levelIcon(li)}</div><div class="lvl-ht"><div class="eyebrow">Level ${li + 1} / ${LEVELS.length}</div><h1>${esc(cur[S.lang])}</h1>
-      <div class="lvl-pts num"><b>${fmt(pts)}</b> Points</div></div>
-      ${nxt ? `<div class="lvl-more"><div class="lvl-bar"><i style="width:${pct}%"></i></div><p class="hint">${S.lang === 'de' ? `Noch ${fmt(nxt.p - pts)} Points bis ${esc(nxt.de)}` : `${fmt(nxt.p - pts)} points to ${esc(nxt.en)}`}</p></div>` : ''}</div>
-    <div class="sect lvl-sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div class="lvl-ladder" id="ladder">${(() => { const LS = levelStats(); return LEVELS.map((l, i) => i).reverse().map(i => { const l = LEVELS[i], open = i <= li && (lvlOpen === null ? i === li : lvlOpen === i); return `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''} ${open ? 'open' : ''}" ${i <= li ? `data-lvl="${i}" role="button"` : ''}><span class="lvl-ic dec">${levelIcon(i)}</span><div><b><span class="num">${i + 1}</span> ${esc(l[S.lang])}</b><small class="num">${i > li ? (S.lang === 'de' ? `noch ${fmt(l.p - pts)} Points` : `${fmt(l.p - pts)} points to go`) : i === li ? (S.lang === 'de' ? 'Du bist hier' : 'You are here') : `${fmt(l.p)} Points`}</small></div><span class="num lvl-st">${i < li ? '✓' : ''}</span>${open ? lvlHL(i, LS) : ''}</div>`; }).join(''); })()}</div></div></div>`;
+    <div class="lvl-hero lvl-hero2"><div class="lvl-top"><div class="lvl-dec dec">${levelIcon(li)}</div><div class="lvl-ht"><div class="eyebrow">Level ${li + 1} / ${LEVELS.length}</div><h1>${esc(cur[S.lang])}</h1>
+      <div class="lvl-pts num"><b>${fmt(pts)}</b> Points</div></div></div>
+      ${nxt ? `<div class="lvl-more"><div class="lvl-bar"><i style="width:${pct}%"></i></div><p class="hint">${S.lang === 'de' ? `Noch ${fmt(nxt.p - pts)} Points bis ${esc(nxt.de)}` : `${fmt(nxt.p - pts)} points to ${esc(nxt.en)}`}</p></div>` : ''}
+      ${lvlHL(li, LS0)}</div>
+    <div class="sect lvl-sect"><h2>${S.lang === 'de' ? 'Alle Level' : 'All levels'}</h2><div class="lvl-ladder" id="ladder">${(() => { const LS = levelStats(); return LEVELS.map((l, i) => i).reverse().map(i => { const l = LEVELS[i], open = i < li && lvlOpen === i; return `<div class="lvl-row ${i <= li ? 'got' : ''} ${i === li ? 'cur' : ''} ${open ? 'open' : ''}" ${i < li ? `data-lvl="${i}" role="button"` : ''}><span class="lvl-ic dec">${levelIcon(i)}</span><div><b><span class="num">${i + 1}</span> ${esc(l[S.lang])}</b><small class="num">${i > li ? (S.lang === 'de' ? `noch ${fmt(l.p - pts)} Points` : `${fmt(l.p - pts)} points to go`) : i === li ? (S.lang === 'de' ? 'Du bist hier' : 'You are here') : `${fmt(l.p)} Points`}</small></div><span class="num lvl-st">${i < li ? '✓' : ''}</span>${open ? lvlHL(i, LS) : ''}</div>`; }).join(''); })()}</div></div></div>`;
 }
 function playIntroTear() {
   const go = $('go'); if (!go || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -2482,8 +2500,11 @@ function renderSettings() {
     h = head(t('spDisplay')) + `<div>
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
       <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div>
-      <div class="setrow ${S.pauseCol ? 'setcol' : ''}"><div><b>${S.lang === 'de' ? 'Pausen-Farbe' : 'Rest colour'}</b><button class="info" id="pci" aria-label="Info">i</button><p>${S.lang === 'de' ? 'Zehneck färbt sich in der Pause von Rot zu Grün' : 'Decagon turns from red to green while you rest'}</p></div>${tog('pcol', !!S.pauseCol)}
-        ${S.pauseCol ? `${seg('pcm', [['std', S.lang === 'de' ? 'Empfohlen (2 Min.)' : 'Recommended (2 min)'], ['own', S.lang === 'de' ? 'Eigene Zielpause' : 'Own target']], S.pauseMode || 'std')}${S.pauseMode === 'own' ? seg('pct', [[60, '1'], [90, '1,5'], [120, '2'], [180, '3'], [240, '4 Min.']], S.pauseTarget || 120) : ''}` : ''}</div></div>
+      </div>
+      <div style="margin-top:8px"><b>${S.lang === 'de' ? 'Pausen-Farbe' : 'Rest colour'}</b><button class="info" id="pci" aria-label="Info">i</button><p class="hint" style="margin-top:4px">${S.lang === 'de' ? 'So zeigt das Zehneck deine Pause' : 'How the decagon shows your rest'}</p></div>
+      <div class="trcopts pcopts">${[['off', S.lang === 'de' ? 'Schwarz-Weiß' : 'Black & white'], ['std', 'Standard'], ['own', S.lang === 'de' ? 'Eigene' : 'Own']].map(([v, l]) => `<button class="animopt ${(S.pauseCol ? (S.pauseMode || 'std') : 'off') === v ? 'on' : ''}" data-pcm="${v}">${pausePreview(v)}<span>${l}</span></button>`).join('')}</div>
+      ${S.pauseCol && S.pauseMode === 'own' ? `<p class="hint" style="margin:6px 0 -4px">${S.lang === 'de' ? 'Zielpause in Minuten' : 'Target rest in minutes'}</p>` + seg('pct', [[60, '1'], [90, '1,5'], [120, '2'], [180, '3'], [240, '4']], S.pauseTarget || 120) : ''}
+      ${S.pauseCol ? `<p class="hint pcline num">${pauseLine()}</p>` : ''}
       <div style="margin-top:8px"><b>${t('trendColor')}</b><p class="hint" style="margin-top:4px">${t('trendColorHint')}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.trendColor ? 'on' : ''}" data-trc="${v}">${trendPreview(!!v)}<span>${t(v ? 'trcColor' : 'trcBW')}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${S.lang === 'de' ? 'Schalter' : 'Switches'}</b><p class="hint" style="margin-top:4px">${S.lang === 'de' ? 'Farbe eines eingeschalteten Schalters' : 'Colour of a switch that is on'}</p></div>
@@ -2548,8 +2569,8 @@ function renderSettings() {
   setPage !== 'profile' && $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
   on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));
   on('inv', () => { S.inverted = !S.inverted; applyClasses(); renderSettings(); });
-  on('pcol', () => { S.pauseCol = !S.pauseCol; save(); renderSettings(); }); on('pci', () => showInfo(t('infoPause')));
-  document.querySelectorAll('[data-pcm]').forEach(b => b.onclick = () => { S.pauseMode = b.dataset.pcm; save(); renderSettings(); });
+  on('pci', () => showInfo(t('infoPause')));
+  document.querySelectorAll('[data-pcm]').forEach(b => b.onclick = () => { const v = b.dataset.pcm; S.pauseCol = v !== 'off'; if (v !== 'off') S.pauseMode = v; save(); renderSettings(); });
   document.querySelectorAll('[data-pct]').forEach(b => b.onclick = () => { S.pauseTarget = +b.dataset.pct; save(); renderSettings(); });
   document.querySelectorAll('[data-tgc]').forEach(b => b.onclick = () => { S.togGreen = b.dataset.tgc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { S.accent = b.dataset.acc === '1'; applyClasses(); renderSettings(); });

@@ -670,21 +670,31 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await ev(() => { document.querySelectorAll('.overlay').forEach(e => e.id === 'overlay' ? (e.hidden = true) : e.remove()); closeO(); show('start'); });
     await ev(() => openLevels()); await settle();
     check('Level: fester Kopf ohne Hochwisch-Animation, aktuelles Level nur „Du bist hier“', await ev(() => !document.querySelector('.lvl-hero.fluid') && /Du bist hier/.test(document.querySelector('.lvl-row.cur').textContent) && !document.querySelector('.lvl-row.cur .lvl-mini')));
-    check('Level: Highlights Trainings · Neue Rekorde · bewegt', await ev(() => { const t = document.querySelector('.lvl-row.cur .lvl-hl').textContent; return /Trainings/.test(t) && /Neue Rekorde/.test(t) && /bewegt/.test(t) && !/pro Woche/.test(t); }));
+    check('Level: Highlights Trainings · Neue Rekorde · bewegt', await ev(() => { const t = document.querySelector('.lvl-hero .lvl-hl').textContent; return /Trainings/.test(t) && /Neue Rekorde/.test(t) && /bewegt/.test(t) && !/pro Woche/.test(t); }));
     await ev(() => closeO()); await settle();
-    // two fingers on a progress chart = two lines + difference
-    await click('[data-tab=progress]'); await page.waitForTimeout(300);
-    const two = await ev(() => { const svg = document.querySelector('#charts svg.chart'), r = svg.getBoundingClientRect(), y = r.top + r.height / 2;
-      const pe = (type, id, x) => svg.dispatchEvent(new PointerEvent(type, { pointerId: id, clientX: x, clientY: y, bubbles: true, pointerType: 'touch' }));
-      pe('pointerdown', 1, r.left + r.width * .2); pe('pointerdown', 2, r.left + r.width * .6);
-      const ok = svg.querySelectorAll('.scrub line').length === 2 && !!document.querySelector('#charts .difftag') && / bis /.test(document.querySelector('#charts .val').textContent);
-      pe('pointerup', 2, r.left + r.width * .6); const one = svg.querySelectorAll('.scrub line').length === 1; pe('pointerup', 1, r.left + r.width * .2); return ok && one; });
-    check('Charts: zwei Finger = zwei Linien + Differenz, ein Finger weg = wieder eine Linie', two);
+    // two fingers on a progress chart = two lines + difference; own fresh tab like a user opening the app (real touch input via the browser)
+    { const tp2 = await ctx.newPage(); await tp2.goto(URL + TARGET + '?test'); await tp2.waitForTimeout(700);
+      await tp2.evaluate(() => { document.getElementById('wsheet').classList.add('down'); document.getElementById('osheet').classList.add('down'); S.chartKey = 'bench'; progTab = 'me'; show('progress'); document.querySelector('#charts svg.chart').scrollIntoView({ block: 'center' }); }); await tp2.waitForTimeout(300);
+      const cbox = await tp2.locator('#charts svg.chart').first().boundingBox(), cdp = await ctx.newCDPSession(tp2);
+      const tp = (x, y, id) => ({ x: cbox.x + cbox.width * x, y: cbox.y + cbox.height * y, id });
+      const lines = () => tp2.evaluate(() => document.querySelectorAll('#charts svg.chart .scrub line').length);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [tp(.25, .3, 1)] });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [tp(.25, .3, 1), tp(.7, .7, 2)] });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [tp(.3, .3, 1), tp(.65, .7, 2)] });
+      var two = await lines() === 2 && await tp2.evaluate(() => !!document.querySelector('#charts .difftag') && / bis /.test(document.querySelector('#charts .val').textContent));
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [tp(.5, .2, 1), tp(.5, .8, 2)] }); // thumbs above each other: same spot
+      var stacked = await lines() === 2;
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [tp(.5, .2, 1)] });
+      var one = await lines() === 1;
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await tp2.close(); }
+    check('Charts: zwei Finger (echte Touch-Eingabe, auch auf Linie + Fläche) = zwei Linien + Differenz (REGRESSION iPhone)', two);
+    check('Charts: Daumen übereinander = beide an derselben Stelle', stacked);
+    check('Charts: ein Finger weg = wieder eine Linie', one);
     // rest colour
     await ev(() => { S.pauseCol = true; S.pauseMode = 'std'; save(); });
     check('Pausen-Farbe: Rot unter 1 Min, Gelb bis 2, Grün ab 2 (Standard), eigene Zielpause', await ev(() => { const a = [pauseColor(30), pauseColor(90), pauseColor(130)]; S.pauseMode = 'own'; S.pauseTarget = 180; const b = [pauseColor(80), pauseColor(120), pauseColor(181)]; S.pauseMode = 'std'; return a.join() === '#e5484d,#f5b400,#2fbf71' && b.join() === '#e5484d,#f5b400,#2fbf71'; }));
     await click('[data-tab=settings]'); await sp('display');
-    check('Darstellung: Pausen-Farbe mit Info-i und Auswahl', await ev(() => !!document.getElementById('pcol') && !!document.getElementById('pci') && document.querySelectorAll('[data-pcm]').length === 2));
+    check('Darstellung: Pausen-Farbe als 3 animierte Kacheln (kein Schalter), Grenzen sichtbar', await ev(() => !document.getElementById('pcol') && !!document.getElementById('pci') && document.querySelectorAll('[data-pcm] svg.pcprev').length === 3 && /Rot.+bis 1:00.+Gelb.+bis 2:00/.test(document.querySelector('.pcline').textContent)));
     await back();
     await ev(() => { show('start'); document.getElementById('go').click(); }); await settle(); await click('.witem'); await settle();
     const g = await page.locator('#readylist .grip').first().boundingBox(); await page.mouse.click(g.x + g.width / 2, g.y + g.height / 2); await page.waitForTimeout(200);
@@ -696,6 +706,17 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Zurückgesetzter Satz 1 bleibt oben (wandert nicht nach unten)', await ev(() => { const l = [...document.querySelectorAll('.block.cur .setlist > .set')]; return l[0].classList.contains('active') && /Satz 1|Set 1/.test(l[0].textContent) && l[1].classList.contains('donerow'); }));
     await ev(() => { S.pauseCol = false; W = null; save(); closeW(); });
     check('Review: keine Überschrift „Highlight-Übung“', await ev(() => !reviewCore.toString().includes("t('highlightEx')")));
+    console.log('Neu in v0.16.1');
+    await click('[data-tab=progress]'); await page.waitForTimeout(300);
+    check('Fortschritt: Übungsname kleiner als „Ich/Freunde“', await ev(() => parseFloat(getComputedStyle(document.querySelector('#exsel b')).fontSize) < parseFloat(getComputedStyle(document.querySelector('.ptabs button')).fontSize)));
+    check('Fortschritt: Kalender als mittiger, breiter Knopf unter dem Rückblick', await ev(() => { const b = document.getElementById('calopen'), r = b.getBoundingClientRect(); return b.classList.contains('calopen2') && Math.abs((r.left + r.right) / 2 - innerWidth / 2) < 4 && r.width > innerWidth * .8; }));
+    await openCal(); check('Kalender-Fenster ohne Hinweistext', await ev(() => !document.querySelector('#calov .hint'))); await click('#cal-x');
+    await ev(() => openLevels()); await settle();
+    check('Level: Highlights im Kopf, aktuelles Level im Zeitstrahl ohne Kasten/Highlights', await ev(() => !!document.querySelector('.lvl-hero .lvl-hl') && !document.querySelector('.lvl-row.cur .lvl-hl') && getComputedStyle(document.querySelector('.lvl-row.cur')).outlineStyle === 'none'));
+    await ev(() => closeO()); await settle();
+    await ev(() => { show('start'); document.getElementById('go').click(); }); await settle(); await click('.witem'); await settle(); await click('#startbtn'); await click('#warmdone'); await settle();
+    await click('#endbtn'); check('Training abbrechen: „Verwerfen“ gut sichtbar (rot)', await ev(() => !!document.querySelector('#overlay .dangerbtn'))); await click('#overlay .mainbtn');
+    await ev(() => { W = null; save(); closeW(); });
   }
 
   if (!TARGET) {

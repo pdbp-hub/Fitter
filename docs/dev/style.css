@@ -1250,3 +1250,40 @@ body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-
 .cmp-add.textbtn { font-size: 14px; }
 .cmp-ex .drop2 { flex: none; width: 30px; height: 30px; display: grid; place-items: center; } .cmp-ex .drop2 svg { width: 18px; height: 18px; }
 .cmp-h h1 { font-size: clamp(26px, 8.4vw, 36px); }
+/* v0.16.1: destructive choice clearly visible (red), emphasis by contrast: body text dimmed, bold bright */
+.ghostbtn.dangerbtn { color: #e5484d !important; border-color: rgba(229,72,77,.6) !important; }
+.popwrap .popover > div { color: var(--muted); } .popwrap .popover b, .popwrap .popover code { color: var(--fg); font-weight: 800; }
+.dialog p b { color: var(--fg); font-weight: 800; }
+.logic2 .logic p { color: var(--muted); } .logic2 .logic p b, .logic2 .logic code { color: var(--fg); }
+/* v0.16.1: exercise name below the Ich/Freunde size; calendar as a centred full-width button under the recap */
+.exsel.exsel-ic b { font-size: 19px; }
+.exsel .pf-ic svg { width: 28px; height: 28px; }
+.calopen2 { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; font-weight: 800; }
+.calopen2 svg { width: 18px; height: 18px; }
+/* v0.16.1 levels: compact head (icon + title side by side) with the 3 highlights; the ladder only marks your level */
+.lvl-hero2 { align-items: stretch; text-align: left; gap: 14px; padding-bottom: 6px; }
+.lvl-hero2 .lvl-top { display: flex; align-items: center; gap: 16px; }
+.lvl-hero2 .lvl-dec { width: 92px; height: 92px; flex: none; } .lvl-hero2 .lvl-dec svg { width: 44px; height: 44px; }
+.lvl-hero2 h1 { margin: 2px 0; font-size: 30px; } .lvl-hero2 .lvl-more { width: 100%; }
+.lvl-hero2 .lvl-hl { margin: 0; }
+.lvl-ladder .lvl-row.cur { background: none; outline: 0; margin: 0; padding: 12px 0; }
+.lvl-ladder .lvl-row.cur small { color: var(--fg); font-weight: 800; }
+.lvl-hero2 { display: flex !important; flex-direction: column; }
+.lvl-hero2 .lvl-top { min-width: 0; width: 100%; }
+.lvl-hero2 .lvl-ht { align-items: flex-start; text-align: left; min-width: 0; gap: 2px; }
+.lvl-hero2 h1 { font-size: clamp(22px, 7vw, 30px); overflow-wrap: anywhere; }
+.lvl-hero2 .lvl-more { align-items: stretch; max-height: none; } .lvl-hero2 .lvl-more .hint { text-align: left; }
+.lvl-hero2 h1 { font-size: clamp(18px, 5.6vw, 24px); overflow-wrap: normal; white-space: nowrap; }
+/* v0.16.1: rest colour choice = 3 animated tiles */
+.pcopts { grid-template-columns: repeat(3, 1fr) !important; }
+.pcprev { width: 64px; height: 64px; display: block; margin: 0 auto; }
+.pcprev .pc-fill { fill: var(--fg); fill-opacity: .06; stroke: none; }
+.pcprev .pc-base { fill: none; stroke: var(--line); stroke-width: 5; }
+.pcprev .pc-sweep { fill: none; stroke: var(--fg); stroke-width: 5; stroke-dasharray: 100; stroke-dashoffset: 100; animation: pc-sweep 4.8s linear infinite; }
+.pcprev.col .pc-sweep { animation: pc-sweep 4.8s linear infinite, pc-col 4.8s linear infinite; }
+.pcprev.col .pc-fill { fill-opacity: .2; animation: pc-colf 4.8s linear infinite; }
+.pcprev .pc-t { font-family: var(--mono); font-size: 15px; font-weight: 700; fill: var(--fg); }
+@keyframes pc-sweep { 0% { stroke-dashoffset: 100; } 85%, 100% { stroke-dashoffset: 0; } }
+@keyframes pc-col { 0%, 28% { stroke: #e5484d; } 34%, 60% { stroke: #f5b400; } 66%, 100% { stroke: #2fbf71; } }
+@keyframes pc-colf { 0%, 28% { fill: #e5484d; } 34%, 60% { fill: #f5b400; } 66%, 100% { fill: #2fbf71; } }
+.pcline { margin: 6px 0 0; } .pc-r { color: #e5484d; } .pc-y { color: #f5b400; } .pc-g { color: #2fbf71; }

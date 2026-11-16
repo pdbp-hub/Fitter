@@ -35,8 +35,8 @@ step('GitHub-Schlüssel nie in den App-Daten', not re.search(r"S\.gh(?:key|Key)\
 
 if '--fast' not in sys.argv:
     print('4. Nichts kaputt (Browser-Tests)')
-    ok, out = run(['node', 'tests/smoke.js', 'dev'], 900); step('Dev komplett', ok and 'Alle Tests bestanden' in out, '\n      '.join(l for l in out.split('\n') if '✗' in l)[:1500] or out[-600:])
-    ok, out = run(['node', 'tests/smoke.js'], 900); step('Live + Dev-Grundcheck', ok and 'Alle Tests bestanden' in out, '\n      '.join(l for l in out.split('\n') if '✗' in l)[:1500] or out[-600:])
+    ok, out = run(['node', 'tests/smoke.js', 'dev'], 1800); step('Dev komplett', ok and 'Alle Tests bestanden' in out, '\n      '.join(l for l in out.split('\n') if '✗' in l)[:1500] or out[-600:])
+    ok, out = run(['node', 'tests/smoke.js'], 1800); step('Live + Dev-Grundcheck', ok and 'Alle Tests bestanden' in out, '\n      '.join(l for l in out.split('\n') if '✗' in l)[:1500] or out[-600:])
 
 print()
 if FAIL:

@@ -1248,3 +1248,5 @@ body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-
 .cmp-add.textbtn { align-self: flex-start; margin-top: 8px; font-weight: 700; }
 .difftag { white-space: nowrap; }
 .cmp-add.textbtn { font-size: 14px; }
+.cmp-ex .drop2 { flex: none; width: 30px; height: 30px; display: grid; place-items: center; } .cmp-ex .drop2 svg { width: 18px; height: 18px; }
+.cmp-h h1 { font-size: clamp(26px, 8.4vw, 36px); }
