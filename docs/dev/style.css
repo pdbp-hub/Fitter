@@ -1287,3 +1287,13 @@ body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-
 @keyframes pc-col { 0%, 28% { stroke: #e5484d; } 34%, 60% { stroke: #f5b400; } 66%, 100% { stroke: #2fbf71; } }
 @keyframes pc-colf { 0%, 28% { fill: #e5484d; } 34%, 60% { fill: #f5b400; } 66%, 100% { fill: #2fbf71; } }
 .pcline { margin: 6px 0 0; } .pc-r { color: #e5484d; } .pc-y { color: #f5b400; } .pc-g { color: #2fbf71; }
+/* v0.16.2: own rest target = one slim row (− 2:00 Min. +) */
+.pctarget { display: flex; align-items: center; gap: 12px; padding: 10px 0 2px; }
+.pctarget span { flex: 1; font-size: 14px; color: var(--muted); }
+.pctarget button { width: 34px; height: 34px; border: 1px solid var(--line); font-size: 18px; font-weight: 700; display: grid; place-items: center; }
+.pctarget b { min-width: 78px; text-align: center; font-size: 15px; }
+/* v0.16.2: "Neu in TRAIN" after an update: short, calm, one button */
+.newsbox { gap: 12px; } .newsbox h2 { margin: 0; font-size: 24px; }
+.newslist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.newslist li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.4; }
+.newslist li .dec { flex: none; width: 12px; height: 12px; background: var(--fg); margin-top: 4px; }

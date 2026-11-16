@@ -694,7 +694,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await ev(() => { S.pauseCol = true; S.pauseMode = 'std'; save(); });
     check('Pausen-Farbe: Rot unter 1 Min, Gelb bis 2, Grün ab 2 (Standard), eigene Zielpause', await ev(() => { const a = [pauseColor(30), pauseColor(90), pauseColor(130)]; S.pauseMode = 'own'; S.pauseTarget = 180; const b = [pauseColor(80), pauseColor(120), pauseColor(181)]; S.pauseMode = 'std'; return a.join() === '#e5484d,#f5b400,#2fbf71' && b.join() === '#e5484d,#f5b400,#2fbf71'; }));
     await click('[data-tab=settings]'); await sp('display');
-    check('Darstellung: Pausen-Farbe als 3 animierte Kacheln (kein Schalter), Grenzen sichtbar', await ev(() => !document.getElementById('pcol') && !!document.getElementById('pci') && document.querySelectorAll('[data-pcm] svg.pcprev').length === 3 && /Rot.+bis 1:00.+Gelb.+bis 2:00/.test(document.querySelector('.pcline').textContent)));
+    check('Darstellung: Pausen-Farbe als 3 animierte Kacheln (kein Schalter), Grenzen sichtbar', await ev(() => !document.getElementById('pcol') && !!document.getElementById('pci') && document.querySelectorAll('[data-pcm] svg.pcprev').length === 3 && !document.querySelector('.pcline')));
     await back();
     await ev(() => { show('start'); document.getElementById('go').click(); }); await settle(); await click('.witem'); await settle();
     const g = await page.locator('#readylist .grip').first().boundingBox(); await page.mouse.click(g.x + g.width / 2, g.y + g.height / 2); await page.waitForTimeout(200);
@@ -706,6 +706,13 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Zurückgesetzter Satz 1 bleibt oben (wandert nicht nach unten)', await ev(() => { const l = [...document.querySelectorAll('.block.cur .setlist > .set')]; return l[0].classList.contains('active') && /Satz 1|Set 1/.test(l[0].textContent) && l[1].classList.contains('donerow'); }));
     await ev(() => { S.pauseCol = false; W = null; save(); closeW(); });
     check('Review: keine Überschrift „Highlight-Übung“', await ev(() => !reviewCore.toString().includes("t('highlightEx')")));
+    check('„Neu in TRAIN“: kurzer Eintrag für die Version (max. 3 Punkte, kurz)', await ev(() => { const n = WHATSNEW[APP_VERSION]; return !n || (n.de.p.length <= 3 && n.de.t.length <= 32 && n.de.p.every(x => x.length <= 60) && !!n.en); }));
+    await ev(() => showNews(Object.keys(WHATSNEW).pop())); await page.waitForTimeout(300);
+    check('„Neu in TRAIN“-Fenster mittig mit einem Knopf', await ev(() => { const d = document.querySelector('#newsov .dialog'), r = d.getBoundingClientRect(); return Math.abs((r.top + r.bottom) / 2 - innerHeight / 2) < 80 && d.querySelectorAll('button').length === 1; }));
+    await click('#news-ok'); check('… schließt und merkt sich die Version', await ev(() => !document.getElementById('newsov') && !!S.seenNews));
+    await click('[data-tab=settings]'); await sp('display');
+    check('Pausen-Farbe unter Akzentfarben, Zielpause nur bei „Eigene“ als schlanke Zeile', await ev(() => { const h = [...document.querySelectorAll('#v-settings b')].map(b => b.textContent), i = h.indexOf('Pausen-Farbe'); S.pauseCol = true; S.pauseMode = 'std'; renderSettings(); const noT = !document.querySelector('.pctarget'); S.pauseMode = 'own'; renderSettings(); const t = !!document.querySelector('.pctarget b'); S.pauseCol = false; renderSettings(); return i > h.indexOf(T.de.accentTitle) && noT && t; }));
+    await back();
     console.log('Neu in v0.16.1');
     await click('[data-tab=progress]'); await page.waitForTimeout(300);
     check('Fortschritt: Übungsname kleiner als „Ich/Freunde“', await ev(() => parseFloat(getComputedStyle(document.querySelector('#exsel b')).fontSize) < parseFloat(getComputedStyle(document.querySelector('.ptabs button')).fontSize)));

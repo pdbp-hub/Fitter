@@ -29,6 +29,8 @@ Prüft: Syntax (Dev + Live), Schlüssel im Code und in der Git-Historie, fremde 
 - Datenschutzerklärung + Einwilligung decken alles ab, was tatsächlich passiert (Supabase, Brevo, GitHub Pages, Entwickler-/KI-Zugriff auf pseudonymisierte Daten).
 
 ## 4. Versionspflege
+Bei spürbaren Neuerungen: `WHATSNEW`-Eintrag für die Version (kurz, DE + EN), sonst bewusst still.
+
 `CACHE` in `docs/dev/sw.js` und `APP_VERSION` in `docs/dev/app.js` hochgezählt, `python3 tools/archive_versions.py` gelaufen, `TODO.md` aktuell, FAQ/Info-Texte/Onboarding passend.
 
 ## 5. Bericht an Ben (kurz)

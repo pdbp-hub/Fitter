@@ -39,7 +39,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.16.1';
+const APP_VERSION = '0.16.2';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -362,7 +362,8 @@ Object.assign(T.de, { infoPause: `<b>Pausen-Farbe</b><br>In der Pause färbt sic
 Object.assign(T.en, { infoPause: `<b>Rest colour</b><br>While you rest, the decagon changes colour:<br>• <b>Red</b>: under 1 minute, muscles not recovered yet<br>• <b>Yellow</b>: 1 to 2 minutes<br>• <b>Green</b>: from 2 minutes, ready for the next heavy set<div class="ex"><i>Why 2 minutes?</i> For heavy compound lifts the American College of Sports Medicine recommends 2 to 3 minutes of rest, 1 to 2 for assistance exercises. In a study 3 minutes brought more strength and muscle gain than 1 minute.</div><br>With “Own target” it turns green at your target time (red up to half of it, then yellow).<br><small>${PAUSE_REF.en}</small>` });
 // settings preview: a small decagon whose rest time runs around the edge (black & white, or red > yellow > green)
 const pausePreview = v => `<svg viewBox="0 0 100 100" class="pcprev ${v === 'off' ? '' : 'col'}" aria-hidden="true"><polygon class="pc-fill" points="${P(decPts(50, 50, 42))}"/><polygon class="pc-base" points="${P(decPts(50, 50, 42))}"/><polygon class="pc-sweep" pathLength="100" points="${P(decPts(50, 50, 42))}"/><text x="50" y="57" text-anchor="middle" class="pc-t">${v === 'own' ? (S.lang === 'de' ? 'ZIEL' : 'GOAL') : '2:00'}</text></svg>`;
-// when does it turn yellow / green (shown under the choice)
+const pauseClock = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} Min.`;
+// when does it turn yellow / green (used in the info text)
 const pauseLine = () => { const tg = S.pauseMode === 'own' ? (S.pauseTarget || 120) : 120, lo = S.pauseMode === 'own' ? tg / 2 : 60, m = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
   return S.lang === 'de' ? `<b class="pc-r">Rot</b> bis ${m(lo)} · <b class="pc-y">Gelb</b> bis ${m(tg)} · <b class="pc-g">Grün</b> ab ${m(tg)} Min.` : `<b class="pc-r">Red</b> until ${m(lo)} · <b class="pc-y">yellow</b> until ${m(tg)} · <b class="pc-g">green</b> from ${m(tg)} min`; };
 // colour for the current rest: red, yellow, green
@@ -2253,7 +2254,7 @@ function devHTML() {
   const vers = VERSIONS || [];
   return `<div class="dev2">
     <div class="sect"><h2>Ansehen & testen</h2><div>
-      ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-auth', 'Anmeldung / Account anlegen', 'Entwurf, erscheint vor dem Onboarding')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('dev-ghint', 'Hinweis nach dem Training (Gast)', 'Erscheint ohne Account nach jedem Workout')}${tool('reseed', t('reseed'))}</div>
+      ${tool('dev-onb', t('devOnb'))}${tool('dev-intro', t('devIntro'))}${tool('dev-celeb', t('devCeleb'))}${tool('dev-charts', 'Charts-Test')}${tool('dev-auth', 'Anmeldung / Account anlegen', 'Entwurf, erscheint vor dem Onboarding')}${tool('dev-inst', 'Installations-Anleitung', 'So sieht die App im Browser aus')}${tool('dev-ghint', 'Hinweis nach dem Training (Gast)', 'Erscheint ohne Account nach jedem Workout')}${tool('dev-news', '„Neu in TRAIN“ ansehen', 'Erscheint Live-Nutzern einmal nach einem Update')}${tool('reseed', t('reseed'))}</div>
       <button class="ghostbtn" id="dev-safari">Erstbesuch im Browser testen</button></div>
 
     <div class="sect"><h2>Account & Freunde</h2>
@@ -2293,7 +2294,7 @@ function bindDev() {
   if (!VERSIONS) loadVersions(() => { if (setPage === 'dev') rr(); });
   on('dev-onb', () => showOnboarding(true)); on('dev-intro', () => previewIntro()); on('dev-celeb', () => celebrate(seasonNow() || S.celeb));
   on('dev-charts', () => { O = { mode:'charttest' }; renderO(); openO(); $('obody').scrollTop = 0; });
-  on('dev-inst', () => showInstall(true)); on('dev-ghint', guestHint); on('dev-auth', () => showAuth(true));
+  on('dev-inst', () => showInstall(true)); on('dev-ghint', guestHint); on('dev-news', () => showNews(Object.keys(WHATSNEW).pop())); on('dev-auth', () => showAuth(true));
   document.querySelectorAll('[data-dacc]').forEach(b => b.onclick = () => { S.guest = b.dataset.dacc === 'out'; S.authSeen = true; save(); rr(); });
   document.querySelectorAll('[data-dfl]').forEach(b => b.onclick = () => { S.frLvl = b.dataset.dfl; save(); rr(); });
   // iPhone: x-safari-https:// opens the real Safari (iOS 17+); otherwise the link is copied
@@ -2501,16 +2502,15 @@ function renderSettings() {
       <div class="setrow"><div><b>${t('language')}</b><p>${t('langHint')}</p></div><div class="seg"><button id="l-de" class="${S.lang==='de'?'on':''}">DE</button><button id="l-en" class="${S.lang==='en'?'on':''}">EN</button></div></div>
       <div class="setrow"><div><b>${t('invert')}</b><p>${t('invertHint')}</p></div>${tog('inv', S.inverted)}</div>
       </div>
-      <div style="margin-top:8px"><b>${S.lang === 'de' ? 'Pausen-Farbe' : 'Rest colour'}</b><button class="info" id="pci" aria-label="Info">i</button><p class="hint" style="margin-top:4px">${S.lang === 'de' ? 'So zeigt das Zehneck deine Pause' : 'How the decagon shows your rest'}</p></div>
-      <div class="trcopts pcopts">${[['off', S.lang === 'de' ? 'Schwarz-Weiß' : 'Black & white'], ['std', 'Standard'], ['own', S.lang === 'de' ? 'Eigene' : 'Own']].map(([v, l]) => `<button class="animopt ${(S.pauseCol ? (S.pauseMode || 'std') : 'off') === v ? 'on' : ''}" data-pcm="${v}">${pausePreview(v)}<span>${l}</span></button>`).join('')}</div>
-      ${S.pauseCol && S.pauseMode === 'own' ? `<p class="hint" style="margin:6px 0 -4px">${S.lang === 'de' ? 'Zielpause in Minuten' : 'Target rest in minutes'}</p>` + seg('pct', [[60, '1'], [90, '1,5'], [120, '2'], [180, '3'], [240, '4']], S.pauseTarget || 120) : ''}
-      ${S.pauseCol ? `<p class="hint pcline num">${pauseLine()}</p>` : ''}
       <div style="margin-top:8px"><b>${t('trendColor')}</b><p class="hint" style="margin-top:4px">${t('trendColorHint')}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.trendColor ? 'on' : ''}" data-trc="${v}">${trendPreview(!!v)}<span>${t(v ? 'trcColor' : 'trcBW')}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${S.lang === 'de' ? 'Schalter' : 'Switches'}</b><p class="hint" style="margin-top:4px">${S.lang === 'de' ? 'Farbe eines eingeschalteten Schalters' : 'Colour of a switch that is on'}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === !!S.togGreen ? 'on' : ''}" data-tgc="${v}"><span class="togprev ${v ? 'green' : ''}"><span class="toggle" aria-checked="true"><i></i></span></span><span>${v ? (S.lang === 'de' ? 'Grün' : 'Green') : (S.lang === 'de' ? 'Schwarz-Weiß' : 'Black & white')}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('accentTitle')}</b><p class="hint" style="margin-top:4px">${t('accentHint')}</p></div>
       <div class="trcopts">${[0, 1].map(v => `<button class="animopt ${!!v === S.accent ? 'on' : ''} ${v ? 'accent' : ''}" data-acc="${v}"><span class="accprev num"><em class="dl up">▲ 12 %</em><em class="dl down">▼ 4 %</em></span><span>${t(v ? 'accColor' : 'accNeutral')}</span></button>`).join('')}</div>
+      <div style="margin-top:8px"><b>${S.lang === 'de' ? 'Pausen-Farbe' : 'Rest colour'}</b><button class="info" id="pci" aria-label="Info">i</button><p class="hint" style="margin-top:4px">${S.lang === 'de' ? 'So zeigt das Zehneck deine Pause' : 'How the decagon shows your rest'}</p></div>
+      <div class="trcopts pcopts">${[['off', S.lang === 'de' ? 'Schwarz-Weiß' : 'Black & white'], ['std', 'Standard'], ['own', S.lang === 'de' ? 'Eigene' : 'Own']].map(([v, l]) => `<button class="animopt ${(S.pauseCol ? (S.pauseMode || 'std') : 'off') === v ? 'on' : ''}" data-pcm="${v}">${pausePreview(v)}<span>${l}</span></button>`).join('')}</div>
+      ${S.pauseCol && S.pauseMode === 'own' ? `<div class="pctarget"><span>${S.lang === 'de' ? 'Zielpause' : 'Target rest'}</span><button data-pct="-30" aria-label="minus">−</button><b class="num">${pauseClock(S.pauseTarget || 120)}</b><button data-pct="30" aria-label="plus">+</button></div>` : ''}
       <div style="margin-top:8px"><b>${t('introTitle')}</b><p class="hint" style="margin-top:4px">${t('introHint')}</p></div>
       <div class="anims intros">${Object.keys(T.de.intros).map(k => `<button class="animopt ${S.intro === k ? 'on' : ''}" data-intro="${k}"><span class="cglyph">${INTRO_IC[k]}</span><span>${t('intros')[k]}</span></button>`).join('')}</div>
       <div style="margin-top:8px"><b>${t('celebTitle')}</b><p class="hint" style="margin-top:4px">${t('celebHint')}</p></div>
@@ -2569,9 +2569,9 @@ function renderSettings() {
   setPage !== 'profile' && $('pname') && ($('pname').onchange = e => { S.name = e.target.value; renderSettings(); });
   on('l-de', () => setLang('de')); on('l-en', () => setLang('en'));
   on('inv', () => { S.inverted = !S.inverted; applyClasses(); renderSettings(); });
-  on('pci', () => showInfo(t('infoPause')));
-  document.querySelectorAll('[data-pcm]').forEach(b => b.onclick = () => { const v = b.dataset.pcm; S.pauseCol = v !== 'off'; if (v !== 'off') S.pauseMode = v; save(); renderSettings(); });
-  document.querySelectorAll('[data-pct]').forEach(b => b.onclick = () => { S.pauseTarget = +b.dataset.pct; save(); renderSettings(); });
+  on('pci', () => showInfo(t('infoPause') + (S.pauseCol && S.pauseMode === 'own' ? `<div class="ex"><i>${S.lang === 'de' ? 'Deine Zielpause' : 'Your target'}</i> ${pauseLine()}</div>` : '')));
+  document.querySelectorAll('[data-pcm]').forEach(b => b.onclick = () => { const v = b.dataset.pcm; S.pauseCol = v !== 'off'; if (v !== 'off') S.pauseMode = v; save(); const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; });
+  document.querySelectorAll('[data-pct]').forEach(b => b.onclick = () => { S.pauseTarget = Math.max(60, Math.min(300, (S.pauseTarget || 120) + +b.dataset.pct)); save(); const y = $('v-settings').scrollTop; renderSettings(); $('v-settings').scrollTop = y; });
   document.querySelectorAll('[data-tgc]').forEach(b => b.onclick = () => { S.togGreen = b.dataset.tgc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { S.accent = b.dataset.acc === '1'; applyClasses(); renderSettings(); });
   document.querySelectorAll('[data-trc]').forEach(b => b.onclick = () => { S.trendColor = b.dataset.trc === '1'; renderSettings(); });
@@ -2624,6 +2624,16 @@ if (ENV === 'dev' && !STORED && !location.search.includes('noseed') && !FRESH) {
 if (STORED && STORED.lastFinished) { const h = HISTORY.find(x => x.id === STORED.lastFinished.histId); if (h) lastFinished = { W: deserW(STORED.lastFinished.w), hist: h, at: STORED.lastFinished.at }; }
 show('start');
 const TESTRUN = location.search.includes('test');
+// ---------- "Neu in TRAIN": short note after an update (no server needed; travels with the version) ----------
+// rule: title max. ~30 characters, max. 3 points of max. ~50 characters; silent updates simply get no entry
+const WHATSNEW = {
+  '0.16.2': { de: { t: 'Fortschritt, neu sortiert', p: ['Zwei Finger aufs Chart: Unterschied zwischen zwei Tagen', 'Kalender jetzt unter Rückblick', 'Neu: Pausen-Farbe unter Darstellung'] },
+    en: { t: 'Progress, rearranged', p: ['Two fingers on a chart: difference between two days', 'Calendar now under Recap', 'New: rest colour in Display'] } } };
+function showNews(v = APP_VERSION) { const n = (WHATSNEW[v] || {})[S.lang]; if (!n || $('newsov')) return;
+  const el = document.createElement('div'); el.className = 'overlay'; el.id = 'newsov';
+  el.innerHTML = `<div class="dialog newsbox"><span class="eyebrow">${S.lang === 'de' ? 'Neu in TRAIN' : 'New in TRAIN'}</span><h2>${esc(n.t)}</h2><ul class="newslist">${n.p.map(x => `<li><i class="dec"></i><span>${esc(x)}</span></li>`).join('')}</ul><button class="mainbtn" id="news-ok">${S.lang === 'de' ? 'Los geht’s' : 'Let’s go'}</button></div>`;
+  $('app').appendChild(el); el.querySelector('.newsbox').animate([{ transform: 'scale(.92)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.2,.8,.2,1)' });
+  const close = () => { S.seenNews = v; save(); el.remove(); }; $('news-ok').onclick = close; el.onclick = e => { if (e.target === el) close(); }; }
 // app start: wait until the fonts are in, otherwise the start screen shifts after the intro measured it (decagon jumps down)
 // the decagon's position without its pulse (the pulse scales it, so a measurement mid-pulse would be off by a few px)
 function goRect(go) { const a = go.style.animation; go.style.animation = 'none'; const r = go.getBoundingClientRect(); go.style.animation = a; return r; }
@@ -2638,4 +2648,7 @@ const wantInstall = location.search.includes('install') || (!TESTRUN && !isStand
 if (wantInstall) showInstall(false);
 else if (!TESTRUN) { if (ENV === 'dev' && !S.authSeen && !S.onboarded) showAuth(false); else if (!S.onboarded) showOnboarding(); else startIntro(); }
 if (STORED && STORED.active) { W = deserW(STORED.active); renderW(); openW(); }
+// "what's new": new users never see it; existing live users see it once after an update that has a note
+if (!STORED) { S.seenNews = APP_VERSION; save(); }
+else if (ENV === 'live' && !TESTRUN && !wantInstall && S.onboarded && !(STORED && STORED.active) && WHATSNEW[APP_VERSION] && S.seenNews !== APP_VERSION) setTimeout(() => showNews(), 2600);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
