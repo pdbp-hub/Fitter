@@ -1,6 +1,11 @@
 # To-Do-Liste
 
 ## Als Nächstes
+- [ ] **🔝 Ideen 2026-11-16 (→ v0.17, Plan wartet auf Bens OK)**
+  - [ ] Querformat: App bleibt hochkant (Android: Manifest sperrt; iPhone: Hinweis „Handy hochkant halten“), Zehnecke nie verzerrt
+  - [ ] Review + Points: „Besser als letztes Mal“ = Anteil der Sätze, die besser sind (mehr Gewicht bei gleichen/mehr Wdh. oder gleiches Gewicht mit mehr Wdh.), z. B. „33 % · 4 von 12 Sätzen“ als füllendes Zehneck; Bonus-Points ab 30 %
+  - [ ] Neues Workout: erst Auswahl „Eigenes Workout erstellen“ (silber) / „TRAIN-Workouts“ (gold); Label an jedem Workout (Eigenes / TRAIN)
+  - [ ] Bibliothek mit 25–30 TRAIN-Workouts: Suche, Filter Muskelgruppen + Geräte (Mehrfachauswahl), Vorschau, übernehmen; neue Übungen (u. a. ohne Geräte, Hyrox, Kampfsport); ggf. Zeit-Übungen (Sekunden statt Wdh.)
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
