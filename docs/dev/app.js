@@ -1,4 +1,5 @@
 /* ---------- Data ---------- */
+const APP_SRC = document.currentScript && document.currentScript.src; // where this file was loaded from (versions/<v>/ or the app folder)
 const EX = {
   bench:{de:'Bankdrücken',en:'Bench Press',g:'chest',eq:'bb'}, incline:{de:'Schrägbankdrücken',en:'Incline Dumbbell Press',g:'chest',eq:'db'}, fly:{de:'Butterfly',en:'Pec Deck',g:'chest',eq:'machine'},
   ohp:{de:'Schulterdrücken',en:'Overhead Press',g:'shoulders',eq:'bb'}, lateral:{de:'Seitheben',en:'Lateral Raise',g:'shoulders',eq:'db'}, facepull:{de:'Face Pulls',en:'Face Pulls',g:'shoulders',eq:'cable'},
@@ -39,7 +40,7 @@ Object.entries(GS).forEach(([k, gs]) => { if (EX[k]) { EX[k].gs = gs; EX[k].g = 
 Object.assign(EX.adductor, { de:'Adduktoren (Maschine)', en:'Adductor Machine' }); Object.assign(EX.abductor, { de:'Abduktoren (Maschine)', en:'Abductor Machine' }); Object.assign(EX.calf, { de:'Wadenheben stehend', en:'Standing Calf Raise' });
 const exGroups = k => (EX[k] && (EX[k].gs || [EX[k].g])) || [];
 const grpTxt = k => exGroups(k).slice(0, 2).map(g => (t('groups') || {})[g] || g).join(', ');
-const APP_VERSION = '0.16.2';
+const APP_VERSION = '0.17.0';
 const ENV = window.FITTER_ENV === 'dev' ? 'dev' : 'live';
 // ?fresh = throwaway test profile (first visit every time, real data untouched)
 const FRESH = location.search.includes('fresh');
@@ -604,7 +605,9 @@ const ico = k => `<span class="ico" title="${esc(t('eqs')[EX[k].eq])}"><svg view
 
 /* ================= v0.17 TRAIN-Workouts (curated library) ================= */
 // data from plans/train-workouts.json (gym-director catalog): new exercises, safety tips, workouts
-const TLIB = { exercises: [], tips: {}, workouts: [] }; // TLIB_DATA
+// tlib.js normally comes before app.js; if a page doesn't load it (e.g. the live loader picks this version), fetch it from next to this file
+if (!window.TLIB_DATA && APP_SRC) try { const x = new XMLHttpRequest(); x.open('GET', new URL('tlib.js', APP_SRC).href, false); x.send(); if (x.status === 200 && /^\/\/ TRAIN-Workouts/.test(x.responseText)) new Function(x.responseText)(); } catch (e) { /* offline: library stays empty */ }
+const TLIB = window.TLIB_DATA || { exercises: [], tips: {}, workouts: [] }; // loaded from tlib.js (before app.js)
 Object.assign(T.de.eqs, { kb:'Kettlebell', bar:'Stange/Barren', bench:'Hantelbank', medball:'Medizinball', box:'Box', cardio:'Cardio-Gerät', sled:'Schlitten' });
 Object.assign(T.en.eqs, { kb:'Kettlebell', bar:'Bar / dip bars', bench:'Bench', medball:'Medicine ball', box:'Box', cardio:'Cardio machine', sled:'Sled' });
 Object.assign(ICON, {
@@ -678,7 +681,7 @@ function libFilter() { const de = S.lang === 'de', ov = document.createElement('
     ov.querySelectorAll('[data-lfp]').forEach(b => b.onclick = () => { const p = PRE.find(x => x[0] === b.dataset.lfp); O.fE = new Set(p[2].length ? p[2] : ['none']); draw(); });
     $('lfs-x').onclick = () => ov.remove(); $('lfs-reset').onclick = () => { O.fG.clear(); O.fE.clear(); O.fL.clear(); draw(); };
     $('lfs-apply').onclick = () => { ov.remove(); O.open = null; renderO(); $('obody').scrollTop = 0; }; };
-  draw(); $('app').appendChild(ov); ov.onclick = e => { if (e.target === ov) ov.remove(); }; }
+  $('app').appendChild(ov); draw(); requestAnimationFrame(() => ov.classList.add('in')); ov.onclick = e => { if (e.target === ov) ov.remove(); }; }
 // safety tip of an exercise (info-i)
 function exTip(k) { const tp = EX[k] && EX[k].tip; if (!tp) return; showInfo(`<b>${esc(exName(k))}</b><br>${esc(tp[S.lang] || tp.de)}`); }
 const SIC = {
@@ -2747,6 +2750,8 @@ const TESTRUN = location.search.includes('test');
 // ---------- "Neu in TRAIN": short note after an update (no server needed; travels with the version) ----------
 // rule: title max. ~30 characters, max. 3 points of max. ~50 characters; silent updates simply get no entry
 const WHATSNEW = {
+  '0.17.0': { de: { t: '41 TRAIN-Workouts', p: ['Fertige Workouts, filterbar nach Level und Geräten', '„Besser“: Anteil verbesserter Sätze + Bonus', 'Neu: Übungen auf Zeit und Strecke'] },
+    en: { t: '41 TRAIN workouts', p: ['Ready workouts, filter by level and equipment', '“Better”: share of improved sets + bonus', 'New: exercises on time and distance'] } },
   '0.16.2': { de: { t: 'Fortschritt, neu sortiert', p: ['Zwei Finger aufs Chart: Unterschied zwischen zwei Tagen', 'Kalender jetzt unter Rückblick', 'Neu: Pausen-Farbe unter Darstellung'] },
     en: { t: 'Progress, rearranged', p: ['Two fingers on a chart: difference between two days', 'Calendar now under Recap', 'New: rest colour in Display'] } } };
 function showNews(v = APP_VERSION) { const n = (WHATSNEW[v] || {})[S.lang]; if (!n || $('newsov')) return;

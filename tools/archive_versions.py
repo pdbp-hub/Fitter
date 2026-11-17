@@ -15,9 +15,9 @@ for line in git('log', '--format=%h %cs', '--', 'docs/dev/app.js', 'docs/app.js'
 cur = (D / 'dev' / 'app.js').read_text(); found[ver(cur)] = ('WORKTREE', 'docs/dev', subprocess.run(['date', '+%F'], capture_output=True, text=True).stdout.strip())
 for v, (h, base, date) in found.items():
     out = V / v; out.mkdir(parents=True, exist_ok=True)
-    for f in ('app.js', 'style.css'):
-        src = (ROOT / base / f).read_text() if h == 'WORKTREE' else git('show', f'{h}:{base}/{f}')
-        (out / f).write_text(src)
+    for f in ('app.js', 'style.css', 'tlib.js'):  # tlib.js = TRAIN-Workouts catalog (from v0.17), missing in older versions
+        src = ((ROOT / base / f).read_text() if (ROOT / base / f).exists() else '') if h == 'WORKTREE' else git('show', f'{h}:{base}/{f}')
+        if src: (out / f).write_text(src)
 key = lambda v: [int(x) for x in v.split('.')]
 idx = [{'v': v, 'date': found[v][2]} for v in sorted(found, key=key, reverse=True)]
 (V / 'index.json').write_text(json.dumps(idx, indent=2) + '\n')

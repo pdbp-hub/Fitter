@@ -1,17 +1,12 @@
 # To-Do-Liste
 
 ## Als Nächstes
-- [ ] **🔝 Ideen 2026-11-16 (→ v0.17, Plan wartet auf Bens OK)**
-  - [ ] Querformat: App bleibt hochkant (Android: Manifest sperrt; iPhone: Hinweis „Handy hochkant halten“), Zehnecke nie verzerrt
-  - [ ] Review + Points: „Besser als letztes Mal“ = Anteil der Sätze, die besser sind (mehr Gewicht bei gleichen/mehr Wdh. oder gleiches Gewicht mit mehr Wdh.), z. B. „33 % · 4 von 12 Sätzen“ als füllendes Zehneck; Bonus-Points ab 30 %
-  - [ ] Neues Workout: erst Auswahl „Eigenes Workout erstellen“ (silber) / „TRAIN-Workouts“ (gold); Label an jedem Workout (Eigenes / TRAIN)
-  - [ ] Bibliothek mit 25–30 TRAIN-Workouts: Suche, Filter Muskelgruppen + Geräte (Mehrfachauswahl), Vorschau, übernehmen; neue Übungen (u. a. ohne Geräte, Hyrox, Kampfsport); ggf. Zeit-Übungen (Sekunden statt Wdh.)
 - [ ] **Später prüfen (Ben + Claude)**: AGB-Entwurf + Datenschutzerklärung juristisch ansehen
 - [ ] **Supabase-Fragen beantwortet** (siehe Chat 2026-11-05): Pausieren, Backup, Umzug, Kapazität; Anleitung Schritt für Schritt kommt beim Start
 - [ ] **Ben: GitHub-Freigabe-Schlüssel** anlegen (fein eingeschränkt, nur Repo Fitter, nur „Contents: Read and write“) und in Dev › Dev-Werkzeuge › Freigabe-Schlüssel eintragen → dann Season + Live-Version selbst schaltbar
 - [ ] Erinnerung „Schlüssel läuft ab“ als echte Push auch bei geschlossener App: braucht Server (Cloud). Bis dahin: Banner + Mitteilung beim Öffnen der Dev-App
 - [ ] Push an alle + automatische Inaktivitäts-Mitteilungen: Versand-Server mit dem Cloud-Modus (Sprüche-Liste + Tage schon in Dev-Werkzeugen)
-- [ ] **Ben:** Dev v0.16.2 ansehen → Feedback → „freigeben“ für Live
+- [ ] **Ben:** Dev v0.17.0 ansehen → Feedback → „freigeben“ für Live
 - [ ] **🔝🔝 Pflicht, bevor die Cloud live geht** (Claude segnet ab):
   - [ ] Backups der Nutzerdaten (täglich, EU), Wiederherstellung einmal testen
   - [ ] Datenstruktur schlank: Übungen/Gruppen als Kurzcodes, Sätze kompakt (z. B. [kg, Wdh., Sek.]), keine doppelten Daten; Speicher pro Nutzer messen
@@ -92,6 +87,7 @@ _Claude prüft diese Liste, sobald Ben teilen oder live gehen möchte, und weist
 - [ ] **Monetarisierung** (langfristig): z. B. Preset-Workouts hinter einer Paywall (2026-11-01)
 
 ## Ideen-Parkplatz
+- Eigene Piktogramme für die 67 neuen Übungen (bisher Geräte-Symbol)
 - Freunde-Vergleich langfristig: automatische Auswertungstexte (ohne LLM) wo man besser/schlechter ist (2026-11-15)
 - Seasons für einzelne Nutzer abschaltbar (evtl. Premium-Funktion) – Ben unsicher, ob gewünscht (2026-11-15)
 _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App offen._
@@ -104,6 +100,7 @@ _Gesammelte Ideen für später – noch nicht eingeplant, Platzierung in der App
 - **Community-Rang bei Personal Bests**: Wo stehe ich im Vergleich zur Community (braucht Cloud + Accounts) (2026-11-01)
 
 ## Erledigt
+- [x] **Dev v0.17.0** (2026-11-17): 41 TRAIN-Workouts (Gym-Direktor-Katalog, 67 neue Übungen, Sicherheitshinweise als Info-i), Neues Workout mit Silber/Gold-Auswahl, Labels EIGENES/TRAIN, Bibliothek mit Suche + Filter (Level, Muskelgruppen, Geräte inkl. Vorlagen), Übungstypen Zeit (Countdown im Zehneck) und Strecke, „Besser als letztes Mal“ mit gestaffeltem Bonus, Querformat-Hinweis, Level-Seite größer/ohne Einrückung
 - [x] **Dev v0.16.2** (2026-11-16): „Neu in TRAIN“-Fenster nach Updates (still ohne Eintrag), Pausen-Farbe weiter unten, Zielpause als schlanke Zeile, Farbgrenzen ins Info-i
 - [x] **Dev v0.16.1** (2026-11-16): Kalender als mittiger Knopf unter dem Rückblick, Übungsname kleiner, Kalender ohne Hinweistext, Zwei-Finger-Vergleich neu mit echter Touch-Steuerung (Finger dürfen sich kreuzen/übereinanderliegen), Level-Kopf mit Highlights + Zeitstrahl ohne Doppelung, „Verwerfen“ rot, Pausen-Farbe als 3 animierte Kacheln mit sichtbaren Grenzen, Hervorhebungen in Overlays per Kontrast
 - [x] **Dev v0.16.0** (2026-11-15): Level-Seite (fester Kopf, „Du bist hier“, Highlights Trainings/Rekorde/bewegt), Icons Kraftpaket + Bankdrücken neu, Workout anlegen entzerrt (Fenster von unten, Knopf-Hierarchie), Bereit-Screen (Griff antippen = aufklappen, Stift statt Text, kein Hinweistext), Pausen-Farbe (ACSM-Empfehlung, eigene Zielpause), Dialoge mit klarer Hierarchie, zurückgesetzter Satz bleibt an seinem Platz, Review ohne „Highlight-Übung“, Zwei-Finger-Vergleich in allen Linien-Charts, Kräftemessen als ruhige Rangliste mit wischbarem Chart

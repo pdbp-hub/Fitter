@@ -5,7 +5,7 @@ import pathlib, re, shutil, subprocess, sys
 if subprocess.run([sys.executable, str(pathlib.Path(__file__).resolve().parent / 'secret_scan.py'), '--history']).returncode:
     sys.exit('Freigabe abgebrochen: Schlüssel-Check hat etwas gefunden.')
 D = pathlib.Path(__file__).resolve().parent.parent / 'docs'
-for f in ['app.js', 'style.css']:
+for f in ['app.js', 'style.css', 'tlib.js']:
     shutil.copy(D / 'dev' / f, D / f)
 if (D / 'dev' / 'vendor').exists():
     shutil.copytree(D / 'dev' / 'vendor', D / 'vendor', dirs_exist_ok=True)
@@ -15,11 +15,16 @@ if 'fonts.googleapis' in idx:  # live switches to the local fonts too
     (D / 'index.html').write_text(idx)
 # live loads the version named in docs/live.json (switchable in the dev app), otherwise the files of this release
 idx = (D / 'index.html').read_text()
+if 'live.json' in idx and 'tlib.js' not in idx:  # loader from before v0.17: also load the workout catalog
+    idx = re.sub(r"function load\(v\) \{.*?appendChild\(s\); \}", lambda m: """function load(v) { var b = v ? 'versions/' + v + '/' : ''; if (b) css.href = b + 'style.css'; var d = document.createElement('script'); d.src = b + 'tlib.js';
+    d.onload = d.onerror = function () { var s = document.createElement('script'); s.src = b + 'app.js'; document.body.appendChild(s); }; document.body.appendChild(d); }""", idx, count=1, flags=re.S)
+    (D / 'index.html').write_text(idx)
 if 'live.json' not in idx:
     idx = idx.replace('<link rel="stylesheet" href="style.css">', '<link rel="stylesheet" id="appcss" href="style.css">')
     idx = idx.replace('<script src="app.js"></script>', """<script>
 (function () { var css = document.getElementById('appcss');
-  function load(v) { var b = v ? 'versions/' + v + '/' : ''; if (b) css.href = b + 'style.css'; var s = document.createElement('script'); s.src = b + 'app.js'; document.body.appendChild(s); }
+  function load(v) { var b = v ? 'versions/' + v + '/' : ''; if (b) css.href = b + 'style.css'; var d = document.createElement('script'); d.src = b + 'tlib.js';
+    d.onload = d.onerror = function () { var s = document.createElement('script'); s.src = b + 'app.js'; document.body.appendChild(s); }; document.body.appendChild(d); }
   fetch('live.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { load(j && j.version); }).catch(function () { load(null); }); })();
 </script>""")
     (D / 'index.html').write_text(idx)

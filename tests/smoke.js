@@ -163,14 +163,14 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   await click('#o-back');
   check('Zurück fragt vor dem Verwerfen', await ev(() => !document.getElementById('overlay').hidden));
   await click('[data-db="0"]'); await click('#o-save'); await settle();
-  check('Workout wird gespeichert', await ev(() => document.querySelector('.witem .wname').textContent === 'Arm'));
+  check('Workout wird gespeichert', await ev(() => document.querySelector('.witem .wname').firstChild.textContent === 'Arm'));
   if (await page.$('#editmode')) { await click('#editmode'); await click('.witem'); await settle(); await click('#o-del'); await click('[data-db="1"]'); await settle(); }
   else { // Dev: Workout in der Liste nach links wischen
     const wb = await page.locator('#wlist .witem').first().boundingBox();
     await page.mouse.move(wb.x + wb.width * .5, wb.y + 30); await page.mouse.down(); await page.mouse.move(wb.x + wb.width * .5 - 140, wb.y + 32, { steps: 10 }); await page.mouse.up(); await page.waitForTimeout(300);
     const db2 = await page.locator('#wlist .swipe-del').boundingBox(); await page.mouse.click(db2.x + db2.width - 40, db2.y + db2.height / 2); await page.waitForTimeout(150);
     await click('[data-db="1"]'); await settle(); }
-  check('Workout lässt sich löschen', await ev(() => ![...document.querySelectorAll('.wname')].some(e => e.textContent === 'Arm')));
+  check('Workout lässt sich löschen', await ev(() => ![...document.querySelectorAll('.wname')].some(e => e.firstChild.textContent === 'Arm')));
 
   if (TARGET) {
     console.log('Neu in v0.3');
@@ -292,7 +292,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('„+ Übung hinzufügen“ öffnet Fenster von unten mit Suche', await ev(() => !!document.querySelector('#xsheet .xsheet') && !!document.querySelector('#xsheet #o-q')));
     check('Übungsdatenbank erweitert (≥ 60)', await ev(() => document.querySelectorAll('#o-list .pick').length >= 60));
     await click('#o-filter'); await page.waitForTimeout(350); await click('[data-fg="legs"]'); await click('#fs-apply'); await page.waitForTimeout(350);
-    check('Filter nach Muskelgruppe', await ev(() => [...document.querySelectorAll('#o-list .pick small')].every(e => /Oberschenkel vorne|Quads/.test(e.textContent))));
+    check('Filter nach Muskelgruppe', await ev(() => { const r = [...document.querySelectorAll('#o-list .pick')]; return r.length > 3 && r.every(e => exGroups(e.dataset.k).includes('legs')); }));
     await click('#o-sort'); await click('[data-sort="fav"]');
     check('Sortieren umschaltbar', await ev(() => /Favoriten|Favourites/.test(document.getElementById('o-sort').textContent)));
     for (const n of [0, 1, 2, 3]) await page.locator('#o-list [data-star]').nth(n).click({ force: true });
@@ -740,9 +740,17 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await ev(() => { O.fL.clear(); renderO(); }); await click('#lib-list .tw-main'); await page.waitForTimeout(200);
     check('Karte antippen klappt Details auf (Übungen mit Sätzen)', await ev(() => document.querySelectorAll('.tw.open .tw-ex').length >= 3));
     const nW = await ev(() => workouts.length); await click('#lib-list .tw-add'); await page.waitForTimeout(250);
-    check('+ übernimmt das Workout (gold, mit Zielwerten) in „Deine Workouts“', await ev(() => workouts.length === nW + 1 && workouts[0].org === 'train' && !!workouts[0].tid && workouts[0].ex.every(e => e.length === 3)));
+    check('+ übernimmt das Workout (gold, mit Zielwerten) in „Deine Workouts“', await page.evaluate(n => workouts.length === n + 1 && workouts[0].org === 'train' && !!workouts[0].tid && workouts[0].ex.every(e => e.length === 3), nW));
     check('Sicherheitshinweise vorhanden (Info-i)', await ev(() => Object.keys(EX).filter(k => EX[k].tip).length >= 40 && !!document.querySelector('.tw.open [data-tip]') || Object.keys(EX).filter(k => EX[k].tip).length >= 40));
     await ev(() => { workouts.shift(); save(); closeO(); });
+    // time exercise in training: countdown to the goal, the held time is saved
+    await ev(() => { const k = TLIB.exercises.find(x => x.type === 'time').k; prepareWorkout({ id: 'tt', name: 'Zeit-Test', ex: [[k, 2, 30]] }); });
+    await page.waitForTimeout(500); const tap = async id => { await ev(new Function(`document.getElementById('${id}').click()`)); await page.waitForTimeout(200); };
+    await tap('startbtn'); await tap('warmdone'); await tap('mainact'); await page.waitForTimeout(1300);
+    check('Zeit-Übung: Zehneck zählt auf das Ziel herunter („Noch“)', await ev(() => /Noch|Left/.test(document.querySelector('.wdec .plabel').textContent) && /^00:2\d$/.test(document.getElementById('phasetime').textContent)));
+    await tap('mainact');
+    check('Zeit-Übung: gespeichert wird die gehaltene Zeit', await ev(() => { const s = W.ex[0].sets[0]; return s && s.r >= 1 && s.r <= 5; }));
+    await ev(() => { W = null; save(); closeW(); });
     console.log('Neu in v0.16.1');
     await click('[data-tab=progress]'); await page.waitForTimeout(300);
     check('Fortschritt: Übungsname kleiner als „Ich/Freunde“', await ev(() => parseFloat(getComputedStyle(document.querySelector('#exsel b')).fontSize) < parseFloat(getComputedStyle(document.querySelector('.ptabs button')).fontSize)));

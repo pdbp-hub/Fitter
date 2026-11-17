@@ -1297,3 +1297,55 @@ body:has(#auth) .popwrap, body:has(#onb) .popwrap, body:has(#inst) .popwrap { z-
 .newslist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .newslist li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.4; }
 .newslist li .dec { flex: none; width: 12px; height: 12px; background: var(--fg); margin-top: 4px; }
+/* v0.17: levels: bigger highlight decagons + text; current level stays on the timeline (no left shift), just bigger */
+.lvl-hero2 .lvl-hld .dec { width: 70px; height: 70px; } .lvl-hero2 .lvl-hld b { font-size: 18px; } .lvl-hero2 .lvl-hld small { font-size: 12.5px; margin-top: 2px; }
+.lvl-ladder .lvl-row.cur { padding: 14px 12px; }
+.lvl-ladder .lvl-row.cur .lvl-ic { width: 52px; height: 52px; margin-left: -4px; } .lvl-ladder .lvl-row.cur .lvl-ic svg { width: 28px; height: 28px; }
+.lvl-ladder .lvl-row.cur b { font-size: 20px; } .lvl-ladder .lvl-row.cur small { font-size: 13px; }
+.lvl-ladder .lvl-row:not(.cur) b { font-size: 15px; }
+/* v0.17: sideways on a phone = calm "turn back" screen (iPhone cannot lock the orientation of a web app) */
+#rotate { display: none; position: fixed; inset: 0; z-index: 200; background: #0b0b0a; color: #f3f3ef; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 20px; }
+#rotate .rot-dec { width: 92px; height: 92px; background: #f3f3ef; color: #0b0b0a; display: grid; place-items: center; }
+#rotate .rot-dec svg { width: 40px; height: 40px; animation: rot-tilt 2.4s ease-in-out infinite; }
+#rotate b { font-family: var(--display); font-stretch: 110%; font-weight: 900; font-size: 22px; text-transform: uppercase; }
+#rotate span { font-size: 14px; color: #8d8d86; }
+@keyframes rot-tilt { 0%, 20% { transform: rotate(-90deg); } 50%, 100% { transform: rotate(0); } }
+@media (orientation: landscape) and (max-height: 520px) and (pointer: coarse) { #rotate { display: flex; } }
+/* v0.17: time exercise reached its goal: decagon outline + time light up */
+.wdec.over .outline polygon { stroke: #2fbf71; stroke-width: 6; } .wdec.over .pval { color: #2fbf71; }
+/* v0.17: "Besser" decagon: fills from the bottom up to the share of better sets */
+.trio .bdec { position: relative; overflow: hidden; background: var(--surface); color: var(--fg); outline: 0; }
+.trio .bdec > * { position: relative; z-index: 1; }
+.trio .bdec .bfill { position: absolute; z-index: 0; left: 0; right: 0; bottom: 0; height: var(--p); background: var(--fg); opacity: .32; animation: bfill 1.2s cubic-bezier(.2,.8,.2,1) .3s both; }
+.trio .bdec small { font-size: 9.5px; color: var(--muted); line-height: 1.2; padding: 0 4px; }
+@keyframes bfill { from { height: 0; } to { height: var(--p); } }
+/* v0.17: origin labels (silver = own, gold = TRAIN), new-workout choice tiles, TRAIN library cards */
+.orgb { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 6px; font-style: normal; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .1em; color: #0b0b0a; }
+.orgb.gold { background: linear-gradient(135deg, #f3d27a, #c9982e); } .orgb.silver { background: linear-gradient(135deg, #e6e6e2, #a9a9a4); }
+.nchbox { gap: 12px; } .nchbox .row h2 { margin: 0; }
+.nchoice { display: grid; grid-template-columns: 56px 1fr; grid-template-rows: auto auto; column-gap: 14px; align-items: center; text-align: left; padding: 20px 16px; color: #0b0b0a; }
+.nchoice b { font-family: var(--display); font-stretch: 110%; font-weight: 900; font-size: 20px; text-transform: uppercase; align-self: end; }
+.nchoice small { font-size: 13px; line-height: 1.35; color: rgba(11,11,10,.7); align-self: start; }
+.nchoice .nch-ic { grid-row: 1 / 3; width: 56px; height: 56px; display: grid; place-items: center; background: rgba(11,11,10,.88); color: #f3f3ef; }
+.nchoice .nch-ic svg { width: 26px; height: 26px; } .nchoice .nch-ic.dec { font-family: var(--display); font-weight: 900; font-size: 22px; }
+.nchoice.silver { background: linear-gradient(135deg, #f0f0ed, #b4b4ae); } .nchoice.gold { background: linear-gradient(135deg, #f6dc8a, #c48f22); }
+.nchoice.silver .nch-ic svg { stroke: #f3f3ef; }
+.tw { display: grid; grid-template-columns: 1fr 48px; column-gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.tw-main { display: flex; gap: 14px; align-items: center; text-align: left; min-width: 0; }
+.tw-ic { position: relative; flex: none; width: 54px; height: 54px; background: var(--fg); color: var(--bg); display: grid; place-items: center; }
+.tw-ic > svg { width: 28px; height: 28px; }
+.tw-badge { position: absolute; right: 3px; bottom: 3px; width: 17px; height: 17px; background: var(--bg); color: var(--fg); display: grid; place-items: center; }
+.tw-badge svg { width: 13px; height: 13px; }
+.tw-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tw-txt b { font-family: var(--display); font-stretch: 105%; font-weight: 900; font-size: 17px; text-transform: uppercase; line-height: 1.1; }
+.tw-txt small { font-size: 13px; color: var(--muted); } .tw-meta { font-family: var(--mono); font-size: 11px; color: var(--fg); }
+.tw-add { align-self: center; width: 44px; height: 44px; border: 1.5px solid var(--fg); font-size: 22px; font-weight: 800; display: grid; place-items: center; }
+.tw-add.on { background: var(--fg); color: var(--bg); }
+.tw-strip { grid-column: 1 / -1; display: flex; gap: 6px; margin-top: 10px; overflow: hidden; }
+.tw-strip .ico { width: 30px; height: 30px; flex: none; border: 1px solid var(--line); display: grid; place-items: center; } .tw-strip .ico svg { width: 22px; height: 22px; }
+.tw-det { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2px; margin-top: 12px; }
+.tw-det > p { margin: 0 0 8px; font-size: 14px; line-height: 1.45; color: var(--muted); }
+.tw-eq { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; } .tw-eq span { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--line); padding: 3px 6px; }
+.tw-ex { display: grid; grid-template-columns: 28px 1fr auto 48px; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.tw-ex .ico svg { width: 24px; height: 24px; } .tw-exn { font-size: 14px; font-weight: 600; } .tw-ex b { font-size: 14px; } .tw-ex small { font-size: 11px; color: var(--muted); text-align: right; }
+.fs-acts { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; } .fs-acts .mainbtn { width: auto; flex: 1; }
