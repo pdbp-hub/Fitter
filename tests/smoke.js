@@ -35,6 +35,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   const openCal = async () => { if (await page.$('#calopen')) { await click('#calopen'); await page.waitForTimeout(250); } };
   const openAdd = async () => { if (await page.$('#c-addex')) { await click('#c-addex'); await page.waitForTimeout(400); } };
   const doneAdd = async () => { if (await page.$('#x-done')) { await click('#x-done'); await page.waitForTimeout(300); } };
+  const openNew = async () => { await click('#add'); await page.waitForTimeout(250); if (await page.$('#new-own')) { await click('#new-own'); await page.waitForTimeout(300); } }; // v0.17: own or TRAIN first
   const settle = () => page.waitForTimeout(450); // Sheet-Animationen abwarten
 
   await page.goto(URL + TARGET + (TARGET ? '?noseed&test' : '?test')); await page.waitForTimeout(400);
@@ -157,7 +158,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
   }
 
   console.log('Workouts verwalten');
-  await click('[data-tab=start]'); await click('#go'); await click('#add'); await settle();
+  await click('[data-tab=start]'); await click('#go'); await openNew(); await settle();
   await page.fill('#o-name', 'Arm'); await openAdd(); await page.locator('#o-list [data-pk]').first().click({ force: true }); await page.waitForTimeout(150); await doneAdd();
   await click('#o-back');
   check('Zurück fragt vor dem Verwerfen', await ev(() => !document.getElementById('overlay').hidden));
@@ -285,7 +286,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-info="info1rm"]');
     check('Info-Fenster mittig', await centered('#popover .popover'));
     await click('#popover .x');
-    await click('[data-tab=start]'); await click('#go'); await click('#add'); await settle();
+    await click('[data-tab=start]'); await click('#go'); await openNew(); await settle();
     check('Workout anlegen: „Workout speichern“ Hauptknopf, „+ Übung hinzufügen“ zweitrangig, „Eigene Übung erstellen“ gestrichelt', await ev(() => /Workout speichern/.test(document.getElementById('o-save').textContent) && document.getElementById('o-save').classList.contains('mainbtn') && !document.getElementById('c-addex').classList.contains('mainbtn') && getComputedStyle(document.getElementById('c-open')).borderTopStyle === 'dashed' && !document.getElementById('o-list')));
     await openAdd();
     check('„+ Übung hinzufügen“ öffnet Fenster von unten mit Suche', await ev(() => !!document.querySelector('#xsheet .xsheet') && !!document.querySelector('#xsheet #o-q')));
@@ -349,7 +350,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     check('Workout-Liste offen', await ev(() => !document.getElementById('v-select').hidden));
     await page.mouse.move(5, 300); await page.mouse.down(); await page.mouse.move(150, 305, { steps: 8 }); await page.mouse.up(); await page.waitForTimeout(200);
     check('Wischen vom linken Rand = zurück', await ev(() => !document.getElementById('v-start').hidden && document.getElementById('v-select').hidden));
-    await click('#go'); await click('#add'); await settle(); await openAdd();
+    await click('#go'); await openNew(); await settle(); await openAdd();
     check('Sortieren ohne „Muskelgruppe“, feste Breite', await ev(() => !document.querySelector('[data-sort="group"]') && document.getElementById('o-sort').getBoundingClientRect().width >= 170));
     await doneAdd(); await click('#c-open');
     check('Eigene Übung: breiter „Übung hinzufügen“, ✕ im gestrichelten Rahmen, keine Speichern-Leiste', await ev(() => document.getElementById('c-add').getBoundingClientRect().width > 280 && document.getElementById('c-cancel').textContent.trim() === '✕' && getComputedStyle(document.querySelector('.custom.cbox')).borderTopStyle === 'dashed' && !document.getElementById('o-save')));
@@ -536,7 +537,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=settings]'); await click('[data-sp="help"]');
     check('Hilfe: Einführung + häufige Fragen', await ev(() => !!document.getElementById('help-onb') && document.querySelectorAll('[data-faq]').length >= 5));
     check('Hilfe: „Schnellanleitung“, FAQ in Themen gruppiert', await ev(() => /Schnellanleitung|Quick guide/.test(document.getElementById('help-onb').textContent) && document.querySelectorAll('.faq-g').length >= 3));
-    await click('[data-faq="4"]'); check('FAQ klappt auf, Löschen-Frage mit Animation', await ev(() => !!document.querySelector('.faq.open .faq-a') && !!document.querySelector('.faq.open .om-phone')));
+    await ev(() => [...document.querySelectorAll('[data-faq]')].find(b => /lösche ich|delete an exercise/i.test(b.textContent)).click()); await page.waitForTimeout(150); check('FAQ klappt auf, Löschen-Frage mit Animation', await ev(() => !!document.querySelector('.faq.open .faq-a') && !!document.querySelector('.faq.open .om-phone')));
     await click('#spback'); await click('[data-sp="dev"]');
     await click('[data-spv="xmas"]'); await page.waitForTimeout(300);
     check('Season Weihnachten: Schnee + Mütze auf dem Zehneck', await (async () => { await click('[data-tab=start]'); return ev(() => document.querySelectorAll('#season .flake').length > 10 && !!document.querySelector('.hero .ss-hat')); })());
@@ -713,6 +714,35 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     await click('[data-tab=settings]'); await sp('display');
     check('Pausen-Farbe unter Akzentfarben, Zielpause nur bei „Eigene“ als schlanke Zeile', await ev(() => { const h = [...document.querySelectorAll('#v-settings b')].map(b => b.textContent), i = h.indexOf('Pausen-Farbe'); S.pauseCol = true; S.pauseMode = 'std'; renderSettings(); const noT = !document.querySelector('.pctarget'); S.pauseMode = 'own'; renderSettings(); const t = !!document.querySelector('.pctarget b'); S.pauseCol = false; renderSettings(); return i > h.indexOf(T.de.accentTitle) && noT && t; }));
     await back();
+    console.log('Neu in v0.17');
+    await ev(() => { document.querySelectorAll('.overlay').forEach(e => e.id === 'overlay' ? (e.hidden = true) : e.remove()); closeO(); W = null; save(); closeW(); show('start'); });
+    check('Querformat-Hinweis vorhanden, im Hochformat unsichtbar', await ev(() => { const r = document.getElementById('rotate'); return !!r && getComputedStyle(r).display === 'none'; }));
+    check('Übungstypen: Zeit/Strecke werden als Sekunden/Meter angezeigt', await ev(() => { EX.zz_t = { de:'Test Zeit', en:'Test time', g:'core', gs:['core'], eq:'bw', type:'time' }; EX.zz_d = { de:'Test Strecke', en:'Test dist', g:'legs', gs:['legs'], eq:'sled', type:'dist' };
+      const a = setTxt('zz_t', { w: 0, r: 45 }), b = setTxt('zz_d', { w: 40, r: 20 }); delete EX.zz_t; delete EX.zz_d; return a === '0:45' && b === '40 kg · 20 m'; }));
+    check('„Besser“: Satz-Regel (mehr kg bei ≥ Wdh. oder gleiche kg mit mehr Wdh.)', await ev(() => setBetter({ w: 80, r: 8 }, { w: 75, r: 8 }) && setBetter({ w: 75, r: 9 }, { w: 75, r: 8 }) && !setBetter({ w: 80, r: 6 }, { w: 75, r: 8 }) && !setBetter({ w: 75, r: 8 }, { w: 75, r: 8 })));
+    check('„Besser“-Bonus gestaffelt, erst ab 4 verglichenen Sätzen, max. +20', await ev(() => betterBonus({ n: 3, b: 3 }) === 0 && betterBonus({ n: 10, b: 1 }) === 0 && betterBonus({ n: 10, b: 2 }) === 4 && betterBonus({ n: 10, b: 5 }) === 8 && betterBonus({ n: 10, b: 10 }) === 20));
+    await ev(() => { const h = [...HISTORY].sort((a, b) => a.ago - b.ago)[0]; O = { mode:'review', h, open:false }; renderO(); openO(); }); await settle();
+    check('Review: Zehneck „Besser“ mit Prozent und „x von y Sätzen“', await ev(() => { const d = document.querySelector('#obody .bdec'); return !!d && /%|–/.test(d.querySelector('b').textContent) && /Sätze/.test(d.textContent); }));
+    await ev(() => closeO()); await settle();
+    await ev(() => show('select')); await click('#add'); await page.waitForTimeout(250);
+    check('Neues Workout: erst Auswahl Eigenes (silber) / TRAIN-Workouts (gold)', await ev(() => !!document.querySelector('#newov .nchoice.silver') && !!document.querySelector('#newov .nchoice.gold')));
+    check('Starter-Workouts tragen das TRAIN-Label', await ev(() => /TRAIN/.test(document.querySelector('#wlist .witem .orgb.gold').textContent)));
+    await click('#new-train'); await settle();
+    check('Bibliothek: mindestens 38 TRAIN-Workouts mit Icon, Level und Übungs-Kacheln', await ev(() => document.querySelectorAll('#lib-list .tw').length >= 38 && !!document.querySelector('.tw .tw-ic svg') && !!document.querySelector('.tw-strip .ico') && /Einsteiger|Fortgeschritten|Profi/.test(document.querySelector('.tw-meta').textContent)));
+    check('Alle Übungen der TRAIN-Workouts existieren, keine Marken im Namen', await ev(() => TLIB.workouts.every(w => w.ex.every(([k]) => !!EX[k])) && !TLIB.workouts.concat(TLIB.exercises).some(x => /hyrox|skierg|concept ?2|\btrx\b|bosu/i.test(x.de + ' ' + x.en))));
+    await page.fill('#lib-q', 'calisthenics'); await page.waitForTimeout(200);
+    check('Suche filtert', await ev(() => { const n = document.querySelectorAll('#lib-list .tw').length; return n >= 1 && n < 10; }));
+    await page.fill('#lib-q', ''); await ev(() => { document.getElementById('lib-q').dispatchEvent(new Event('input')); });
+    await click('#lib-f'); await page.waitForTimeout(250); await click('[data-lfp="home0"]'); await click('#lfs-apply'); await settle();
+    check('Filter „Zuhause: nichts“ zeigt nur Workouts ohne Geräte', await ev(() => { const n = document.querySelectorAll('#lib-list .tw').length; return n >= 3 && libList().every(w => w.eq.every(e => e === 'bw')); }));
+    await ev(() => { O.fE.clear(); O.fL = new Set([1]); renderO(); });
+    check('Filter Level „Einsteiger“', await ev(() => libList().length >= 8 && libList().every(w => w.level === 1)));
+    await ev(() => { O.fL.clear(); renderO(); }); await click('#lib-list .tw-main'); await page.waitForTimeout(200);
+    check('Karte antippen klappt Details auf (Übungen mit Sätzen)', await ev(() => document.querySelectorAll('.tw.open .tw-ex').length >= 3));
+    const nW = await ev(() => workouts.length); await click('#lib-list .tw-add'); await page.waitForTimeout(250);
+    check('+ übernimmt das Workout (gold, mit Zielwerten) in „Deine Workouts“', await ev(() => workouts.length === nW + 1 && workouts[0].org === 'train' && !!workouts[0].tid && workouts[0].ex.every(e => e.length === 3)));
+    check('Sicherheitshinweise vorhanden (Info-i)', await ev(() => Object.keys(EX).filter(k => EX[k].tip).length >= 40 && !!document.querySelector('.tw.open [data-tip]') || Object.keys(EX).filter(k => EX[k].tip).length >= 40));
+    await ev(() => { workouts.shift(); save(); closeO(); });
     console.log('Neu in v0.16.1');
     await click('[data-tab=progress]'); await page.waitForTimeout(300);
     check('Fortschritt: Übungsname kleiner als „Ich/Freunde“', await ev(() => parseFloat(getComputedStyle(document.querySelector('#exsel b')).fontSize) < parseFloat(getComputedStyle(document.querySelector('.ptabs button')).fontSize)));
